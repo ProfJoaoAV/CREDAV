@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missão Determinantes - 5º Ano</title>
+    
+    <!-- Carregar Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Carregar Fonte Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        // Configuração do Tailwind para usar a fonte Inter
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-in': 'slide-in 0.5s forwards',
+                    },
+                    keyframes: {
+                        'slide-in': {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Estilos personalizados para a fonte e pequenos ajustes */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Estilo para feedback nos treinos */
+        .resposta-correta {
+            border: 2px solid #22c55e; /* green-500 */
+        }
+        .resposta-incorreta {
+            border: 2px solid #ef4444; /* red-500 */
+        }
+        .palavra-selecionada {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .palavra-correta {
+             background-color: #22c55e; /* green-500 */
+            color: white;
+            border-radius: 6px;
+        }
+        
+        /* Estilos para Drag & Drop */
+        .zona-drop {
+            min-height: 100px;
+            border-style: dashed;
+        }
+        .zona-drop.drag-over {
+            background-color: #dbeafe; /* blue-100 */
+            border-color: #3b82f6; /* blue-500 */
+        }
+        .item-arrastar {
+            cursor: grab;
+        }
+
+        /* Estilos para tabelas de matéria */
+        .tabela-materia {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .tabela-materia th, .tabela-materia td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        .tabela-materia th {
+            background-color: #f4f7f6;
+            font-weight: 600;
+        }
+        .tabela-materia td {
+            background-color: #ffffff;
+        }
+        .tabela-materia tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-b from-blue-50 to-indigo-100 text-gray-800 min-h-screen p-4 md:p-8">
+
+    <div class="container mx-auto max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- Cabeçalho -->
+        <header class="p-6 md:p-10 bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-center rounded-t-2xl">
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-2">🕵️ Missão Determinantes 🕵️</h1>
+            <p class="text-lg md:text-xl text-indigo-100">Uma Aventura de Português para Detetives do 5º Ano</p>
+        </header>
+        
+        <!-- Navegação das Secções -->
+        <nav class="sticky top-0 z-10 grid grid-cols-3 md:grid-cols-5 bg-gray-100 shadow-md">
+            <button onclick="mostrarSeccao('materia')" id="nav-materia" class="nav-button p-4 font-bold text-gray-700 border-b-4 border-blue-600 bg-white hover:bg-gray-50 transition">
+                1. A Matéria 📚
+            </button>
+            <button onclick="mostrarSeccao('duvidas')" id="nav-duvidas" class="nav-button p-4 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition">
+                2. O Sábio 🤖
+            </button>
+            <button onclick="mostrarSeccao('treino')" id="nav-treino" class="nav-button p-4 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition">
+                3. O Treino 🎯
+            </button>
+            <button onclick="mostrarSeccao('quiz')" id="nav-quiz" class="nav-button p-4 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition">
+                4. Missão Final 🏆
+            </button>
+            <!-- Nova Secção Final -->
+            <button onclick="mostrarSeccao('final')" id="nav-final" class="nav-button p-4 font-bold text-gray-500 border-b-4 border-transparent hover:bg-gray-50 transition">
+                5. No Final 🧠
+            </button>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="p-6 md:p-10">
+
+            <!-- ============================================= -->
+            <!-- SECÇÃO 1: A MATÉRIA (Revista e Corrigida)       -->
+            <!-- ============================================= -->
+            <section id="seccao-materia" class="seccao-conteudo">
+                <h2 class="text-3xl font-bold text-blue-800 mb-6">O Quartel-General: A Matéria</h2>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg shadow-inner mb-8">
+                    <h3 class="text-2xl font-bold mb-3">O que são os Determinantes?</h3>
+                    <p class="text-lg mb-4">O <strong class="text-green-700">determinante</strong> é uma palavra que se coloca *antes* do <strong class="text-blue-700">nome</strong> (como 'gato', 'casa', 'amigo').</p>
+                    <p class="text-lg">Ele ajuda-nos a identificar o nome, dando informações sobre o **género** (masculino/feminino), o **número** (singular/plural) e a **localização**.</p>
+                </div>
+
+                <h3 class="text-2xl font-bold mb-4">Conhece as Subclasses de Determinantes</h3>
+                
+                <!-- Tabs dos Tipos de Determinantes -->
+                <div id="tabs-materia">
+                    <!-- Botões das Tabs -->
+                    <div class="flex flex-wrap border-b border-gray-300 mb-6">
+                        <button class="tab-button-materia px-6 py-3 font-semibold text-gray-800 border-b-2 border-blue-600" onclick="mostrarTabMateria('artigos', this)">
+                            Artigos
+                        </button>
+                        <button class="tab-button-materia px-6 py-3 font-semibold text-gray-500" onclick="mostrarTabMateria('possessivos', this)">
+                            Possessivos
+                        </button>
+                        <button class="tab-button-materia px-6 py-3 font-semibold text-gray-500" onclick="mostrarTabMateria('demonstrativos', this)">
+                            Demonstrativos
+                        </button>
+                        <button class="tab-button-materia px-6 py-3 font-semibold text-gray-500" onclick="mostrarTabMateria('indefinidos', this)">
+                            Indefinidos
+                        </button>
+                        <button class="tab-button-materia px-6 py-3 font-semibold text-gray-500" onclick="mostrarTabMateria('interrogativos', this)">
+                            Interrogativos
+                        </button>
+                    </div>
+
+                    <!-- Conteúdo das Tabs -->
+                    <div id="tab-artigos" class="tab-content-materia space-y-6">
+                        <h4 class="text-xl font-semibold text-blue-700">Artigos</h4>
+                        <p>Podem ser definidos ou indefinidos.</p>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>Definidos:</strong> Referem-se a algo já identificado. (Ex: Vi <strong class="text-blue-600">o</strong> <strong class="text-gray-700">gato</strong> preto.)
+                                <div class="font-mono p-3 bg-gray-100 rounded-lg mt-2 inline-block">o, a, os, as</div>
+                            </li>
+                            <li><strong>Indefinidos:</strong> Referem-se a algo não identificado. (Ex: Vi <strong class="text-blue-600">um</strong> <strong class="text-gray-700">gato</strong> preto.)
+                                <div class="font-mono p-3 bg-gray-100 rounded-lg mt-2 inline-block">um, uma, uns, umas</div>
+                            </li>
+                        </ul>
+                        
+                        <h5 class="text-lg font-semibold text-blue-700 mt-4">Atenção às Contracções!</h5>
+                        <p>Os determinantes artigos podem juntar-se a preposições (a, de, em, por) e formar uma só palavra. Isso chama-se **contracção**.</p>
+                        <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li>a + o = <strong class="text-blue-600">ao</strong></li>
+                            <li>de + a = <strong class="text-blue-600">da</strong></li>
+                            <li>em + os = <strong class="text-blue-600">nos</strong></li>
+                            <li>por + as = <strong class="text-blue-600">pelas</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <div id="tab-possessivos" class="tab-content-materia hidden space-y-4">
+                        <h4 class="text-xl font-semibold text-green-700">Possessivos</h4>
+                        <p>Indicam a quem pertence o nome (posse). (Ex: <strong class="text-green-600">O meu</strong> <strong class="text-gray-700">livro</strong> é novo.)</p>
+                        <table class="tabela-materia">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th colspan="2">Singular</th>
+                                    <th colspan="2">Plural</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">Pessoa</th>
+                                    <th>Masculino</th>
+                                    <th>Feminino</th>
+                                    <th>Masculino</th>
+                                    <th>Feminino</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="3">Um só possuidor</td>
+                                    <td>1.ª</td>
+                                    <td>meu</td>
+                                    <td>minha</td>
+                                    <td>meus</td>
+                                    <td>minhas</td>
+                                </tr>
+                                <tr>
+                                    <td>2.ª</td>
+                                    <td>teu</td>
+                                    <td>tua</td>
+                                    <td>teus</td>
+                                    <td>tuas</td>
+                                </tr>
+                                <tr>
+                                    <td>3.ª</td>
+                                    <td>seu</td>
+                                    <td>sua</td>
+                                    <td>seus</td>
+                                    <td>suas</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="3">Vários possuidores</td>
+                                    <td>1.ª</td>
+                                    <td>nosso</td>
+                                    <td>nossa</td>
+                                    <td>nossos</td>
+                                    <td>nossas</td>
+                                </tr>
+                                <tr>
+                                    <td>2.ª</td>
+                                    <td>vosso</td>
+                                    <td>vossa</td>
+                                    <td>vossos</td>
+                                    <td>vossas</td>
+                                </tr>
+                                <tr>
+                                    <td>3.ª</td>
+                                    <td>seu</td>
+                                    <td>sua</td>
+                                    <td>seus</td>
+                                    <td>suas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="mt-4 text-sm bg-green-50 p-3 rounded-lg"><strong>Nota:</strong> Muitas vezes, os possessivos vêm depois de outro determinante (ex: "Já conheces <strong class="text-purple-600">este</strong> <strong class="text-green-600">meu</strong> amigo?").</p>
+                    </div>
+
+                    <div id="tab-demonstrativos" class="tab-content-materia hidden space-y-4">
+                        <h4 class="text-xl font-semibold text-purple-700">Demonstrativos</h4>
+                        <p>Mostram a posição / localização do nome em relação a quem fala.</p>
+                        <p>(Ex: <strong class="text-purple-600">Esta</strong> <strong class="text-gray-700">caneta</strong> (aqui comigo) é azul.)</p>
+                        <table class="tabela-materia">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Masculino</th>
+                                    <th>Feminino</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="3">Perto de quem fala</td>
+                                    <td>este</td>
+                                    <td>esta</td>
+                                </tr>
+                                <tr>
+                                    <td>estes</td>
+                                    <td>estas</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Contracção: <strong>neste</strong> (em + este)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="3">Perto de quem ouve</td>
+                                    <td>esse</td>
+                                    <td>essa</td>
+                                </tr>
+                                <tr>
+                                    <td>esses</td>
+                                    <td>essas</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Contracção: <strong>desse</strong> (de + esse)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="3">Longe de quem fala e ouve</td>
+                                    <td>aquele</td>
+                                    <td>aquela</td>
+                                </tr>
+                                <tr>
+                                    <td>aqueles</td>
+                                    <td>aquelas</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Contracção: <strong>naquele</strong> (em + aquele)</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="3">Outros</td>
+                                    <td>o outro, os outros</td>
+                                    <td>a outra, as outras</td>
+                                </tr>
+                                <tr>
+                                    <td>o mesmo, os mesmos</td>
+                                    <td>a mesma, as mesmas</td>
+                                </tr>
+                                <tr>
+                                    <td>(o) tal, (os) tais</td>
+                                    <td>(a) tal, (as) tais</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="tab-indefinidos" class="tab-content-materia hidden space-y-4">
+                        <h4 class="text-xl font-semibold text-yellow-700">Indefinidos</h4>
+                        <p>Referem-se ao nome de forma vaga ou imprecisa.</p>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li>ALGUM, NENHUM, TODO, OUTRO, MUITO, POUCO, CERTO, VÁRIOS, QUALQUER...</li>
+                            <li>Exemplo: <strong class="text-yellow-600">Alguns</strong> <strong class="text-gray-700">alunos</strong> chegaram cedo.</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="tab-interrogativos" class="tab-content-materia hidden space-y-4">
+                        <h4 class="text-xl font-semibold text-red-700">Interrogativos</h4>
+                        <p>Usados para fazer perguntas sobre o nome.</p>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>Invariável</strong> (não muda): QUE (Ex: <strong class="text-red-600">Que</strong> <strong class="text-gray-700">livro</strong> leste? <strong class="text-red-600">Que</strong> <strong class="text-gray-700">cores</strong> preferes?)</li>
+                            <li><strong>Variável</strong> (muda em número): QUAL / QUAIS (Ex: <strong class="text-red-600">Qual</strong> <strong class="text-gray-700">é a tua cor</strong>? <strong class="text-red-600">Quais</strong> <strong class="text-gray-700">são as tuas cores</strong>?)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-10 text-center">
+                    <button onclick="mostrarSeccao('duvidas')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition duration-300">
+                        Entendido! Próximo passo: Tirar Dúvidas
+                    </button>
+                </div>
+            </section>
+
+            <!-- ============================================= -->
+            <!-- SECÇÃO 2: O SÁBIO (IA Melhorada)              -->
+            <!-- ============================================= -->
+            <section id="seccao-duvidas" class="seccao-conteudo hidden">
+                <h2 class="text-3xl font-bold text-green-800 mb-6">O Sábio 🤖</h2>
+                <p class="text-lg mb-6">Tens alguma dúvida sobre a matéria? O Sábio dos Determinantes responde!</p>
+
+                <div class="max-w-3xl mx-auto border-4 border-green-200 rounded-lg shadow-lg">
+                    <!-- Histórico do Chat -->
+                    <div id="chat-historico" class="h-80 p-6 space-y-4 overflow-y-auto bg-gray-50">
+                        <div class="flex justify-start">
+                            <div class="p-3 bg-indigo-100 text-indigo-900 rounded-lg rounded-bl-none shadow-md max-w-xs md:max-w-md">
+                                <p class="font-bold">O Sábio 🤖</p>
+                                <p>Olá, jovem detetive! Estou aqui para ajudar. Pergunta-me o que quiseres sobre determinantes!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Input do Chat -->
+                    <div class="p-4 bg-gray-100 border-t-4 border-green-200 rounded-b-lg flex gap-4">
+                        <input type="text" id="chat-input" class="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500" placeholder="Escreve a tua dúvida...">
+                        <button id="chat-enviar" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300">
+                            Enviar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-10 text-center">
+                    <button onclick="mostrarSeccao('treino')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition duration-300">
+                        Estou esclarecido! Vamos Treinar
+                    </button>
+                </div>
+            </section>
+
+            <!-- ============================================= -->
+            <!-- SECÇÃO 3: O TREINO (Mais Exercícios)          -->
+            <!-- ============================================= -->
+            <section id="seccao-treino" class="seccao-conteudo hidden">
+                <h2 class="text-3xl font-bold text-purple-800 mb-6">O Campo de Treino 🎯</h2>
+
+                <!-- Tabs dos Níveis de Treino -->
+                <div id="tabs-treino">
+                    <!-- Botões das Tabs -->
+                    <div class="flex flex-wrap border-b border-gray-300 mb-6">
+                        <button class="tab-button-treino px-6 py-3 font-semibold text-gray-800 border-b-2 border-purple-600" onclick="mostrarTabTreino('nivel1', this)">
+                            Nível 1: Identificar
+                        </button>
+                        <button class="tab-button-treino px-6 py-3 font-semibold text-gray-500" onclick="mostrarTabTreino('nivel2', this)">
+                            Nível 2: Classificar
+                        </button>
+                        <button class="tab-button-treino px-6 py-3 font-semibold text-gray-500" onclick="mostrarTabTreino('nivel3', this)">
+                            Nível 3: Aplicar
+                        </button>
+                    </div>
+
+                    <!-- Nível 1: Identificar -->
+                    <div id="tab-nivel1" class="tab-content-treino space-y-6">
+                        <h3 class="text-xl font-semibold">Nível 1: Caça ao Determinante</h3>
+                        <p class="text-lg">Instrução: Clica em cima de todos os determinantes que encontrares nas frases.</p>
+                        
+                        <div id="frases-nivel1" class="space-y-4 text-2xl">
+                            <p id="frase1-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">O</span>
+                                <span class="palavra-n1" data-det="false">gato</span>
+                                <span class="palavra-n1" data-det="false">bebeu</span>
+                                <span class="palavra-n1" data-det="true">o</span>
+                                <span class="palavra-n1" data-det="false">leite</span>
+                                <span class="palavra-n1" data-det="false">todo.</span>
+                            </p>
+                            <p id="frase2-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">A</span>
+                                <span class="palavra-n1" data-det="true">minha</span>
+                                <span class="palavra-n1" data-det="false">mochila</span>
+                                <span class="palavra-n1" data-det="false">tem</span>
+                                <span class="palavra-n1" data-det="true">muitos</span>
+                                <span class="palavra-n1" data-det="false">livros.</span>
+                            </p>
+                            <p id="frase3-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">Este</span>
+                                <span class="palavra-n1" data-det="false">bolo</span>
+                                <span class="palavra-n1" data-det="false">é</span>
+                                <span class="palavra-n1" data-det="false">para</span>
+                                <span class="palavra-n1" data-det="true">aquele</span>
+                                <span class="palavra-n1" data-det="false">rapaz.</span>
+                            </p>
+                            <!-- Novas Frases -->
+                            <p id="frase4-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">Que</span>
+                                <span class="palavra-n1" data-det="false">loja</span>
+                                <span class="palavra-n1" data-det="false">era</span>
+                                <span class="palavra-n1" data-det="true">aquela</span>?
+                            </p>
+                            <p id="frase5-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="false">Gostava</span>
+                                <span class="palavra-n1" data-det="false">de</span>
+                                <span class="palavra-n1" data-det="false">levar</span>
+                                <span class="palavra-n1" data-det="true">uns</span>
+                                <span class="palavra-n1" data-det="false">carrinhos</span>
+                                <span class="palavra-n1" data-det="false">para</span>
+                                <span class="palavra-n1" data-det="true">a</span>
+                                <span class="palavra-n1" data-det="true">sua</span>
+                                <span class="palavra-n1" data-det="false">casa.</span>
+                            </p>
+                            <!-- Mais Exercícios Nv 1 -->
+                            <p id="frase6-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">O</span>
+                                <span class="palavra-n1" data-det="false">cão</span>
+                                <span class="palavra-n1" data-det="true">do</span>
+                                <span class="palavra-n1" data-det="false">vizinho</span>
+                                <span class="palavra-n1" data-det="false">está</span>
+                                <span class="palavra-n1" data-det="true">no</span>
+                                <span class="palavra-n1" data-det="false">jardim.</span>
+                            </p>
+                            <p id="frase7-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">Este</span>
+                                <span class="palavra-n1" data-det="true">meu</span>
+                                <span class="palavra-n1" data-det="false">amigo</span>
+                                <span class="palavra-n1" data-det="false">tem</span>
+                                <span class="palavra-n1" data-det="true">várias</span>
+                                <span class="palavra-n1" data-det="false">canetas</span>
+                                <span class="palavra-n1" data-det="false">iguais.</span>
+                            </p>
+                            <!-- NOVOS EXERCÍCIOS Nv 1 -->
+                            <p id="frase8-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">Qual</span>
+                                <span class="palavra-n1" data-det="false">é</span>
+                                <span class="palavra-n1" data-det="true">a</span>
+                                <span class="palavra-n1" data-det="true">tua</span>
+                                <span class="palavra-n1" data-det="false">ideia</span>
+                                <span class="palavra-n1" data-det="false">para</span>
+                                <span class="palavra-n1" data-det="true">o</span>
+                                <span class="palavra-n1" data-det="false">projeto?</span>
+                            </p>
+                            <p id="frase9-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="true">Todos</span>
+                                <span class="palavra-n1" data-det="true">os</span>
+                                <span class="palavra-n1" data-det="false">dias</span>
+                                <span class="palavra-n1" data-det="false">vejo</span>
+                                <span class="palavra-n1" data-det="true">o</span>
+                                <span class="palavra-n1" data-det="true">mesmo</span>
+                                <span class="palavra-n1" data-det="false">carro.</span>
+                            </p>
+                            <p id="frase10-n1" class="frase-treino p-4 bg-gray-50 rounded-lg">
+                                <span class="palavra-n1" data-det="false">Não</span>
+                                <span class="palavra-n1" data-det="false">tenho</span>
+                                <span class="palavra-n1" data-det="true">nenhum</span>
+                                <span class="palavra-n1" data-det="false">lápis</span>
+                                <span class="palavra-n1" data-det="true">neste</span>
+                                <span class="palavra-n1" data-det="false">estojo.</span>
+                            </p>
+                        </div>
+                        <button id="verificar-n1" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300">
+                            Verificar Respostas
+                        </button>
+                        <div id="feedback-n1" class="hidden text-lg font-semibold p-4 rounded-lg"></div>
+                    </div>
+
+                    <!-- Nível 2: Classificar -->
+                    <div id="tab-nivel2" class="tab-content-treino hidden space-y-6">
+                        <h3 class="text-xl font-semibold">Nível 2: Arrastar e Largar</h3>
+                        <p class="text-lg">Instrução: Arrasta cada determinante para a caixa correta.</p>
+                        
+                        <div class="flex flex-wrap gap-4 p-4 bg-gray-100 rounded-lg justify-center" id="itens-para-arrastar">
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-blue-700" draggable="true" data-tipo="artigo">O</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-green-700" draggable="true" data-tipo="possessivo">Meu</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-purple-700" draggable="true" data-tipo="demonstrativo">Este</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-blue-700" draggable="true" data-tipo="artigo">Uma</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-yellow-700" draggable="true" data-tipo="indefinido">Algum</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-green-700" draggable="true" data-tipo="possessivo">Nossa</div>
+                            <!-- Novos Itens -->
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-red-700" draggable="true" data-tipo="interrogativo">Qual</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-yellow-700" draggable="true" data-tipo="indefinido">Vários</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-purple-700" draggable="true" data-tipo="demonstrativo">Aquele</div>
+                            <!-- Mais Exercícios Nv 2 -->
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-blue-700" draggable="true" data-tipo="artigo">do</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-purple-700" draggable="true" data-tipo="demonstrativo">neste</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-purple-700" draggable="true" data-tipo="demonstrativo">o mesmo</div>
+                            <!-- NOVOS EXERCÍCIOS Nv 2 -->
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-green-700" draggable="true" data-tipo="possessivo">Vossas</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-yellow-700" draggable="true" data-tipo="indefinido">Nenhum</div>
+                            <div class="item-arrastar p-3 bg-white rounded-lg shadow-md font-bold text-blue-700" draggable="true" data-tipo="artigo">à</div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                            <div class="zona-drop p-4 bg-blue-50 border-2 border-blue-400 rounded-lg" data-tipo="artigo">
+                                <h4 class="font-bold text-blue-800 text-center mb-4">Artigos</h4>
+                            </div>
+                            <div class="zona-drop p-4 bg-green-50 border-2 border-green-400 rounded-lg" data-tipo="possessivo">
+                                <h4 class="font-bold text-green-800 text-center mb-4">Possessivos</h4>
+                            </div>
+                            <div class="zona-drop p-4 bg-purple-50 border-2 border-purple-400 rounded-lg" data-tipo="demonstrativo">
+                                <h4 class="font-bold text-purple-800 text-center mb-4">Demonstrativos</h4>
+                            </div>
+                            <div class="zona-drop p-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg" data-tipo="indefinido">
+                                <h4 class="font-bold text-yellow-800 text-center mb-4">Indefinidos</h4>
+                            </div>
+                            <!-- Nova Zona -->
+                            <div class="zona-drop p-4 bg-red-50 border-2 border-red-400 rounded-lg" data-tipo="interrogativo">
+                                <h4 class="font-bold text-red-800 text-center mb-4">Interrogativos</h4>
+                            </div>
+                        </div>
+                        <div id="feedback-n2" class="hidden text-lg font-semibold p-4 rounded-lg"></div>
+                    </div>
+
+                    <!-- Nível 3: Aplicar -->
+                    <div id="tab-nivel3" class="tab-content-treino hidden space-y-6">
+                        <h3 class="text-xl font-semibold">Nível 3: Completa a Frase</h3>
+                        <p class="text-lg">Instrução: Escolhe o determinante correto para cada frase.</p>
+                        
+                        <div class="space-y-6" id="exercicios-n3">
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-1">1. </label>
+                                <select id="select-n3-1" data-resposta="Esta" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="Esta">Esta</option>
+                                    <option value="Essa">Essa</option>
+                                    <option value="Aquela">Aquela</option>
+                                </select>
+                                <span class="ml-2">caneta que tenho na mão é minha.</span>
+                            </div>
+                            
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-2">2. </label>
+                                <span class="mr-2">Eu vi</span>
+                                <select id="select-n3-2" data-resposta="um" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="o">o</option>
+                                    <option value="um">um</option>
+                                    <option value="meu">meu</option>
+                                </select>
+                                <span class="ml-2">pássaro no jardim.</span>
+                            </div>
+                            
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-3">3. </label>
+                                <select id="select-n3-3" data-resposta="Que" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="Que">Que</option>
+                                    <option value="O">O</option>
+                                    <option value="Algum">Algum</option>
+                                </select>
+                                <span class="ml-2">filme queres ver?</span>
+                            </div>
+
+                            <!-- Novos Exercícios -->
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-4">4. </label>
+                                <span class="mr-2">Não tenho</span>
+                                <select id="select-n3-4" data-resposta="nenhum" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="o">o</option>
+                                    <option value="nenhum">nenhum</option>
+                                    <option value="meu">meu</option>
+                                </select>
+                                <span class="ml-2">problema com isso.</span>
+                            </div>
+
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-5">5. </label>
+                                <span class="mr-2">Podes passar-me</span>
+                                <select id="select-n3-5" data-resposta="esse" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="este">este</option>
+                                    <option value="esse">esse</option>
+                                    <option value="aquele">aquele</option>
+                                </select>
+                                <span class="ml-2">lápis que está perto de ti?</span>
+                            </div>
+                            <!-- Mais Exercícios Nv 3 -->
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-6">6. </label>
+                                <span class="mr-2">Fui</span>
+                                <select id="select-n3-6" data-resposta="ao" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="o">o</option>
+                                    <option value="um">um</option>
+                                    <option value="ao">ao</option>
+                                </select>
+                                <span class="ml-2">cinema ver um filme.</span>
+                            </div>
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-7">7. </label>
+                                <select id="select-n3-7" data-resposta="Qualquer" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="Qualquer">Qualquer</option>
+                                    <option value="Que">Que</option>
+                                    <option value="O">O</option>
+                                </select>
+                                <span class="ml-2">pessoa pode fazer este exercício.</span>
+                            </div>
+                            <!-- NOVOS EXERCÍCIOS Nv 3 -->
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-8">8. </label>
+                                <span class="mr-2">O cão</span>
+                                <select id="select-n3-8" data-resposta="do" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="de o">de o</option>
+                                    <option value="do">do</option>
+                                    <option value="da">da</option>
+                                </select>
+                                <span class="ml-2">vizinho ladra muito.</span>
+                            </div>
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-9">9. </label>
+                                <select id="select-n3-9" data-resposta="Quais" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="Que">Que</option>
+                                    <option value="Qual">Qual</option>
+                                    <option value="Quais">Quais</option>
+                                </select>
+                                <span class="ml-2">são os teus livros preferidos?</span>
+                            </div>
+                            <div class="text-xl p-4 bg-gray-50 rounded-lg">
+                                <label for="select-n3-10">10. </label>
+                                <span class="mr-2">Ele usou</span>
+                                <select id="select-n3-10" data-resposta="a mesma" class="p-2 rounded-lg border-2 border-gray-300">
+                                    <option value="">...</option>
+                                    <option value="a mesma">a mesma</option>
+                                    <option value="uma">uma</option>
+                                    <option value="aquela">aquela</option>
+                                </select>
+                                <span class="ml-2">caneta que eu.</span>
+                            </div>
+                        </div>
+                        <button id="verificar-n3" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300">
+                            Verificar Respostas
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-10 text-center">
+                    <button onclick="mostrarSeccao('quiz')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition duration-300">
+                        Estou pronto! Ir para a Missão Final
+                    </button>
+                </div>
+            </section>
+
+            <!-- ============================================= -->
+            <!-- SECÇÃO 4: QUIZ (Mais Perguntas)               -->
+            <!-- ============================================= -->
+            <section id="seccao-quiz" class="seccao-conteudo hidden">
+                <h2 class="text-3xl font-bold text-red-800 mb-6">Missão Final 🏆</h2>
+                <p class="text-lg mb-6">Testa os teus conhecimentos de detetive! Responde às perguntas e ganha a tua medalha.</p>
+
+                <div id="quiz-form" class="space-y-8">
+                    <!-- Pergunta 1 -->
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">1. Na frase "O cão do João fugiu", qual é o determinante?</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q1" value="a" class="mr-2"> cão</label></div>
+                            <div><label><input type="radio" name="q1" value="b" class="mr-2"> do</label></div>
+                            <div><label><input type="radio" name="q1" value="c" class="mr-2"> O</label></div>
+                        </div>
+                    </fieldset>
+                    
+                    <!-- Pergunta 2 -->
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">2. "Meu" é um determinante de que tipo?</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q2" value="a" class="mr-2"> Artigo Indefinido</label></div>
+                            <div><label><input type="radio" name="q2" value="b" class="mr-2"> Possessivo</label></div>
+                            <div><label><input type="radio" name="q2" value="c" class="mr-2"> Demonstrativo</label></div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Pergunta 3 -->
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">3. Qual a frase que usa um determinante interrogativo?</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q3" value="a" class="mr-2"> Vi um filme.</label></div>
+                            <div><label><input type="radio" name="q3" value="b" class="mr-2"> Que filme viste?</label></div>
+                            <div><label><input type="radio" name="q3" value="c" class="mr-2"> O filme foi bom!</label></div>
+                        </div>
+                    </fieldset>
+                    
+                    <!-- Pergunta 4 -->
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">4. Completa: "____ (ali longe) avião é muito rápido."</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q4" value="a" class="mr-2"> Este</label></div>
+                            <div><label><input type="radio" name="q4" value="b" class="mr-2"> Esse</label></div>
+                            <div><label><input type="radio" name="q4" value="c" class="mr-2"> Aquele</label></div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Novas Perguntas -->
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">5. Na frase "Vou ao cinema", a palavra "ao" é:</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q5" value="a" class="mr-2"> Um determinante artigo</label></div>
+                            <div><label><input type="radio" name="q5" value="b" class="mr-2"> Uma contracção (preposição 'a' + determinante 'o')</label></div>
+                            <div><label><input type="radio" name="q5" value="c" class="mr-2"> Um determinante possessivo</label></div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">6. Qual destes determinantes interrogativos é *invariável* (nunca muda)?</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q6" value="a" class="mr-2"> Qual</label></div>
+                            <div><label><input type="radio" name="q6" value="b" class="mr-2"> Que</label></div>
+                            <div><label><input type="radio" name="q6" value="c" class="mr-2"> Quais</label></div>
+                        </div>
+                    </fieldset>
+                    
+                    <!-- NOVAS PERGUNTAS DO QUIZ -->
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">7. Na frase "Não vi nenhuma pessoa", a palavra "nenhuma" é um...</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q7" value="a" class="mr-2"> Determinante Indefinido</label></div>
+                            <div><label><input type="radio" name="q7" value="b" class="mr-2"> Determinante Possessivo</label></div>
+                            <div><label><input type="radio" name="q7" value="c" class="mr-2"> Artigo Indefinido</label></div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">8. Qual é a contracção correta de "em + aquele"?</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q8" value="a" class="mr-2"> emquele</label></div>
+                            <div><label><input type="radio" name="q8" value="b" class="mr-2"> daquele</label></div>
+                            <div><label><input type="radio" name="q8" value="c" class="mr-2"> naquele</label></div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">9. Na frase "Este é o *teu* cão", a palavra "teu" é:</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q9" value="a" class="mr-2"> Determinante Possessivo</label></div>
+                            <div><label><input type="radio" name="q9" value="b" class="mr-2"> Determinante Demonstrativo</label></div>
+                            <div><label><input type="radio" name="q9" value="c" class="mr-2"> Determinante Indefinido</label></div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                        <legend class="text-xl font-semibold mb-4">10. "Todos os alunos" -> "Todos" é um determinante...</legend>
+                        <div class="space-y-2">
+                            <div><label><input type="radio" name="q10" value="a" class="mr-2"> Artigo Definido</label></div>
+                            <div><label><input type="radio" name="q10" value="b" class="mr-2"> Demonstrativo</label></div>
+                            <div><label><input type="radio" name="q10" value="c" class="mr-2"> Indefinido</label></div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="text-center mt-10">
+                    <button id="verificar-quiz" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg text-xl shadow-lg transition duration-300">
+                        Terminar Missão!
+                    </button>
+                </div>
+                
+                <!-- Resultados do Quiz (escondido) -->
+                <div id="resultado-quiz" class="hidden mt-10 p-8 text-center bg-yellow-100 border-4 border-yellow-400 rounded-lg shadow-lg">
+                    <h3 id="resultado-titulo" class="text-3xl font-bold mb-4"></h3>
+                    <p id="resultado-pontuacao" class="text-xl mb-6"></p>
+                    <button onclick="mostrarSeccao('final')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
+                        Ver Resumo Final 🧠
+                    </button>
+                </div>
+            </section>
+
+            <!-- ============================================= -->
+            <!-- NOVA SECÇÃO 5: NO FINAL (Resumo)              -->
+            <!-- ============================================= -->
+            <section id="seccao-final" class="seccao-conteudo hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">No Final... (Resumo) 🧠</h2>
+                <p class="text-xl mb-8">Parabéns, Detetive! Completaste a missão. Vamos rever o que aprendeste:</p>
+
+                <div class="bg-gray-50 border-l-4 border-gray-400 p-8 rounded-lg shadow-inner space-y-5 text-xl">
+                    <ul class="list-disc list-inside space-y-4">
+                        <li>O <strong class="text-green-700">determinante</strong> é uma palavra que se escreve <strong>antes do nome</strong>.</li>
+                        
+                        <li><strong>Concorda</strong> com o nome em <strong>género</strong> (masculino/feminino) e <strong>número</strong> (singular/plural).</li>
+                        
+                        <li>Pertence a uma <strong>classe fechada</strong> de palavras (não podemos inventar novos determinantes!).</li>
+                        
+                        <li>Pode ser <strong>simples</strong> (ex: <code class="bg-gray-200 px-2 py-1 rounded">o</code>, <code class="bg-gray-200 px-2 py-1 rounded">meu</code>, <code class="bg-gray-200 px-2 py-1 rounded">este</code>) ou <strong>contraído</strong> (formado por uma preposição + determinante, ex: <code class="bg-gray-200 px-2 py-1 rounded">do</code>, <code class="bg-gray-200 px-2 py-1 rounded">no</code>, <code class="bg-gray-200 px-2 py-1 rounded">à</code>, <code class="bg-gray-200 px-2 py-1 rounded">daquele</code>, <code class="bg-gray-200 px-2 py-1 rounded">neste</code>).</li>
+                    </ul>
+                </div>
+
+                <div class="text-center mt-12">
+                    <p class="text-lg mb-4">Já te sentes um Mestre dos Determinantes!</p>
+                    <button onclick="reiniciarMissao()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition duration-300">
+                        Quero Tentar Novamente
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        let seccaoAtiva = 'materia';
+        
+        // =============================================
+        // NAVEGAÇÃO PRINCIPAL (Secções)
+        // =============================================
+        function mostrarSeccao(idSeccao) {
+            // Esconder todas as secções
+            document.querySelectorAll('.seccao-conteudo').forEach(seccao => {
+                seccao.classList.add('hidden');
+            });
+            
+            // Atualizar botões de navegação
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.classList.remove('bg-white', 'border-blue-600', 'text-gray-800');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Mostrar a secção ativa
+            document.getElementById(`seccao-${idSeccao}`).classList.remove('hidden');
+            
+            // Marcar o botão de navegação ativo
+            document.getElementById(`nav-${idSeccao}`).classList.add('bg-white', 'border-blue-600', 'text-gray-800');
+            document.getElementById(`nav-${idSeccao}`).classList.remove('border-transparent', 'text-gray-500');
+            
+            seccaoAtiva = idSeccao;
+            window.scrollTo(0, 0); // Voltar ao topo
+        }
+
+        // =============================================
+        // LÓGICA SECÇÃO 1: MATÉRIA (Tabs)
+        // =============================================
+        function mostrarTabMateria(idTab, elemento) {
+            // Esconder todos os conteúdos
+            document.querySelectorAll('.tab-content-materia').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Mudar estilo dos botões
+            document.querySelectorAll('.tab-button-materia').forEach(button => {
+                button.classList.remove('border-blue-600', 'text-gray-800');
+                button.classList.add('text-gray-500', 'border-transparent');
+            });
+            
+            // Mostrar conteúdo ativo
+            document.getElementById(`tab-${idTab}`).classList.remove('hidden');
+            
+            // Marcar botão ativo
+            elemento.classList.add('border-blue-600', 'text-gray-800');
+            elemento.classList.remove('text-gray-500', 'border-transparent');
+        }
+        
+        // =============================================
+        // LÓGICA SECÇÃO 2: SÁBIO (Chat IA Melhorado)
+        // =============================================
+        const chatHistorico = document.getElementById('chat-historico');
+        const chatInput = document.getElementById('chat-input');
+        const chatEnviar = document.getElementById('chat-enviar');
+
+        chatEnviar.addEventListener('click', enviarMensagemChat);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                enviarMensagemChat();
+            }
+        });
+
+        function enviarMensagemChat() {
+            const mensagem = chatInput.value.trim();
+            if (mensagem === '') return;
+
+            // Adicionar mensagem do utilizador
+            adicionarMensagemAoChat(mensagem, 'utilizador');
+            chatInput.value = '';
+            
+            // Adicionar "a pensar..."
+            adicionarMensagemAoChat('O Sábio está a pensar...', 'sabio-loading', 'sabio-loading-msg');
+            
+            // Chamar a IA verdadeira
+            chamarIASabio(mensagem);
+        }
+
+        function adicionarMensagemAoChat(texto, autor, id = null) {
+            const divMensagem = document.createElement('div');
+            if (id) divMensagem.id = id; // Adiciona ID se for fornecido
+
+            if (autor === 'utilizador') {
+                divMensagem.className = 'flex justify-end';
+                divMensagem.innerHTML = `
+                    <div class="p-3 bg-green-100 text-green-900 rounded-lg rounded-br-none shadow-md max-w-xs md:max-w-md">
+                        <p>${texto}</p>
+                    </div>
+                `;
+            } else if (autor === 'sabio-loading') { // Estado de "a pensar..."
+                divMensagem.className = 'flex justify-start';
+                divMensagem.innerHTML = `
+                    <div class="p-3 bg-gray-100 text-gray-600 rounded-lg rounded-bl-none shadow-md max-w-xs md:max-w-md animate-pulse">
+                        <p class="font-bold">O Sábio 🤖</p>
+                        <p>${texto}</p>
+                    </div>
+                `;
+            } else { // 'sabio' (resposta real)
+                divMensagem.className = 'flex justify-start';
+                divMensagem.innerHTML = `
+                    <div class="p-3 bg-indigo-100 text-indigo-900 rounded-lg rounded-bl-none shadow-md max-w-xs md:max-w-md animate-slide-in">
+                        <p class="font-bold">O Sábio 🤖</p>
+                        <p>${texto}</p>
+                    </div>
+                `;
+            }
+            
+            chatHistorico.appendChild(divMensagem);
+            chatHistorico.scrollTop = chatHistorico.scrollHeight; // Auto-scroll
+        }
+        
+        // ===================================================================
+        // FUNÇÃO DA IA REAL - Substitui o simularRespostaSabio
+        // ===================================================================
+        async function chamarIASabio(query) {
+            
+            // O "Prompt de Sistema" que define a personalidade e regras da IA.
+            const systemPrompt = `És o "Sábio dos Determinantes". A tua única missão é ajudar alunos do 5º ano (10-11 anos) de Portugal a perceber a matéria de determinantes.
+Regras Estritas:
+1.  **Persona:** És amigável, paciente e usas linguagem simples (Português de Portugal).
+2.  **Foco Total:** SÓ respondes a perguntas sobre determinantes (artigos, possessivos, demonstrativos, indefinidos, interrogativos, contracções).
+3.  **Desvio:** Se o aluno perguntar sobre futebol, jogos, ou outra matéria (verbos, nomes), responde simpaticamente que a tua especialidade são *apenas* os determinantes.
+4.  **Sem Batota:** NÃO dês respostas diretas aos exercícios das secções 3 ou 4. Em vez disso, explica o *conceito* por trás da pergunta.
+5.  **Especialista:** Se te pedirem listas (ex: "quais são os possessivos?"), dá a lista completa e correta.
+6.  **Conciso:** Responde em 2-3 frases curtas. Isto é um chat.`;
+
+            const apiKey = "AIzaSyBPfrgYrSo-zi25I8HGcIGfPqBXtzV44RU"; // A API key será injetada pelo ambiente
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: query }]
+                }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            const loadingMessage = document.getElementById('sabio-loading-msg');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro da API: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                // Remover a mensagem "A pensar..."
+                if (loadingMessage) loadingMessage.remove();
+
+                if (result.candidates && result.candidates.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    adicionarMensagemAoChat(text, 'sabio');
+                } else {
+                    throw new Error("Resposta da IA inválida.");
+                }
+
+            } catch (error) {
+                console.error("Erro ao chamar a IA:", error);
+                // Remover a mensagem "A pensar..."
+                if (loadingMessage) loadingMessage.remove();
+                // Informar o utilizador do erro
+                adicionarMensagemAoChat("Desculpa, parece que o meu cérebro de IA teve um curto-circuito. Tenta perguntar de novo!", 'sabio');
+            }
+        }
+        // ===================================================================
+        // FIM DA FUNÇÃO DA IA
+        // ===================================================================
+
+        // =============================================
+        // LÓGICA SECÇÃO 3: TREINO (Tabs)
+        // =============================================
+        function mostrarTabTreino(idTab, elemento) {
+            document.querySelectorAll('.tab-content-treino').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.querySelectorAll('.tab-button-treino').forEach(button => {
+                button.classList.remove('border-purple-600', 'text-gray-800');
+                button.classList.add('text-gray-500', 'border-transparent');
+            });
+            document.getElementById(`tab-${idTab}`).classList.remove('hidden');
+            elemento.classList.add('border-purple-600', 'text-gray-800');
+            elemento.classList.remove('text-gray-500', 'border-transparent');
+        }
+
+        // --- Treino Nível 1: Identificar ---
+        // É preciso re-anexar os eventos se a secção for recarregada, mas para esta estrutura simples,
+        // vamos assumir que são anexados uma vez no load.
+        document.addEventListener('DOMContentLoaded', () => {
+            anexarEventosNivel1();
+            anexarEventosNivel2();
+            anexarEventosNivel3();
+            anexarEventosQuiz();
+            
+            // Iniciar na primeira secção
+            mostrarSeccao('materia');
+        });
+        
+        function anexarEventosNivel1() {
+            const palavrasN1 = document.querySelectorAll('.palavra-n1');
+            palavrasN1.forEach(palavra => {
+                palavra.addEventListener('click', () => {
+                    // Evita mudar depois de verificado
+                    if (document.getElementById('feedback-n1').classList.contains('hidden')) {
+                        palavra.classList.toggle('palavra-selecionada');
+                    }
+                });
+            });
+
+            const btnVerificarN1 = document.getElementById('verificar-n1');
+            if (btnVerificarN1) {
+                btnVerificarN1.addEventListener('click', () => {
+                    let corretas = 0;
+                    let total = 0;
+                    
+                    document.querySelectorAll('.palavra-n1').forEach(palavra => {
+                        const éDeterminante = palavra.dataset.det === 'true';
+                        const foiSelecionada = palavra.classList.contains('palavra-selecionada');
+                        
+                        if (éDeterminante) {
+                            total++;
+                            if (foiSelecionada) {
+                                palavra.classList.add('palavra-correta');
+                                palavra.classList.remove('palavra-selecionada');
+                                corretas++;
+                            } else {
+                                // Opcional: Marcar as que faltaram a verde claro
+                                palavra.classList.add('bg-green-200', 'border-2', 'border-green-400', 'rounded-lg');
+                            }
+                        } else if (foiSelecionada) {
+                            palavra.classList.add('bg-red-400', 'text-white'); // Errado
+                            palavra.classList.remove('palavra-selecionada');
+                        }
+                    });
+                    
+                    const feedback = document.getElementById('feedback-n1');
+                    feedback.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-yellow-100', 'text-yellow-800');
+                    if (corretas === total) {
+                        feedback.textContent = `Perfeito! Encontraste todos os ${total} determinantes!`;
+                        feedback.classList.add('bg-green-100', 'text-green-800');
+                    } else {
+                        feedback.textContent = `Quase! Encontraste ${corretas} de ${total}. Vê as respostas corretas (a verde).`;
+                        feedback.classList.add('bg-yellow-100', 'text-yellow-800');
+                    }
+                });
+            }
+        }
+
+        // --- Treino Nível 2: Classificar (Drag & Drop) ---
+        let itemArrastado = null;
+        
+        function anexarEventosNivel2() {
+            document.querySelectorAll('.item-arrastar').forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    itemArrastado = e.target;
+                    setTimeout(() => e.target.classList.add('opacity-50'), 0);
+                });
+                item.addEventListener('dragend', (e) => {
+                    setTimeout(() => {
+                        e.target.classList.remove('opacity-50');
+                        itemArrastado = null;
+                    }, 0);
+                });
+            });
+
+            document.querySelectorAll('.zona-drop').forEach(zona => {
+                zona.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // Necessário para permitir o drop
+                    zona.classList.add('drag-over');
+                });
+                zona.addEventListener('dragleave', () => {
+                    zona.classList.remove('drag-over');
+                });
+                zona.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zona.classList.remove('drag-over');
+                    if (itemArrastado && itemArrastado.dataset.tipo === zona.dataset.tipo) {
+                        zona.appendChild(itemArrastado);
+                        itemArrastado.classList.add('bg-green-100', 'border', 'border-green-500');
+                        itemArrastado.setAttribute('draggable', 'false'); // Já não pode ser arrastado
+                        itemArrastado.style.cursor = 'default';
+                        
+                        // Verificar se terminou
+                        verificarTerminoN2();
+                    } else {
+                        // Feedback de erro
+                        const feedback = document.getElementById('feedback-n2');
+                        feedback.textContent = "Ups! Caixa errada. Tenta outra vez.";
+                        feedback.className = 'text-lg font-semibold p-4 rounded-lg bg-red-100 text-red-800 animate-pulse';
+                        setTimeout(() => {
+                             feedback.textContent = "";
+                             feedback.className = 'hidden text-lg font-semibold p-4 rounded-lg';
+                        }, 2000);
+                    }
+                });
+            });
+        }
+
+        function verificarTerminoN2() {
+            if (document.getElementById('itens-para-arrastar').childElementCount === 0) {
+                const feedback = document.getElementById('feedback-n2');
+                feedback.textContent = "Excelente! Classificaste todos corretamente!";
+                feedback.className = 'text-lg font-semibold p-4 rounded-lg bg-green-100 text-green-800';
+            }
+        }
+
+        // --- Treino Nível 3: Aplicar ---
+        function anexarEventosNivel3() {
+            const btnVerificarN3 = document.getElementById('verificar-n3');
+            if(btnVerificarN3) {
+                btnVerificarN3.addEventListener('click', () => {
+                    const selects = document.querySelectorAll('#exercicios-n3 select');
+                    let todasCorretas = true;
+                    
+                    selects.forEach(select => {
+                        const respostaCerta = select.dataset.resposta;
+                        const respostaDada = select.value;
+                        
+                        select.classList.remove('resposta-correta', 'resposta-incorreta');
+                        
+                        if (respostaDada === "") {
+                            todasCorretas = false;
+                        } else if (respostaDada === respostaCerta) {
+                            select.classList.add('resposta-correta');
+                        } else {
+                            select.classList.add('resposta-incorreta');
+                            todasCorretas = false;
+                        }
+                    });
+                });
+            }
+        }
+        
+        // =============================================
+        // LÓGICA SECÇÃO 4: QUIZ FINAL
+        // =============================================
+        const respostasQuiz = { q1: 'c', q2: 'b', q3: 'b', q4: 'c', q5: 'b', q6: 'b', q7: 'a', q8: 'c', q9: 'a', q10: 'c' };
+        
+        function anexarEventosQuiz() {
+            const btnVerificarQuiz = document.getElementById('verificar-quiz');
+            if (btnVerificarQuiz) {
+                btnVerificarQuiz.addEventListener('click', () => {
+                    let pontuacao = 0;
+                    const totalPerguntas = Object.keys(respostasQuiz).length;
+                    
+                    for (let i = 1; i <= totalPerguntas; i++) {
+                        const nomePergunta = `q${i}`;
+                        const respostaSelecionada = document.querySelector(`input[name="${nomePergunta}"]:checked`);
+                        
+                        if (respostaSelecionada && respostaSelecionada.value === respostasQuiz[nomePergunta]) {
+                            pontuacao++;
+                        }
+                    }
+                    
+                    // Mostrar resultados
+                    const divResultado = document.getElementById('resultado-quiz');
+                    const tituloResultado = document.getElementById('resultado-titulo');
+                    const pontuacaoResultado = document.getElementById('resultado-pontuacao');
+                    
+                    pontuacaoResultado.textContent = `Acertaste em ${pontuacao} de ${totalPerguntas} perguntas!`;
+                    
+                    if (pontuacao === totalPerguntas) {
+                        tituloResultado.textContent = "🏆 Detetive Mestre! 🏆";
+                        tituloResultado.className = "text-3xl font-bold mb-4 text-green-700";
+                    } else if (pontuacao >= totalPerguntas / 2) {
+                        tituloResultado.textContent = "🏅 Detetive Experiente! 🏅";
+                        tituloResultado.className = "text-3xl font-bold mb-4 text-blue-700";
+                    } else {
+                        tituloResultado.textContent = "🎖️ Detetive Recruta! 🎖️";
+                         tituloResultado.className = "text-3xl font-bold mb-4 text-orange-700";
+                    }
+                    
+                    divResultado.classList.remove('hidden');
+                    document.getElementById('verificar-quiz').classList.add('hidden');
+                });
+            }
+        }
+        
+        function reiniciarMissao() {
+            // Esta função irá recarregar a página, que é a forma mais simples
+            // de reiniciar todos os estados dos exercícios.
+            location.reload(); 
+        }
+
+    </script>
+</body>
+</html>
