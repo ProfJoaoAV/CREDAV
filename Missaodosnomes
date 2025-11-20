@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Missão do Nome - Ficha de Estudo RPG</title>
+    <!-- Carregar Tailwind CSS para um design moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração de fontes e cores do Tailwind -->
+    <style>
+        @import url('https://fonts.fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; /* Ligeiro cinza */
+        }
+        .xp-bar {
+            height: 10px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .xp-progress {
+            background-color: #3b82f6; /* Azul primário */
+            transition: width 0.5s ease-in-out;
+        }
+        .level-badge {
+            background-color: #10b981; /* Verde esmeralda */
+            color: white;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .card-stage {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        /* Estilo para a animação do ganho de XP */
+        @keyframes xp-gain {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        .xp-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #10b981;
+            font-weight: 800;
+            font-size: 2rem;
+            animation: xp-gain 1.5s forwards;
+            pointer-events: none;
+            z-index: 50;
+        }
+        .correct-answer {
+            background-color: #d1fae5; /* Verde claro */
+            border-left: 4px solid #10b981;
+        }
+        .wrong-answer {
+            background-color: #fee2e2; /* Vermelho claro */
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="app" class="max-w-4xl mx-auto bg-white rounded-xl card-stage p-6 md:p-10 shadow-xl">
+
+        <!-- Header e Informação do Aluno -->
+        <header class="text-center mb-10 border-b-2 pb-4">
+            <h1 class="text-4xl font-extrabold text-indigo-700">A Missão do Nome</h1>
+            <p class="text-lg text-gray-500 mt-2">Um RPG de Gramática para Mestres da Língua Portuguesa</p>
+        </header>
+
+        <!-- Secção de Introdução e Ficha do Aluno -->
+        <div id="intro-section">
+            <div class="bg-indigo-50 p-6 rounded-lg mb-6">
+                <h2 class="text-2xl font-bold text-indigo-600 mb-4">Ficha do Explorador Gramatical</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="student-name" class="block text-sm font-medium text-gray-700">Nome:</label>
+                        <input type="text" id="student-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" placeholder="O teu nome de aventura">
+                    </div>
+                    <div>
+                        <label for="student-class" class="block text-sm font-medium text-gray-700">Turma:</label>
+                        <input type="text" id="student-class" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" placeholder="Ex: 8.º A">
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                Iniciar Missão: Estudar a Matéria
+            </button>
+        </div>
+
+        <!-- Estatísticas do Jogador (Visível após o início) -->
+        <div id="stats-area" class="hidden mb-8 bg-gray-100 p-4 rounded-lg flex justify-between items-center">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Explorador: <span id="display-name" class="font-bold text-indigo-700"></span> (<span id="display-class" class="text-sm text-gray-500"></span>)</p>
+            </div>
+            <div class="text-right">
+                <div class="flex items-center space-x-2">
+                    <span class="level-badge" id="player-level">Nível 1</span>
+                    <span class="text-sm font-semibold text-gray-700">XP: <span id="player-xp">0</span> / <span id="xp-to-next">100</span></span>
+                </div>
+                <div class="xp-bar w-32 mt-1">
+                    <div id="xp-progress-bar" class="xp-progress h-full" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secções Principais (Escondidas por padrão) -->
+        <div id="content-area" class="space-y-10">
+
+            <!-- Fase 1: Explicação da Matéria -->
+            <div id="stage-1" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2">Fase 1: O Pergaminho do Conhecimento</h2>
+                <div class="prose max-w-none text-gray-700 leading-relaxed">
+                    
+                    <h3 class="text-xl font-semibold text-blue-700 mt-6">Nome - A Essência da Linguagem</h3>
+                    <p>Os nomes são as palavras com que designamos pessoas, seres imaginários, animais, plantas, objetos, lugares, profissões, sentimentos, ideias, atividades, fenómenos, instituições...</p>
+                    
+                    <h4 class="text-lg font-semibold text-blue-600 mt-4">Subclasses do Nome</h4>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li>
+                            **Nomes próprios:** designam um ser em particular; escrevem-se com letra inicial maiúscula. <span class="font-mono bg-yellow-100 p-1 rounded">Ex: Japão, Ângela, Marão, Amazónia</span>.
+                        </li>
+                        <li>
+                            **Nomes comuns:** designam algo ou alguém não individualizado; escrevem-se com inicial minúscula. <span class="font-mono bg-yellow-100 p-1 rounded">Ex: ilha, pescador, arte, mar, barco</span>.
+                            <ul class="list-circle list-inside ml-6 mt-2">
+                                <li>
+                                    **Nomes comuns coletivos:** designam, no singular, um conjunto de elementos do mesmo tipo.
+                                    <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-center">
+                                        <!-- Coletivos de Animais -->
+                                        <div class="p-3 border border-orange-400 rounded-lg bg-orange-50">
+                                            <p class="font-bold text-orange-600 mb-1">Conjuntos de Animais</p>
+                                            <ul class="list-none space-y-0.5 text-left ml-2">
+                                                <li>alcateia (lobos)</li>
+                                                <li>cardume (peixes)</li>
+                                                <li>matilha (cães)</li>
+                                                <li>rebanho (ovelhas)</li>
+                                            </ul>
+                                        </div>
+                                        <!-- Coletivos de Pessoas -->
+                                        <div class="p-3 border border-red-400 rounded-lg bg-red-50">
+                                            <p class="font-bold text-red-600 mb-1">Conjuntos de Pessoas</p>
+                                            <ul class="list-none space-y-0.5 text-left ml-2">
+                                                <li>banda (músicos)</li>
+                                                <li>caravana (viajantes)</li>
+                                                <li>elenco (atores)</li>
+                                                <li>turma (alunos)</li>
+                                            </ul>
+                                        </div>
+                                        <!-- Outros Coletivos -->
+                                        <div class="p-3 border border-green-400 rounded-lg bg-green-50">
+                                            <p class="font-bold text-green-600 mb-1">Outros Conjuntos</p>
+                                            <ul class="list-none space-y-0.5 text-left ml-2">
+                                                <li>arquipélago (ilhas)</li>
+                                                <li>constelação (estrelas)</li>
+                                                <li>olival (oliveiras)</li>
+                                                <li>cancioneiro (canções)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <h3 class="text-xl font-semibold text-blue-700 mt-8">Variação do Nome</h3>
+                    <p>Os nomes são **palavras variáveis** em **número** (singular/plural), **género** (feminino/masculino) e **grau** (normal/diminutivo/aumentativo).</p>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li>**Variação em número:** gato/gatos, país/países, anel/anéis, mão/mãos.</li>
+                        <li>**Variação em género:** aluno/aluna, professor/professora, gato/gata.</li>
+                        <li>**Variação em grau:** gato/gatinho/gatarrão, boca/boquinha/bocarra.</li>
+                    </ul>
+
+                    <h4 class="text-lg font-semibold text-blue-600 mt-4">Regras de Formação do Feminino e Plural (O Desafio)</h4>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <!-- Regras do Feminino -->
+                        <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                            <p class="font-bold text-purple-700 mb-2">Feminino</p>
+                            <ol class="list-decimal list-inside space-y-2 text-sm ml-2">
+                                <li>Terminados em **-o**, **-ã**, **-ona** formam o feminino em **-oa**, **-ã**, **-ona**. <span class="font-mono">leão/leoa</span>.</li>
+                                <li>Terminados em **-or** formam o feminino em **-eira** ou **-triz**. <span class="font-mono">vendedor/vendedeira, embaixador/embaixatriz</span>.</li>
+                                <li>Nomes que formam o feminino através de uma palavra diferente. <span class="font-mono">homem/mulher, pai/mãe</span>.</li>
+                                <li>Nomes que **não se alteram** no feminino (usa-se o determinante). <span class="font-mono">o atleta / a atleta, o jovem / a jovem</span>.</li>
+                                <li>Nomes de animais que só se usam no masculino ou no feminino (acrescenta-se **macho** ou **fêmea**). <span class="font-mono">a águia macho / a águia fêmea</span>.</li>
+                            </ol>
+                        </div>
+                        
+                        <!-- Regras do Plural -->
+                        <div class="bg-teal-50 p-4 rounded-lg border-l-4 border-teal-400">
+                            <p class="font-bold text-teal-700 mb-2">Plural</p>
+                            <ol class="list-decimal list-inside space-y-2 text-sm ml-2">
+                                <li>Regra geral, acrescenta-se **-s** ou **-es** ao singular. <span class="font-mono">casa/casas, flor/flores</span>.</li>
+                                <li>Terminados em **-ão** formam o plural em **-ões**, **-ãos** ou **-ães**. <span class="font-mono">balão/balões, cão/cães, mão/mãos</span>.</li>
+                                <li>Terminados em **-m** substituem por **-ns**. <span class="font-mono">atum/atuns, pudim/pudins</span>.</li>
+                                <li>Terminados em **-al**, **-el**, **-ol** e **-ul** substituem o **-l** por **-is**. <span class="font-mono">animal/animais, papel/papéis</span>. (Exceções: cônsul/cônsules)</li>
+                                <li>Terminados em **-il**: se agudos, trocam **-il** por **-is** (<span class="font-mono">civil/civis</span>); se graves, trocam **-il** por **-eis** (<span class="font-mono">réptil/répteis</span>).</li>
+                                <li>Terminados em **-s** no singular: se agudos, acrescentam **-es** (<span class="font-mono">o país/os países</span>); se graves, são invariáveis (<span class="font-mono">o lápis/os lápis</span>).</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <button onclick="changeStage(2)" class="mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                    Missão Cumprida! Avançar para o Treino RPG (Ganho de XP)
+                </button>
+            </div>
+
+            <!-- Fase 2: Treino RPG (Ganha XP) -->
+            <div id="stage-2" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2">Fase 2: Arena de Treino Gramatical (RPG)</h2>
+                <div id="rpg-question-area" class="bg-blue-50 p-6 rounded-lg mb-6 card-stage">
+                    <!-- Onde as perguntas de treino serão inseridas -->
+                    <p class="text-center text-gray-500">A carregar o primeiro desafio...</p>
+                </div>
+
+                <div id="feedback-message" class="p-3 rounded-lg text-sm mb-4 hidden"></div>
+
+                <div class="flex justify-between items-center">
+                    <button onclick="skipQuestion()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                        Passar Pergunta (Perde 5 XP)
+                    </button>
+                    <button onclick="nextRpgQuestion()" id="next-rpg-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300" disabled>
+                        Próximo Desafio
+                    </button>
+                </div>
+
+                <!-- Botão de avanço para a Missão Final (agora condicional) -->
+                <button onclick="changeStage(3)" id="advance-final-mission-btn" 
+                        class="mt-8 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105 disabled:opacity-50" 
+                        disabled>
+                    Avançar para Missão Final (Requer 100 XP - XP Atual: 0)
+                </button>
+            </div>
+
+            <!-- Fase 3: Missão Final (Pontuada e Certificado) -->
+            <div id="stage-3" class="hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2">Fase 3: Missão Final - O Teste do Mestre</h2>
+                
+                <div id="final-mission-area" class="bg-red-50 p-6 rounded-lg mb-6 card-stage">
+                    <p class="text-xl text-red-700 font-semibold mb-4">Pontuação Total: <span id="final-score">0</span> / 5</p>
+                    <div id="final-question-container" class="space-y-6">
+                        <!-- Perguntas da Missão Final serão inseridas aqui -->
+                    </div>
+                    <button onclick="submitFinalMission()" id="submit-mission-btn" class="mt-8 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                        Terminar Missão e Obter Certificado
+                    </button>
+                </div>
+
+                <!-- Certificado (Escondido até à submissão) -->
+                <div id="certificate-area" class="hidden p-8 bg-white border-8 border-yellow-500 rounded-2xl shadow-2xl mt-10 text-center">
+                    <p class="text-lg text-gray-500 mb-2">CERTIFICADO DE MESTRE GRAMATICAL</p>
+                    <h3 class="text-5xl font-extrabold text-yellow-700">Conclusão de Missão</h3>
+                    
+                    <p class="mt-6 text-2xl">Esta certifica que</p>
+                    <p class="text-4xl font-bold text-indigo-800 my-4 border-b-2 border-indigo-200 inline-block px-8" id="certificate-name"></p>
+                    <p class="text-2xl">completou com sucesso a Missão do Nome, obtendo</p>
+                    
+                    <p class="text-7xl font-black text-green-600 my-6" id="final-percentage"></p>
+                    
+                    <p class="text-lg text-gray-700 mt-4">Pela sua dedicação e <span class="font-semibold">Nível <span id="certificate-level"></span></span> de experiência.</p>
+                    <p class="text-sm text-gray-400 mt-6">Data de Conclusão: <span id="completion-date"></span></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script da Aplicação -->
+    <script type="module">
+        // --- Definição das Variáveis Globais do Ambiente ---
+        // É essencial que estas variáveis sejam definidas *antes* de serem usadas na inicialização.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
+
+        // --- Firebase Setup (Necessário para a persistência em ambiente real) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Define as instâncias da Firebase
+        let app, db, auth;
+        let userId = 'anon-user'; // Default
+        
+        // Inicialização da Firebase e Autenticação
+        const initFirebase = async () => {
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.warn("Firebase config not available. Running in local mode without persistence.");
+                return;
+            }
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('Debug');
+
+                if (typeof initialAuthToken !== 'undefined') {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                console.log("Firebase initialized. User ID:", userId);
+            } catch (error) {
+                console.error("Erro na inicialização da Firebase:", error);
+            }
+        };
+
+        // --- Estado do Jogo ---
+        let playerName = '';
+        let playerClass = '';
+        let playerXP = 0;
+        let playerLevel = 1;
+        let currentRpgQuestionIndex = 0; // Variável de estado corrigida
+        const XP_PER_LEVEL = 100; 
+        const FINAL_MISSION_XP_REQUIRED = 100; 
+        const MAX_FINAL_SCORE = 5;
+
+        // --- Dados do Jogo (Perguntas e Respostas) ---
+
+        const RPG_QUESTIONS = [
+            // Perguntas originais
+            { type: 'multiple-choice', prompt: 'Qual dos seguintes nomes é um **nome comum coletivo**?', options: ['Portugal', 'Lápis', 'Matilha', 'João'], answer: 'Matilha', xp: 20 },
+            { type: 'multiple-choice', prompt: 'O plural de **"cão"** forma-se em:', options: ['cãos', 'cões', 'cães', 'cãons'], answer: 'cães', xp: 20 },
+            { type: 'fill-in-the-blank', prompt: 'O nome **"atleta"** é um nome que não se altera no feminino. Para distinguir o género, usamos o __________.', answer: 'determinante', xp: 15 },
+            { type: 'fill-in-the-blank', prompt: 'O plural de **"animal"** é __________.', answer: 'animais', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual a subclasse do nome **"Paris"**?', options: ['Comum', 'Coletivo', 'Abstrato', 'Próprio'], answer: 'Próprio', xp: 25 },
+            { type: 'multiple-choice', prompt: 'Qual é o feminino de **"vendedor"**?', options: ['vendedora', 'vendedorona', 'vendedeira', 'vendedortriz'], answer: 'vendedeira', xp: 25 },
+            { type: 'true-false', prompt: 'O grau aumentativo de "boca" é "boquinha".', answer: 'Falso', xp: 10 },
+            
+            // +47 NOVAS PERGUNTAS (Total: 54)
+            // Subclasses, Variação e Regras
+            { type: 'multiple-choice', prompt: 'Qual a subclasse do nome **"Lisboa"**?', options: ['Comum', 'Coletivo', 'Próprio'], answer: 'Próprio', xp: 15 },
+            { type: 'multiple-choice', prompt: '**"Cadeira"** é classificado como um nome:', options: ['Próprio', 'Comum', 'Coletivo'], answer: 'Comum', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual é o nome comum coletivo que designa um conjunto de abelhas?', options: ['Rebanho', 'Cardume', 'Enxame'], answer: 'Enxame', xp: 15 },
+            { type: 'multiple-choice', prompt: '**"Júri"** é um nome coletivo de:', options: ['Cantores', 'Jurados', 'Estrelas'], answer: 'Jurados', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o plural correto de **"cidadão"**?', options: ['cidadões', 'cidadãos', 'cidadães'], answer: 'cidadãos', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O plural de **"balão"** é:', options: ['balões', 'balãos', 'balães'], answer: 'balões', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O plural de **"capitão"** é:', options: ['capitões', 'capitãos', 'capitães'], answer: 'capitães', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O plural de **"viagem"** (terminado em -m) é:', options: ['viagens', 'viagemes', 'viagems'], answer: 'viagens', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O plural de **"sinal"** (terminado em -al) é:', options: ['sinas', 'sinaes', 'sinais'], answer: 'sinais', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O plural de **"farol"** (terminado em -ol) é:', options: ['faróis', 'faroles', 'farais'], answer: 'faróis', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O feminino de **"lavrador"** (terminado em -or) é:', options: ['lavradora', 'lavradoresa', 'lavradeira'], answer: 'lavradeira', xp: 15 },
+            { type: 'multiple-choice', prompt: 'O feminino de **"imperador"** (terminado em -or) é:', options: ['imperadora', 'imperatriz', 'imperadeira'], answer: 'imperatriz', xp: 15 },
+            { type: 'multiple-choice', prompt: 'O feminino de **"estudante"** (nome uniforme) é:', options: ['estudanta', 'estudantessa', 'a estudante'], answer: 'a estudante', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O feminino de **"cavalo"** (heterónimo) é:', options: ['cavalina', 'égua', 'cavalona'], answer: 'égua', xp: 20 },
+            { type: 'multiple-choice', prompt: 'O diminutivo de **"livro"** é:', options: ['livrinho', 'livrete', 'livrito'], answer: 'livrinho', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O aumentativo de **"fogo"** é:', options: ['foguinho', 'fogaréu', 'fogão'], answer: 'fogaréu', xp: 15 },
+            { type: 'true-false', prompt: 'A palavra **"pianista"** tem um feminino e um masculino diferentes (biforme).', answer: 'Falso', xp: 10 },
+            { type: 'true-false', prompt: '**"Réstia"** é o coletivo de alhos ou cebolas.', answer: 'Verdadeiro', xp: 10 },
+            { type: 'fill-in-the-blank', prompt: 'O plural de **"barril"** (agudo, terminado em -il) é __________.', answer: 'barris', xp: 15 },
+            { type: 'fill-in-the-blank', prompt: 'O plural de **"réptil"** (grave, terminado em -il) é __________.', answer: 'répteis', xp: 15 },
+            { type: 'fill-in-the-blank', prompt: 'O plural de **"mês"** (terminado em -s agudo) é __________.', answer: 'meses', xp: 10 },
+            { type: 'fill-in-the-blank', prompt: 'O diminutivo de **"cão"** é __________.', answer: 'cãozinho', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o aumentativo irregular de **"casa"**?', options: ['casita', 'casinha', 'casarão'], answer: 'casarão', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o coletivo de **"oito dias"**?', options: ['década', 'semana', 'quinzena'], answer: 'semana', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual destes nomes é invariável no plural?', options: ['mão', 'lápis', 'país'], answer: 'lápis', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o feminino de **"monge"**?', options: ['mongessa', 'mongia', 'monja'], answer: 'monja', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o feminino de **"europeu"** (terminado em -eu)?', options: ['europense', 'europeia', 'europelha'], answer: 'europeia', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o nome coletivo para um conjunto de aviões?', options: ['esquadra', 'esquadrilha', 'bando'], answer: 'esquadrilha', xp: 15 },
+            { type: 'true-false', prompt: '**"O dentista"** e **"a dentista"** são exemplos de nomes biformes.', answer: 'Falso', xp: 15 }, // São uniformes
+            { type: 'multiple-choice', prompt: 'O plural de **"mão"** (terminado em -ão) é:', options: ['mões', 'mãos', 'mães'], answer: 'mãos', xp: 10 },
+            { type: 'fill-in-the-blank', prompt: 'Um conjunto de músicos forma uma __________.', answer: 'banda', xp: 15 },
+            { type: 'fill-in-the-blank', prompt: 'O nome **"alegria"** é classificado como nome __________ (concreto/abstrato).', answer: 'abstrato', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o feminino de **"herói"**?', options: ['heroíne', 'heroa', 'heroína'], answer: 'heroína', xp: 15 },
+            { type: 'multiple-choice', prompt: 'O nome **"narigão"** está no grau:', options: ['normal', 'diminutivo', 'aumentativo'], answer: 'aumentativo', xp: 10 },
+            { type: 'true-false', prompt: 'Nomes próprios são sempre escritos com letra minúscula.', answer: 'Falso', xp: 10 }, // Correção: A questão correta é "Nomes próprios são sempre escritos com letra minúscula." -> Falso.
+            { type: 'multiple-choice', prompt: 'O plural de **"caráter"** é:', options: ['caráteres', 'caracters', 'caracteres'], answer: 'caracteres', xp: 20 },
+            { type: 'multiple-choice', prompt: 'O feminino de **"patrão"** é:', options: ['patrã', 'patroana', 'patroa'], answer: 'patroa', xp: 15 },
+            { type: 'multiple-choice', prompt: '**"Panapaná"** é o coletivo de:', options: ['peixes', 'borboletas', 'aves'], answer: 'borboletas', xp: 20 },
+            { type: 'fill-in-the-blank', prompt: 'O diminutivo de **"festa"** é __________.', answer: 'festinha', xp: 10 },
+            { type: 'fill-in-the-blank', prompt: 'O plural de **"pão"** (terminado em -ão) é __________.', answer: 'pães', xp: 15 },
+            { type: 'multiple-choice', prompt: '**"Mesa"** é classificado como um nome:', options: ['concreto', 'abstrato', 'próprio'], answer: 'concreto', xp: 10 },
+            { type: 'multiple-choice', prompt: 'A palavra **"colega"** (o/a colega) é um nome:', options: ['biforme', 'uniforme', 'invariável'], answer: 'uniforme', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o aumentativo de **"rapaz"**?', options: ['rapazinho', 'rapazola', 'rapagão'], answer: 'rapagão', xp: 15 },
+            { type: 'multiple-choice', prompt: 'O plural de **"álbum"** (terminado em -um) é:', options: ['álbuns', 'albumes', 'álbumes'], answer: 'álbuns', xp: 15 },
+            { type: 'true-false', prompt: 'O feminino de **"príncipe"** é **"princesa"**.', answer: 'Verdadeiro', xp: 10 },
+            { type: 'fill-in-the-blank', prompt: 'Um conjunto de livros é uma __________.', answer: 'biblioteca', xp: 15 },
+            { type: 'multiple-choice', prompt: 'O plural de **"o vírus"** (terminado em -s grave) é:', options: ['os víruses', 'os vírus', 'os vírii'], answer: 'os vírus', xp: 15 },
+            { type: 'multiple-choice', prompt: 'Qual o feminino de **"tigre"**?', options: ['tígra', 'tigresa', 'tígre'], answer: 'tigresa', xp: 15 },
+            { type: 'multiple-choice', prompt: 'O nome **"chuva"** no grau aumentativo é:', options: ['chuvinha', 'chuvão', 'chuvarada'], answer: 'chuvarada', xp: 15 },
+            { type: 'fill-in-the-blank', prompt: 'O nome **"sol"** é sempre do género __________ (masculino/feminino).', answer: 'masculino', xp: 10 },
+            { type: 'multiple-choice', prompt: '**"Esquadra"** é um nome coletivo de:', options: ['peixes', 'animais', 'navios de guerra'], answer: 'navios de guerra', xp: 15 },
+            { type: 'multiple-choice', prompt: 'O plural de **"quartel"** (terminado em -el) é:', options: ['quartels', 'quarteis', 'quartéis'], answer: 'quartéis', xp: 10 },
+            { type: 'multiple-choice', prompt: 'O plural de **"luz"** (terminado em -z) é:', options: ['lus', 'luzes', 'luzs'], answer: 'luzes', xp: 10 },
+            { type: 'true-false', prompt: 'Os nomes variam em número, género e tempo verbal.', answer: 'Falso', xp: 10 }
+        ].sort(() => Math.random() - 0.5); // Baralhar as perguntas
+
+        // 5 Perguntas fixas para a Missão Final
+        const MISSION_QUESTIONS = [
+            {
+                id: 1,
+                type: 'multiple-choice',
+                prompt: 'Qual o plural correto de **"pudim"**?',
+                options: ['pudims', 'pudines', 'pudins', 'pudimeis'],
+                answer: 'pudins'
+            },
+            {
+                id: 2,
+                type: 'fill-in-the-blank',
+                prompt: 'A palavra **"cardume"** é um nome comum __________. (coletivo/próprio)',
+                answer: 'coletivo'
+            },
+            {
+                id: 3,
+                type: 'multiple-choice',
+                prompt: 'O feminino de **"leão"** é:',
+                options: ['leoa', 'leãa', 'leoana', 'leatrix'],
+                answer: 'leoa'
+            },
+            {
+                id: 4,
+                type: 'true-false',
+                prompt: 'A variação do nome em grau inclui o normal, o diminutivo e o aumentativo.',
+                answer: 'Verdadeiro'
+            },
+            {
+                id: 5,
+                type: 'fill-in-the-blank',
+                prompt: 'O plural de **"cônsul"** é uma exceção. Qual é?',
+                answer: 'cônsules'
+            }
+        ];
+
+        // --- Funções de Lógica do Jogo ---
+
+        window.startGame = function() {
+            playerName = document.getElementById('student-name').value.trim();
+            playerClass = document.getElementById('student-class').value.trim();
+
+            if (!playerName || !playerClass) {
+                // Em vez de alert(), que não funciona bem em iframes, alteramos o background e mostramos uma mensagem na UI.
+                document.getElementById('intro-section').style.backgroundColor = '#fee2e2'; // Red-100
+                const warningMsg = document.createElement('p');
+                warningMsg.textContent = "Por favor, preenche o teu nome e turma para iniciar a Missão!";
+                warningMsg.className = "text-center text-red-700 font-semibold mt-4";
+                document.getElementById('intro-section').appendChild(warningMsg);
+                return;
+            }
+
+            // Atualizar UI com dados do aluno
+            document.getElementById('display-name').textContent = playerName;
+            document.getElementById('display-class').textContent = playerClass;
+
+            // Esconder intro, mostrar stats e Fase 1
+            document.getElementById('intro-section').classList.add('hidden');
+            document.getElementById('stats-area').classList.remove('hidden');
+            changeStage(1);
+
+            // Iniciar a primeira pergunta de RPG (para quando o utilizador passar para a Fase 2)
+            loadRpgQuestion();
+            updateXP(0); // Atualiza o estado do botão Missão Final
+        }
+
+        function updateXP(amount) {
+            playerXP += amount;
+            
+            // Garantir que o XP não desce abaixo de zero
+            playerXP = Math.max(0, playerXP);
+
+            // Animação de ganho de XP
+            if (amount !== 0) {
+                const xpPopup = document.createElement('div');
+                xpPopup.className = 'xp-popup';
+                xpPopup.textContent = `${amount > 0 ? '+' : ''}${amount} XP`;
+                document.getElementById('app').appendChild(xpPopup);
+                setTimeout(() => xpPopup.remove(), 1500);
+            }
+
+            // Verificar se subiu de nível
+            const currentXPToNext = playerLevel * XP_PER_LEVEL;
+            if (playerXP >= currentXPToNext) {
+                playerXP -= currentXPToNext; // O XP restante fica para o novo nível
+                playerLevel++;
+                // Usamos uma mensagem na UI em vez de alert
+                const levelUpMsg = document.createElement('div');
+                levelUpMsg.textContent = `PARABÉNS! Subiste para o Nível ${playerLevel}! Ganhaste mais poder gramatical!`;
+                levelUpMsg.className = "fixed top-0 left-0 right-0 p-4 text-center bg-yellow-400 text-gray-800 font-bold z-50 shadow-lg";
+                document.body.appendChild(levelUpMsg);
+                setTimeout(() => levelUpMsg.remove(), 3000);
+            }
+            
+            // Atualizar a barra de XP e estatísticas
+            const nextLevelXP = playerLevel * XP_PER_LEVEL;
+            const progress = (playerXP / nextLevelXP) * 100;
+
+            document.getElementById('player-xp').textContent = playerXP;
+            document.getElementById('player-level').textContent = `Nível ${playerLevel}`;
+            document.getElementById('xp-to-next').textContent = nextLevelXP;
+            document.getElementById('xp-progress-bar').style.width = `${progress}%`;
+
+            // LÓGICA DE AVANÇO PARA MISSÃO FINAL
+            const advanceBtn = document.getElementById('advance-final-mission-btn');
+            if (playerXP >= FINAL_MISSION_XP_REQUIRED) {
+                advanceBtn.disabled = false;
+                advanceBtn.classList.replace('bg-red-600', 'bg-purple-600');
+                advanceBtn.classList.replace('hover:bg-red-700', 'hover:bg-purple-700');
+                advanceBtn.textContent = 'A Missão Final Espera por Ti! (Entrar)';
+            } else {
+                advanceBtn.disabled = true;
+                advanceBtn.classList.replace('bg-purple-600', 'bg-red-600');
+                advanceBtn.classList.replace('hover:bg-red-700', 'hover:bg-red-700');
+                advanceBtn.textContent = `Avançar para Missão Final (Requer ${FINAL_MISSION_XP_REQUIRED} XP - XP Atual: ${playerXP})`;
+            }
+        }
+
+        window.changeStage = function(stage) {
+            // Esconder todas as secções
+            document.getElementById('stage-1').classList.add('hidden');
+            document.getElementById('stage-2').classList.add('hidden');
+            document.getElementById('stage-3').classList.add('hidden');
+            
+            // Lógica de guarda para a Fase 3
+            if (stage === 3) {
+                if (playerXP < FINAL_MISSION_XP_REQUIRED) {
+                    // Mensagem na UI em vez de alert
+                    const stageWarning = document.createElement('div');
+                    stageWarning.textContent = `Ainda não atingiste o mínimo de ${FINAL_MISSION_XP_REQUIRED} XP para entrar na Missão Final. Continua a treinar!`;
+                    stageWarning.className = "fixed top-0 left-0 right-0 p-4 text-center bg-red-400 text-white font-bold z-50 shadow-lg";
+                    document.body.appendChild(stageWarning);
+                    setTimeout(() => stageWarning.remove(), 3000);
+                    return; // Impede o avanço
+                }
+            }
+
+            // Mostrar a secção pretendida
+            document.getElementById(`stage-${stage}`).classList.remove('hidden');
+
+            // Lógica específica por fase
+            if (stage === 3) {
+                renderFinalMission();
+            }
+        }
+
+        // --- Funções da Fase 2: Treino RPG ---
+
+        function renderRpgQuestion(question) {
+            const container = document.getElementById('rpg-question-area');
+            const feedback = document.getElementById('feedback-message');
+            const nextBtn = document.getElementById('next-rpg-btn');
+            
+            container.innerHTML = `
+                <h3 class="text-xl font-bold text-blue-700 mb-4">Desafio ${currentRpgQuestionIndex + 1} de ${RPG_QUESTIONS.length} (${question.xp} XP)</h3>
+                <p class="text-lg mb-4">${question.prompt}</p>
+            `;
+            feedback.classList.add('hidden');
+            nextBtn.disabled = true; // Desativar o botão de próximo até responder
+            container.classList.remove('correct-answer', 'wrong-answer');
+
+            if (question.type === 'multiple-choice') {
+                const optionsHtml = question.options.map(option => `
+                    <button data-answer="${option}" onclick="checkRpgAnswer(this, '${question.answer}', ${question.xp}, 'multiple-choice')" 
+                            class="w-full text-left p-3 my-2 border border-blue-300 rounded-lg hover:bg-blue-200 transition duration-150 bg-white">
+                        ${option}
+                    </button>
+                `).join('');
+                container.innerHTML += `<div class="options-container space-y-2">${optionsHtml}</div>`;
+
+            } else if (question.type === 'fill-in-the-blank') {
+                container.innerHTML += `
+                    <input type="text" id="rpg-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border" placeholder="Escreve a tua resposta aqui">
+                    <button onclick="checkRpgAnswer(document.getElementById('rpg-input'), '${question.answer}', ${question.xp}, 'fill-in-the-blank')" 
+                            class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150">
+                        Verificar Resposta
+                    </button>
+                `;
+            } else if (question.type === 'true-false') {
+                container.innerHTML += `
+                    <button data-answer="Verdadeiro" onclick="checkRpgAnswer(this, '${question.answer}', ${question.xp}, 'multiple-choice')" 
+                            class="text-left p-3 my-2 border border-blue-300 rounded-lg hover:bg-blue-200 transition duration-150 bg-white mr-4">
+                        Verdadeiro
+                    </button>
+                    <button data-answer="Falso" onclick="checkRpgAnswer(this, '${question.answer}', ${question.xp}, 'multiple-choice')" 
+                            class="text-left p-3 my-2 border border-blue-300 rounded-lg hover:bg-blue-200 transition duration-150 bg-white">
+                        Falso
+                    </button>
+                `;
+            }
+        }
+
+        window.checkRpgAnswer = function(element, correctAnswer, xpReward, type) {
+            const container = document.getElementById('rpg-question-area');
+            const feedback = document.getElementById('feedback-message');
+            const nextBtn = document.getElementById('next-rpg-btn');
+            let userAnswer;
+            let isCorrect = false;
+
+            if (type === 'multiple-choice') {
+                // CORREÇÃO: Normalizar a resposta do utilizador para minúsculas para comparação case-insensitive
+                userAnswer = element.getAttribute('data-answer').toLowerCase(); 
+                // Desativar todos os botões de opção
+                container.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            } else if (type === 'fill-in-the-blank') {
+                userAnswer = element.value.trim().toLowerCase();
+                correctAnswer = correctAnswer.toLowerCase();
+                // Desativar o input e o botão de verificação
+                document.getElementById('rpg-input').disabled = true;
+                // O elemento é o input, mas o botão de verificação é o elemento que ativou a função, vamos desativar o botão de verificação no container
+                const checkBtn = container.querySelector('button[onclick^="checkRpgAnswer"]');
+                if (checkBtn) checkBtn.disabled = true;
+            }
+            
+            // Lógica de verificação
+            if (userAnswer === correctAnswer.toLowerCase()) { 
+                isCorrect = true;
+            }
+
+            if (isCorrect) {
+                updateXP(xpReward);
+                feedback.className = 'p-3 rounded-lg text-sm mb-4 correct-answer';
+                feedback.innerHTML = `✅ **CORRETO!** Ganhaste ${xpReward} XP.`;
+                if (type === 'multiple-choice') {
+                    element.classList.add('bg-green-300', 'border-green-500');
+                }
+            } else {
+                updateXP(-5); // Penalidade por erro
+                feedback.className = 'p-3 rounded-lg text-sm mb-4 wrong-answer';
+                feedback.innerHTML = `❌ **ERRADO.** A resposta correta era: "${correctAnswer}". Perdeste 5 XP.`;
+                if (type === 'multiple-choice') {
+                    // Na múltipla escolha, o userAnswer já foi normalizado, mas queremos o valor original para realçar
+                    const originalUserAnswer = element.getAttribute('data-answer');
+                    
+                    element.classList.add('bg-red-300', 'border-red-500');
+                    // Realçar a resposta correta
+                    const correctElement = container.querySelector(`[data-answer="${correctAnswer}"]`);
+                    if (correctElement) {
+                         correctElement.classList.add('bg-green-300', 'border-green-500');
+                    }
+                }
+            }
+            feedback.classList.remove('hidden');
+            nextBtn.disabled = false;
+        }
+
+        window.nextRpgQuestion = function() {
+            currentRpgQuestionIndex++;
+            if (currentRpgQuestionIndex < RPG_QUESTIONS.length) {
+                loadRpgQuestion();
+            } else {
+                // Mensagem na UI em vez de alert
+                const completionMsg = document.createElement('div');
+                completionMsg.textContent = "Parabéns! Completaste todos os desafios de treino. Se tiveres 100 XP, avança para a Missão Final!";
+                completionMsg.className = "fixed top-0 left-0 right-0 p-4 text-center bg-blue-400 text-white font-bold z-50 shadow-lg";
+                document.body.appendChild(completionMsg);
+                setTimeout(() => completionMsg.remove(), 3000);
+            }
+        }
+
+        window.skipQuestion = function() {
+            updateXP(-5);
+            // Mensagem na UI em vez de alert
+            const skipMsg = document.createElement('div');
+            skipMsg.textContent = "Pergunta saltada. Perdeste 5 XP de penalização.";
+            skipMsg.className = "fixed top-0 left-0 right-0 p-4 text-center bg-yellow-400 text-gray-800 font-bold z-50 shadow-lg";
+            document.body.appendChild(skipMsg);
+            setTimeout(() => skipMsg.remove(), 2000);
+
+            nextRpgQuestion();
+        }
+
+        function loadRpgQuestion() {
+            const question = RPG_QUESTIONS[currentRpgQuestionIndex];
+            if (question) {
+                renderRpgQuestion(question);
+            }
+        }
+
+        // --- Funções da Fase 3: Missão Final ---
+
+        function renderFinalMission() {
+            const container = document.getElementById('final-question-container');
+            container.innerHTML = '';
+            
+            MISSION_QUESTIONS.forEach((q, index) => {
+                let questionHtml = `<div class="p-4 bg-white rounded-lg border border-red-200">
+                    <p class="font-bold text-gray-700 mb-3">${index + 1}. ${q.prompt}</p>`;
+                
+                if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                    const options = q.options || ['Verdadeiro', 'Falso'];
+                    const optionsHtml = options.map((option, optIndex) => `
+                        <label class="block mb-2">
+                            <input type="radio" name="mission-q${q.id}" value="${option}" class="mr-2 text-red-600 focus:ring-red-500">
+                            ${option}
+                        </label>
+                    `).join('');
+                    questionHtml += optionsHtml;
+                } else if (q.type === 'fill-in-the-blank') {
+                    questionHtml += `
+                        <input type="text" id="mission-q${q.id}-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Escreve a resposta">
+                    `;
+                }
+                
+
+                questionHtml += '</div>';
+                container.innerHTML += questionHtml;
+            });
+            document.getElementById('certificate-area').classList.add('hidden');
+            document.getElementById('submit-mission-btn').classList.remove('hidden');
+        }
+
+        window.submitFinalMission = async function() {
+            let score = 0;
+            
+            MISSION_QUESTIONS.forEach(q => {
+                let userAnswer = '';
+                
+                if (q.type === 'multiple-choice' || q.type === 'true-false') {
+                    const selected = document.querySelector(`input[name="mission-q${q.id}"]:checked`);
+                    userAnswer = selected ? selected.value : '';
+                } else if (q.type === 'fill-in-the-blank') {
+                    userAnswer = document.getElementById(`mission-q${q.id}-input`).value.trim();
+                }
+
+                // Normalizar a resposta para comparação (case-insensitive e trim)
+                const normalizedUserAnswer = userAnswer.toLowerCase();
+                const normalizedCorrectAnswer = q.answer.toLowerCase();
+
+                if (normalizedUserAnswer === normalizedCorrectAnswer) {
+                    score++;
+                }
+            });
+
+            const percentage = (score / MAX_FINAL_SCORE) * 100;
+            
+            // Atualizar UI de pontuação
+            document.getElementById('final-score').textContent = `${score}`;
+            document.getElementById('final-percentage').textContent = `${percentage.toFixed(0)}%`;
+
+            // Esconder o botão de submissão e mostrar o certificado
+            document.getElementById('submit-mission-btn').classList.add('hidden');
+            document.getElementById('certificate-area').classList.remove('hidden');
+
+            // Preencher certificado
+            document.getElementById('certificate-name').textContent = playerName;
+            document.getElementById('certificate-level').textContent = playerLevel;
+            document.getElementById('completion-date').textContent = new Date().toLocaleDateString('pt-PT');
+
+            // --- Persistir dados (se Firebase estiver disponível) ---
+            if (db && userId) {
+                // Usar 'appId' (variável definida localmente)
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/certificados/${Date.now()}`);
+                const dataToSave = {
+                    name: playerName,
+                    class: playerClass,
+                    score: score,
+                    maxScore: MAX_FINAL_SCORE,
+                    percentage: percentage.toFixed(2),
+                    level: playerLevel,
+                    date: new Date().toISOString()
+                };
+                try {
+                    await setDoc(docRef, dataToSave);
+                    console.log("Certificado guardado com sucesso no Firestore.");
+                } catch (e) {
+                    console.error("Erro ao guardar o certificado:", e);
+                }
+            } else {
+                console.warn("Não foi possível guardar o certificado. Firebase não inicializada ou userId ausente.");
+            }
+
+            // Scroll para o certificado
+            document.getElementById('certificate-area').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            // A fase inicial é a de introdução, a Missão 1 será ativada por 'startGame'
+        });
+    </script>
+</body>
+</html>
