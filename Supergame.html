@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Petra, Tomás and Gui</title>
+    <!-- Fonte Inter do Google Fonts para um visual moderno -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a0f8a;
+            --secondary-color: #ffc107;
+            --dark-bg: #1a1a1a;
+            --light-text: #f0f0f0;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 1280px; /* Largura máxima do jogo */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        canvas {
+            display: block;
+            width: 100%; /* Ocupa 100% do contentor */
+            height: auto; /* Mantém a proporção */
+            background-color: #000;
+        }
+
+        .menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-box {
+            background: rgba(40, 40, 40, 0.9);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-box h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--secondary-color);
+            margin: 0 0 30px 0;
+            text-shadow: 2px 2px 10px rgba(255, 193, 7, 0.5);
+        }
+        
+        #game-over-reason {
+            font-size: 1.2rem;
+            margin-top: -20px;
+            margin-bottom: 30px;
+            color: #ccc;
+            font-weight: 400;
+        }
+
+        .menu-button {
+            display: block;
+            width: 250px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 #3a0b6d;
+        }
+
+        .menu-button:hover {
+            background-color: #5c1ca8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #3a0b6d;
+        }
+        
+        .menu-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #3a0b6d;
+        }
+
+        .menu-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            box-shadow: 0 4px 0 #333;
+            color: #999;
+        }
+
+        #mode-selection-screen, #game-over-screen, #character-selection-screen, #keybinding-screen {
+            display: none;
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+        .controls-column {
+            text-align: left;
+        }
+        .controls-column h2 {
+            color: var(--secondary-color);
+        }
+        .controls-column p {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+        .key-btn {
+            width: 80px;
+            padding: 8px;
+            margin-left: 15px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            text-align: center;
+            font-weight: bold;
+            color: var(--light-text);
+            cursor: pointer;
+        }
+        .key-btn.binding {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+
+        #quiz-modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 20;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #quiz-box {
+            background: rgba(50, 50, 50, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+        
+        #quiz-box h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .answer-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: var(--primary-color);
+            color: white;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .answer-button:hover {
+            background-color: #5c1ca8;
+        }
+        .answer-button.correct {
+            background-color: var(--correct-color);
+            border-color: #fff;
+        }
+        .answer-button.incorrect {
+            background-color: var(--incorrect-color);
+        }
+        .answer-button:disabled {
+            cursor: not-allowed;
+        }
+        #quiz-feedback {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            height: 20px;
+        }
+        #quiz-continue-btn {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Ecrã de Início -->
+        <div id="start-screen" class="menu-overlay">
+            <div class="menu-box">
+                <h1>Super Petra, Tomás and Gui</h1>
+                <button id="one-player-btn" class="menu-button">1 Jogador</button>
+                <button id="two-player-btn" class="menu-button">2 Jogadores</button>
+            </div>
+        </div>
+
+        <!-- Ecrã de Seleção de Personagem -->
+        <div id="character-selection-screen" class="menu-overlay">
+            <div class="menu-box">
+                <h1 id="character-select-title">Escolhe o Jogador</h1>
+                <button id="petra-btn" class="menu-button">Petra</button>
+                <button id="tomas-btn" class="menu-button">Tomás</button>
+                <button id="gui-btn" class="menu-button">Gui</button>
+            </div>
+        </div>
+
+        <!-- Ecrã de Seleção de Modo -->
+        <div id="mode-selection-screen" class="menu-overlay">
+            <div class="menu-box">
+                <h1>Modo de Jogo</h1>
+                <button id="coop-btn" class="menu-button">Cooperativo</button>
+                <button id="comp-btn" class="menu-button">Competitivo</button>
+            </div>
+        </div>
+
+        <!-- Ecrã de Definição de Controlos -->
+        <div id="keybinding-screen" class="menu-overlay">
+            <div class="menu-box">
+                <h1>Definir Controlos</h1>
+                <div class="controls-container">
+                    <div id="p1-controls" class="controls-column"></div>
+                    <div id="p2-controls" class="controls-column"></div>
+                </div>
+                <button id="start-game-btn" class="menu-button">Começar Jogo</button>
+            </div>
+        </div>
+
+
+        <!-- Ecrã de Fim de Jogo -->
+        <div id="game-over-screen" class="menu-overlay">
+            <div class="menu-box">
+                <h1 id="game-over-message">Fim de Jogo!</h1>
+                <p id="game-over-reason"></p>
+                <button id="restart-btn" class="menu-button">Voltar ao Menu</button>
+            </div>
+        </div>
+        
+        <!-- Modal do Quiz -->
+        <div id="quiz-modal">
+             <div id="quiz-box">
+                <h2 id="quiz-question">Pergunta aqui...</h2>
+                <button class="answer-button" data-index="0">Opção A</button>
+                <button class="answer-button" data-index="1">Opção B</button>
+                <button class="answer-button" data-index="2">Opção C</button>
+                <p id="quiz-feedback"></p>
+                <button id="quiz-continue-btn" class="menu-button">Continuar</button>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="1280" height="720"></canvas>
+    </div>
+
+    <script>
+        // Lógica do Jogo
+        window.onload = () => {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const ASSET_BASE_URL = 'https://profjoaoav.github.io/SuperPetraandTomas/';
+
+            // Elementos da UI
+            const startScreen = document.getElementById('start-screen');
+            const characterSelectionScreen = document.getElementById('character-selection-screen');
+            const characterSelectTitle = document.getElementById('character-select-title');
+            const modeSelectionScreen = document.getElementById('mode-selection-screen');
+            const keybindingScreen = document.getElementById('keybinding-screen');
+            const p1ControlsEl = document.getElementById('p1-controls');
+            const p2ControlsEl = document.getElementById('p2-controls');
+            const startGameBtn = document.getElementById('start-game-btn');
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const gameOverMessageEl = document.getElementById('game-over-message');
+            const gameOverReasonEl = document.getElementById('game-over-reason');
+            const restartBtn = document.getElementById('restart-btn');
+            const onePlayerBtn = document.getElementById('one-player-btn');
+            const twoPlayerBtn = document.getElementById('two-player-btn');
+            const petraBtn = document.getElementById('petra-btn');
+            const tomasBtn = document.getElementById('tomas-btn');
+            const guiBtn = document.getElementById('gui-btn');
+            const coopBtn = document.getElementById('coop-btn');
+            const compBtn = document.getElementById('comp-btn');
+            const quizModal = document.getElementById('quiz-modal');
+            const quizQuestionEl = document.getElementById('quiz-question');
+            const answerButtons = document.querySelectorAll('.answer-button');
+            const quizFeedbackEl = document.getElementById('quiz-feedback');
+            const quizContinueBtn = document.getElementById('quiz-continue-btn');
+
+            let game;
+            let numPlayers = 0;
+            let playerChoices = [];
+            let currentGameMode = '';
+            let isBindingKey = false;
+
+            let controls = [
+                { left: 'a', right: 'd', shoot: 's', reload: 'r', dance: 'e' },
+                { left: 'j', right: 'l', shoot: 'k', reload: 'i', dance: 'o' }
+            ];
+
+            // Banco de Perguntas
+            const bancoPerguntas = [
+                { pergunta: "Qual o plural de 'cidadão'?", opcoes: ["Cidadãos", "Cidadões", "Cidades"], respostaCorreta: 0 },
+                { pergunta: "Na frase 'O cão ladra alto', qual é o verbo?", opcoes: ["cão", "alto", "ladra"], respostaCorreta: 2 },
+                { pergunta: "Qual destas palavras é um nome comum?", opcoes: ["Portugal", "Rio Douro", "Montanha"], respostaCorreta: 2 },
+                { pergunta: "Seleciona o determinante artigo definido masculino singular.", opcoes: ["uma", "o", "os"], respostaCorreta: 1 },
+                { pergunta: "Qual é o pretérito perfeito do verbo 'fazer' na 1ª pessoa do singular?", opcoes: ["Faço", "Fiz", "Farei"], respostaCorreta: 1 },
+                { pergunta: "A palavra 'feliz' é um...", opcoes: ["Verbo", "Nome", "Adjetivo"], respostaCorreta: 2 },
+                { pergunta: "'Eu gosto de chocolate.' Que tipo de frase é?", opcoes: ["Declarativa", "Interrogativa", "Exclamativa"], respostaCorreta: 0 },
+                { pergunta: "Qual é o antónimo de 'rápido'?", opcoes: ["Veloz", "Lento", "Leve"], respostaCorreta: 1 },
+                { pergunta: "Como se escreve corretamente: 'viagem' ou 'viaguem'?", opcoes: ["Viaguem", "Ambas estão erradas", "Viagem"], respostaCorreta: 2 },
+                { pergunta: "Na frase 'A mochila da Ana é azul', qual é o adjetivo?", opcoes: ["mochila", "Ana", "azul"], respostaCorreta: 2 },
+                { pergunta: "Qual é o sinónimo de 'belo'?", opcoes: ["Feio", "Formoso", "Triste"], respostaCorreta: 1 },
+                { pergunta: "O que é um ditongo?", opcoes: ["Encontro de duas vogais na mesma sílaba", "Encontro de duas consoantes", "Uma palavra com 3 sílabas"], respostaCorreta: 0 },
+                { pergunta: "Qual a palavra que NÃO pertence ao campo lexical de 'escola'?", opcoes: ["Professor", "Livro", "Praia"], respostaCorreta: 2 },
+                { pergunta: "A palavra 'sol' é...", opcoes: ["Monossílabo", "Dissílabo", "Trissílabo"], respostaCorreta: 0 },
+                { pergunta: "'Amanhã' é um advérbio de...", opcoes: ["Lugar", "Modo", "Tempo"], respostaCorreta: 2 },
+                { pergunta: "Qual o feminino de 'ator'?", opcoes: ["Atora", "Atriz", "Atrisa"], respostaCorreta: 1 },
+                { pergunta: "Na frase 'Ele comeu o bolo', o sujeito é:", opcoes: ["o bolo", "comeu", "Ele"], respostaCorreta: 2 },
+                { pergunta: "Qual o grau aumentativo de 'nariz'?", opcoes: ["Narizola", "Narigão", "Narizinho"], respostaCorreta: 1 },
+                { pergunta: "Qual das palavras está no plural?", opcoes: ["Lápis", "Caneta", "Borrachas"], respostaCorreta: 2 },
+                { pergunta: "Que sinal de pontuação se usa para fazer uma pergunta?", opcoes: [".", "!", "?"], respostaCorreta: 2 },
+                { pergunta: "A palavra 'chapéu' tem acento...", opcoes: ["Agudo", "Grave", "Circunflexo"], respostaCorreta: 0 },
+                { pergunta: "O coletivo de 'abellas' é...", opcoes: ["Cardume", "Enxame", "Manada"], respostaCorreta: 1 },
+                { pergunta: "Qual a palavra corretamente escrita?", opcoes: ["Conçelho", "Conselho", "Conselhor"], respostaCorreta: 1 },
+                { pergunta: "'Eles' é um pronome...", opcoes: ["Pessoal", "Possessivo", "Demonstrativo"], respostaCorreta: 0 },
+                { pergunta: "Qual a primeira letra do alfabeto?", opcoes: ["Z", "B", "A"], respostaCorreta: 2 },
+                { pergunta: "A palavra 'passarinho' está no grau...", opcoes: ["Normal", "Aumentativo", "Diminutivo"], respostaCorreta: 2 },
+                { pergunta: "O verbo 'cantar' pertence à...", opcoes: ["1ª conjugação", "2ª conjugação", "3ª conjugação"], respostaCorreta: 0 },
+                { pergunta: "Qual das seguintes palavras é um verbo?", opcoes: ["Bonito", "Correr", "Mesa"], respostaCorreta: 1 },
+                { pergunta: "Qual o plural de 'mão'?", opcoes: ["Mãos", "Mães", "Mões"], respostaCorreta: 0 },
+                { pergunta: "Qual é a sílaba tónica de 'fácil'?", opcoes: ["cil", "fá", "ci"], respostaCorreta: 1 },
+                { pergunta: "'Meu' é um pronome...", opcoes: ["Pessoal", "Possessivo", "Demonstrativo"], respostaCorreta: 1 },
+                { pergunta: "O conjunto de ilhas chama-se...", opcoes: ["Arquipélago", "Esquadra", "Frota"], respostaCorreta: 0 },
+                { pergunta: "A frase 'Que dia lindo!' termina com um ponto de...", opcoes: ["Interrogação", "Exclamação", "Final"], respostaCorreta: 1 },
+                { pergunta: "Qual o antónimo de 'cheio'?", opcoes: ["Completo", "Vazio", "Grande"], respostaCorreta: 1 },
+                { pergunta: "O contrário de 'bom' é...", opcoes: ["Mau", "Mal", "Ruim"], respostaCorreta: 0 },
+                { pergunta: "Qual destas palavras tem um hiato?", opcoes: ["Pai", "Saúde", "Mãe"], respostaCorreta: 1 },
+                { pergunta: "O feminino de 'cão' é...", opcoes: ["Cã", "Cadela", "Cachorra"], respostaCorreta: 1 },
+                { pergunta: "Qual o tempo verbal de 'Eu estudarei'?", opcoes: ["Presente", "Passado", "Futuro"], respostaCorreta: 2 },
+                { pergunta: "Uma palavra com 3 sílabas é um...", opcoes: ["Monossílabo", "Dissílabo", "Trissílabo"], respostaCorreta: 2 },
+                { pergunta: "Qual o nome do acento na palavra 'avô'?", opcoes: ["Agudo", "Grave", "Circunflexo"], respostaCorreta: 2 }
+            ];
+
+            // Carregador de assets
+            const images = {};
+            function loadImages(callback) {
+                const sources = {
+                    background: 'background.jpg',
+                    arrow: 'arrow.png',
+                    ball1: 'ball1.png',
+                    ball2: 'ball2.png',
+                    p1_walk1: 'Walk1.png', p1_walk2: 'Walk2.png', p1_walk3: 'Walk3.png', p1_walk4: 'Walk4.png', p1_walk5: 'Walk5.png',
+                    p1_win1: 'Win1.png', p1_win2: 'Win2.png', p1_win3: 'Win3.png', p1_win4: 'Win4.png', p1_win5: 'Win5.png', p1_win6: 'Win6.png', p1_win7: 'Win7.png', p1_win8: 'Win8.png', p1_win9: 'Win9.png',
+                    p2_walk1: 'Twalk1.png', p2_walk2: 'Twalk2.png', p2_walk3: 'Twalk3.png', p2_walk4: 'Twalk4.png', p2_walk5: 'Twalk5.png', p2_walk6: 'Twalk6.png', p2_walk7: 'Twalk7.png', p2_walk8: 'Twalk8.png',
+                    p2_win1: 'Twin1.png', p2_win2: 'Twin2.png', p2_win3: 'Twin3.png', p2_win4: 'Twin4.png',
+                    p3_walk1: 'Gwalk1.png', p3_walk2: 'Gwalk2.png', p3_walk3: 'Gwalk3.png', p3_walk4: 'Gwalk4.png',
+                    p3_win1: 'Gwin1.png', p3_win2: 'Gwin2.png', p3_win3: 'Gwin3.png', p3_win4: 'Gwin4.png', p3_win5: 'Gwin5.png'
+                };
+                let loadedImages = 0;
+                const numImages = Object.keys(sources).length;
+
+                for (const key in sources) {
+                    images[key] = new Image();
+                    images[key].src = ASSET_BASE_URL + sources[key];
+                    
+                    const onImageLoadOrError = () => {
+                        loadedImages++;
+                        if (loadedImages >= numImages) {
+                            images.p1_walk = [];
+                            for (let i = 1; i <= 5; i++) { if (images[`p1_walk${i}`]?.complete && images[`p1_walk${i}`].naturalHeight !== 0) images.p1_walk.push(images[`p1_walk${i}`]); }
+                            images.p1_win = [];
+                            for (let i = 1; i <= 9; i++) { if (images[`p1_win${i}`]?.complete && images[`p1_win${i}`].naturalHeight !== 0) images.p1_win.push(images[`p1_win${i}`]); }
+                            images.p2_walk = [];
+                            for (let i = 1; i <= 8; i++) { if (images[`p2_walk${i}`]?.complete && images[`p2_walk${i}`].naturalHeight !== 0) images.p2_walk.push(images[`p2_walk${i}`]); }
+                            images.p2_win = [];
+                            for (let i = 1; i <= 4; i++) { if (images[`p2_win${i}`]?.complete && images[`p2_win${i}`].naturalHeight !== 0) images.p2_win.push(images[`p2_win${i}`]); }
+                            images.p3_walk = [];
+                            for (let i = 1; i <= 4; i++) { if (images[`p3_walk${i}`]?.complete && images[`p3_walk${i}`].naturalHeight !== 0) images.p3_walk.push(images[`p3_walk${i}`]); }
+                            images.p3_win = [];
+                            for (let i = 1; i <= 5; i++) { if (images[`p3_win${i}`]?.complete && images[`p3_win${i}`].naturalHeight !== 0) images.p3_win.push(images[`p3_win${i}`]); }
+                            
+                            callback();
+                        }
+                    };
+                    
+                    images[key].onload = onImageLoadOrError;
+                    images[key].onerror = () => {
+                        console.error(`Falha ao carregar a imagem: ${sources[key]}`);
+                        onImageLoadOrError();
+                    }
+                }
+            }
+            
+            // Controles
+            const keys = {};
+            window.addEventListener('keydown', (e) => {
+                if (!isBindingKey) {
+                    keys[e.key.toLowerCase()] = true
+                }
+            });
+            window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+            class Player {
+                 constructor(x, y, controls, walkFrames, danceFrames, playerNumber, characterName) {
+                    this.x = x;
+                    this.y = y;
+                    this.width = 120; 
+                    this.height = 120;
+                    this.speed = 4;
+                    this.controls = controls;
+                    this.walkFrames = walkFrames || [];
+                    this.danceFrames = danceFrames || [];
+                    this.playerNumber = playerNumber;
+                    this.characterName = characterName;
+                    this.direction = 1;
+                    this.isDefeated = false;
+                    
+                    this.currentFrame = 0;
+                    this.frameCounter = 0;
+                    this.frameSpeed = 5;
+
+                    this.arrows = 10;
+                    this.activeArrows = [];
+                    this.canShoot = true;
+
+                    this.isMoving = false;
+                    this.isDancing = false;
+                    this.danceFrameCounter = 0;
+
+                    this.lives = 5;
+                    this.score = 0;
+                    this.isInvincible = false;
+                    this.invincibilityTimer = 0;
+                 }
+                 
+                 update() {
+                    this.isMoving = false;
+                    if(this.walkFrames.length === 0) return;
+
+                    if (keys[this.controls.left] && this.x > 0) {
+                        this.x -= this.speed;
+                        this.isMoving = true;
+                        this.direction = -1;
+                    }
+                    if (keys[this.controls.right] && this.x < canvas.width - this.width) {
+                        this.x += this.speed;
+                        this.isMoving = true;
+                        this.direction = 1;
+                    }
+                     
+                    if (keys[this.controls.shoot] && this.canShoot && this.arrows > 0) {
+                        this.shoot();
+                        this.canShoot = false;
+                    }
+                    if (!keys[this.controls.shoot]) {
+                        this.canShoot = true;
+                    }
+
+                    if (keys[this.controls.reload]) {
+                       game.showQuiz(this);
+                       keys[this.controls.reload] = false;
+                    }
+                     
+                    if (keys[this.controls.dance] && !this.isDancing && this.danceFrames && this.danceFrames.length > 0) {
+                        this.isDancing = true;
+                        this.currentFrame = 0;
+                        this.danceFrameCounter = 0;
+                    }
+
+                    this.frameCounter++;
+                    if (this.isDancing) {
+                        if (this.frameCounter % this.frameSpeed === 0) {
+                            this.currentFrame++;
+                            if (this.currentFrame >= this.danceFrames.length) {
+                                this.isDancing = false;
+                                this.currentFrame = 0;
+                            }
+                        }
+                    } else if (this.isMoving) {
+                         if (this.frameCounter % this.frameSpeed === 0) {
+                            this.currentFrame = (this.currentFrame + 1) % this.walkFrames.length;
+                        }
+                    } else {
+                        this.currentFrame = 0;
+                    }
+                     
+                    if(this.isInvincible) {
+                        this.invincibilityTimer--;
+                        if(this.invincibilityTimer <= 0) {
+                            this.isInvincible = false;
+                        }
+                    }
+
+                    this.activeArrows.forEach((arrow, index) => {
+                        arrow.update();
+                        if (arrow.y < 0) {
+                            this.activeArrows.splice(index, 1);
+                        }
+                    });
+                 }
+                 
+                 draw(ctx) {
+                    if(this.walkFrames.length === 0) return;
+                    
+                    if(this.isInvincible && Math.floor(this.invincibilityTimer / 10) % 2 === 0) {
+                        // Salta o desenho para criar o efeito de piscar
+                    } else {
+                        let frameToDraw;
+                        let drawWidth = this.width;
+                        let drawHeight = this.height;
+
+                        if (this.isDancing && this.danceFrames && this.danceFrames.length > 0) {
+                            frameToDraw = this.danceFrames[this.currentFrame];
+                             if (this.characterName === 'tomas') {
+                                drawWidth = this.width * 1.5;
+                                drawHeight = this.height * 1.5;
+                            }
+                        } else {
+                            frameToDraw = this.walkFrames[this.currentFrame];
+                        }
+
+                        if(frameToDraw && frameToDraw.complete && frameToDraw.naturalHeight !== 0) {
+                            ctx.save();
+                            
+                            // Lógica corrigida e final:
+                            const scaleX = -this.direction;
+                            
+                            ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+                            ctx.scale(scaleX, 1);
+                            ctx.drawImage(frameToDraw, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+                            ctx.restore();
+                        }
+                    }
+                     
+                    this.activeArrows.forEach(arrow => arrow.draw(ctx));
+                 }
+                 
+                 shoot() {
+                    this.arrows--;
+                    this.activeArrows.push(new Arrow(this.x + this.width / 2 - 10, this.y));
+                 }
+                 
+                 hit() {
+                     if(!this.isInvincible) {
+                         this.lives--;
+                         this.isInvincible = true;
+                         this.invincibilityTimer = 120;
+                         return true;
+                     }
+                     return false;
+                 }
+            }
+            
+            class Arrow {
+                 constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.width = 20;
+                    this.height = 80;
+                    this.speed = 10;
+                    this.image = images.arrow;
+                 }
+                 update() {
+                    this.y -= this.speed;
+                 }
+                 draw(ctx) {
+                     if(this.image) ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                 }
+            }
+
+            class Ball {
+                constructor(x, y, radius, dx, size) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = radius;
+                    this.dx = dx;
+                    this.dy = 0;
+                    this.gravity = 0.2;
+                    this.elasticity = 0.95;
+                    this.size = size;
+                    
+                    if (this.size === 'large') this.image = images.ball1;
+                    else this.image = images.ball2;
+                }
+
+                update() {
+                    this.dy += this.gravity;
+                    this.x += this.dx;
+                    this.y += this.dy;
+
+                    if (this.x + this.radius > canvas.width) {
+                        this.x = canvas.width - this.radius;
+                        this.dx = -this.dx;
+                    } else if (this.x - this.radius < 0) {
+                        this.x = this.radius;
+                        this.dx = -this.dx;
+                    }
+
+                    if (this.y + this.radius > canvas.height) {
+                        this.y = canvas.height - this.radius;
+                        let newDy = -this.dy * this.elasticity;
+                        
+                        const minBounceHeight = 240;
+                        const minBounceVelocity = -Math.sqrt(2 * this.gravity * minBounceHeight);
+
+                        if (newDy > minBounceVelocity) {
+                            newDy = minBounceVelocity;
+                        }
+                        this.dy = newDy;
+                    }
+                }
+                
+                draw(ctx) {
+                    if (this.image && this.image.complete && this.image.naturalHeight !== 0) {
+                        ctx.drawImage(this.image, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+                    }
+                }
+
+                split() {
+                    let newBalls = [];
+                    if (this.size === 'large') {
+                        newBalls = [
+                            new Ball(this.x, this.y, this.radius / 1.5, this.dx * 1.2, 'medium'),
+                            new Ball(this.x, this.y, this.radius / 1.5, -this.dx * 1.2, 'medium')
+                        ];
+                    } else if (this.size === 'medium') {
+                         newBalls = [
+                            new Ball(this.x, this.y, this.radius / 1.5, this.dx * 1.2, 'small'),
+                            new Ball(this.x, this.y, this.radius / 1.5, -this.dx * 1.2, 'small')
+                        ];
+                    }
+
+                    // Dá um pequeno salto inicial às novas bolas
+                    newBalls.forEach(ball => {
+                        ball.dy = -6; // Velocidade inicial para cima
+                    });
+
+                    return newBalls;
+                }
+            }
+
+            class Game {
+                constructor() {
+                   this.gameState = 'menu';
+                   this.gameMode = null;
+                   this.players = [];
+                   this.balls = [];
+                   this.round = 1;
+                   this.gameLoopId = null;
+                   this.currentQuiz = null;
+                   this.playerAnswering = null;
+                }
+                
+                start(mode, playerChoices) {
+                    this.gameState = 'playing';
+                    this.gameMode = mode;
+                    this.players = [];
+
+                    const getCharacterAssets = (name) => {
+                        switch(name) {
+                            case 'petra': return { walk: images.p1_walk, win: images.p1_win };
+                            case 'tomas': return { walk: images.p2_walk, win: images.p2_win };
+                            case 'gui': return { walk: images.p3_walk, win: images.p3_win };
+                        }
+                    };
+
+                    playerChoices.forEach((charName, index) => {
+                        const assets = getCharacterAssets(charName);
+                        const xPos = (playerChoices.length > 1) ? (canvas.width / 2 + (index === 0 ? -150 : 30)) : canvas.width / 2 - 60;
+                        this.players.push(new Player(xPos, canvas.height - 140, controls[index], assets.walk, assets.win, index + 1, charName));
+                    });
+                    
+                    this.setupRound();
+                    this.gameLoop();
+                }
+
+                setupRound() {
+                    this.balls = [];
+                    const numBalls = 2 + this.round;
+                    for (let i = 0; i < numBalls; i++) {
+                        const baseSpeedMagnitude = 0.7;
+                        const maxSpeedMagnitude = 2.5;
+                        const speedIncrementPerRound = 0.15;
+                        let currentMaxSpeed = baseSpeedMagnitude + (this.round - 1) * speedIncrementPerRound;
+                        currentMaxSpeed = Math.min(currentMaxSpeed, maxSpeedMagnitude);
+                        
+                        const dx = (Math.random() > 0.5 ? 1 : -1) * (baseSpeedMagnitude + Math.random() * (currentMaxSpeed - baseSpeedMagnitude));
+                        
+                        const x = Math.random() * (canvas.width - 120) + 60;
+                        this.balls.push(new Ball(x, 100, 60, dx, 'large'));
+                    }
+                }
+                
+                gameLoop() {
+                    if (this.gameState === 'playing') {
+                        this.update();
+                        this.draw();
+                    }
+                    this.gameLoopId = requestAnimationFrame(this.gameLoop.bind(this));
+                }
+
+                update() {
+                    this.getActivePlayers().forEach(p => p.update());
+                    this.balls.forEach(b => b.update());
+                    this.checkCollisions();
+                    
+                    if (this.balls.length === 0 && this.gameState === 'playing') {
+                       this.nextRound();
+                    }
+                }
+
+                draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    if(images.background) ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
+                    
+                    this.getActivePlayers().forEach(p => p.draw(ctx));
+                    this.balls.forEach(b => b.draw(ctx));
+                    
+                    this.drawUI();
+                    
+                    if(this.gameState === 'roundClear') {
+                        this.drawMessage();
+                    }
+                }
+
+                getActivePlayers() {
+                    return this.players.filter(p => !p.isDefeated);
+                }
+                
+                checkCollisions() {
+                    this.getActivePlayers().forEach(player => {
+                        player.activeArrows.forEach((arrow, arrowIndex) => {
+                            this.balls.forEach((ball, ballIndex) => {
+                                const dist = Math.hypot(arrow.x + arrow.width / 2 - ball.x, arrow.y + arrow.height / 2 - ball.y);
+                                if (dist < ball.radius) {
+                                    player.activeArrows.splice(arrowIndex, 1);
+                                    
+                                    if(this.gameMode === 'comp' || this.gameMode === 'single') {
+                                        player.score += (ball.size === 'large' ? 50 : (ball.size === 'medium' ? 20 : 10));
+                                    }
+
+                                    const newBalls = ball.split();
+                                    this.balls.splice(ballIndex, 1, ...newBalls);
+                                }
+                            });
+                        });
+                    });
+
+                    this.getActivePlayers().forEach(player => {
+                        this.balls.forEach(ball => {
+                            const hitboxPaddingX = player.width * 0.3;
+                            const hitboxPaddingY = player.height * 0.2;
+                            
+                            const hitboxX = player.x + hitboxPaddingX;
+                            const hitboxY = player.y + hitboxPaddingY;
+                            const hitboxWidth = player.width - 2 * hitboxPaddingX;
+                            const hitboxHeight = player.height - 2 * hitboxPaddingY;
+
+                            const closestX = Math.max(hitboxX, Math.min(ball.x, hitboxX + hitboxWidth));
+                            const closestY = Math.max(hitboxY, Math.min(ball.y, hitboxY + hitboxHeight));
+                            
+                            const distanceX = ball.x - closestX;
+                            const distanceY = ball.y - closestY;
+                            const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+
+                            if (distanceSquared < (ball.radius * ball.radius)) {
+                                this.handlePlayerHit(player);
+                            }
+                        });
+                    });
+                }
+                
+                handlePlayerHit(player) {
+                     if(player.hit()) { // Se a vida foi realmente perdida
+                         if(player.lives <= 0) {
+                            player.isDefeated = true;
+                            
+                            if (this.gameMode === 'single') {
+                                this.gameOver(`Fim de Jogo!`, `Ronda ${this.round} | ${player.score} Pontos`);
+                            } else if (this.getActivePlayers().length <= (this.gameMode === 'comp' ? 1 : 0)) {
+                                this.gameOverWithWinnerCheck();
+                            }
+                         }
+                     }
+                }
+                
+                gameOverWithWinnerCheck() {
+                    let message, reason;
+                    const activePlayers = this.getActivePlayers();
+
+                    if (this.gameMode === 'comp') {
+                        if (activePlayers.length === 1) { // Um jogador sobreviveu
+                           const winner = activePlayers[0];
+                           const loser = this.players.find(p => p.isDefeated);
+                           message = `Vitória para ${winner.characterName.charAt(0).toUpperCase() + winner.characterName.slice(1)}!`;
+                           reason = `${winner.characterName}: ${winner.score} Pts | ${loser.characterName}: ${loser.score} Pts`;
+                           this.gameOver(message, reason);
+                        } else if (activePlayers.length === 0) { // Ambos perderam, desempate por pontos
+                            const p1 = this.players[0];
+                            const p2 = this.players[1];
+                            if (p1.score > p2.score) {
+                                message = `Vitória para ${p1.characterName.charAt(0).toUpperCase() + p1.characterName.slice(1)}!`;
+                            } else if (p2.score > p1.score) {
+                                message = `Vitória para ${p2.characterName.charAt(0).toUpperCase() + p2.characterName.slice(1)}!`;
+                            } else {
+                                message = 'Empate!';
+                            }
+                            reason = `${p1.characterName.charAt(0).toUpperCase() + p1.characterName.slice(1)}: ${p1.score} Pontos | ${p2.characterName.charAt(0).toUpperCase() + p2.characterName.slice(1)}: ${p2.score} Pontos`;
+                            this.gameOver(message, reason);
+                        }
+                    } else { // Coop
+                        if (activePlayers.length === 0) {
+                            this.gameOver("Fim de Jogo!");
+                        }
+                    }
+                }
+
+                gameOver(message, reason = '') {
+                    this.gameState = 'gameOver';
+                    cancelAnimationFrame(this.gameLoopId);
+                    gameOverMessageEl.textContent = message;
+                    gameOverReasonEl.textContent = reason;
+                    gameOverScreen.style.display = 'flex';
+                }
+                
+                nextRound() {
+                    this.gameState = 'roundClear';
+                    this.message = `Ronda ${this.round} Concluída!`;
+                    
+                    setTimeout(() => {
+                        this.round++;
+                        this.setupRound();
+                        this.getActivePlayers().forEach(p => p.lives++); // Ganha uma vida
+                        this.players.forEach(p => p.arrows += 5); // Ganha setas
+                        this.gameState = 'playing';
+                    }, 3000);
+                }
+
+                showQuiz(player) {
+                    if(this.gameState !== 'playing') return;
+                    this.gameState = 'paused';
+                    this.playerAnswering = player;
+                    
+                    this.currentQuiz = bancoPerguntas[Math.floor(Math.random() * bancoPerguntas.length)];
+                    quizQuestionEl.textContent = this.currentQuiz.pergunta;
+                    
+                    quizContinueBtn.style.display = 'none';
+                    answerButtons.forEach((button) => {
+                       button.disabled = false;
+                       button.className = 'answer-button';
+                       button.textContent = this.currentQuiz.opcoes[parseInt(button.dataset.index)];
+                    });
+                    
+                    quizFeedbackEl.textContent = '';
+                    quizModal.style.display = 'flex';
+                }
+
+                checkAnswer(selectedIndex) {
+                    const allButtons = document.querySelectorAll('#quiz-box .answer-button');
+                    allButtons.forEach(button => button.disabled = true);
+                    const correctIndex = this.currentQuiz.respostaCorreta;
+
+                    if (selectedIndex === correctIndex) {
+                        this.playerAnswering.arrows += 10;
+                        document.querySelector(`.answer-button[data-index="${selectedIndex}"]`).classList.add('correct');
+                        quizFeedbackEl.textContent = 'Correto! +10 setas';
+                        quizFeedbackEl.style.color = 'var(--correct-color)';
+                    } else {
+                        document.querySelector(`.answer-button[data-index="${selectedIndex}"]`).classList.add('incorrect');
+                        document.querySelector(`.answer-button[data-index="${correctIndex}"]`).classList.add('correct');
+                        quizFeedbackEl.textContent = `Incorreto! A resposta certa era: "${this.currentQuiz.opcoes[correctIndex]}"`;
+                        quizFeedbackEl.style.color = 'var(--incorrect-color)';
+                    }
+                    quizContinueBtn.style.display = 'block';
+                }
+
+                hideQuiz() {
+                    quizModal.style.display = 'none';
+                    this.gameState = 'playing';
+                    this.playerAnswering = null;
+                }
+                
+                drawUI() {
+                     ctx.fillStyle = 'white';
+                     ctx.font = 'bold 24px Inter';
+                     ctx.textAlign = 'left';
+                     
+                     this.players.forEach((p, i) => {
+                         const xPos = (i === 0) ? 20 : canvas.width - 220;
+                         ctx.textAlign = (i === 0) ? 'left' : 'right';
+
+                         if (p.isDefeated) ctx.fillStyle = '#777';
+                         else ctx.fillStyle = 'white';
+
+                         ctx.fillText(`${p.characterName.charAt(0).toUpperCase() + p.characterName.slice(1)} (P${p.playerNumber})`, xPos, 40);
+                         ctx.fillText(`Vidas: ${p.lives}`, xPos, 70);
+                         ctx.fillText(`Setas: ${p.arrows}`, xPos, 100);
+                         if(this.gameMode === 'comp' || this.gameMode === 'single') ctx.fillText(`Pontos: ${p.score}`, xPos, 130);
+                     });
+
+                     ctx.fillStyle = 'white';
+                     ctx.textAlign = 'center';
+                     ctx.font = 'bold 36px Inter';
+                     ctx.fillText(`Ronda: ${this.round}`, canvas.width / 2, 50);
+                }
+                
+                drawMessage() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.fillRect(0, canvas.height/2 - 60, canvas.width, 120);
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 60px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(this.message, canvas.width / 2, canvas.height / 2 + 20);
+                }
+            }
+
+            // Lógica dos Menus
+            function setupKeybindingScreen() {
+                const createKeyButton = (playerIndex, action, label) => {
+                    const p = document.createElement('p');
+                    const button = document.createElement('button');
+                    button.className = 'key-btn';
+                    button.textContent = controls[playerIndex][action].toUpperCase();
+                    button.onclick = () => bindKey(button, playerIndex, action);
+                    p.textContent = `${label}: `;
+                    p.appendChild(button);
+                    return p;
+                };
+
+                p1ControlsEl.innerHTML = `<h2>Jogador 1 (${playerChoices[0].charAt(0).toUpperCase() + playerChoices[0].slice(1)})</h2>`;
+                p1ControlsEl.appendChild(createKeyButton(0, 'left', 'Mover Esquerda'));
+                p1ControlsEl.appendChild(createKeyButton(0, 'right', 'Mover Direita'));
+                p1ControlsEl.appendChild(createKeyButton(0, 'shoot', 'Disparar'));
+                p1ControlsEl.appendChild(createKeyButton(0, 'reload', 'Recarregar'));
+                p1ControlsEl.appendChild(createKeyButton(0, 'dance', 'Dançar'));
+
+                if (numPlayers === 2) {
+                    p2ControlsEl.innerHTML = `<h2>Jogador 2 (${playerChoices[1].charAt(0).toUpperCase() + playerChoices[1].slice(1)})</h2>`;
+                    p2ControlsEl.appendChild(createKeyButton(1, 'left', 'Mover Esquerda'));
+                    p2ControlsEl.appendChild(createKeyButton(1, 'right', 'Mover Direita'));
+                    p2ControlsEl.appendChild(createKeyButton(1, 'shoot', 'Disparar'));
+                    p2ControlsEl.appendChild(createKeyButton(1, 'reload', 'Recarregar'));
+                    p2ControlsEl.appendChild(createKeyButton(1, 'dance', 'Dançar'));
+                } else {
+                    p2ControlsEl.innerHTML = '';
+                }
+                keybindingScreen.style.display = 'flex';
+            }
+            
+            function bindKey(button, playerIndex, action) {
+                if (isBindingKey) return;
+                isBindingKey = true;
+                button.textContent = '...';
+                button.classList.add('binding');
+
+                const keydownHandler = (e) => {
+                    e.preventDefault();
+                    const newKey = e.key.toLowerCase();
+                    controls[playerIndex][action] = newKey;
+                    button.textContent = newKey.toUpperCase();
+                    button.classList.remove('binding');
+                    isBindingKey = false;
+                    window.removeEventListener('keydown', keydownHandler);
+                };
+                window.addEventListener('keydown', keydownHandler);
+            }
+
+            function handleCharacterSelection(characterName) {
+                playerChoices.push(characterName);
+
+                if (numPlayers === 1) {
+                    characterSelectionScreen.style.display = 'none';
+                    setupKeybindingScreen();
+                } else if (numPlayers === 2 && playerChoices.length === 1) {
+                    characterSelectTitle.textContent = "Jogador 2: Escolhe";
+                    document.getElementById(`${characterName}-btn`).disabled = true;
+                } else if (numPlayers === 2 && playerChoices.length === 2) {
+                    characterSelectionScreen.style.display = 'none';
+                    modeSelectionScreen.style.display = 'flex';
+                }
+            }
+            
+            onePlayerBtn.addEventListener('click', () => {
+                numPlayers = 1;
+                playerChoices = [];
+                startScreen.style.display = 'none';
+                characterSelectionScreen.style.display = 'flex';
+                characterSelectTitle.textContent = "Escolhe o Jogador";
+            });
+
+            twoPlayerBtn.addEventListener('click', () => {
+                numPlayers = 2;
+                playerChoices = [];
+                startScreen.style.display = 'none';
+                characterSelectionScreen.style.display = 'flex';
+                characterSelectTitle.textContent = "Jogador 1: Escolhe";
+            });
+            
+            petraBtn.addEventListener('click', () => handleCharacterSelection('petra'));
+            tomasBtn.addEventListener('click', () => handleCharacterSelection('tomas'));
+            guiBtn.addEventListener('click', () => handleCharacterSelection('gui'));
+            
+            coopBtn.addEventListener('click', () => {
+                currentGameMode = 'coop';
+                modeSelectionScreen.style.display = 'none';
+                setupKeybindingScreen();
+            });
+
+            compBtn.addEventListener('click', () => {
+                currentGameMode = 'comp';
+                modeSelectionScreen.style.display = 'none';
+                setupKeybindingScreen();
+            });
+
+            startGameBtn.addEventListener('click', () => {
+                keybindingScreen.style.display = 'none';
+                loadImages(() => {
+                    game = new Game();
+                    if(numPlayers === 1) {
+                        game.start('single', playerChoices);
+                    } else {
+                        game.start(currentGameMode, playerChoices);
+                    }
+                });
+            });
+            
+            restartBtn.addEventListener('click', () => {
+                gameOverScreen.style.display = 'none';
+                startScreen.style.display = 'flex';
+                // Resetar botões de personagem
+                petraBtn.disabled = false;
+                tomasBtn.disabled = false;
+                guiBtn.disabled = false;
+            });
+
+            quizContinueBtn.addEventListener('click', () => {
+                if (game) game.hideQuiz();
+            });
+
+            answerButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    if (game) {
+                        game.checkAnswer(parseInt(button.dataset.index));
+                    }
+                });
+            });
+        };
+    </script>
+</body>
+</html>
+
