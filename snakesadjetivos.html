@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPSIDE DOWN: ESCADAS E TENTÁCULOS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Estilos Customizados para o Tema */
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0101; /* Fundo muito escuro */
+            color: #d1d5db; /* Texto cinza claro */
+            min-height: 100vh;
+        }
+
+        .title-font {
+            font-family: 'Creepster', cursive;
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Estilo para o tabuleiro 9x10 em grelha */
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            width: 100%;
+            aspect-ratio: 10 / 9; /* Mantém a proporção */
+            max-width: 800px;
+            margin: 0 auto;
+            /* URL de imagem do GitHub fornecido pelo utilizador */
+            background-image: url('https://profjoaoav.github.io/mp3/tabuleiro.jpg'); 
+            background-size: cover;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
+            border: 4px solid #ff0000;
+        }
+
+        .square {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease-in-out;
+        }
+
+        /* Efeito de Escadas (Sobe) */
+        .square.bg-green-900 {
+            background-color: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+            box-shadow: inset 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+        /* Efeito de Tentáculos (Desce) */
+        .square.bg-red-900 {
+            background-color: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+            box-shadow: inset 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+        
+        .player-pawn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease-in-out;
+            border: 3px solid white;
+            opacity: 0.9;
+        }
+
+        /* Peões empilhados (com pequeno offset para visualização) */
+        #square-1 > .player-pawn:nth-child(2) { transform: translate(-10px, 0); }
+        #square-1 > .player-pawn:nth-child(3) { transform: translate(10px, 0); }
+        #square-1 > .player-pawn:nth-child(4) { transform: translate(0, 10px); }
+
+        /* Botões de Ação com Efeito Neon */
+        .btn-neon {
+            background-color: #6d0f0f;
+            color: #ffcccc;
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 5px #ff0000, inset 0 0 5px #ff0000;
+        }
+        .btn-neon:hover {
+            background-color: #ff0000;
+            box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
+        }
+
+        /* Animação do Dado */
+        .dice-spin {
+            animation: spin 0.1s infinite alternate;
+        }
+
+        @keyframes spin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        /* Estilo para o modal (Fundo escuro e opaco) */
+        .modal-bg {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .modal-content {
+            background-color: #1a0303;
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.9);
+        }
+
+    </style>
+
+    <!-- Firebase SDK Imports (MANDATÓRIO) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Ativar logging de debug para o Firestore
+        setLogLevel('Debug');
+
+        // Variáveis globais obrigatórias
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        window.userId = null;
+        window.isAuthReady = false;
+        window.isHost = false; // NOVA FLAG: Indica se este dispositivo é o que iniciou o jogo.
+        window.unsubscribeSnapshot = null; // Para guardar o listener de snapshot
+
+        // Configuração e Autenticação do Firebase
+        window.initFirebase = async () => {
+            try {
+                // Apenas inicializa se houver config, senão joga offline
+                if (Object.keys(firebaseConfig).length === 0) throw new Error("Firebase config not available. Playing offline.");
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                window.db = db;
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        window.userId = user.uid;
+                        document.getElementById('authStatus').textContent = `ID do Jogo: ${appId} | Usuário: ${user.uid.substring(0, 8)}...`;
+                    } else {
+                        // Tenta autenticar ou usa anónimo
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                    window.isAuthReady = true;
+                    // Tenta carregar o estado após a autenticação
+                    loadPublicGameState();
+                });
+
+            } catch (error) {
+                console.error("Erro ao inicializar Firebase ou Autenticação:", error);
+                document.getElementById('authStatus').textContent = `Erro de Auth: Jogar offline.`;
+                window.isAuthReady = true; // Permite iniciar o jogo offline
+            }
+        };
+        
+        window.initFirebase();
+
+        // Variáveis globais do jogo
+        window.NUM_SQUARES = 90; // 9 linhas x 10 colunas = 90 casas
+        window.currentPlayerIndex = 0;
+        window.players = [];
+        window.diceRolledValue = 0;
+        window.gameStarted = false;
+        window.currentQuestion = null; // Guarda a pergunta atual
+
+        // Mapeamento das casas (Escadas e Tentáculos)
+        window.boardRules = {
+            // Escadas (Sobe) 
+            10: 35, 
+            28: 49,
+            55: 78, 
+            70: 90, // ESCADA LEVA DIRETAMENTE AO FINISH
+
+            // Tentáculos/Quedas (Desce) 
+            88: 65, 
+            45: 18, 
+            22: 2    
+        };
+
+        // Assets dos Peões com URLs diretos (Stranger Things Theme)
+        const PAWN_ASSETS = [
+            'https://profjoaoav.github.io/mp3/Eleven.png',
+            'https://profjoaoav.github.io/mp3/Mike.png',
+            'https://profjoaoav.github.io/mp3/Dermargogon.png',
+            'https://profjoaoav.github.io/mp3/Vecna.png',
+        ];
+        
+        // Banco de Perguntas e Respostas (Graus dos Adjetivos)
+        const ADJECTIVE_QUESTIONS = [
+            { q: 'Qual é o grau superlativo absoluto sintético do adjetivo "fácil"?', a: ['Facílimo', 'Muito fácil', 'O mais fácil', 'Fácilíssimo'], correct: 'Facílimo' },
+            { q: 'O adjetivo "bom" no grau comparativo de superioridade é...', a: ['Mais bom que', 'Melhor que', 'Ótimo que', 'Melhor de'], correct: 'Melhor que' },
+            { q: 'Qual é a forma analítica do superlativo absoluto do adjetivo "grande"?', a: ['Máximo', 'Muito grande', 'Grandíssimo', 'O maior'], correct: 'Muito grande' },
+            { q: 'A frase "Ele é o mais inteligente da turma" está em qual grau?', a: ['Comparativo de igualdade', 'Superlativo relativo de inferioridade', 'Superlativo relativo de superioridade', 'Superlativo absoluto analítico'], correct: 'Superlativo relativo de superioridade' },
+            { q: 'O adjetivo "pobre" no grau superlativo absoluto sintético é...', a: ['Pobríssimo', 'Muito pobre', 'Paupérrimo', 'O mais pobre'], correct: 'Paupérrimo' },
+            { q: 'O adjetivo "difícil" no grau comparativo de inferioridade é...', a: ['Mais difícil que', 'Menos difícil que', 'Tão difícil quanto', 'Pior que'], correct: 'Menos difícil que' },
+            { q: 'O grau superlativo relativo de inferioridade de "rápido" é...', a: ['O menos rápido de', 'Rapidíssimo', 'Mais rápido que', 'Tão rápido quanto'], correct: 'O menos rápido de' },
+            { q: 'O adjetivo "mau" no grau comparativo de superioridade é...', a: ['Mais mau que', 'Pior que', 'O pior', 'Maléfico que'], correct: 'Pior que' },
+            { q: 'Qual é o grau superlativo absoluto sintético de "doce"?', a: ['Docíssimo', 'Muito doce', 'O mais doce', 'Dulcíssimo'], correct: 'Dulcíssimo' },
+            { q: 'Qual é o grau superlativo absoluto sintético de "feroz"?', a: ['Ferozíssimo', 'Muito feroz', 'O mais feroz', 'Ferocíssimo'], correct: 'Ferocíssimo' },
+            { q: 'Qual é o grau superlativo absoluto sintético de "magro"?', a: ['Magríssimo', 'Muito magro', 'O mais magro', 'Magérrimo'], correct: 'Magérrimo' },
+            { q: 'Qual é o grau superlativo absoluto sintético de "sagrado"?', a: ['Sagradíssimo', 'Muito sagrado', 'Sacratíssimo', 'O mais sagrado'], correct: 'Sacratíssimo' },
+            { q: 'Qual é o grau superlativo absoluto sintético de "sábio"?', a: ['Sabiíssimo', 'Muito sábio', 'O mais sábio', 'Sapientíssimo'], correct: 'Sapientíssimo' },
+            { q: 'O adjetivo "feio" no grau comparativo de igualdade é...', a: ['Mais feio que', 'Menos feio que', 'Feiíssimo', 'Tão feio quanto'], correct: 'Tão feio quanto' },
+            { q: 'O adjetivo "pequeno" no grau comparativo de superioridade (forma sintética) é...', a: ['Mais pequeno que', 'Menos grande que', 'Menor que', 'O pequeno'], correct: 'Menor que' },
+            { q: 'O grau superlativo relativo de inferioridade de "alto" é...', a: ['Muito alto', 'Altíssimo', 'Mais alto que', 'O menos alto da'], correct: 'O menos alto da' },
+            { q: 'Qual é o superlativo absoluto sintético do adjetivo "célebre"?', a: ['Celebríssimo', 'Muito célebre', 'Celebérrimo', 'O mais célebre'], correct: 'Celebérrimo' },
+            { q: "O grau 'tão... quanto' pertence ao grau...", a: ['Superlativo relativo', 'Comparativo de inferioridade', 'Comparativo de igualdade', 'Superlativo absoluto'], correct: 'Comparativo de igualdade' },
+            { q: 'Qual é o antónimo de "superior" no comparativo?', a: ['Maior', 'Ótimo', 'Melhor', 'Inferior'], correct: 'Inferior' },
+            { q: 'Qual destes adjetivos não tem superlativo absoluto sintético regular?', a: ['Livre', 'Amigo', 'Cruel', 'Fiel'], correct: 'Cruel' },
+            { q: 'A forma "muito agradável" é um...', a: ['Comparativo de superioridade', 'Grau normal', 'Superlativo absoluto sintético', 'Superlativo absoluto analítico'], correct: 'Superlativo absoluto analítico' },
+            { q: 'O adjetivo "feliz" no superlativo absoluto sintético é...', a: ['Felíssim', 'Muito feliz', 'Felicíssimo', 'O mais feliz'], correct: 'Felicíssimo' },
+            { q: 'O grau de "o pior de todos" é...', a: ['Comparativo de inferioridade', 'Superlativo absoluto', 'Superlativo relativo de superioridade', 'Superlativo relativo de inferioridade'], correct: 'Superlativo relativo de inferioridade' },
+            { q: 'O comparativo de superioridade de "veloz" é...', a: ['Melhor que', 'Velozíssimo', 'Mais veloz que', 'Tão veloz quanto'], correct: 'Mais veloz que' },
+            { q: 'O comparativo de inferioridade de "forte" é...', a: ['Mais forte que', 'Tão forte quanto', 'Fortíssimo', 'Menos forte que'], correct: 'Menos forte que' },
+            { q: 'O grau de "O livro é ótimo" é...', a: ['Comparativo', 'Grau normal', 'Superlativo absoluto analítico', 'Superlativo absoluto sintético (irregular)'], correct: 'Superlativo absoluto sintético (irregular)' },
+            { q: 'O grau de "Este é o carro mais caro" é...', a: ['Comparativo de superioridade', 'Superlativo absoluto analítico', 'Superlativo relativo de superioridade', 'Grau normal'], correct: 'Superlativo relativo de superioridade' },
+            { q: 'O adjetivo "comum" no superlativo absoluto sintético é...', a: ['Comumíssimo', 'Muito comum', 'O mais comum', 'Comuníssimo'], correct: 'Comuníssimo' },
+            { q: 'A forma sintética de "muito difícil" é...', a: ['Dificilíssimo', 'Dificílimo', 'O mais difícil', 'Muito difícil'], correct: 'Dificílimo' },
+            { q: 'O adjetivo "fiel" no grau superlativo absoluto sintético é...', a: ['Fielíssimo', 'Fidelíssimo', 'O mais fiel', 'Muito fiel'], correct: 'Fidelíssimo' }
+        ];
+
+        // Função auxiliar para verificar a permissão de rolar o dado
+        const canRollDice = (currentPlayer) => {
+            // Se o dispositivo for o Host (quem iniciou o jogo), pode rolar por qualquer jogador.
+            if (window.isHost) {
+                return true;
+            }
+            // Caso contrário (se for um Guest), só pode rolar se o ID do utilizador local 
+            // coincidir com o 'ownerId' do jogador atual.
+            return auth.currentUser?.uid === currentPlayer?.ownerId;
+        };
+        
+        // --- Funções Firebase ---
+
+        const getGameDocRef = () => {
+            if (!window.db || !window.isAuthReady) return null;
+            // Caminho: /artifacts/{appId}/public/data/game_state/{docId}
+            return doc(window.db, `artifacts/${appId}/public/data/game_state`, 'upsidedown_game');
+        };
+
+        window.saveGameState = async () => {
+            if (!window.db || !window.isAuthReady || window.players.length === 0) return;
+            const docRef = getGameDocRef();
+            if (!docRef) return;
+
+            const gameState = {
+                players: window.players,
+                currentPlayerIndex: window.currentPlayerIndex,
+                gameStarted: window.gameStarted,
+                timestamp: Date.now()
+            };
+
+            try {
+                await setDoc(docRef, gameState, { merge: true });
+                // console.log("Estado guardado com sucesso!");
+            } catch (e) {
+                console.error("Erro ao guardar o estado do jogo: ", e);
+            }
+        };
+
+        window.loadPublicGameState = () => {
+            if (!window.db || !window.isAuthReady || window.unsubscribeSnapshot) return;
+            const docRef = getGameDocRef();
+            if (!docRef) return;
+
+            // Define o listener em tempo real
+            window.unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists() && docSnap.data().gameStarted) {
+                    const loadedState = docSnap.data();
+                    
+                    // Se o jogo já estiver a decorrer, atualiza o estado local
+                    if (loadedState.gameStarted) {
+                        window.players = loadedState.players || [];
+                        window.currentPlayerIndex = loadedState.currentPlayerIndex || 0;
+                        window.gameStarted = true;
+
+                        document.getElementById('setupScreen').classList.add('hidden');
+                        document.getElementById('gameScreen').classList.remove('hidden');
+
+                        renderBoard();
+                        updateControlPanel();
+                        updateScores();
+                        document.getElementById('moveStatus').textContent = `Jogo sincronizado. É a vez de ${window.players[window.currentPlayerIndex]?.name}.`;
+
+                        // CORREÇÃO DE BUG: Verificar a permissão de rolar o dado com a nova função
+                        const currentPlayer = window.players[window.currentPlayerIndex];
+                        document.getElementById('rollDiceBtn').disabled = !canRollDice(currentPlayer);
+                    }
+                }
+            }, (error) => {
+                console.error("Erro ao receber atualização do estado em tempo real: ", error);
+            });
+        };
+        
+        // --- Funções Principais do Jogo ---
+
+        window.startGame = () => {
+            if (!window.isAuthReady) {
+                console.error("Aguarde a inicialização da autenticação (Firebase) antes de começar.");
+                document.getElementById('authStatus').textContent = "Aguarde a autenticação para iniciar o jogo.";
+                return;
+            }
+
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+            if (playerCount < 1 || playerCount > 4) return;
+            
+            // Garantir que o unsubscribe do estado anterior (se existir) é feito antes de começar um novo
+            if (window.unsubscribeSnapshot) {
+                 window.unsubscribeSnapshot();
+                 window.unsubscribeSnapshot = null;
+            }
+
+            const shuffledAssets = PAWN_ASSETS.sort(() => 0.5 - Math.random());
+            
+            window.players = [];
+            const currentUserId = auth.currentUser?.uid || crypto.randomUUID();
+            
+            for (let i = 0; i < playerCount; i++) {
+                window.players.push({
+                    id: i + 1,
+                    name: `JOGADOR ${i + 1}`,
+                    position: 1, 
+                    assetUrl: shuffledAssets[i], 
+                    color: i === 0 ? '#ff0000' : (i === 1 ? '#00ffff' : (i === 2 ? '#ffcc00' : '#00ff00')),
+                    // Associa o ID do utilizador autenticado ao primeiro jogador (ou a um ID anónimo/random)
+                    // Este ID é usado para controlo estrito em modo multiplayer
+                    ownerId: i === 0 ? currentUserId : crypto.randomUUID() 
+                });
+            }
+
+            window.currentPlayerIndex = 0;
+            window.gameStarted = true;
+            window.isHost = true; // Define este dispositivo como o Host
+            
+            // Inicia o jogo, guarda estado e renderiza
+            saveGameState();
+
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+
+            renderBoard();
+            updateControlPanel();
+            updateScores();
+        };
+
+        window.renderBoard = () => {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = ''; 
+
+            const N_COLS = 10;
+            const N_ROWS = 9; // 9 linhas
+            
+            // 1. Loop para os 90 quadrados de jogo (1 a 90)
+            for (let i = 1; i <= window.NUM_SQUARES; i++) { 
+                const square = document.createElement('div');
+                square.id = `square-${i}`;
+                square.className = 'square border border-opacity-10 border-red-700'; 
+                
+                // CÁLCULO DE POSIÇÃO NO GRID VISUAL (Bottom to Top, SERPENTINE)
+                const gameRow = Math.floor((i - 1) / N_COLS); // 0 (1-10) a 8 (81-90)
+                const relativeColIndex = (i - 1) % N_COLS; // 0 a 9 (índice na linha)
+
+                // Inverte a ordem das linhas para que a Casa 1 (gameRow 0) fique na linha de baixo (visualRow 8)
+                let visualRow = N_ROWS - 1 - gameRow; // 8, 7, ..., 0
+                let visualCol; 
+
+                // Lógica Serpentine:
+                // As linhas de jogo pares (0, 2, 4, 6, 8) são L-R.
+                if (gameRow % 2 === 0) {
+                    visualCol = relativeColIndex; 
+                } 
+                // As linhas de jogo ímpares (1, 3, 5, 7) são R-L.
+                else {
+                    visualCol = N_COLS - 1 - relativeColIndex; 
+                }
+
+                // CÁLCULO DO ÍNDICE DOM (0 a 89)
+                const domIndex = visualRow * N_COLS + visualCol;
+                
+                square.style.order = domIndex; 
+                square.setAttribute('data-position', i);
+                
+                // Número da casa CLARO
+                const squareNumber = document.createElement('span');
+                squareNumber.textContent = i;
+                squareNumber.className = 'absolute top-1 left-1 text-sm font-bold font-sans text-yellow-400 opacity-100'; 
+                square.appendChild(squareNumber);
+                
+                // Marcação FINISH na Casa 90 (Canto Superior Direito)
+                if (i === window.NUM_SQUARES) {
+                    square.classList.add('finish-square');
+                    const finishText = document.createElement('div');
+                    finishText.textContent = 'FIM';
+                    finishText.className = 'text-2xl font-bold title-font text-white text-center absolute inset-0 flex items-center justify-center bg-yellow-500 bg-opacity-30 border-4 border-yellow-300 shadow-xl';
+                    square.appendChild(finishText);
+                }
+
+                // Efeito visual para casas especiais (Escadas e Tentáculos)
+                if (window.boardRules[i]) {
+                    const target = window.boardRules[i];
+                    const symbol = target > i ? '▲' : '▼'; // Escada ou Tentáculo
+                    const colorClass = target > i ? 'text-green-400' : 'text-red-400';
+
+                    if (target > i) {
+                        square.classList.add('bg-green-900', 'bg-opacity-10'); 
+                    } else {
+                        square.classList.add('bg-red-900', 'bg-opacity-10'); 
+                    }
+
+                    const ruleMarker = document.createElement('div');
+                    ruleMarker.innerHTML = `<span class="text-xl ${colorClass} font-bold">${symbol} ${target}</span>`;
+                    ruleMarker.className = 'absolute bottom-1 right-1';
+                    square.appendChild(ruleMarker);
+                }
+
+                boardEl.appendChild(square);
+            }
+            
+            // Coloca os peões
+            window.players.forEach((player, playerIndex) => {
+                const squareEl = document.querySelector(`.square[data-position="${player.position}"]`);
+                if (squareEl) {
+                    const pawn = document.createElement('div');
+                    pawn.id = `pawn-${player.id}`;
+                    pawn.className = `player-pawn`;
+                    pawn.style.boxShadow = `0 0 10px ${player.color}, 0 0 20px rgba(0,0,0,0.5)`;
+                    
+                    pawn.style.backgroundImage = `url('${player.assetUrl}')`; 
+                    
+                    // Offset para evitar sobreposição total
+                    const offsetMap = [
+                        {x: 0, y: 0}, 
+                        {x: 10, y: 0}, 
+                        {x: -10, y: 0}, 
+                        {x: 0, y: 10}
+                    ];
+                    const offset = offsetMap[playerIndex % 4];
+                    pawn.style.transform = `translate(${offset.x}px, ${offset.y}px)`;
+                    
+                    pawn.style.zIndex = 10 + player.id; 
+                    squareEl.appendChild(pawn);
+                }
+            });
+        };
+        
+        // --- Funções de Jogo (Lógica de Movimento, Dado, Perguntas) ---
+
+        window.rollDice = () => {
+            const rollDiceBtn = document.getElementById('rollDiceBtn');
+            const currentPlayer = window.players[window.currentPlayerIndex];
+            
+            // CORREÇÃO DE BUG: Usa a função `canRollDice` para a verificação de permissão
+            if (!canRollDice(currentPlayer)) {
+                document.getElementById('moveStatus').textContent = `Aguarde, é a vez de ${currentPlayer.name}.`;
+                return;
+            }
+
+            const diceValueEl = document.getElementById('diceValue');
+            
+            rollDiceBtn.disabled = true;
+            rollDiceBtn.classList.add('dice-spin');
+            
+            // Dado de 1 a 12
+            const roll = Math.floor(Math.random() * 12) + 1; 
+            window.diceRolledValue = roll;
+
+            let animationCount = 0;
+            const animationInterval = setInterval(() => {
+                diceValueEl.textContent = Math.floor(Math.random() * 12) + 1;
+                animationCount++;
+                if (animationCount >= 10) {
+                    clearInterval(animationInterval);
+                    diceValueEl.textContent = roll;
+                    rollDiceBtn.classList.remove('dice-spin');
+                    document.getElementById('moveStatus').textContent = `Saiu o ${roll}! Responda para avançar.`;
+                    askQuestion();
+                }
+            }, 100);
+        };
+
+        window.askQuestion = () => {
+            const modal = document.getElementById('questionModal');
+            const questionTextEl = document.getElementById('questionText');
+            const answerOptionsEl = document.getElementById('answerOptions');
+
+            // Seleciona uma pergunta aleatória
+            const question = ADJECTIVE_QUESTIONS[Math.floor(Math.random() * ADJECTIVE_QUESTIONS.length)];
+            window.currentQuestion = question;
+
+            questionTextEl.textContent = question.q;
+            answerOptionsEl.innerHTML = '';
+            
+            const shuffledAnswers = question.a.sort(() => 0.5 - Math.random());
+
+            shuffledAnswers.forEach(answer => {
+                const btn = document.createElement('button');
+                btn.textContent = answer;
+                btn.className = 'answer-btn w-full py-3 px-4 btn-neon hover:bg-red-900 text-lg font-sans rounded-lg transition duration-150 shadow-md';
+                btn.onclick = () => checkAnswer(answer);
+                answerOptionsEl.appendChild(btn);
+            });
+
+            modal.classList.remove('hidden');
+        };
+
+        window.checkAnswer = (selectedAnswer) => {
+            const modal = document.getElementById('questionModal');
+            const rollDiceBtn = document.getElementById('rollDiceBtn');
+            const nextPlayerBtn = document.getElementById('nextPlayerBtn');
+            modal.classList.add('hidden');
+
+            const isCorrect = selectedAnswer === window.currentQuestion.correct;
+            let statusMessage = '';
+
+            if (isCorrect) {
+                statusMessage = `✅ CERTO! Vai avançar ${window.diceRolledValue} casas.`;
+                document.getElementById('moveStatus').textContent = statusMessage;
+                movePlayer();
+            } else {
+                statusMessage = `❌ ERRADO. A resposta correta era: ${window.currentQuestion.correct}. Não avança esta vez.`;
+                document.getElementById('moveStatus').textContent = statusMessage;
+                nextPlayerBtn.classList.remove('hidden'); 
+                rollDiceBtn.disabled = true; // Desativa o dado até que o botão "Próximo Jogador" seja clicado
+                saveGameState(); // Guarda estado sem mover
+            }
+        };
+
+        window.movePlayer = () => {
+            const currentPlayer = window.players[window.currentPlayerIndex];
+            const oldPosition = currentPlayer.position;
+            let newPosition = oldPosition + window.diceRolledValue;
+            
+            // Condição de vitória: atingir ou passar a Casa 90
+            if (newPosition >= window.NUM_SQUARES) { 
+                currentPlayer.position = window.NUM_SQUARES; // Pára exatamente na Casa 90
+                renderBoard();
+                saveGameState();
+                endGame(currentPlayer);
+                return;
+            }
+
+            currentPlayer.position = newPosition;
+            renderBoard();
+
+            // Verificar se caiu numa Escada ou Tentáculo
+            if (window.boardRules[newPosition]) {
+                const finalPosition = window.boardRules[newPosition];
+                const direction = finalPosition > newPosition ? 'SOBE' : 'CAI';
+                const action = finalPosition > newPosition ? 'Escada' : 'Tentáculo';
+                
+                setTimeout(() => {
+                    currentPlayer.position = finalPosition;
+                    document.getElementById('moveStatus').textContent = `⚡️ Efeito ${action}! ${currentPlayer.name} ${direction} para a Casa ${finalPosition}!`;
+                    renderBoard();
+                    
+                    saveGameState(); // Guarda estado após movimento especial
+                    setTimeout(window.nextTurn, 1500); 
+                }, 1000); 
+                
+            } else {
+                saveGameState(); // Guarda estado após movimento normal
+                setTimeout(window.nextTurn, 1000);
+            }
+            
+            updateScores();
+        };
+
+        window.nextTurn = () => {
+            const rollDiceBtn = document.getElementById('rollDiceBtn');
+            const nextPlayerBtn = document.getElementById('nextPlayerBtn');
+            
+            window.currentPlayerIndex = (window.currentPlayerIndex + 1) % window.players.length;
+            const currentPlayer = window.players[window.currentPlayerIndex];
+
+            updateControlPanel();
+
+            // CORREÇÃO DE BUG: Permite que o Host controle todos os jogadores ou que um Guest controle o seu próprio
+            document.getElementById('rollDiceBtn').disabled = !canRollDice(currentPlayer);
+
+            nextPlayerBtn.classList.add('hidden');
+            document.getElementById('diceValue').textContent = '?';
+            document.getElementById('moveStatus').textContent = `${currentPlayer.name}, lance o dado!`;
+            
+            saveGameState(); // Guarda estado para o próximo turno
+        };
+        
+        window.updateControlPanel = () => {
+            const currentPlayer = window.players[window.currentPlayerIndex];
+            document.getElementById('currentPlayerInfo').innerHTML = 
+                `É a vez de <span style="color:${currentPlayer.color}; font-weight: bold;" class="font-sans text-xl">${currentPlayer.name}</span>`;
+            
+            // Atualiza a cor do botão para refletir o jogador
+            const rollDiceBtn = document.getElementById('rollDiceBtn');
+            rollDiceBtn.style.backgroundColor = currentPlayer.color.replace('0000', '333').replace('ffff', 'fff');
+            rollDiceBtn.style.borderColor = currentPlayer.color;
+            rollDiceBtn.style.boxShadow = `0 0 10px ${currentPlayer.color}, inset 0 0 10px ${currentPlayer.color}`;
+        };
+
+        window.updateScores = () => {
+            const scoreBoardEl = document.getElementById('playerScores');
+            scoreBoardEl.innerHTML = '';
+
+            const playersContainer = document.createElement('div');
+            // Grid responsivo para 2 ou 4 colunas
+            playersContainer.className = 'grid grid-cols-2 gap-4 mt-2'; 
+            if (window.players.length > 2) {
+                playersContainer.classList.add('lg:grid-cols-4');
+            } else {
+                playersContainer.classList.add('sm:grid-cols-2');
+            }
+
+            const sortedPlayers = [...window.players].sort((a, b) => b.position - a.position);
+
+            sortedPlayers.forEach(player => {
+                // Cartão do Jogador
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'flex flex-col items-center p-3 rounded-xl border-2 border-red-800 shadow-2xl bg-gray-900 hover:scale-[1.02] transition duration-200';
+                
+                // 1. Nome e Peão
+                const nameP = document.createElement('p');
+                nameP.className = 'text-sm font-bold text-center mb-1 font-sans';
+                nameP.innerHTML = `<span style="color:${player.color};">${player.name.replace('JOGADOR ', 'J')}</span>`;
+                
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'w-10 h-10 mb-1 rounded-full bg-gray-800 flex items-center justify-center border-4';
+                imageDiv.style.borderColor = player.color;
+                imageDiv.style.backgroundImage = `url('${player.assetUrl}')`;
+                imageDiv.style.backgroundSize = 'contain';
+                imageDiv.style.backgroundRepeat = 'no-repeat';
+                imageDiv.style.backgroundPosition = 'center';
+
+                // 2. Posição (Casa)
+                const positionP = document.createElement('p');
+                positionP.className = 'text-xl font-extrabold text-white font-sans';
+                positionP.textContent = `${player.position}`;
+                
+                playerDiv.appendChild(nameP);
+                playerDiv.appendChild(imageDiv);
+                playerDiv.appendChild(positionP);
+
+                playersContainer.appendChild(playerDiv);
+            });
+            
+            scoreBoardEl.appendChild(playersContainer);
+        };
+
+        window.endGame = (winner) => {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('gameOverModal').classList.remove('hidden');
+            document.getElementById('winnerMessage').innerHTML = `O(a) <span style="color:${winner.color}; font-weight: bold;">${winner.name}</span> escapou do Mundo Invertido e venceu!`;
+            window.gameStarted = false;
+            saveGameState();
+        };
+
+        document.getElementById('nextPlayerBtn').onclick = () => {
+            document.getElementById('nextPlayerBtn').classList.add('hidden');
+            window.nextTurn(); 
+        };
+
+        // Tecla S para rolar o dado (atalho)
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 's' && document.getElementById('rollDiceBtn')?.disabled === false && window.gameStarted) {
+                rollDice();
+            }
+        });
+
+    </script>
+</head>
+<body class="p-4 flex flex-col items-center justify-center min-h-screen">
+    
+    <!-- Ecrã de Configuração Inicial -->
+    <div id="setupScreen" class="w-full max-w-sm p-8 rounded-2xl modal-content text-center shadow-xl">
+        <h1 class="title-font text-5xl mb-4 text-red-600">UPSIDE DOWN</h1>
+        <h2 class="text-xl font-bold mb-6">Escadas e Tentáculos</h2>
+
+        <div class="mb-4">
+            <label for="playerCount" class="block text-sm font-medium mb-2">Número de Jogadores (1-4):</label>
+            <input type="number" id="playerCount" min="1" max="4" value="2" class="w-full p-2 rounded-lg bg-gray-700 text-white border border-red-500 focus:ring-red-500 focus:border-red-500">
+        </div>
+
+        <button onclick="startGame()" class="btn-neon w-full py-3 text-xl font-bold mt-4 transition duration-300">
+            Começar o Jogo
+        </button>
+        <p id="authStatus" class="mt-4 text-xs text-gray-500">Aguardando inicialização...</p>
+    </div>
+
+    <!-- Ecrã de Jogo Principal -->
+    <div id="gameScreen" class="hidden w-full max-w-6xl p-4 lg:p-8 rounded-2xl bg-gray-900 modal-content shadow-2xl">
+        
+        <!-- Tabuleiro e Coluna de Controlo (Layout Responsivo) -->
+        <div class="flex flex-col lg:flex-row gap-6">
+
+            <!-- Coluna 1: Controlo e Classificação (Fica no topo em mobile) -->
+            <div class="lg:w-1/3 order-2 lg:order-1 flex flex-col gap-4">
+
+                <!-- Classificação de Jogadores -->
+                <div class="p-4 rounded-xl bg-gray-800 border-2 border-red-700 shadow-inner">
+                    <h3 class="text-lg font-bold title-font text-red-500 mb-2">CLASSIFICAÇÃO (Posição)</h3>
+                    <div id="playerScores">
+                        <!-- Scores are rendered here -->
+                    </div>
+                </div>
+
+                <!-- Controlo do Turno -->
+                <div class="p-4 rounded-xl bg-gray-800 border-2 border-red-700 shadow-inner text-center">
+                    <div id="currentPlayerInfo" class="text-2xl font-extrabold mb-3"></div>
+                    
+                    <div class="flex items-center justify-center gap-4 mb-4">
+                        <span class="text-3xl font-bold">Dado:</span>
+                        <span id="diceValue" class="text-5xl font-extrabold title-font text-red-400 w-16 h-16 flex items-center justify-center bg-black rounded-lg border-2 border-red-600">?</span>
+                    </div>
+
+                    <button id="rollDiceBtn" onclick="rollDice()" class="btn-neon w-full py-3 text-xl font-bold transition duration-300 disabled:opacity-50" style="background-color: #ff0000;">
+                        Lançar Dado (S)
+                    </button>
+                    
+                    <button id="nextPlayerBtn" class="btn-neon hidden w-full py-3 text-xl font-bold mt-2 bg-gray-600 border-gray-400" onclick="nextTurn()">
+                        Próximo Jogador
+                    </button>
+
+                    <p id="moveStatus" class="mt-3 text-sm font-semibold text-yellow-300 h-10 flex items-center justify-center">Clique em "Lançar Dado" para começar.</p>
+                </div>
+            </div>
+
+            <!-- Coluna 2: Tabuleiro de Jogo -->
+            <div class="lg:w-2/3 order-1 lg:order-2">
+                <div id="board">
+                    <!-- Board squares are rendered here by renderBoard() -->
+                </div>
+                <p class="text-center mt-2 text-sm text-gray-500">Casa 1: Bottom Left | Casa 90: Top Right</p>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Modal de Pergunta -->
+    <div id="questionModal" class="hidden modal-bg fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-content w-full max-w-lg p-6 rounded-2xl text-center">
+            <h2 class="title-font text-3xl mb-4 text-red-500">QUESTÃO DOS GRAUS DOS ADJETIVOS</h2>
+            <p id="questionText" class="text-xl font-bold mb-6 text-white"></p>
+            <div id="answerOptions" class="space-y-3">
+                <!-- Answer buttons are inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Fim de Jogo -->
+    <div id="gameOverModal" class="hidden modal-bg fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-content w-full max-w-md p-8 rounded-2xl text-center">
+            <h2 class="title-font text-5xl mb-4 text-green-500">VITÓRIA!</h2>
+            <p id="winnerMessage" class="text-2xl font-bold mb-8 text-white"></p>
+            <button onclick="window.location.reload()" class="btn-neon w-full py-3 text-xl font-bold bg-green-700 border-green-500 hover:bg-green-600">
+                Jogar Novamente
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
