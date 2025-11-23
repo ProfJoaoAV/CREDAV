@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjetivos: Missão Gramatical</title>
+    <!-- Inclui Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Adiciona a biblioteca html2canvas para permitir a geração do certificado como imagem -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        /* Estilos personalizados para o projeto */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Cor de fundo suave */
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            border-radius: 0.75rem;
+        }
+        .quiz-section {
+            transition: all 0.3s ease-in-out;
+        }
+        /* Efeito de destaque para os cards de status */
+        .status-card {
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        .status-card:hover {
+            transform: translateY(-2px);
+        }
+        /* Estilo para módulo concluído */
+        .module-completed {
+            border-left-color: #059669 !important; /* Verde esmeralda para concluído */
+            background-color: #f0fdf4;
+        }
+        
+        /* Estilização do Certificado para melhor visualização */
+        #certificate-container {
+            /* Imagem placeholder - no ambiente real, o html2canvas renderiza o HTML */
+            background-image: linear-gradient(135deg, #10b981 0%, #065f46 100%); 
+            border: 5px solid #fcd34d;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1000; /* Z-index alto para o confetti */
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00; 
+            opacity: 0;
+            animation: confetti-fall 5s ease-in infinite;
+        }
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Título Principal -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-green-700 tracking-tight">
+                Adjetivos: Missão Gramatical 🚀
+            </h1>
+            <p class="mt-3 text-lg text-gray-500">
+                O seu guia interativo para dominar a Morfologia e os Graus do Adjetivo.
+            </p>
+        </header>
+
+        <!-- Seção de Formulário de Identificação (Inicial) -->
+        <section id="form-section" class="bg-white p-6 sm:p-10 card max-w-lg mx-auto">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Início da Missão</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="student-name" class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                    <input type="text" id="student-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" placeholder="Ex: Maria da Silva">
+                </div>
+                <div>
+                    <label for="student-year" class="block text-sm font-medium text-gray-700">Ano de Escolaridade</label>
+                    <select id="student-year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2">
+                        <option value="">Selecione o Ano</option>
+                        <!-- APENAS 5º E 6º ANO -->
+                        <option value="5º Ano">5º Ano</option>
+                        <option value="6º Ano">6º Ano</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="student-class" class="block text-sm font-medium text-gray-700">Turma (Ex: A, B, C)</label>
+                    <input type="text" id="student-class" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2 uppercase" placeholder="Ex: C">
+                </div>
+                <button id="start-mission-btn" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                    Iniciar a Missão
+                </button>
+            </div>
+            <div id="notification-area" class="mt-4 text-center"></div>
+        </section>
+
+        <!-- Conteúdo Principal e Menu (Escondido inicialmente) -->
+        <section id="content-section" class="hidden">
+            <h2 id="welcome-message" class="text-center text-2xl font-semibold text-gray-700 mb-8"></h2>
+            
+            <!-- Cards de Status do Jogo (Gamificação) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                <div class="status-card bg-white p-4 text-center card border-b-4 border-green-500">
+                    <p class="text-lg font-bold text-gray-800" id="status-level">1</p>
+                    <p class="text-sm text-gray-500">Nível Atual</p>
+                </div>
+                <div class="status-card bg-white p-4 text-center card border-b-4 border-blue-500">
+                    <p class="text-lg font-bold text-gray-800" id="status-xp">0 XP</p>
+                    <p class="text-sm text-gray-500">Pontos de Experiência</p>
+                </div>
+                <div class="status-card bg-white p-4 text-center card border-b-4 border-yellow-500">
+                    <p class="text-lg font-bold text-gray-800" id="status-score">0/0</p>
+                    <p class="text-sm text-gray-500">Acertos Totais</p>
+                </div>
+                <!-- Troféus (Agora 3) -->
+                <div class="status-card bg-white p-4 text-center card border-b-4 border-red-500">
+                    <p class="text-lg font-bold text-gray-800" id="status-trophies">0/3</p>
+                    <p class="text-sm text-gray-500">Módulos Concluídos</p>
+                </div>
+            </div>
+
+            <!-- Botões de Ação Principal -->
+            <div class="flex flex-col md:flex-row justify-center gap-4 mb-12">
+                <button onclick="window.showSection('revision-section')" class="py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 ease-in-out">
+                    📚 Revisão Rápida
+                </button>
+                <button onclick="window.showSection('gamification-section')" class="py-3 px-6 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-150 ease-in-out">
+                    🎯 Iniciar Desafio Gramatical
+                </button>
+                <!-- Botão para descarregar o certificado - ATIVADO no código quando trophies == 3 -->
+                <button id="download-cert-btn" onclick="window.downloadCertificate()" disabled class="py-3 px-6 bg-gray-400 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out">
+                    ⭐ Descarregar Certificado
+                </button>
+            </div>
+            
+            <!-- Secção de Revisão -->
+            <section id="revision-section" class="bg-white p-6 sm:p-10 card mb-10">
+                <h3 class="text-3xl font-bold text-gray-700 border-b pb-3 mb-6">📚 O Essencial dos Adjetivos</h3>
+                
+                <article class="space-y-6">
+                    <div>
+                        <h4 class="text-xl font-semibold text-green-600">O que é um Adjetivo?</h4>
+                        <p class="text-gray-600 mt-2">É a palavra que acompanha o nome para lhe atribuir uma <strong>qualidade</strong>, <strong>estado</strong> ou <strong>característica</strong>. Exemplo: <em>casa</em> <span class="font-bold text-green-700">velha</span>.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xl font-semibold text-green-600">1. Classificação (Qualificativo vs. Numeral)</h4>
+                        <ul class="list-disc list-inside ml-4 text-gray-600 space-y-1 mt-2">
+                            <li><strong>Qualificativo:</strong> Atribui uma qualidade (ex: <em>linda, inteligente, triste</em>).</li>
+                            <li><strong>Numeral:</strong> Indica ordem (ex: <em>primeiro, segundo, centésimo</em>).</li>
+                            <li><strong>Simples:</strong> Um só radical (ex: <em>alto</em>). <strong>Composto:</strong> Mais de um radical (ex: <em>verde-escuro</em>).</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xl font-semibold text-green-600">2. Variação (Género e Número)</h4>
+                        <p class="text-gray-600 mt-2">O adjetivo <strong>concorda sempre</strong> em género (masculino/feminino) e número (singular/plural) com o nome que modifica. Exemplo: <em>rapaz alto</em> -> <em>raparigas altas</em>.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xl font-semibold text-green-600">3. Graus do Adjetivo (A Intensidade da Qualidade) </h4>
+                        <ul class="list-disc list-inside ml-4 text-gray-600 space-y-1 mt-2">
+                            <li><strong>Grau Normal:</strong> A qualidade na sua forma simples (ex: <em>rápido</em>).</li>
+                            <li><strong>Grau Comparativo:</strong> Compara a qualidade entre dois elementos.
+                                <ul class="list-circle list-inside ml-6">
+                                    <li>Superioridade: <em>mais rápido (do) que</em>.</li>
+                                    <li>Igualdade: <em>tão rápido como</em>.</li>
+                                    <li>Inferioridade: <em>menos rápido (do) que</em>.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Grau Superlativo:</strong> Expressa a qualidade no seu nível máximo.
+                                <ul class="list-circle list-inside ml-6">
+                                    <li>Absoluto Analítico: <em>muito rápido</em>.</li>
+                                    <li>Absoluto Sintético: <em>rapidíssimo</em> (com sufixo).</li>
+                                    <li>Relativo de Superioridade: <em>o mais rápido (da turma)</em>.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <!-- TABELA DE EXCEÇÕES - GRAUS IRREGULARES -->
+                        <div class="mt-8">
+                            <h5 class="text-lg font-bold text-red-600 mb-3">⚠️ Irregulares: Comparativo e Superlativo</h5>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-red-200 rounded-lg">
+                                    <thead>
+                                        <tr class="bg-red-50 text-red-700">
+                                            <th class="py-2 px-4 border-b">Grau Normal</th>
+                                            <th class="py-2 px-4 border-b">Comparativo de Superioridade</th>
+                                            <th class="py-2 px-4 border-b">Superlativo Sintético</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover:bg-red-100">
+                                            <td class="py-2 px-4 border-b font-semibold">Bom</td>
+                                            <td class="py-2 px-4 border-b italic">Melhor</td>
+                                            <td class="py-2 px-4 border-b italic">Ótimo</td>
+                                        </tr>
+                                        <tr class="hover:bg-red-100">
+                                            <td class="py-2 px-4 border-b font-semibold">Mau</td>
+                                            <td class="py-2 px-4 border-b italic">Pior</td>
+                                            <td class="py-2 px-4 border-b italic">Péssimo</td>
+                                        </tr>
+                                        <tr class="hover:bg-red-100">
+                                            <td class="py-2 px-4 border-b font-semibold">Grande</td>
+                                            <td class="py-2 px-4 border-b italic">Maior</td>
+                                            <td class="py-2 px-4 border-b italic">Máximo</td>
+                                        </tr>
+                                        <tr class="hover:bg-red-100">
+                                            <td class="py-2 px-4 font-semibold">Pequeno</td>
+                                            <td class="py-2 px-4 italic">Menor</td>
+                                            <td class="py-2 px-4 italic">Mínimo</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TABELA DE EXCEÇÕES - SUPERLATIVO SINTÉTICO ESPECIAL -->
+                        <div class="mt-8">
+                            <h5 class="text-lg font-bold text-blue-600 mb-3">✨ Superlativo Sintético Especial (Raiz Latina)</h5>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-blue-200 rounded-lg">
+                                    <thead>
+                                        <tr class="bg-blue-50 text-blue-700">
+                                            <th class="py-2 px-4 border-b">Adjetivo (Normal)</th>
+                                            <th class="py-2 px-4 border-b">Superlativo Sintético</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover:bg-blue-100">
+                                            <td class="py-2 px-4 border-b font-semibold">Fácil</td>
+                                            <td class="py-2 px-4 border-b italic">Facílimo</td>
+                                        </tr>
+                                        <tr class="hover:bg-blue-100">
+                                            <td class="py-2 px-4 border-b font-semibold">Cruel</td>
+                                            <td class="py-2 px-4 border-b italic">Cruelíssimo</td>
+                                        </tr>
+                                        <tr class="hover:bg-blue-100">
+                                            <td class="py-2 px-4 border-b font-semibold">Fiel</td>
+                                            <td class="py-2 px-4 border-b italic">Fidelíssimo</td>
+                                        </tr>
+                                        <tr class="hover:bg-blue-100">
+                                            <td class="py-2 px-4 border-b font-semibold">Doce</td>
+                                            <td class="py-2 px-4 border-b italic">Dulcíssimo</td>
+                                        </tr>
+                                        <tr class="hover:bg-blue-100">
+                                            <td class="py-2 px-4 font-semibold">Pobre</td>
+                                            <td class="py-2 px-4 italic">Paupérrimo / Pobríssimo</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- RECURSOS ADICIONAIS - LINKS MANTIDOS -->
+                    <div class="mt-10 pt-6 border-t border-gray-200">
+                        <h4 class="text-xl font-semibold text-blue-600 mb-4">🔗 Recursos de Estudo Adicionais</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <!-- Link para o Vídeo (Placeholder) -->
+                            <a href="https://placehold.co/400x100/3b82f6/ffffff?text=Video+Explicativo" target="_blank" class="flex items-center justify-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg shadow transition duration-150 text-blue-700 font-medium text-center">
+                                ▶️ Ver Vídeo Explicativo
+                            </a>
+                            <!-- Link para o PDF (Placeholder) -->
+                            <a href="https://placehold.co/400x100/ef4444/ffffff?text=PDF+de+Apoio" target="_blank" class="flex items-center justify-center p-3 bg-red-50 hover:bg-red-100 rounded-lg shadow transition duration-150 text-red-700 font-medium text-center">
+                                📄 Consultar PDF de Apoio
+                            </a>
+                            <!-- Link para a Infografia/Imagem (Placeholder) -->
+                            <a href="https://placehold.co/400x100/f59e0b/ffffff?text=Infografia+Gramatical" target="_blank" class="flex items-center justify-center p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg shadow transition duration-150 text-yellow-700 font-medium text-center">
+                                🖼️ Ver Infografia
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Secção de Gamificação (Quiz) -->
+            <section id="gamification-section" class="hidden quiz-section">
+                <h3 class="text-3xl font-bold text-gray-700 border-b pb-3 mb-6">🎯 Desafio Gramatical: O Teste de Mestria</h3>
+
+                <p class="text-lg text-gray-600 mb-6 font-medium">Conclua todos os 3 Módulos para desbloquear o seu Certificado de Mérito!</p>
+
+                <!-- Cards dos Módulos (Grid de 3 Colunas) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Módulo 1: Classificação (Numeral vs. Qualificativo) -->
+                    <div id="card-classificacao" class="bg-white p-6 card border-l-4 border-red-500">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
+                            Módulo 1: Classificação 
+                            <span class="text-sm font-medium text-red-500" id="progress-classificacao">0/100 XP</span>
+                        </h4>
+                        <p class="text-sm text-gray-500 mb-4">Identifique se o adjetivo é Qualificativo ou Numeral. (25 Perguntas)</p>
+                        <button id="start-quiz-classificacao" onclick="window.startQuiz('classificacao')" class="w-full py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 transition duration-150">
+                            Iniciar Módulo 1
+                        </button>
+                        <div id="quiz-classificacao" class="mt-4 hidden">
+                            <p class="text-lg font-bold mb-3" id="q-text-classificacao"></p>
+                            <div id="q-options-classificacao" class="space-y-3"></div>
+                            <button onclick="window.nextQuestion('classificacao')" class="mt-4 py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-150" id="next-classificacao" disabled>Próxima →</button>
+                        </div>
+                    </div>
+
+                    <!-- Módulo 2: Graus do Adjetivo -->
+                    <div id="card-graus" class="bg-white p-6 card border-l-4 border-purple-500">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
+                            Módulo 2: Graus do Adjetivo
+                            <span class="text-sm font-medium text-purple-500" id="progress-graus">0/100 XP</span>
+                        </h4>
+                        <p class="text-sm text-gray-500 mb-4">Domine o Comparativo e o Superlativo. (25 Perguntas)</p>
+                        <button id="start-quiz-graus" onclick="window.startQuiz('graus')" class="w-full py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 transition duration-150">
+                            Iniciar Módulo 2
+                        </button>
+                        <div id="quiz-graus" class="mt-4 hidden">
+                            <p class="text-lg font-bold mb-3" id="q-text-graus"></p>
+                            <div id="q-options-graus" class="space-y-3"></div>
+                            <button onclick="window.nextQuestion('graus')" class="mt-4 py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-150" id="next-graus" disabled>Próxima →</button>
+                        </div>
+                    </div>
+
+                    <!-- Módulo 3: Concordância (Novo) -->
+                    <div id="card-concordancia" class="bg-white p-6 card border-l-4 border-orange-500">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center">
+                            Módulo 3: Concordância
+                            <span class="text-sm font-medium text-orange-500" id="progress-concordancia">0/100 XP</span>
+                        </h4>
+                        <p class="text-sm text-gray-500 mb-4">Reveja as regras de concordância em género e número. (25 Perguntas)</p>
+                        <button id="start-quiz-concordancia" onclick="window.startQuiz('concordancia')" class="w-full py-2 bg-orange-600 text-white font-medium rounded-md hover:bg-orange-700 transition duration-150">
+                            Iniciar Módulo 3
+                        </button>
+                        <div id="quiz-concordancia" class="mt-4 hidden">
+                            <p class="text-lg font-bold mb-3" id="q-text-concordancia"></p>
+                            <div id="q-options-concordancia" class="space-y-3"></div>
+                            <button onclick="window.nextQuestion('concordancia')" class="mt-4 py-2 px-4 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-150" id="next-concordancia" disabled>Próxima →</button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        
+            <!-- Secção de Certificado (Escondida) -->
+            <section id="certificate-section" class="hidden mt-10 p-6 sm:p-10 card max-w-2xl mx-auto bg-green-50">
+                <h3 class="text-3xl font-bold text-center text-green-700 mb-6">🎉 Parabéns, Missão Concluída!</h3>
+                <div id="certificate-container" class="relative w-full aspect-square md:aspect-[4/3] flex flex-col justify-center items-center text-center p-10 text-white shadow-2xl">
+                    <p class="text-xl font-light">Este Certificado de Mérito é atribuído a</p>
+                    <p id="cert-name" class="text-4xl md:text-6xl font-black italic mt-4 mb-8 text-yellow-300 drop-shadow-lg"></p>
+                    <p class="text-xl font-light">pela excelência demonstrada no domínio dos</p>
+                    <p class="text-3xl font-bold">ADJETIVOS</p>
+                    <p id="cert-score" class="text-lg mt-4"></p>
+                    <p class="absolute bottom-4 right-4 text-sm">Professor Digital 🤖</p>
+                </div>
+            </section>
+
+        </section>
+
+    </div>
+
+    <script>
+        // Variáveis globais para o jogo
+        let studentName = "";
+        let studentInfo = "";
+        // Atualizadas para 3 módulos
+        let quizActive = { classificacao: false, graus: false, concordancia: false };
+        let currentQuestionIndex = { classificacao: 0, graus: 0, concordancia: 0 };
+        // Agora, 'score' representa os XP acumulados por módulo
+        let score = { classificacao: 0, graus: 0, concordancia: 0 };
+        let totalAnswered = { classificacao: 0, graus: 0, concordancia: 0 };
+        let totalScore = 0;
+        // Total XP de todos os módulos
+        let totalAnsweredAll = 0;
+        let xp = 0;
+        let level = 1;
+        let trophies = 0;
+        const XP_PER_CORRECT = 10;
+        const XP_GOAL = 100;
+        // Objetivo de XP por módulo para obter um "troféu"
+
+        // --- DADOS DO QUIZ ---
+        // Classificação: Adjetivo Numeral vs. Qualificativo (SIMPLIFICADO)
+        const quizQuestionsClassificacao = [
+            { question: "O adjetivo em 'carro VELOZ' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "O adjetivo em 'TERCEIRO lugar' é:", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "Em 'um dia TRISTE', 'triste' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Classifique o adjetivo 'PRIMEIRO'.", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "O adjetivo em 'menino ALTO' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Classifique o adjetivo 'SEXTO'.", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "O adjetivo em 'comida DELICIOSA' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Classifique o adjetivo 'QUARTO' em 'quarto ano'.", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "Em 'chá QUENTE', 'quente' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "O adjetivo em 'DÉCIMA tentativa' é:", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "O adjetivo em 'livro INTERESSANTE' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Classifique o adjetivo 'CENTÉSIMO'.", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "Em 'mar AZUL', 'azul' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "O adjetivo em 'ÚLTIMA palavra' é:", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "O adjetivo 'AMÁVEL' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Classifique o adjetivo 'SEGUNDO'.", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "Em 'música ALTA', 'alta' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "O adjetivo 'BONITO' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Em 'PRIMEIRA etapa', 'primeira' é:", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "O adjetivo em 'sol BRILHANTE' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Classifique o adjetivo 'MILÉSIMO'.", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "O adjetivo em 'problema DIFÍCIL' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Classifique o adjetivo 'NONO'.", options: ["Qualificativo", "Numeral"], answer: "Numeral" },
+            { question: "O adjetivo 'GELADO' é:", options: ["Qualificativo", "Numeral"], answer: "Qualificativo" },
+            { question: "Em 'SEXTA-FEIRA', 'sexta' é:", options: ["Qualificativo", "Numeral"], answer: "Numeral" }
+        ];
+
+        // Graus do Adjetivo
+        const quizQuestionsGraus = [
+            { question: "Qual é o Superlativo Sintético de 'fácil'?", options: ["muito fácil", "facílimo", "mais fácil", "fácilíssimo"], answer: "facílimo" },
+            { question: "Forma o Comparativo de Superioridade para 'rápido'.", options: ["o mais rápido de todos", "tão rápido como", "mais rápido do que", "rapidíssimo"], answer: "mais rápido do que" },
+            { question: "O grau 'muito contente' é um Superlativo:", options: ["Absoluto Sintético", "Absoluto Analítico", "Relativo", "Comparativo"], answer: "Absoluto Analítico" },
+            { question: "Qual é o Superlativo Sintético de 'cruel'?", options: ["muito cruel", "cruelíssimo", "cruelo", "cruelo"], answer: "cruelíssimo" },
+            { question: "O grau 'tão educado como' é um Comparativo de:", options: ["Superioridade", "Igualdade", "Inferioridade", "Absoluto"], answer: "Igualdade" },
+            { question: "O grau 'Ele é o menos inteligente da turma' é um Superlativo:", options: ["Absoluto Analítico", "Comparativo de Inferioridade", "Relativo de Inferioridade", "Relativo de Superioridade"], answer: "Relativo de Inferioridade" },
+            { question: "Qual o Superlativo Sintético (irregular) de 'bom'?", options: ["bomíssimo", "melhor", "ótimo", "boníssimo"], answer: "ótimo" },
+            { question: "O grau 'menos bonito do que' é um Comparativo de:", options: ["Superioridade", "Igualdade", "Inferioridade", "Absoluto Analítico"], answer: "Inferioridade" },
+            { question: "Qual o Superlativo Analítico de 'pobre'?", options: ["paupérrimo", "muito pobre", "mais pobre", "pobríssimo"], answer: "muito pobre" },
+            { question: "Qual o Comparativo de Superioridade (irregular) de 'mau'?", options: ["malhor", "pior", "muito mau", "pessimo"], answer: "pior" },
+            { question: "O grau 'altíssimo' é um Superlativo:", options: ["Relativo", "Absoluto Sintético", "Comparativo", "Normal"], answer: "Absoluto Sintético" },
+            { question: "O grau 'Ele é o mais forte de todos' é um Superlativo:", options: ["Absoluto Analítico", "Relativo de Superioridade", "Comparativo de Superioridade", "Absoluto Sintético"], answer: "Relativo de Superioridade" },
+            { question: "Qual o Superlativo Sintético de 'sábio'?", options: ["muito sábio", "sabiíssimo", "sapientíssimo", "sabião"], answer: "sapientíssimo" },
+            { question: "O Comparativo de Igualdade para 'grande' é:", options: ["maior", "tão grande como", "menos grande do que", "máximo"], answer: "tão grande como" },
+            { question: "O grau 'paupérrimo' é o Superlativo Sintético de:", options: ["rico", "pobre", "miserável", "pouco"], answer: "pobre" },
+            { question: "Qual o Superlativo Sintético de 'amável'?", options: ["muito amável", "amávelíssimo", "amabilíssimo", "amável"], answer: "amabilíssimo" },
+            { question: "O grau Superlativo Sintético de 'fiel' é:", options: ["fielíssimo", "muito fiel", "fidelíssimo", "mais fiel"], answer: "fidelíssimo" },
+            { question: "O Superlativo Absoluto Analítico de 'difícil' é:", options: ["dificílimo", "muito difícil", "mais difícil", "difícilo"], answer: "muito difícil" },
+            { question: "Qual adjetivo tem 'mínimo' como Superlativo Sintético?", options: ["grande", "pequeno", "bom", "mau"], answer: "pequeno" },
+            { question: "O grau 'antiquíssimo' é o Superlativo Sintético de:", options: ["antigo", "velho", "velhíssimo", "antigão"], answer: "antigo" }, 
+            { question: "O grau 'o menos rápido do grupo' é um Superlativo:", options: ["Comparativo", "Absoluto", "Relativo de Inferioridade", "Relativo de Superioridade"], answer: "Relativo de Inferioridade" },
+            { question: "Qual a forma irregular do Comparativo de Superioridade para 'grande'?", options: ["grandíssimo", "maior", "mais grande", "máximo"], answer: "maior" },
+            { question: "Qual o Superlativo Sintético de 'amigo'?", options: ["amiguíssimo", "muito amigo", "amicíssimo", "amigável"], answer: "amicíssimo" },
+            { question: "O grau 'Este desafio é tão fácil como o anterior' é um Comparativo de:", options: ["Superioridade", "Igualdade", "Inferioridade", "Normal"], answer: "Igualdade" },
+            { question: "O Superlativo Sintético de 'doce' é:", options: ["doceíssimo", "muito doce", "dulcíssimo", "doção"], answer: "dulcíssimo" }
+        ];
+
+        // Concordância (SIMPLIFICADO - Sem Adjetivos Compostos)
+        const quizQuestionsConcordancia = [
+            { question: "Complete a frase: 'As casas (bonito)'", options: ["bonitas", "bonitos", "bonita", "bonito"], answer: "bonitas" },
+            { question: "O adjetivo 'alto' no feminino plural é:", options: ["altos", "altas", "alta", "alto"], answer: "altas" },
+            { question: "O adjetivo 'alegre' concorda com 'cão' (masculino singular):", options: ["alegra", "alegres", "alegre", "alegrão"], answer: "alegre" },
+            { question: "Complete a frase: 'Ele tem cabelos (loiro)'", options: ["loira", "loiro", "loiros", "loiras"], answer: "loiros" },
+            { question: "O plural de 'cidade pequena' é:", options: ["cidades pequenas", "cidades pequena", "cidade pequenas", "cidades pequenos"], answer: "cidades pequenas" },
+            { question: "Qual é a forma feminina e plural de 'português'?", options: ["portuguesas", "portugueses", "portuguesa", "portuguêsas"], answer: "portuguesas" },
+            { question: "O adjetivo 'limpo' concorda com 'janelas' (feminino, plural):", options: ["limpas", "limpos", "limpa", "limpo"], answer: "limpas" },
+            { question: "As (incrível) histórias são fascinantes.", options: ["incrível", "incríveis", "incrivél", "incriveis"], answer: "incríveis" },
+            { question: "O adjetivo 'fácil' em 'o teste/a prova (fácil)' fica:", options: ["fácil", "fáceis", "fácila", "fácilo"], answer: "fácil" },
+            { question: "A concordância em 'luvas (amarelo)' deve ser:", options: ["amarelos", "amarelas", "amarela", "amarelo"], answer: "amarelas" },
+            { question: "O plural de 'calça verde' é:", options: ["calças verdes", "calça verdes", "calças verde", "calças verdas"], answer: "calças verdes" },
+            { question: "O nome 'pessoa' é sempre feminino, o adjetivo concorda:", options: ["a pessoa certo", "a pessoa certa", "a pessoa certas", "a pessoa certos"], answer: "a pessoa certa" },
+            { question: "A concordância de 'Os resultados foram (bom)':", options: ["boa", "bons", "boas", "bom"], answer: "bons" },
+            { question: "O plural de 'livro interessante' é:", options: ["livros interessantes", "livros interessante", "livro interessantes", "livros interessanto"], answer: "livros interessantes" },
+            { question: "Em 'As frutas estão (maduro)', a forma correta é:", options: ["maduras", "maduros", "madura", "maduro"], answer: "maduras" },
+            { question: "O adjetivo 'simples' é biforme ou uniforme?", options: ["Biforme", "Uniforme", "Não se aplica", "Invariável"], answer: "Uniforme" },
+            { question: "Qual o adjetivo correto para 'os dias e as noites (frio)'?", options: ["frias", "frios", "fria", "frios"], answer: "frios" },
+            { question: "O adjetivo 'mudo' no feminino plural é:", options: ["mudas", "mudos", "muda", "mudo"], answer: "mudas" },
+            { question: "O adjetivo 'cansado' concorda com 'as crianças' (feminino plural):", options: ["cansados", "cansadas", "cansado", "cansada"], answer: "cansadas" },
+            { question: "A concordância correta para 'flores (roxo)' é:", options: ["roxas", "roxos", "roxa", "roxo"], answer: "roxas" },
+            { question: "Os quadros são (extraordinário).", options: ["extraordinários", "extraordinária", "extraordinárias", "extraordinário"], answer: "extraordinários" },
+            { question: "A concordância correta para 'A blusa é (vermelho)' é:", options: ["vermelho", "vermelha", "vermelhos", "vermelhas"], answer: "vermelha" },
+            { question: "A concordância em 'sapatos (castanho)' é:", options: ["castanhas", "castanhos", "castanha", "castanho"], answer: "castanhos" },
+            { question: "Em 'dois rapazes e uma rapariga (bonito)', o adjetivo concorda em:", options: ["Bonita", "Bonitas", "Bonitos", "Bonito"], answer: "Bonitos" }, // Regra da concordância com o masculino plural (bonitos)
+            { question: "A forma correta do adjetivo de 'ele e ela são (capaz)' é:", options: ["capazes", "capaz", "capazes", "capazes"], answer: "capazes" }
+        ];
+
+        // --- FUNÇÕES GLOBAIS DE UTILIDADE ---
+        function showNotification(message, success) {
+            const area = document.getElementById('notification-area');
+            area.innerHTML = `
+                <div class="mt-4 p-3 rounded-lg text-sm ${success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                area.innerHTML = '';
+            }, 3000);
+        }
+
+        function updateStatus() {
+            totalScore = score.classificacao + score.graus + score.concordancia; // Total XP
+            totalAnsweredAll = totalAnswered.classificacao + totalAnswered.graus + totalAnswered.concordancia;
+            xp = totalScore; // XP é o totalScore
+            level = Math.floor(xp / 50) + 1; // 50 XP por nível
+
+            // Atualiza troféus: 1 troféu por 100 XP (XP_GOAL) atingidos em cada módulo
+            trophies = (score.classificacao >= XP_GOAL ? 1 : 0) + (score.graus >= XP_GOAL ? 1 : 0) + (score.concordancia >= XP_GOAL ? 1 : 0);
+
+            const certBtn = document.getElementById('download-cert-btn');
+            // Verifica se a missão está concluída (3 troféus)
+            if (trophies === 3) {
+                certBtn.disabled = false;
+                certBtn.classList.remove('bg-gray-400');
+                certBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                // Alerta para a conclusão
+                if (!window._confettiLaunched) {
+                    showNotification("🏆 Missão de Mestria Concluída! Descarregue o seu certificado.", true);
+                    window.showConfetti();
+                    window._confettiLaunched = true;
+                }
+            } else {
+                certBtn.disabled = true;
+                certBtn.classList.add('bg-gray-400');
+                certBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+            }
+
+            // Atualiza o DOM
+            document.getElementById('status-level').textContent = level;
+            document.getElementById('status-xp').textContent = `${xp} XP`;
+            document.getElementById('status-score').textContent = `${totalAnsweredAll}/${quizQuestionsClassificacao.length + quizQuestionsGraus.length + quizQuestionsConcordancia.length}`;
+            document.getElementById('status-trophies').textContent = `${trophies}/3`;
+
+            // Atualiza o progresso nos cards
+            document.getElementById('progress-classificacao').textContent = `${score.classificacao}/${XP_GOAL} XP`;
+            document.getElementById('progress-graus').textContent = `${score.graus}/${XP_GOAL} XP`;
+            document.getElementById('progress-concordancia').textContent = `${score.concordancia}/${XP_GOAL} XP`;
+
+            // Marca os cards como concluídos
+            document.getElementById('card-classificacao').classList.toggle('module-completed', score.classificacao >= XP_GOAL);
+            document.getElementById('card-graus').classList.toggle('module-completed', score.graus >= XP_GOAL);
+            document.getElementById('card-concordancia').classList.toggle('module-completed', score.concordancia >= XP_GOAL);
+
+            // Desativa botões de início se o módulo já estiver concluído
+            document.getElementById('start-quiz-classificacao').disabled = score.classificacao >= XP_GOAL;
+            document.getElementById('start-quiz-graus').disabled = score.graus >= XP_GOAL;
+            document.getElementById('start-quiz-concordancia').disabled = score.concordancia >= XP_GOAL;
+        }
+
+        function showSection(sectionId) {
+            document.getElementById('revision-section').classList.add('hidden');
+            document.getElementById('gamification-section').classList.add('hidden');
+            document.getElementById('certificate-section').classList.add('hidden');
+            
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            if (sectionId === 'certificate-section') {
+                document.getElementById('cert-name').textContent = studentName;
+                const totalMaxQuestions = quizQuestionsClassificacao.length + quizQuestionsGraus.length + quizQuestionsConcordancia.length;
+                const totalMaxXP = totalMaxQuestions * XP_PER_CORRECT;
+                document.getElementById('cert-score').textContent = `Com um total de ${totalScore} XP (${totalAnsweredAll} respostas) de ${totalMaxXP} possíveis.`;
+            }
+            
+            window.scrollTo({ top: document.getElementById(sectionId).offsetTop - 20, behavior: 'smooth' });
+        }
+        window.showSection = showSection;
+
+        // Função para mostrar o confetti (efeito de celebração)
+        function showConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti-container';
+            document.body.appendChild(confettiContainer);
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                confettiContainer.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                confettiContainer.remove();
+            }, 5000);
+        }
+        window.showConfetti = showConfetti;
+
+
+        function getQuestions(quizKey) {
+            if (quizKey === 'classificacao') return quizQuestionsClassificacao;
+            if (quizKey === 'graus') return quizQuestionsGraus;
+            if (quizKey === 'concordancia') return quizQuestionsConcordancia;
+            return [];
+        }
+
+        function startQuiz(quizKey) {
+            const questions = getQuestions(quizKey);
+            // Se já respondeu a todas as perguntas, reinicia o índice
+            if (currentQuestionIndex[quizKey] >= questions.length) {
+                currentQuestionIndex[quizKey] = 0;
+            }
+            quizActive[quizKey] = true;
+            document.getElementById(`start-quiz-${quizKey}`).classList.add('hidden');
+            document.getElementById(`quiz-${quizKey}`).classList.remove('hidden');
+            loadQuestion(quizKey);
+        }
+        window.startQuiz = startQuiz;
+
+        function loadQuestion(quizKey) {
+            const questions = getQuestions(quizKey);
+            const index = currentQuestionIndex[quizKey];
+
+            if (index >= questions.length) {
+                endQuiz(quizKey);
+                return;
+            }
+
+            const questionData = questions[index];
+            
+            document.getElementById(`q-text-${quizKey}`).textContent = `P${index + 1}/${questions.length}: ${questionData.question}`;
+            
+            const optionsContainer = document.getElementById(`q-options-${quizKey}`);
+            optionsContainer.innerHTML = '';
+            document.getElementById(`next-${quizKey}`).disabled = true;
+
+            const shuffledOptions = questionData.options.sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'w-full text-left py-3 px-4 rounded-md border border-gray-300 bg-gray-50 hover:bg-gray-200 transition duration-100 ease-in-out text-gray-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500';
+                button.onclick = () => selectOption(quizKey, button, option, questionData.answer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectOption(quizKey, selectedButton, selectedOption, correctAnswer) {
+            const optionsContainer = document.getElementById(`q-options-${quizKey}`);
+            Array.from(optionsContainer.children).forEach(btn => btn.disabled = true);
+            
+            if (selectedOption === correctAnswer) {
+                selectedButton.classList.remove('bg-gray-50', 'hover:bg-gray-200');
+                selectedButton.classList.add('bg-green-500', 'text-white', 'shadow-lg');
+                score[quizKey] += XP_PER_CORRECT; // Adiciona XP
+                totalAnswered[quizKey]++;
+                showNotification(`🎉 Certo! +${XP_PER_CORRECT} XP`, true);
+            } else {
+                selectedButton.classList.remove('bg-gray-50', 'hover:bg-gray-200');
+                selectedButton.classList.add('bg-red-500', 'text-white', 'shadow-lg');
+                totalAnswered[quizKey]++;
+                // Destaca a resposta correta
+                Array.from(optionsContainer.children).forEach(btn => {
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('border-green-500', 'border-2', 'bg-green-100', 'text-green-800');
+                    }
+                });
+                showNotification(`❌ Errado. A resposta correta é: ${correctAnswer}`, false);
+            }
+            
+            document.getElementById(`next-${quizKey}`).disabled = false;
+            updateStatus();
+        }
+
+        function nextQuestion(quizKey) {
+            const questions = getQuestions(quizKey);
+            currentQuestionIndex[quizKey]++;
+
+            if (currentQuestionIndex[quizKey] < questions.length) {
+                loadQuestion(quizKey);
+            } else {
+                endQuiz(quizKey);
+            }
+        }
+        window.nextQuestion = nextQuestion;
+
+        function endQuiz(quizKey) {
+            quizActive[quizKey] = false;
+            
+            document.getElementById(`quiz-${quizKey}`).classList.add('hidden');
+            const startBtn = document.getElementById(`start-quiz-${quizKey}`);
+            startBtn.classList.remove('hidden');
+            startBtn.textContent = (score[quizKey] >= XP_GOAL) ? "Módulo Concluído (Praticar Novamente)" : "Repetir Módulo";
+            
+            // Verifica se a pontuação atual ultrapassou o XP_GOAL pela primeira vez e notifica.
+            if (score[quizKey] >= XP_GOAL && !document.getElementById(`card-${quizKey}`).classList.contains('module-completed')) {
+                 showNotification(`Módulo ${quizKey.toUpperCase()} concluído! Obtiveste um troféu!`, true);
+            } else {
+                 showNotification(`Módulo ${quizKey.toUpperCase()} concluído! Total de XP neste módulo: ${score[quizKey]}.`, true);
+            }
+            updateStatus();
+        }
+        
+        // Função para gerar e descarregar o certificado usando html2canvas
+        async function downloadCertificate() {
+            if (trophies !== 3) {
+                showNotification("Ainda não atingiu os 100 XP nos 3 módulos! Continue a praticar.", false);
+                return;
+            }
+
+            // Garante que a secção do certificado está visível (mas não necessariamente no scroll)
+            showSection('certificate-section');
+            
+            const container = document.getElementById('certificate-container');
+
+            // Usa html2canvas para renderizar o div em um canvas
+            try {
+                const canvas = await html2canvas(container, { 
+                    scale: 2, // Maior escala para melhor qualidade
+                    backgroundColor: null, // Para manter a transparência se necessário, mas o fundo é sólido
+                    useCORS: true // Essencial se houver imagens externas
+                });
+                
+                // Converte o canvas para uma imagem PNG
+                const image = canvas.toDataURL('image/png');
+                
+                // Cria um link temporário para o download
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = `Certificado-Adjetivos-${studentName.replace(/\s/g, '-')}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showNotification("Certificado descarregado com sucesso!", true);
+            } catch (error) {
+                console.error("Erro ao gerar o certificado:", error);
+                showNotification("Erro ao gerar o certificado. Tente novamente.", false);
+            }
+        }
+
+        window.downloadCertificate = downloadCertificate;
+
+
+        // --- FLUXO DE INICIALIZAÇÃO ---
+
+        document.getElementById('start-mission-btn').addEventListener('click', () => {
+            studentName = document.getElementById('student-name').value.trim();
+            const studentYear = document.getElementById('student-year').value;
+            const studentClass = document.getElementById('student-class').value.trim();
+            studentInfo = `${studentYear} - Turma ${studentClass}`;
+
+            if (!studentName || !studentYear || !studentClass) {
+                showNotification("Por favor, preencha todos os campos.", false);
+                return;
+            }
+
+            document.getElementById('form-section').classList.add('hidden');
+            document.getElementById('content-section').classList.remove('hidden');
+            
+            // Mostrar a secção de Revisão primeiro
+            showSection('revision-section');
+
+            document.getElementById('welcome-message').textContent = `👋 Olá, ${studentName}! Estás no ${studentInfo}.`;
+            
+            updateStatus();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('content-section').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
