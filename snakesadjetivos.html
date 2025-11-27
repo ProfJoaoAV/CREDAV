@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPSIDE DOWN: ESCADAS E TENTÁCULOS</title>
+    <title>UPSIDE DOWN: ESCADAS E TENTÁCULOS (Local)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -62,11 +62,12 @@
         }
         
         .player-pawn {
-            width: 30px;
-            height: 30px;
+            width: 40px; /* Aumentado para melhor visibilidade */
+            height: 40px; /* Aumentado para melhor visibilidade */
             border-radius: 50%;
             position: absolute;
-            background-size: cover;
+            background-size: contain; /* Alterado para garantir que a imagem inteira é visível */
+            background-repeat: no-repeat; /* Adicionado */
             background-position: center;
             transition: transform 0.5s ease-in-out;
             border: 3px solid white;
@@ -74,10 +75,7 @@
         }
 
         /* Peões empilhados (com pequeno offset para visualização) */
-        #square-1 > .player-pawn:nth-child(2) { transform: translate(-10px, 0); }
-        #square-1 > .player-pawn:nth-child(3) { transform: translate(10px, 0); }
-        #square-1 > .player-pawn:nth-child(4) { transform: translate(0, 10px); }
-
+        
         /* Botões de Ação com Efeito Neon */
         .btn-neon {
             background-color: #6d0f0f;
@@ -113,65 +111,9 @@
 
     </style>
 
-    <!-- Firebase SDK Imports (MANDATÓRIO) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Ativar logging de debug para o Firestore
-        setLogLevel('Debug');
+    <script>
+        // --- Variáveis Globais (APENAS JAVASCRIPT LOCAL) ---
 
-        // Variáveis globais obrigatórias
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db, auth;
-        window.userId = null;
-        window.isAuthReady = false;
-        window.isHost = false; // NOVA FLAG: Indica se este dispositivo é o que iniciou o jogo.
-        window.unsubscribeSnapshot = null; // Para guardar o listener de snapshot
-
-        // Configuração e Autenticação do Firebase
-        window.initFirebase = async () => {
-            try {
-                // Apenas inicializa se houver config, senão joga offline
-                if (Object.keys(firebaseConfig).length === 0) throw new Error("Firebase config not available. Playing offline.");
-                
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                window.db = db;
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        window.userId = user.uid;
-                        document.getElementById('authStatus').textContent = `ID do Jogo: ${appId} | Usuário: ${user.uid.substring(0, 8)}...`;
-                    } else {
-                        // Tenta autenticar ou usa anónimo
-                        if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    }
-                    window.isAuthReady = true;
-                    // Tenta carregar o estado após a autenticação
-                    loadPublicGameState();
-                });
-
-            } catch (error) {
-                console.error("Erro ao inicializar Firebase ou Autenticação:", error);
-                document.getElementById('authStatus').textContent = `Erro de Auth: Jogar offline.`;
-                window.isAuthReady = true; // Permite iniciar o jogo offline
-            }
-        };
-        
-        window.initFirebase();
-
-        // Variáveis globais do jogo
         window.NUM_SQUARES = 90; // 9 linhas x 10 colunas = 90 casas
         window.currentPlayerIndex = 0;
         window.players = [];
@@ -235,102 +177,16 @@
             { q: 'O adjetivo "fiel" no grau superlativo absoluto sintético é...', a: ['Fielíssimo', 'Fidelíssimo', 'O mais fiel', 'Muito fiel'], correct: 'Fidelíssimo' }
         ];
 
-        // Função auxiliar para verificar a permissão de rolar o dado
-        const canRollDice = (currentPlayer) => {
-            // Se o dispositivo for o Host (quem iniciou o jogo), pode rolar por qualquer jogador.
-            if (window.isHost) {
-                return true;
-            }
-            // Caso contrário (se for um Guest), só pode rolar se o ID do utilizador local 
-            // coincidir com o 'ownerId' do jogador atual.
-            return auth.currentUser?.uid === currentPlayer?.ownerId;
-        };
         
-        // --- Funções Firebase ---
-
-        const getGameDocRef = () => {
-            if (!window.db || !window.isAuthReady) return null;
-            // Caminho: /artifacts/{appId}/public/data/game_state/{docId}
-            return doc(window.db, `artifacts/${appId}/public/data/game_state`, 'upsidedown_game');
-        };
-
-        window.saveGameState = async () => {
-            if (!window.db || !window.isAuthReady || window.players.length === 0) return;
-            const docRef = getGameDocRef();
-            if (!docRef) return;
-
-            const gameState = {
-                players: window.players,
-                currentPlayerIndex: window.currentPlayerIndex,
-                gameStarted: window.gameStarted,
-                timestamp: Date.now()
-            };
-
-            try {
-                await setDoc(docRef, gameState, { merge: true });
-                // console.log("Estado guardado com sucesso!");
-            } catch (e) {
-                console.error("Erro ao guardar o estado do jogo: ", e);
-            }
-        };
-
-        window.loadPublicGameState = () => {
-            if (!window.db || !window.isAuthReady || window.unsubscribeSnapshot) return;
-            const docRef = getGameDocRef();
-            if (!docRef) return;
-
-            // Define o listener em tempo real
-            window.unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists() && docSnap.data().gameStarted) {
-                    const loadedState = docSnap.data();
-                    
-                    // Se o jogo já estiver a decorrer, atualiza o estado local
-                    if (loadedState.gameStarted) {
-                        window.players = loadedState.players || [];
-                        window.currentPlayerIndex = loadedState.currentPlayerIndex || 0;
-                        window.gameStarted = true;
-
-                        document.getElementById('setupScreen').classList.add('hidden');
-                        document.getElementById('gameScreen').classList.remove('hidden');
-
-                        renderBoard();
-                        updateControlPanel();
-                        updateScores();
-                        document.getElementById('moveStatus').textContent = `Jogo sincronizado. É a vez de ${window.players[window.currentPlayerIndex]?.name}.`;
-
-                        // CORREÇÃO DE BUG: Verificar a permissão de rolar o dado com a nova função
-                        const currentPlayer = window.players[window.currentPlayerIndex];
-                        document.getElementById('rollDiceBtn').disabled = !canRollDice(currentPlayer);
-                    }
-                }
-            }, (error) => {
-                console.error("Erro ao receber atualização do estado em tempo real: ", error);
-            });
-        };
-        
-        // --- Funções Principais do Jogo ---
+        // --- Funções Principais do Jogo (Apenas Local) ---
 
         window.startGame = () => {
-            if (!window.isAuthReady) {
-                console.error("Aguarde a inicialização da autenticação (Firebase) antes de começar.");
-                document.getElementById('authStatus').textContent = "Aguarde a autenticação para iniciar o jogo.";
-                return;
-            }
-
             const playerCount = parseInt(document.getElementById('playerCount').value);
             if (playerCount < 1 || playerCount > 4) return;
             
-            // Garantir que o unsubscribe do estado anterior (se existir) é feito antes de começar um novo
-            if (window.unsubscribeSnapshot) {
-                 window.unsubscribeSnapshot();
-                 window.unsubscribeSnapshot = null;
-            }
-
             const shuffledAssets = PAWN_ASSETS.sort(() => 0.5 - Math.random());
             
             window.players = [];
-            const currentUserId = auth.currentUser?.uid || crypto.randomUUID();
-            
             for (let i = 0; i < playerCount; i++) {
                 window.players.push({
                     id: i + 1,
@@ -338,19 +194,12 @@
                     position: 1, 
                     assetUrl: shuffledAssets[i], 
                     color: i === 0 ? '#ff0000' : (i === 1 ? '#00ffff' : (i === 2 ? '#ffcc00' : '#00ff00')),
-                    // Associa o ID do utilizador autenticado ao primeiro jogador (ou a um ID anónimo/random)
-                    // Este ID é usado para controlo estrito em modo multiplayer
-                    ownerId: i === 0 ? currentUserId : crypto.randomUUID() 
                 });
             }
 
             window.currentPlayerIndex = 0;
             window.gameStarted = true;
-            window.isHost = true; // Define este dispositivo como o Host
             
-            // Inicia o jogo, guarda estado e renderiza
-            saveGameState();
-
             document.getElementById('setupScreen').classList.add('hidden');
             document.getElementById('gameScreen').classList.remove('hidden');
 
@@ -443,12 +292,12 @@
                     
                     pawn.style.backgroundImage = `url('${player.assetUrl}')`; 
                     
-                    // Offset para evitar sobreposição total
+                    // Offset para evitar sobreposição total (ajustado para o novo tamanho de 40px)
                     const offsetMap = [
-                        {x: 0, y: 0}, 
-                        {x: 10, y: 0}, 
-                        {x: -10, y: 0}, 
-                        {x: 0, y: 10}
+                        {x: -8, y: -8}, // Top Left
+                        {x: 8, y: -8},  // Top Right
+                        {x: -8, y: 8},  // Bottom Left
+                        {x: 8, y: 8}   // Bottom Right
                     ];
                     const offset = offsetMap[playerIndex % 4];
                     pawn.style.transform = `translate(${offset.x}px, ${offset.y}px)`;
@@ -463,17 +312,9 @@
 
         window.rollDice = () => {
             const rollDiceBtn = document.getElementById('rollDiceBtn');
-            const currentPlayer = window.players[window.currentPlayerIndex];
-            
-            // CORREÇÃO DE BUG: Usa a função `canRollDice` para a verificação de permissão
-            if (!canRollDice(currentPlayer)) {
-                document.getElementById('moveStatus').textContent = `Aguarde, é a vez de ${currentPlayer.name}.`;
-                return;
-            }
-
             const diceValueEl = document.getElementById('diceValue');
             
-            rollDiceBtn.disabled = true;
+            rollDiceBtn.disabled = true; // Desativa até responder
             rollDiceBtn.classList.add('dice-spin');
             
             // Dado de 1 a 12
@@ -537,7 +378,6 @@
                 document.getElementById('moveStatus').textContent = statusMessage;
                 nextPlayerBtn.classList.remove('hidden'); 
                 rollDiceBtn.disabled = true; // Desativa o dado até que o botão "Próximo Jogador" seja clicado
-                saveGameState(); // Guarda estado sem mover
             }
         };
 
@@ -550,7 +390,6 @@
             if (newPosition >= window.NUM_SQUARES) { 
                 currentPlayer.position = window.NUM_SQUARES; // Pára exatamente na Casa 90
                 renderBoard();
-                saveGameState();
                 endGame(currentPlayer);
                 return;
             }
@@ -568,13 +407,10 @@
                     currentPlayer.position = finalPosition;
                     document.getElementById('moveStatus').textContent = `⚡️ Efeito ${action}! ${currentPlayer.name} ${direction} para a Casa ${finalPosition}!`;
                     renderBoard();
-                    
-                    saveGameState(); // Guarda estado após movimento especial
                     setTimeout(window.nextTurn, 1500); 
                 }, 1000); 
                 
             } else {
-                saveGameState(); // Guarda estado após movimento normal
                 setTimeout(window.nextTurn, 1000);
             }
             
@@ -582,7 +418,6 @@
         };
 
         window.nextTurn = () => {
-            const rollDiceBtn = document.getElementById('rollDiceBtn');
             const nextPlayerBtn = document.getElementById('nextPlayerBtn');
             
             window.currentPlayerIndex = (window.currentPlayerIndex + 1) % window.players.length;
@@ -590,14 +425,10 @@
 
             updateControlPanel();
 
-            // CORREÇÃO DE BUG: Permite que o Host controle todos os jogadores ou que um Guest controle o seu próprio
-            document.getElementById('rollDiceBtn').disabled = !canRollDice(currentPlayer);
-
+            document.getElementById('rollDiceBtn').disabled = false; // Permite sempre rolar no modo local
             nextPlayerBtn.classList.add('hidden');
             document.getElementById('diceValue').textContent = '?';
             document.getElementById('moveStatus').textContent = `${currentPlayer.name}, lance o dado!`;
-            
-            saveGameState(); // Guarda estado para o próximo turno
         };
         
         window.updateControlPanel = () => {
@@ -607,7 +438,13 @@
             
             // Atualiza a cor do botão para refletir o jogador
             const rollDiceBtn = document.getElementById('rollDiceBtn');
-            rollDiceBtn.style.backgroundColor = currentPlayer.color.replace('0000', '333').replace('ffff', 'fff');
+            // Corrigido para cores mais neutras, para evitar o preto (#000000)
+            const btnColor = currentPlayer.color === '#ff0000' ? '#c0392b' : 
+                             currentPlayer.color === '#00ffff' ? '#008b8b' : 
+                             currentPlayer.color === '#ffcc00' ? '#b8860b' : 
+                             currentPlayer.color === '#00ff00' ? '#228b22' : '#6d0f0f';
+            
+            rollDiceBtn.style.backgroundColor = btnColor;
             rollDiceBtn.style.borderColor = currentPlayer.color;
             rollDiceBtn.style.boxShadow = `0 0 10px ${currentPlayer.color}, inset 0 0 10px ${currentPlayer.color}`;
         };
@@ -665,20 +502,26 @@
             document.getElementById('gameOverModal').classList.remove('hidden');
             document.getElementById('winnerMessage').innerHTML = `O(a) <span style="color:${winner.color}; font-weight: bold;">${winner.name}</span> escapou do Mundo Invertido e venceu!`;
             window.gameStarted = false;
-            saveGameState();
         };
 
-        document.getElementById('nextPlayerBtn').onclick = () => {
-            document.getElementById('nextPlayerBtn').classList.add('hidden');
-            window.nextTurn(); 
-        };
-
-        // Tecla S para rolar o dado (atalho)
-        document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 's' && document.getElementById('rollDiceBtn')?.disabled === false && window.gameStarted) {
-                rollDice();
+        // --- Inicialização e Manipulação de Eventos (DEPOIS do DOM ser carregado) ---
+        window.onload = function() {
+             // 1. Configura o botão "Próximo Jogador"
+            const nextPlayerBtn = document.getElementById('nextPlayerBtn');
+            if (nextPlayerBtn) {
+                nextPlayerBtn.onclick = () => {
+                    nextPlayerBtn.classList.add('hidden');
+                    window.nextTurn(); 
+                };
             }
-        });
+
+            // 2. Configura o atalho de teclado 'S'
+            document.addEventListener('keydown', (e) => {
+                if (e.key.toLowerCase() === 's' && document.getElementById('rollDiceBtn')?.disabled === false && window.gameStarted) {
+                    rollDice();
+                }
+            });
+        };
 
     </script>
 </head>
@@ -687,7 +530,7 @@
     <!-- Ecrã de Configuração Inicial -->
     <div id="setupScreen" class="w-full max-w-sm p-8 rounded-2xl modal-content text-center shadow-xl">
         <h1 class="title-font text-5xl mb-4 text-red-600">UPSIDE DOWN</h1>
-        <h2 class="text-xl font-bold mb-6">Escadas e Tentáculos</h2>
+        <h2 class="text-xl font-bold mb-6">Escadas e Tentáculos (Local)</h2>
 
         <div class="mb-4">
             <label for="playerCount" class="block text-sm font-medium mb-2">Número de Jogadores (1-4):</label>
@@ -695,9 +538,9 @@
         </div>
 
         <button onclick="startGame()" class="btn-neon w-full py-3 text-xl font-bold mt-4 transition duration-300">
-            Começar o Jogo
+            Começar o Jogo Local
         </button>
-        <p id="authStatus" class="mt-4 text-xs text-gray-500">Aguardando inicialização...</p>
+        <p id="authStatus" class="mt-4 text-xs text-gray-500"></p>
     </div>
 
     <!-- Ecrã de Jogo Principal -->
@@ -730,7 +573,7 @@
                         Lançar Dado (S)
                     </button>
                     
-                    <button id="nextPlayerBtn" class="btn-neon hidden w-full py-3 text-xl font-bold mt-2 bg-gray-600 border-gray-400" onclick="nextTurn()">
+                    <button id="nextPlayerBtn" class="btn-neon hidden w-full py-3 text-xl font-bold mt-2 bg-gray-600 border-gray-400">
                         Próximo Jogador
                     </button>
 
