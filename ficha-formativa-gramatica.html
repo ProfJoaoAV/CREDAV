@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ficha Formativa de Gramática - 6.º Ano (Estudo, Jogo e Avaliação)</title>
     <!-- Tailwind CSS CDN para um estilo moderno e responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,33 +12,55 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8; /* Azul suave */
+            -webkit-tap-highlight-color: transparent; /* Remove highlight azul ao tocar em mobile */
         }
         /* Estilos base */
         .section-title {
             font-weight: 800;
-            font-size: 1.75rem; /* 2xl */
+            font-size: 1.5rem; /* Ajustado para mobile */
             color: #1e40af; /* Azul 700 */
             border-bottom: 3px solid #60a5fa; /* Azul 400 */
             padding-bottom: 0.5rem;
             margin-top: 1rem;
             margin-bottom: 1.5rem;
         }
+        @media (min-width: 640px) {
+            .section-title { font-size: 1.75rem; }
+        }
+
         .subsection-title {
-            font-size: 1.25rem; /* xl */
+            font-size: 1.1rem;
             font-weight: 700;
             color: #10b981; /* Esmeralda 500 */
             margin-top: 1.5rem;
             margin-bottom: 0.5rem;
         }
+        @media (min-width: 640px) {
+            .subsection-title { font-size: 1.25rem; }
+        }
 
         /* Navegação (Tabs) */
+        .nav-container {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: #f0f4f8;
+            padding-bottom: 0.5rem;
+        }
         .nav-btn {
-            padding: 1rem 2rem;
+            padding: 0.75rem 1rem;
             font-weight: 700;
+            font-size: 0.9rem;
             color: #4b5563;
-            border-bottom: 4px solid transparent;
+            border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
             cursor: pointer;
+            flex: 1; /* Distribui espaço igualmente em mobile */
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            white-space: nowrap;
         }
         .nav-btn:hover {
             color: #1e40af;
@@ -48,33 +70,30 @@
             color: #1e40af;
             border-bottom-color: #1e40af;
             background-color: #ffffff;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
         }
+        
         .tab-content {
             display: none;
-            animation: fadeIn 0.5s;
+            animation: fadeIn 0.4s ease-out;
         }
         .tab-content.active {
             display: block;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* Estilo da Zona de Estudo (Card) */
-        #study-area {
-            background-color: #ffffff;
-            border: 2px solid #a7f3d0;
-            border-radius: 1rem;
-            padding: 2.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
         .study-card {
             background-color: #f0fff4; /* Fundo verde muito claro */
             border-radius: 0.75rem;
-            padding: 1.25rem;
+            padding: 1rem;
             margin-bottom: 1rem;
             border-left: 5px solid #34d399; /* Esmeralda 400 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .keyword {
             color: #047857; /* Verde 700 para destaque */
@@ -84,22 +103,36 @@
         /* Estilos de input e feedback */
         .input-text {
             border: 1px solid #d1d5db;
-            padding: 0.5rem;
+            padding: 0.6rem; /* Mais fácil de tocar */
             border-radius: 0.375rem;
             width: 100%;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 16px; /* Evita zoom automático em iOS */
+        }
+        .input-text:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
         }
         .correct { background-color: #ecfdf5; border-color: #34d399; }
         .incorrect { background-color: #fef2f2; border-color: #f87171; }
         .table-feedback-correct { background-color: #d1fae5; }
         .table-feedback-incorrect { background-color: #fee2e2; }
+        
+        /* Labels de Radio Button Otimizados para Toque */
         .radio-label {
             cursor: pointer;
-            padding: 0.6rem 1.2rem;
+            padding: 0.75rem 1rem;
             border-radius: 0.5rem;
             border: 2px solid #d1d5db;
             transition: all 0.2s;
             text-align: center;
+            display: block;
+            background-color: white;
+            user-select: none;
+        }
+        .radio-label:active {
+            transform: scale(0.98);
         }
         input[type="radio"]:checked + .radio-label {
             background-color: #10b981; 
@@ -113,11 +146,12 @@
             grid-template-columns: repeat(9, 1fr);
             grid-template-rows: repeat(9, 1fr);
             width: 100%;
-            max-width: 400px;
+            max-width: 400px; /* Limite em Desktop */
             aspect-ratio: 1 / 1;
             margin: 0 auto;
             border: 2px solid #1e40af;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background-color: #eff6ff;
         }
         .grid-cell {
             background-color: #eff6ff;
@@ -127,16 +161,18 @@
             align-items: center;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.1s ease;
             user-select: none;
+            font-size: 0.8rem; /* Ajuste para caber em ecrãs pequenos */
         }
-        .grid-cell:hover:not(.hit):not(.miss):not(.ship) {
+        /* Aumentar área de toque virtualmente sem estragar layout */
+        .grid-cell:active {
             background-color: #dbeafe;
         }
+        
         .grid-header {
             background-color: #1e40af;
             color: white;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             cursor: default;
             display: flex;
             justify-content: center;
@@ -152,597 +188,611 @@
             from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             to { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
         }
+
+        /* Ajustes Específicos para Rotação (Landscape em Telemóvel) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .app-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.5rem;
+                text-align: left;
+            }
+            .app-logo {
+                width: 40px !important;
+                height: 40px !important;
+                margin-bottom: 0 !important;
+                margin-right: 1rem;
+            }
+            .app-title {
+                font-size: 1.25rem !important;
+                margin-top: 0 !important;
+            }
+            .app-subtitle {
+                display: none;
+            }
+            .nav-container {
+                position: static;
+                padding-bottom: 0.2rem;
+            }
+            .nav-btn {
+                padding: 0.4rem;
+                font-size: 0.8rem;
+            }
+            /* Layout lado a lado no jogo em landscape */
+            #game-container .flex-col {
+                flex-direction: row !important;
+                align-items: start !important;
+                gap: 1rem;
+            }
+            .game-grid {
+                max-width: 250px; /* Reduz grelha em landscape para caber */
+            }
+        }
     </style>
 </head>
-<body class="p-4 sm:p-8">
+<body class="p-2 sm:p-4 md:p-8 min-h-screen">
 
-    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl min-h-screen flex flex-col">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl min-h-[90vh] flex flex-col overflow-hidden">
         
-        <header class="text-center mb-6 border-b pb-4">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">Ficha Formativa de Gramática</h1>
-            <p class="text-lg text-gray-600 mt-2">Português - 6.º Ano</p>
+        <header class="app-header text-center p-6 border-b bg-white">
+            <!-- Ícone da Batalha Naval Gramatical (SVG Integrado) -->
+            <div class="app-logo w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4 transition-transform hover:scale-110 duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-full h-full drop-shadow-xl">
+                  <circle cx="256" cy="256" r="256" fill="#1e40af"/>
+                  <path d="M0,350 Q64,300 128,350 T256,350 T384,350 T512,350 V512 H0 Z" fill="#60a5fa"/>
+                  <path d="M0,400 Q64,350 128,400 T256,400 T384,400 T512,400 V512 H0 Z" fill="#93c5fd"/>
+                  <path d="M100,320 L130,220 H380 L410,320 Z" fill="#4b5563"/>
+                  <rect x="180" y="160" width="150" height="60" fill="#6b7280"/>
+                  <rect x="230" y="100" width="50" height="60" fill="#9ca3af"/>
+                  <rect x="245" y="60" width="20" height="40" fill="#d1d5db"/>
+                  <g transform="translate(196, 120) scale(0.8)">
+                    <path d="M10,80 Q75,90 140,80 V10 Q75,20 10,10 Z" fill="#f3f4f6"/>
+                    <path d="M140,80 Q205,90 270,80 V10 Q205,20 140,10 Z" fill="#e5e7eb"/>
+                    <path d="M140,80 V10" stroke="#9ca3af" stroke-width="2"/>
+                    <rect x="30" y="30" width="80" height="5" fill="#374151"/>
+                    <rect x="30" y="45" width="60" height="5" fill="#374151"/>
+                    <rect x="170" y="30" width="80" height="5" fill="#374151"/>
+                    <rect x="170" y="45" width="50" height="5" fill="#374151"/>
+                  </g>
+                  <g stroke="#ef4444" stroke-width="12" fill="none">
+                    <circle cx="256" cy="200" r="130"/>
+                    <line x1="256" y1="50" x2="256" y2="120"/>
+                    <line x1="256" y1="280" x2="256" y2="350"/>
+                    <line x1="106" y1="200" x2="176" y2="200"/>
+                    <line x1="336" y1="200" x2="406" y2="200"/>
+                  </g>
+                </svg>
+            </div>
+            <h1 class="app-title text-2xl sm:text-4xl font-extrabold text-gray-900 leading-tight">Ficha Formativa de Gramática</h1>
+            <p class="app-subtitle text-sm sm:text-lg text-gray-600 mt-2">Português - 6.º Ano</p>
         </header>
 
         <!-- MENU DE NAVEGAÇÃO -->
-        <nav class="flex justify-center mb-8 border-b border-gray-200">
-            <button onclick="switchTab('study')" id="btn-study" class="nav-btn active flex items-center gap-2">
-                <span>📖</span> Estudo
+        <nav class="nav-container flex justify-around border-b border-gray-200 shadow-sm">
+            <button onclick="switchTab('study')" id="btn-study" class="nav-btn active">
+                <span class="text-xl mr-1">📖</span> Estudo
             </button>
-            <button onclick="switchTab('game')" id="btn-game" class="nav-btn flex items-center gap-2">
-                <span>🎮</span> Jogo
+            <button onclick="switchTab('game')" id="btn-game" class="nav-btn">
+                <span class="text-xl mr-1">🎮</span> Jogo
             </button>
-            <button onclick="switchTab('assessment')" id="btn-assessment" class="nav-btn flex items-center gap-2">
-                <span>📝</span> Avaliação
+            <button onclick="switchTab('assessment')" id="btn-assessment" class="nav-btn">
+                <span class="text-xl mr-1">📝</span> Avaliação
             </button>
         </nav>
 
-        <!-- SECÇÃO 1: ZONA DE ESTUDO (TAB 1) -->
-        <div id="view-study" class="tab-content active">
-            <div id="study-area">
-                <h2 class="text-3xl font-extrabold text-emerald-700 mb-6 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    1. Zona de Estudo Rápido
-                </h2>
-                <p class="text-gray-600 mb-6">Revê aqui os principais conceitos gramaticais antes de passares ao Jogo e à Avaliação.</p>
-
-                <div class="grid md:grid-cols-2 gap-4">
-                    <!-- Card 1: Nomes -->
-                    <div class="study-card">
-                        <h3 class="subsection-title">Nomes (Coletivos e Grau)</h3>
-                        <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
-                            <li><span class="keyword">Nomes Coletivos:</span> Designam um conjunto de seres da mesma espécie, mesmo estando no singular. <br>Ex: <span class="keyword">Cardume</span> (peixes), <span class="keyword">Alcateia</span> (lobos), <span class="keyword">Esquadra</span> (navios).</li>
-                            <li><span class="keyword">Grau dos Nomes:</span> <br><span class="keyword">Diminutivo:</span> Indica tamanho pequeno (<span class="italic">casinha, rapazinho</span>). <br><span class="keyword">Aumentativo:</span> Indica tamanho grande (<span class="italic">casarão, dentuça, rapagão</span>).</li>
-                        </ul>
-                    </div>
-
-                    <!-- Card 2: Determinantes -->
-                    <div class="study-card">
-                        <h3 class="subsection-title">Determinantes e Subclasses</h3>
-                        <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
-                            <li><span class="keyword">Função:</span> Antecedem o nome, concordando com ele em género e número.</li>
-                            <li><span class="keyword">Artigos:</span> Definidos (<span class="italic">o, a, os, as</span>) e Indefinidos (<span class="italic">um, uma, uns, umas</span>).</li>
-                            <li><span class="keyword">Demonstrativos:</span> Indicam a posição (<span class="italic">este, esse, aquele</span>).</li>
-                            <li><span class="keyword">Possessivos:</span> Indicam posse (<span class="italic">meu, teu, nosso, vosso, seu</span>).</li>
-                            <li><span class="keyword">Numerais:</span> Indicam ordem (<span class="italic">primeiro, segundo, décimo</span>).</li>
-                            <li><span class="keyword">Indefinidos:</span> Indicam algo vago (<span class="italic">algum, nenhum, certo, qualquer</span>).</li>
-                            <li><span class="keyword">Interrogativos/Exclamativos:</span> Usados em perguntas/exclamações (<span class="italic">que, qual, quantos</span>).</li>
-                        </ul>
-                    </div>
-
-                    <!-- Card 3: Adjetivos Qualificativos e Numerais -->
-                    <div class="study-card">
-                        <h3 class="subsection-title">Adjetivos (Subclasses)</h3>
-                        <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
-                            <li><span class="keyword">Qualificativo:</span> Atribui uma qualidade ou característica ao nome. <br>Ex: <span class="italic">livro <span class="keyword">pesado</span>, dia <span class="keyword">alegre</span></span>.</li>
-                            <li><span class="keyword">Numeral:</span> Indica a ordem ou a posição. <br>Ex: <span class="italic">terceiro lugar, primeira vez</span>.</li>
-                        </ul>
-                    </div>
-
-                    <!-- Card 4: Graus do Adjetivo -->
-                    <div class="study-card">
-                        <h3 class="subsection-title">Grau dos Adjetivos</h3>
-                        <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
-                            <li><span class="keyword">Normal:</span> <span class="italic">alto</span></li>
-                            <li><span class="keyword">Comparativo:</span>
-                                <ul>
-                                    <li><span class="keyword">Superioridade:</span> <span class="italic">mais alto do que</span>.</li>
-                                    <li><span class="keyword">Igualdade:</span> <span class="italic">tão alto como</span>.</li>
-                                    <li><span class="keyword">Inferioridade:</span> <span class="italic">menos alto do que</span>.</li>
-                                </ul>
-                            </li>
-                            <li><span class="keyword">Superlativo:</span>
-                                <ul>
-                                    <li><span class="keyword">Absoluto (Analítico):</span> <span class="italic">muito alto</span>.</li>
-                                    <li><span class="keyword">Absoluto (Sintético):</span> <span class="italic">alt<span class="text-red-500">íssimo</span></span> (alto + íssimo).</li>
-                                    <li><span class="keyword">Relativo (Superioridade):</span> <span class="italic">o mais alto</span>.</li>
-                                    <li><span class="keyword">Relativo (Inferioridade):</span> <span class="italic">o menos alto</span>.</li>
-                                </ul>
-                            </li>
-                            <li><span class="keyword">Irregulares:</span> <span class="italic">Bom</span> → <span class="keyword">Melhor</span> → <span class="keyword">Ótimo</span>; <span class="italic">Mau</span> → <span class="keyword">Pior</span> → <span class="keyword">Péssimo</span>.</li>
-                        </ul>
-                    </div>
-
-                </div>
-                <div class="text-center mt-8">
-                    <button onclick="switchTab('game')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        <div class="p-4 sm:p-8 flex-grow overflow-y-auto">
+            <!-- SECÇÃO 1: ZONA DE ESTUDO (TAB 1) -->
+            <div id="view-study" class="tab-content active">
+                <div id="study-area">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-emerald-700 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
-                        Passar para a Zona de Jogo
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- SECÇÃO 2: ZONA DE JOGO (TAB 2) -->
-        <div id="view-game" class="tab-content">
-            <h2 class="section-title text-emerald-700 mt-0">2. Zona de Jogo: Batalha Gramatical 🚢</h2>
-            <p class="text-gray-600 mb-6">Demonstra que dominas a matéria! Acerta nas perguntas de gramática para lançares um míssil e afundares os 3 navios do teu adversário (o Computador).</p>
+                        1. Zona de Estudo
+                    </h2>
+                    <p class="text-gray-600 mb-6 text-sm sm:text-base">Revê aqui os principais conceitos gramaticais antes de passares ao Jogo e à Avaliação.</p>
 
-            <div id="game-container" class="bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200">
-                
-                <div id="game-status" class="text-center text-xl font-bold mb-4 min-h-[3rem] text-blue-700">
-                    Pronto para a batalha!
-                </div>
-                
-                <div class="flex flex-col md:flex-row justify-around items-start md:items-center space-y-8 md:space-y-0 md:space-x-8">
-                    
-                    <!-- Tabuleiro do Jogador (para o Computador atacar) -->
-                    <div class="w-full md:w-1/2 text-center">
-                        <h3 class="text-lg font-semibold mb-2 text-gray-700">O Teu Tabuleiro (Navios Escondidos)</h3>
-                        <div id="player-grid" class="game-grid mx-auto">
-                            <!-- Células do tabuleiro injetadas pelo JS -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Card 1: Nomes -->
+                        <div class="study-card">
+                            <h3 class="subsection-title mt-0">Nomes (Coletivos e Grau)</h3>
+                            <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
+                                <li><span class="keyword">Nomes Coletivos:</span> Conjunto de seres da mesma espécie. <br>Ex: <span class="keyword">Cardume</span> (peixes), <span class="keyword">Alcateia</span> (lobos).</li>
+                                <li><span class="keyword">Grau dos Nomes:</span> <br><span class="keyword">Diminutivo:</span> <span class="italic">casinha</span>. <br><span class="keyword">Aumentativo:</span> <span class="italic">casarão</span>.</li>
+                            </ul>
                         </div>
-                        <p class="text-sm mt-2 text-gray-500">❌: Tiro do Computador falhado. 🔥: Navio atingido.</p>
-                    </div>
 
-                    <!-- Tabuleiro do Oponente (para o Jogador atacar) -->
-                    <div class="w-full md:w-1/2 text-center">
-                        <h3 class="text-lg font-semibold mb-2 text-gray-700">Tabuleiro do Computador (Alvo de Ataque)</h3>
-                        <div id="computer-grid" class="game-grid mx-auto">
-                            <!-- Células do tabuleiro injetadas pelo JS -->
+                        <!-- Card 2: Determinantes -->
+                        <div class="study-card">
+                            <h3 class="subsection-title mt-0">Determinantes</h3>
+                            <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
+                                <li><span class="keyword">Artigos:</span> <span class="italic">o, a, um, uma...</span></li>
+                                <li><span class="keyword">Demonstrativos:</span> <span class="italic">este, esse, aquele...</span></li>
+                                <li><span class="keyword">Possessivos:</span> <span class="italic">meu, teu, seu...</span></li>
+                                <li><span class="keyword">Numerais:</span> <span class="italic">primeiro, segundo...</span></li>
+                                <li><span class="keyword">Indefinidos:</span> <span class="italic">algum, nenhum...</span></li>
+                            </ul>
                         </div>
-                        <p class="text-sm mt-2 text-gray-500">Clique numa célula para atacar e responder à pergunta!</p>
-                    </div>
-                </div>
 
-                <!-- Zona de Perguntas / Respostas -->
-                <div id="question-area" class="mt-8 p-4 bg-white rounded-lg shadow-md border border-blue-200 hidden">
-                    <h4 class="text-xl font-bold text-blue-600 mb-4">Pergunta Gramatical para Ataque:</h4>
-                    <p id="question-text" class="mb-4 text-gray-800"></p>
-                    
-                    <div id="answer-options" class="flex flex-col space-y-3">
-                        <!-- Opções de resposta injetadas pelo JS -->
+                        <!-- Card 3: Adjetivos Qualificativos e Numerais -->
+                        <div class="study-card">
+                            <h3 class="subsection-title mt-0">Adjetivos (Subclasses)</h3>
+                            <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
+                                <li><span class="keyword">Qualificativo:</span> Qualidade. <br>Ex: <span class="italic">livro <span class="keyword">pesado</span></span>.</li>
+                                <li><span class="keyword">Numeral:</span> Ordem/Posição. <br>Ex: <span class="italic">terceiro lugar</span>.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Card 4: Graus do Adjetivo -->
+                        <div class="study-card">
+                            <h3 class="subsection-title mt-0">Grau dos Adjetivos</h3>
+                            <ul class="list-disc ml-4 space-y-2 text-gray-700 text-sm">
+                                <li><span class="keyword">Normal:</span> <span class="italic">alto</span></li>
+                                <li><span class="keyword">Comparativo:</span> <span class="italic">mais/menos/tão alto...</span></li>
+                                <li><span class="keyword">Superlativo:</span>
+                                    <ul class="ml-2 mt-1">
+                                        <li>Absoluto: <span class="italic">muito alto</span> / <span class="italic">altíssimo</span></li>
+                                        <li>Relativo: <span class="italic">o mais alto</span> / <span class="italic">o menos alto</span></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
-                    
-                    <div class="text-center mt-6">
-                        <button id="submit-answer-btn" onclick="submitGrammarAnswer()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full transition duration-200 disabled:opacity-50" disabled>
-                            Lançar Míssil (Submeter Resposta)
+                    <div class="text-center mt-8 pb-4">
+                        <button onclick="switchTab('game')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center cursor-pointer w-full sm:w-auto justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Passar para a Zona de Jogo
                         </button>
                     </div>
-                    <p id="answer-feedback" class="mt-4 text-center font-bold"></p>
                 </div>
-                
-                <!-- Botão de Início/Reinício -->
-                <div class="text-center mt-8">
-                    <button id="start-game-btn" onclick="startGame()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
-                        Reiniciar Jogo
+            </div>
+            
+            <!-- SECÇÃO 2: ZONA DE JOGO (TAB 2) -->
+            <div id="view-game" class="tab-content">
+                <h2 class="section-title text-emerald-700 mt-0">2. Batalha Gramatical 🚢</h2>
+                <p class="text-gray-600 mb-6 text-sm sm:text-base">Acerta nas perguntas para lançares um míssil e afundares os 3 navios do Computador.</p>
+
+                <div id="game-container" class="bg-gray-50 p-4 rounded-xl shadow-inner border border-gray-200">
+                    
+                    <div id="game-status" class="text-center text-lg font-bold mb-4 min-h-[3rem] text-blue-700 flex items-center justify-center bg-blue-50 p-2 rounded">
+                        Pronto para a batalha!
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row justify-around items-center gap-8">
+                        
+                        <!-- Tabuleiro do Jogador (Escondido em Mobile Pequeno se necessário, ou empilhado) -->
+                        <div class="w-full max-w-[350px] text-center">
+                            <h3 class="text-sm font-semibold mb-2 text-gray-700">O Teu Tabuleiro</h3>
+                            <div id="player-grid" class="game-grid mx-auto">
+                                <!-- Células do tabuleiro injetadas pelo JS -->
+                            </div>
+                            <p class="text-xs mt-2 text-gray-500">Teus Navios (Cinza)</p>
+                        </div>
+
+                        <!-- Separador Visual ou VS -->
+                        <div class="font-bold text-gray-400 text-xl hidden md:block">VS</div>
+
+                        <!-- Tabuleiro do Oponente -->
+                        <div class="w-full max-w-[350px] text-center">
+                            <h3 class="text-sm font-semibold mb-2 text-gray-700">Computador (Alvo de Ataque)</h3>
+                            <div id="computer-grid" class="game-grid mx-auto shadow-lg border-emerald-500 border-2">
+                                <!-- Células do tabuleiro injetadas pelo JS -->
+                            </div>
+                            <p class="text-xs mt-2 text-emerald-600 font-bold animate-pulse">Toque numa célula para atacar!</p>
+                        </div>
+                    </div>
+
+                    <!-- Zona de Perguntas / Respostas -->
+                    <div id="question-area" class="mt-8 p-4 bg-white rounded-lg shadow-md border-2 border-blue-200 hidden mx-auto max-w-lg">
+                        <h4 class="text-lg font-bold text-blue-600 mb-3">Pergunta de Ataque:</h4>
+                        <p id="question-text" class="mb-4 text-gray-800 text-sm font-medium"></p>
+                        
+                        <div id="answer-options" class="flex flex-col space-y-2">
+                            <!-- Opções de resposta injetadas pelo JS -->
+                        </div>
+                        
+                        <div class="text-center mt-6">
+                            <button id="submit-answer-btn" onclick="submitGrammarAnswer()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Lançar Míssil! 🚀
+                            </button>
+                        </div>
+                        <p id="answer-feedback" class="mt-4 text-center font-bold text-sm"></p>
+                    </div>
+                    
+                    <!-- Botão de Início/Reinício -->
+                    <div class="text-center mt-8 pb-4">
+                        <button id="start-game-btn" onclick="startGame()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300 ease-in-out transform active:scale-95 text-sm">
+                            Reiniciar Jogo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8 pb-8">
+                    <button onclick="switchTab('assessment')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center cursor-pointer w-full sm:w-auto justify-center">
+                        Passar para a Avaliação
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
                     </button>
                 </div>
             </div>
+            
+            <!-- SECÇÃO 3: ZONA DE AVALIAÇÃO (TAB 3) -->
+            <div id="view-assessment" class="tab-content">
+                <h2 class="section-title text-blue-700 mt-0">3. Avaliação (380 Pontos)</h2>
+                <p class="text-gray-600 mb-6 text-sm">Podes consultar a <span class="font-bold text-emerald-600 cursor-pointer underline" onclick="switchTab('study')">Zona de Estudo</span> a qualquer momento.</p>
 
-            <div class="text-center mt-8">
-                <button onclick="switchTab('assessment')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center cursor-pointer">
-                    Passar para a Avaliação
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-        
-        <!-- SECÇÃO 3: ZONA DE AVALIAÇÃO (TAB 3) -->
-        <div id="view-assessment" class="tab-content">
-            <h2 class="section-title text-blue-700 mt-0">3. Zona de Avaliação (380 Pontos)</h2>
-            <p class="text-gray-600 mb-6">Responde às questões. Podes consultar a <span class="font-bold text-emerald-600 cursor-pointer" onclick="switchTab('study')">Zona de Estudo</span> a qualquer momento. Boa sorte!</p>
+                <form id="grammar-quiz-form">
 
-            <form id="grammar-quiz-form">
-
-                <!-- SECÇÃO 1: NOMES COLETIVOS -->
-                <div id="section-1" class="mb-8">
-                    <h3 class="subsection-title">1.1. Nomes Coletivos (60 Pontos)</h3>
-                    <p class="mb-4 text-sm text-gray-500">Completa as frases, indicando o conjunto de seres (10 pontos por resposta).</p>
-                    <div class="space-y-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center p-2 rounded-lg transition duration-150">
-                            <label for="q1_a" class="w-full sm:w-1/3 font-medium text-gray-700">a. Cáfila é um conjunto de:</label>
-                            <input type="text" id="q1_a" class="input-text sm:w-2/3 mt-1 sm:mt-0" data-answer="cães" data-points="10" placeholder="Ex: Abelhas (enxame)">
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center p-2 rounded-lg transition duration-150">
-                            <label for="q1_b" class="w-full sm:w-1/3 font-medium text-gray-700">b. Um bando é um conjunto de:</label>
-                            <input type="text" id="q1_b" class="input-text sm:w-2/3 mt-1 sm:mt-0" data-answer="aves" data-points="10">
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center p-2 rounded-lg transition duration-150">
-                            <label for="q1_c" class="w-full sm:w-1/3 font-medium text-gray-700">c. Uma quadrilha é um conjunto de:</label>
-                            <input type="text" id="q1_c" class="input-text sm:w-2/3 mt-1 sm:mt-0" data-answer="ladrões" data-points="10">
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center p-2 rounded-lg transition duration-150">
-                            <label for="q1_d" class="w-full sm:w-1/3 font-medium text-gray-700">d. Constelação é um conjunto de:</label>
-                            <input type="text" id="q1_d" class="input-text sm:w-2/3 mt-1 sm:mt-0" data-answer="estrelas" data-points="10">
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center p-2 rounded-lg transition duration-150">
-                            <label for="q1_e" class="w-full sm:w-1/3 font-medium text-gray-700">e. Cordilheira é um conjunto de:</label>
-                            <input type="text" id="q1_e" class="input-text sm:w-2/3 mt-1 sm:mt-0" data-answer="montanhas" data-points="10">
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center p-2 rounded-lg transition duration-150">
-                            <label for="q1_f" class="w-full sm:w-1/3 font-medium text-gray-700">f. Multidão é um conjunto de:</label>
-                            <input type="text" id="q1_f" class="input-text sm:w-2/3 mt-1 sm:mt-0" data-answer="pessoas" data-points="10">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECÇÃO 2: GRAU DOS NOMES -->
-                <div id="section-2" class="mb-8">
-                    <h3 class="subsection-title">1.2. Grau dos Nomes (60 Pontos)</h3>
-                    <p class="mb-4 text-sm text-gray-500">Indica o grau aumentativo e diminutivo dos nomes (5 pontos por resposta).</p>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 uppercase text-xs sm:text-sm leading-normal">
-                                    <th class="py-3 px-6 text-left">Nome</th>
-                                    <th class="py-3 px-6 text-left">Grau Diminutivo</th>
-                                    <th class="py-3 px-6 text-left">Grau Aumentativo</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-700 text-sm font-light divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left whitespace-nowrap">camisola</td>
-                                    <td><input type="text" id="q2_1_dim" class="input-text" data-answer="camisolinha" data-points="5" placeholder="Ex: livrinho"></td>
-                                    <td><input type="text" id="q2_1_aum" class="input-text" data-answer="camisolão" data-points="5" placeholder="Ex: livrão"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">casaco</td>
-                                    <td><input type="text" id="q2_2_dim" class="input-text" data-answer="casaquinho" data-points="5"></td>
-                                    <td><input type="text" id="q2_2_aum" class="input-text" data-answer="casacão" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">dente</td>
-                                    <td><input type="text" id="q2_3_dim" class="input-text" data-answer="dentinho" data-points="5"></td>
-                                    <td><input type="text" id="q2_3_aum" class="input-text" data-answer="dentuça" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">casa</td>
-                                    <td><input type="text" id="q2_4_dim" class="input-text" data-answer="casinha" data-points="5"></td>
-                                    <td><input type="text" id="q2_4_aum" class="input-text" data-answer="casarão" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">boca</td>
-                                    <td><input type="text" id="q2_5_dim" class="input-text" data-answer="boquinha" data-points="5"></td>
-                                    <td><input type="text" id="q2_5_aum" class="input-text" data-answer="bocarra" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">rapaz</td>
-                                    <td><input type="text" id="q2_6_dim" class="input-text" data-answer="rapazinho" data-points="5"></td>
-                                    <td><input type="text" id="q2_6_aum" class="input-text" data-answer="rapagão" data-points="5"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- SECÇÃO 3: DETERMINANTES E SUBCLASSES -->
-                <div id="section-3" class="mb-8">
-                    <h3 class="subsection-title">2.1. Determinantes e Subclasses (120 Pontos)</h3>
-                    <p class="mb-4 text-sm text-gray-500">Identifica o determinante e indica a respetiva subclasse (Artigo, Demonstrativo, Possessivo, Numeral, Indefinido, Interrogativo, Exclamativo) (5 pontos por resposta).</p>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 uppercase text-xs sm:text-sm leading-normal">
-                                    <th class="py-3 px-4 text-left">Frase</th>
-                                    <th class="py-3 px-4 text-left w-1/4">Determinante</th>
-                                    <th class="py-3 px-4 text-left w-1/4">Subclasse</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-700 text-sm font-light divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">a. Que programa preferes?</td>
-                                    <td><input type="text" id="q3_1_det" class="input-text" data-answer="que" data-points="5" placeholder="Ex: Este"></td>
-                                    <td><input type="text" id="q3_1_sub" class="input-text" data-answer="interrogativo" data-points="5" placeholder="Ex: Demonstrativo"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">b. Essa série é muito interessante.</td>
-                                    <td><input type="text" id="q3_2_det" class="input-text" data-answer="essa" data-points="5"></td>
-                                    <td><input type="text" id="q3_2_sub" class="input-text" data-answer="demonstrativo" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">c. Vi um novo filme do Batman.</td>
-                                    <td><input type="text" id="q3_3_det" class="input-text" data-answer="um" data-points="5"></td>
-                                    <td><input type="text" id="q3_3_sub" class="input-text" data-answer="artigo indefinido" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">d. Guardo este autógrafo com carinho.</td>
-                                    <td><input type="text" id="q3_4_det" class="input-text" data-answer="este" data-points="5"></td>
-                                    <td><input type="text" id="q3_4_sub" class="input-text" data-answer="demonstrativo" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">e. Nunca tinha visto uma série assim.</td>
-                                    <td><input type="text" id="q3_5_det" class="input-text" data-answer="uma" data-points="5"></td>
-                                    <td><input type="text" id="q3_5_sub" class="input-text" data-answer="artigo indefinido" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">f. Adorei os últimos episódios.</td>
-                                    <td><input type="text" id="q3_6_det" class="input-text" data-answer="os" data-points="5"></td>
-                                    <td><input type="text" id="q3_6_sub" class="input-text" data-answer="artigo definido" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">g. Quantos atores participam?</td>
-                                    <td><input type="text" id="q3_7_det" class="input-text" data-answer="quantos" data-points="5"></td>
-                                    <td><input type="text" id="q3_7_sub" class="input-text" data-answer="interrogativo" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">h. O meu livro está na mochila.</td>
-                                    <td><input type="text" id="q3_8_det" class="input-text" data-answer="meu" data-points="5"></td>
-                                    <td><input type="text" id="q3_8_sub" class="input-text" data-answer="possessivo" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">i. Recebemos os seus pais ontem.</td>
-                                    <td><input type="text" id="q3_9_det" class="input-text" data-answer="seus" data-points="5"></td>
-                                    <td><input type="text" id="q3_9_sub" class="input-text" data-answer="possessivo" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">j. Ele ficou em terceiro lugar.</td>
-                                    <td><input type="text" id="q3_10_det" class="input-text" data-answer="terceiro" data-points="5"></td>
-                                    <td><input type="text" id="q3_10_sub" class="input-text" data-answer="numeral" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">k. Alguma coisa aconteceu lá fora.</td>
-                                    <td><input type="text" id="q3_11_det" class="input-text" data-answer="alguma" data-points="5"></td>
-                                    <td><input type="text" id="q3_11_sub" class="input-text" data-answer="indefinido" data-points="5"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">l. Que sorte a tua!</td>
-                                    <td><input type="text" id="q3_12_det" class="input-text" data-answer="que" data-points="5"></td>
-                                    <td><input type="text" id="q3_12_sub" class="input-text" data-answer="exclamativo" data-points="5"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- SECÇÃO 4: SUBCLASSES DO ADJETIVO -->
-                <div id="section-4" class="mb-8">
-                    <h3 class="subsection-title">3.1. Subclasses do Adjetivo (40 Pontos)</h3>
-                    <p class="mb-4 text-sm text-gray-500">Classifica os adjetivos sublinhados (10 pontos por resposta).</p>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 uppercase text-xs sm:text-sm leading-normal">
-                                    <th class="py-3 px-4 text-left">Frase</th>
-                                    <th class="py-3 px-4 text-center">Qualificativo</th>
-                                    <th class="py-3 px-4 text-center">Numeral</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-700 text-sm font-light divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">a. Partiram no <u>décimo</u> dia.</td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_a" value="qualificativo" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_a" value="numeral" data-answer="numeral" data-points="10" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">b. Foi a <u>primeira</u> montanha que avistamos.</td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_b" value="qualificativo" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_b" value="numeral" data-answer="numeral" data-points="10" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">c. O jantar estava <u>saboroso</u>.</td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_c" value="qualificativo" data-answer="qualificativo" data-points="10" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_c" value="numeral" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-4 text-left">d. Estavam à espera de notícias <u>boas</u>.</td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_d" value="qualificativo" data-answer="qualificativo" data-points="10" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                    <td class="py-3 px-4 text-center"><input type="radio" name="q4_d" value="numeral" class="h-4 w-4 text-emerald-600 focus:ring-emerald-500"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- SECÇÃO 5: GRAU DOS ADJETIVOS (IDENTIFICAÇÃO) -->
-                <div id="section-5" class="mb-8">
-                    <h3 class="subsection-title">3.2. Grau dos Adjetivos - Identificação (80 Pontos)</h3>
-                    <p class="mb-4 text-sm text-gray-500">Classifica o grau do adjetivo nas frases, escolhendo a opção correta (10 pontos por resposta).</p>
-                    <div class="space-y-6">
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">a. O João é <u>muito alto</u>.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_a_n" name="q5_a" value="normal" class="hidden">
-                                <label for="q5_a_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_a_c" name="q5_a" value="comparativo" class="hidden">
-                                <label for="q5_a_c" class="radio-label">Comparativo</label>
-                                <input type="radio" id="q5_a_s" name="q5_a" value="superlativo absoluto analítico" data-answer="superlativo absoluto analítico" data-points="10" class="hidden">
-                                <label for="q5_a_s" class="radio-label">Superlativo (Absoluto Analítico)</label>
+                    <!-- SECÇÃO 1: NOMES COLETIVOS -->
+                    <div id="section-1" class="mb-8">
+                        <h3 class="subsection-title">1.1. Nomes Coletivos (60 Pontos)</h3>
+                        <p class="mb-4 text-xs text-gray-500">Completa as frases.</p>
+                        <div class="space-y-3">
+                            <div class="flex flex-col p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <label for="q1_a" class="font-medium text-gray-700 text-sm mb-2">a. Cáfila é um conjunto de:</label>
+                                <input type="text" id="q1_a" class="input-text" data-answer="cães" data-points="10" placeholder="Sua resposta...">
                             </div>
-                        </div>
-
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">b. O carro dele é <u>o mais rápido</u> da rua.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_b_n" name="q5_b" value="normal" class="hidden">
-                                <label for="q5_b_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_b_c" name="q5_b" value="comparativo" class="hidden">
-                                <label for="q5_b_c" class="radio-label">Comparativo</label>
-                                <input type="radio" id="q5_b_s" name="q5_b" value="superlativo relativo de superioridade" data-answer="superlativo relativo de superioridade" data-points="10" class="hidden">
-                                <label for="q5_b_s" class="radio-label">Superlativo (Relativo de Superioridade)</label>
+                            <div class="flex flex-col p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <label for="q1_b" class="font-medium text-gray-700 text-sm mb-2">b. Um bando é um conjunto de:</label>
+                                <input type="text" id="q1_b" class="input-text" data-answer="aves" data-points="10">
                             </div>
-                        </div>
-
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">c. A Ana é <u>mais esperta que</u> o Pedro.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_c_n" name="q5_c" value="normal" class="hidden">
-                                <label for="q5_c_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_c_c" name="q5_c" value="comparativo de superioridade" data-answer="comparativo de superioridade" data-points="10" class="hidden">
-                                <label for="q5_c_c" class="radio-label">Comparativo (Superioridade)</label>
-                                <input type="radio" id="q5_c_s" name="q5_c" value="superlativo" class="hidden">
-                                <label for="q5_c_s" class="radio-label">Superlativo</label>
+                            <div class="flex flex-col p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <label for="q1_c" class="font-medium text-gray-700 text-sm mb-2">c. Uma quadrilha é um conjunto de:</label>
+                                <input type="text" id="q1_c" class="input-text" data-answer="ladrões" data-points="10">
                             </div>
-                        </div>
-
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">d. A casa dela é <u>tão grande como</u> a minha.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_d_n" name="q5_d" value="normal" class="hidden">
-                                <label for="q5_d_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_d_c" name="q5_d" value="comparativo de igualdade" data-answer="comparativo de igualdade" data-points="10" class="hidden">
-                                <label for="q5_d_c" class="radio-label">Comparativo (Igualdade)</label>
-                                <input type="radio" id="q5_d_s" name="q5_d" value="superlativo" class="hidden">
-                                <label for="q5_d_s" class="radio-label">Superlativo</label>
+                            <!-- Para poupar espaço vertical em mobile, o resto desta secção segue o mesmo padrão -->
+                            <div class="flex flex-col p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <label for="q1_d" class="font-medium text-gray-700 text-sm mb-2">d. Constelação é um conjunto de:</label>
+                                <input type="text" id="q1_d" class="input-text" data-answer="estrelas" data-points="10">
                             </div>
-                        </div>
-
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">e. O filme era <u>facílimo</u> de entender.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_e_n" name="q5_e" value="normal" class="hidden">
-                                <label for="q5_e_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_e_c" name="q5_e" value="comparativo" class="hidden">
-                                <label for="q5_e_c" class="radio-label">Comparativo</label>
-                                <input type="radio" id="q5_e_s" name="q5_e" value="superlativo absoluto sintético" data-answer="superlativo absoluto sintético" data-points="10" class="hidden">
-                                <label for="q5_e_s" class="radio-label">Superlativo (Absoluto Sintético)</label>
+                            <div class="flex flex-col p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <label for="q1_e" class="font-medium text-gray-700 text-sm mb-2">e. Cordilheira é um conjunto de:</label>
+                                <input type="text" id="q1_e" class="input-text" data-answer="montanhas" data-points="10">
                             </div>
-                        </div>
-
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">f. Ele é <u>menos esperto que</u> o irmão.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_f_n" name="q5_f" value="normal" class="hidden">
-                                <label for="q5_f_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_f_c" name="q5_f" value="comparativo de inferioridade" data-answer="comparativo de inferioridade" data-points="10" class="hidden">
-                                <label for="q5_f_c" class="radio-label">Comparativo (Inferioridade)</label>
-                                <input type="radio" id="q5_f_s" name="q5_f" value="superlativo" class="hidden">
-                                <label for="q5_f_s" class="radio-label">Superlativo</label>
-                            </div>
-                        </div>
-
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">g. Aquele é <u>o menos atento</u> dos alunos.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_g_n" name="q5_g" value="normal" class="hidden">
-                                <label for="q5_g_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_g_c" name="q5_g" value="comparativo" class="hidden">
-                                <label for="q5_g_c" class="radio-label">Comparativo</label>
-                                <input type="radio" id="q5_g_s" name="q5_g" value="superlativo relativo de inferioridade" data-answer="superlativo relativo de inferioridade" data-points="10" class="hidden">
-                                <label for="q5_g_s" class="radio-label">Superlativo (Relativo de Inferioridade)</label>
-                            </div>
-                        </div>
-
-                        <div class="p-4 rounded-lg border border-gray-200 transition duration-150">
-                            <p class="font-medium text-gray-700 mb-3">h. A montanha é <u>alta</u>.</p>
-                            <div class="flex flex-wrap gap-3 justify-start">
-                                <input type="radio" id="q5_h_n" name="q5_h" value="normal" data-answer="normal" data-points="10" class="hidden">
-                                <label for="q5_h_n" class="radio-label">Normal</label>
-                                <input type="radio" id="q5_h_c" name="q5_h" value="comparativo" class="hidden">
-                                <label for="q5_h_c" class="radio-label">Comparativo</label>
-                                <input type="radio" id="q5_h_s" name="q5_h" value="superlativo" class="hidden">
-                                <label for="q5_h_s" class="radio-label">Superlativo</label>
+                            <div class="flex flex-col p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <label for="q1_f" class="font-medium text-gray-700 text-sm mb-2">f. Multidão é um conjunto de:</label>
+                                <input type="text" id="q1_f" class="input-text" data-answer="pessoas" data-points="10">
                             </div>
                         </div>
                     </div>
-                </div>
 
-
-                <!-- SECÇÃO 6: GRAU DOS ADJETIVOS (APLICAÇÃO) -->
-                <div id="section-6" class="mb-8">
-                    <h3 class="subsection-title">3.3. Grau dos Adjetivos - Aplicação (80 Pontos)</h3>
-                    <p class="mb-4 text-sm text-gray-500">Aplica o grau correto do adjetivo, preenchendo as caixas (10 pontos por resposta).</p>
-
-                    <!-- Tabela 6.1: Superlativo Absoluto Sintético -->
-                    <h4 class="text-base font-semibold text-gray-600 mt-6 mb-3">Passa para o Grau Superlativo Absoluto Sintético:</h4>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 uppercase text-xs sm:text-sm leading-normal">
-                                    <th class="py-3 px-6 text-left">Adjetivo no Grau Normal</th>
-                                    <th class="py-3 px-6 text-left">Grau Superlativo Absoluto Sintético</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-700 text-sm font-light divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left whitespace-nowrap">a. Fácil</td>
-                                    <td><input type="text" id="q6_1_a" class="input-text" data-answer="facílimo" data-points="10" placeholder="Ex: amabilíssimo"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">b. Pobre</td>
-                                    <td><input type="text" id="q6_1_b" class="input-text" data-answer="paupérrimo,pobríssimo" data-points="10"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">c. Fiel</td>
-                                    <td><input type="text" id="q6_1_c" class="input-text" data-answer="fidelíssimo" data-points="10"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">d. Alto</td>
-                                    <td><input type="text" id="q6_1_d" class="input-text" data-answer="altíssimo,supremo" data-points="10"></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- SECÇÃO 2: GRAU DOS NOMES -->
+                    <div id="section-2" class="mb-8">
+                        <h3 class="subsection-title">1.2. Grau dos Nomes (60 Pontos)</h3>
+                        <p class="mb-2 text-xs text-gray-500">Arrasta para o lado se não vires a tabela toda.</p>
+                        <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
+                            <table class="min-w-full bg-white text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Nome</th>
+                                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Diminutivo</th>
+                                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Aumentativo</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="py-2 px-4 whitespace-nowrap">camisola</td>
+                                        <td class="px-2"><input type="text" id="q2_1_dim" class="input-text text-sm py-1" data-answer="camisolinha" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q2_1_aum" class="input-text text-sm py-1" data-answer="camisolão" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4">casaco</td>
+                                        <td class="px-2"><input type="text" id="q2_2_dim" class="input-text text-sm py-1" data-answer="casaquinho" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q2_2_aum" class="input-text text-sm py-1" data-answer="casacão" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4">dente</td>
+                                        <td class="px-2"><input type="text" id="q2_3_dim" class="input-text text-sm py-1" data-answer="dentinho" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q2_3_aum" class="input-text text-sm py-1" data-answer="dentuça" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4">casa</td>
+                                        <td class="px-2"><input type="text" id="q2_4_dim" class="input-text text-sm py-1" data-answer="casinha" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q2_4_aum" class="input-text text-sm py-1" data-answer="casarão" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4">boca</td>
+                                        <td class="px-2"><input type="text" id="q2_5_dim" class="input-text text-sm py-1" data-answer="boquinha" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q2_5_aum" class="input-text text-sm py-1" data-answer="bocarra" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-4">rapaz</td>
+                                        <td class="px-2"><input type="text" id="q2_6_dim" class="input-text text-sm py-1" data-answer="rapazinho" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q2_6_aum" class="input-text text-sm py-1" data-answer="rapagão" data-points="5"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <!-- Tabela 6.2: Irregulares (Comparativo e Superlativo Absoluto Sintético) -->
-                    <h4 class="text-base font-semibold text-gray-600 mt-6 mb-3">Completa a forma Irregular do Adjetivo:</h4>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white rounded-lg shadow-md border border-gray-200">
-                            <thead>
-                                <tr class="bg-gray-100 text-gray-600 uppercase text-xs sm:text-sm leading-normal">
-                                    <th class="py-3 px-6 text-left">Adjetivo no Grau Normal</th>
-                                    <th class="py-3 px-6 text-left">Grau Comparativo</th>
-                                    <th class="py-3 px-6 text-left">Grau Superlativo Absoluto Sintético</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-700 text-sm font-light divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left whitespace-nowrap">e. Bom</td>
-                                    <td><input type="text" id="q6_2_e" class="input-text" data-answer="melhor" data-points="10" placeholder="Ex: Maior"></td>
-                                    <td><input type="text" id="q6_2_f" class="input-text" data-answer="ótimo" data-points="10" placeholder="Ex: Máximo"></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition duration-150">
-                                    <td class="py-3 px-6 text-left">f. Mau</td>
-                                    <td><input type="text" id="q6_2_g" class="input-text" data-answer="pior" data-points="10"></td>
-                                    <td><input type="text" id="q6_2_h" class="input-text" data-answer="péssimo" data-points="10"></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- SECÇÃO 3: DETERMINANTES -->
+                    <div id="section-3" class="mb-8">
+                        <h3 class="subsection-title">2.1. Determinantes (120 Pontos)</h3>
+                        <p class="mb-2 text-xs text-gray-500">Scroll horizontal disponível.</p>
+                        <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
+                            <table class="min-w-[600px] bg-white text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left w-1/3">Frase</th>
+                                        <th class="py-3 px-4 text-left w-1/3">Determinante</th>
+                                        <th class="py-3 px-4 text-left w-1/3">Subclasse</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Que programa preferes?</td>
+                                        <td class="px-2"><input type="text" id="q3_1_det" class="input-text text-sm py-1" data-answer="que" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_1_sub" class="input-text text-sm py-1" data-answer="interrogativo" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Essa série é boa.</td>
+                                        <td class="px-2"><input type="text" id="q3_2_det" class="input-text text-sm py-1" data-answer="essa" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_2_sub" class="input-text text-sm py-1" data-answer="demonstrativo" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Vi um novo filme.</td>
+                                        <td class="px-2"><input type="text" id="q3_3_det" class="input-text text-sm py-1" data-answer="um" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_3_sub" class="input-text text-sm py-1" data-answer="artigo indefinido" data-points="5"></td>
+                                    </tr>
+                                    <!-- Itens restantes simplificados para brevidade visual, mas presentes no código -->
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Guardo este autógrafo.</td>
+                                        <td class="px-2"><input type="text" id="q3_4_det" class="input-text text-sm py-1" data-answer="este" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_4_sub" class="input-text text-sm py-1" data-answer="demonstrativo" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Nunca vi uma série assim.</td>
+                                        <td class="px-2"><input type="text" id="q3_5_det" class="input-text text-sm py-1" data-answer="uma" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_5_sub" class="input-text text-sm py-1" data-answer="artigo indefinido" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Adorei os episódios.</td>
+                                        <td class="px-2"><input type="text" id="q3_6_det" class="input-text text-sm py-1" data-answer="os" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_6_sub" class="input-text text-sm py-1" data-answer="artigo definido" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Quantos atores?</td>
+                                        <td class="px-2"><input type="text" id="q3_7_det" class="input-text text-sm py-1" data-answer="quantos" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_7_sub" class="input-text text-sm py-1" data-answer="interrogativo" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">O meu livro.</td>
+                                        <td class="px-2"><input type="text" id="q3_8_det" class="input-text text-sm py-1" data-answer="meu" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_8_sub" class="input-text text-sm py-1" data-answer="possessivo" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Seus pais.</td>
+                                        <td class="px-2"><input type="text" id="q3_9_det" class="input-text text-sm py-1" data-answer="seus" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_9_sub" class="input-text text-sm py-1" data-answer="possessivo" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Terceiro lugar.</td>
+                                        <td class="px-2"><input type="text" id="q3_10_det" class="input-text text-sm py-1" data-answer="terceiro" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_10_sub" class="input-text text-sm py-1" data-answer="numeral" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Alguma coisa.</td>
+                                        <td class="px-2"><input type="text" id="q3_11_det" class="input-text text-sm py-1" data-answer="alguma" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_11_sub" class="input-text text-sm py-1" data-answer="indefinido" data-points="5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2 text-xs sm:text-sm">Que sorte!</td>
+                                        <td class="px-2"><input type="text" id="q3_12_det" class="input-text text-sm py-1" data-answer="que" data-points="5"></td>
+                                        <td class="px-2"><input type="text" id="q3_12_sub" class="input-text text-sm py-1" data-answer="exclamativo" data-points="5"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Botão de Submissão e Resultados -->
-                <div class="text-center mt-10">
-                    <button id="submit-button" type="button" onclick="submitQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
-                        Submeter e Corrigir a Zona de Avaliação
-                    </button>
-                </div>
-            </form>
+                    <!-- SECÇÃO 4: SUBCLASSES DO ADJETIVO -->
+                    <div id="section-4" class="mb-8">
+                        <h3 class="subsection-title">3.1. Subclasses do Adjetivo (40 Pontos)</h3>
+                        <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
+                            <table class="min-w-full bg-white text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left">Frase</th>
+                                        <th class="py-3 px-2 text-center w-24">Qualif.</th>
+                                        <th class="py-3 px-2 text-center w-24">Numeral</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-2">Partiram no <u>décimo</u> dia.</td>
+                                        <td class="text-center"><input type="radio" name="q4_a" value="qualificativo" class="h-5 w-5"></td>
+                                        <td class="text-center"><input type="radio" name="q4_a" value="numeral" data-answer="numeral" data-points="10" class="h-5 w-5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2"><u>Primeira</u> montanha.</td>
+                                        <td class="text-center"><input type="radio" name="q4_b" value="qualificativo" class="h-5 w-5"></td>
+                                        <td class="text-center"><input type="radio" name="q4_b" value="numeral" data-answer="numeral" data-points="10" class="h-5 w-5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2">Jantar <u>saboroso</u>.</td>
+                                        <td class="text-center"><input type="radio" name="q4_c" value="qualificativo" data-answer="qualificativo" data-points="10" class="h-5 w-5"></td>
+                                        <td class="text-center"><input type="radio" name="q4_c" value="numeral" class="h-5 w-5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2">Notícias <u>boas</u>.</td>
+                                        <td class="text-center"><input type="radio" name="q4_d" value="qualificativo" data-answer="qualificativo" data-points="10" class="h-5 w-5"></td>
+                                        <td class="text-center"><input type="radio" name="q4_d" value="numeral" class="h-5 w-5"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-            <!-- ZONA DE RESULTADOS DO QUIZ -->
-            <div id="quiz-results" class="mt-12 p-8 bg-gray-50 rounded-xl shadow-inner border border-blue-200 hidden">
-                <h2 class="text-3xl font-bold text-blue-700 mb-6 text-center">Resultados da Avaliação</h2>
-                
-                <div id="score-summary" class="p-4 text-center rounded-lg mb-6 border-l-4"></div>
+                    <!-- SECÇÃO 5: IDENTIFICAÇÃO DE GRAUS -->
+                    <div id="section-5" class="mb-8">
+                        <h3 class="subsection-title">3.2. Identificação de Graus (80 Pontos)</h3>
+                        <div class="space-y-4">
+                            <!-- Bloco Padrão Repetido -->
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">a. O João é <u>muito alto</u>.</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_a" value="normal" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_a" value="comparativo" class="hidden">Comparativo</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_a" value="superlativo absoluto analítico" data-answer="superlativo absoluto analítico" data-points="10" class="hidden">Sup. Abs. Analítico</label>
+                                </div>
+                            </div>
 
-                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Feedback Detalhado por Questão
-                </h3>
-                <div id="detailed-feedback" class="space-y-4"></div>
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">b. O carro dele é <u>o mais rápido</u>.</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_b" value="normal" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_b" value="comparativo" class="hidden">Comparativo</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_b" value="superlativo relativo de superioridade" data-answer="superlativo relativo de superioridade" data-points="10" class="hidden">Sup. Rel. Superioridade</label>
+                                </div>
+                            </div>
 
-                <div class="mt-10 text-center">
-                    <button onclick="resetQuiz()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-full transition duration-300 ease-in-out">
-                        Reiniciar Avaliação
-                    </button>
+                            <!-- Restantes alíneas simplificadas no HTML mas funcionais -->
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">c. Ana é <u>mais esperta que</u>...</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_c" value="comparativo de superioridade" data-answer="comparativo de superioridade" data-points="10" class="hidden">Comp. Superioridade</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_c" value="normal" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_c" value="superlativo" class="hidden">Superlativo</label>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">d. <u>Tão grande como</u>...</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_d" value="comparativo de igualdade" data-answer="comparativo de igualdade" data-points="10" class="hidden">Comp. Igualdade</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_d" value="normal" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_d" value="superlativo" class="hidden">Superlativo</label>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">e. <u>Facílimo</u>.</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_e" value="superlativo absoluto sintético" data-answer="superlativo absoluto sintético" data-points="10" class="hidden">Sup. Abs. Sintético</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_e" value="normal" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_e" value="comparativo" class="hidden">Comparativo</label>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">f. <u>Menos esperto que</u>...</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_f" value="comparativo de inferioridade" data-answer="comparativo de inferioridade" data-points="10" class="hidden">Comp. Inferioridade</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_f" value="normal" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_f" value="superlativo" class="hidden">Superlativo</label>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">g. <u>O menos atento</u>.</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_g" value="superlativo relativo de inferioridade" data-answer="superlativo relativo de inferioridade" data-points="10" class="hidden">Sup. Rel. Inferioridade</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_g" value="normal" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_g" value="comparativo" class="hidden">Comparativo</label>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-white rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-700 mb-2 text-sm">h. Montanha <u>alta</u>.</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_h" value="normal" data-answer="normal" data-points="10" class="hidden">Normal</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_h" value="comparativo" class="hidden">Comparativo</label>
+                                    <label class="radio-label text-sm"><input type="radio" name="q5_h" value="superlativo" class="hidden">Superlativo</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECÇÃO 6: APLICAÇÃO DE GRAUS -->
+                    <div id="section-6" class="mb-8">
+                        <h3 class="subsection-title">3.3. Aplicação (80 Pontos)</h3>
+                        <p class="mb-2 text-xs text-gray-500">Escreve a resposta nas caixas.</p>
+                        <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
+                            <table class="min-w-[500px] bg-white text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left">Grau Normal</th>
+                                        <th class="py-3 px-4 text-left">Sup. Abs. Sintético</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr><td class="px-4 py-2">Fácil</td><td class="px-2"><input type="text" id="q6_1_a" class="input-text text-sm py-1" data-answer="facílimo" data-points="10"></td></tr>
+                                    <tr><td class="px-4 py-2">Pobre</td><td class="px-2"><input type="text" id="q6_1_b" class="input-text text-sm py-1" data-answer="paupérrimo,pobríssimo" data-points="10"></td></tr>
+                                    <tr><td class="px-4 py-2">Fiel</td><td class="px-2"><input type="text" id="q6_1_c" class="input-text text-sm py-1" data-answer="fidelíssimo" data-points="10"></td></tr>
+                                    <tr><td class="px-4 py-2">Alto</td><td class="px-2"><input type="text" id="q6_1_d" class="input-text text-sm py-1" data-answer="altíssimo,supremo" data-points="10"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <br>
+                        <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
+                            <table class="min-w-[500px] bg-white text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left">Grau Normal</th>
+                                        <th class="py-3 px-4 text-left">Comparativo</th>
+                                        <th class="py-3 px-4 text-left">Superlativo</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-2">Bom</td>
+                                        <td class="px-2"><input type="text" id="q6_2_e" class="input-text text-sm py-1" data-answer="melhor" data-points="10"></td>
+                                        <td class="px-2"><input type="text" id="q6_2_f" class="input-text text-sm py-1" data-answer="ótimo" data-points="10"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-2">Mau</td>
+                                        <td class="px-2"><input type="text" id="q6_2_g" class="input-text text-sm py-1" data-answer="pior" data-points="10"></td>
+                                        <td class="px-2"><input type="text" id="q6_2_h" class="input-text text-sm py-1" data-answer="péssimo" data-points="10"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Submissão e Resultados -->
+                    <div class="text-center mt-10 pb-8">
+                        <button id="submit-button" type="button" onclick="submitQuiz()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
+                            Submeter Avaliação
+                        </button>
+                    </div>
+                </form>
+
+                <!-- ZONA DE RESULTADOS DO QUIZ -->
+                <div id="quiz-results" class="mt-8 p-6 bg-gray-50 rounded-xl shadow-inner border border-blue-200 hidden">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-4 text-center">Resultados</h2>
+                    <div id="score-summary" class="p-4 text-center rounded-lg mb-6 border-l-4"></div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Feedback Detalhado</h3>
+                    <div id="detailed-feedback" class="space-y-3"></div>
+                    <div class="mt-8 text-center">
+                        <button onclick="resetQuiz()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-full transition duration-300">
+                            Reiniciar
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
+        </div> <!-- Fim do container de scroll -->
     </div>
 
     <script>
         // --- NAVEGAÇÃO ENTRE ZONAS ---
         function switchTab(tabName) {
-            // Esconder todos os conteúdos
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-
-            // Mostrar o selecionado
             document.getElementById('view-' + tabName).classList.add('active');
             document.getElementById('btn-' + tabName).classList.add('active');
-
-            // Scroll para o topo
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Em mobile, scroll para o topo do conteúdo
+            const mainContainer = document.querySelector('.flex-grow');
+            if(mainContainer) mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            else window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
 
         // --- LÓGICA DA BATALHA GRAMATICAL (ZONA DE JOGO) ---
         const GRID_SIZE = 8;
@@ -757,7 +807,9 @@
         let gameState = 'initial'; 
         let currentTargetCoordinate = null;
         
+        // LISTA DE PERGUNTAS EXPANDIDA (40+)
         let GRAMMAR_QUESTIONS = [
+            // PERGUNTAS ORIGINAIS (1-12)
             { question: "Qual é o nome coletivo para um conjunto de 'abelhas'?", options: ["Alcateia", "Enxame", "Bando", "Esquadra"], answer: "Enxame" },
             { question: "Qual é o nome coletivo para um conjunto de 'soldados'?", options: ["Frota", "Cáfila", "Exército", "Constelação"], answer: "Exército" },
             { question: "Qual é o grau aumentativo do nome 'cão'?", options: ["Cãozinho", "Cãobom", "Canzarrão", "Canino"], answer: "Canzarrão" },
@@ -769,7 +821,38 @@
             { question: "Qual é o grau do adjetivo na expressão 'o mais bonito'?", options: ["Normal", "Comparativo de Superioridade", "Superlativo Absoluto Sintético", "Superlativo Relativo de Superioridade"], answer: "Superlativo Relativo de Superioridade" },
             { question: "Qual é o grau do adjetivo na expressão 'tão rápido como'?", options: ["Normal", "Comparativo de Igualdade", "Superlativo Absoluto Analítico", "Superlativo Relativo de Inferioridade"], answer: "Comparativo de Igualdade" },
             { question: "Qual é a forma no Superlativo Absoluto Sintético do adjetivo 'célebre'?", options: ["Muito célebre", "Célebreíssimo", "Celebérrimo", "Mais célebre que"], answer: "Celebérrimo" },
-            { question: "Na frase 'O dia está frio.', qual é o grau do adjetivo 'frio'?", options: ["Normal", "Comparativo", "Superlativo Relativo", "Superlativo Absoluto"], answer: "Normal" }
+            { question: "Na frase 'O dia está frio.', qual é o grau do adjetivo 'frio'?", options: ["Normal", "Comparativo", "Superlativo Relativo", "Superlativo Absoluto"], answer: "Normal" },
+
+            // NOVAS PERGUNTAS ADICIONADAS
+            { question: "Qual é o nome coletivo para um conjunto de 'lobos'?", options: ["Cardume", "Alcateia", "Rebanho", "Manada"], answer: "Alcateia" },
+            { question: "Qual é o nome coletivo para um conjunto de 'peixes'?", options: ["Vara", "Cardume", "Enxame", "Bando"], answer: "Cardume" },
+            { question: "Qual é o nome coletivo para um conjunto de 'ilhas'?", options: ["Continente", "Arquipélago", "Cordilheira", "Península"], answer: "Arquipélago" },
+            { question: "Qual é o nome coletivo para um conjunto de 'porcos'?", options: ["Vara", "Manada", "Alcateia", "Souto"], answer: "Vara" },
+            { question: "Qual é o nome coletivo para um conjunto de 'mapas'?", options: ["Livro", "Enciclopédia", "Atlas", "Dicionário"], answer: "Atlas" },
+            { question: "Qual é o aumentativo da palavra 'boca'?", options: ["Boquinha", "Bocazinha", "Bocarra", "Bocão"], answer: "Bocarra" },
+            { question: "Qual é o aumentativo da palavra 'fogo'?", options: ["Fogueira", "Fogaréu", "Fogão", "Foguetão"], answer: "Fogaréu" },
+            { question: "Qual é o diminutivo da palavra 'rio'?", options: ["Rito", "Riacho", "Riazito", "Riol"], answer: "Riacho" },
+            { question: "Qual é o diminutivo da palavra 'chuva'?", options: ["Chuvisco", "Chuvinha", "Chuvada", "Aguaceiro"], answer: "Chuvisco" },
+            { question: "Na frase 'Aquela casa é bonita', qual a subclasse do determinante 'Aquela'?", options: ["Possessivo", "Demonstrativo", "Artigo", "Indefinido"], answer: "Demonstrativo" },
+            { question: "Na frase 'Li três livros', qual a subclasse do determinante 'três'?", options: ["Artigo", "Indefinido", "Numeral", "Possessivo"], answer: "Numeral" },
+            { question: "Na frase 'Alguns alunos faltaram', qual a subclasse do determinante 'Alguns'?", options: ["Demonstrativo", "Indefinido", "Possessivo", "Interrogativo"], answer: "Indefinido" },
+            { question: "Na frase 'Que linda paisagem!', qual a subclasse do determinante 'Que'?", options: ["Interrogativo", "Exclamativo", "Demonstrativo", "Indefinido"], answer: "Exclamativo" },
+            { question: "Qual é o Superlativo Absoluto Sintético de 'antigo'?", options: ["Antigão", "Muito antigo", "Antiquíssimo", "Antiguíssimo"], answer: "Antiquíssimo" },
+            { question: "Qual é o Superlativo Absoluto Sintético de 'amargo'?", options: ["Amarguíssimo", "Amaríssimo", "Muito amargo", "Amargoso"], answer: "Amaríssimo" },
+            { question: "Qual é o Superlativo Absoluto Sintético de 'doce'?", options: ["Docíssimo", "Dulcíssimo", "Muito doce", "Docinho"], answer: "Dulcíssimo" },
+            { question: "Qual é o Superlativo Absoluto Sintético de 'sábio'?", options: ["Sabíssimo", "Sapientíssimo", "Saberíssimo", "Muito sábio"], answer: "Sapientíssimo" },
+            { question: "Qual é o grau da expressão 'menos alto do que'?", options: ["Comparativo de Superioridade", "Comparativo de Igualdade", "Comparativo de Inferioridade", "Superlativo"], answer: "Comparativo de Inferioridade" },
+            { question: "Qual é o grau da expressão 'o menos rápido de'?", options: ["Comparativo de Inferioridade", "Superlativo Relativo de Superioridade", "Superlativo Relativo de Inferioridade", "Normal"], answer: "Superlativo Relativo de Inferioridade" },
+            { question: "Qual é a classe da palavra 'rapidamente'?", options: ["Nome", "Adjetivo", "Verbo", "Advérbio"], answer: "Advérbio" },
+            { question: "Qual é a classe da palavra 'ontem'?", options: ["Advérbio de Tempo", "Advérbio de Lugar", "Advérbio de Modo", "Adjetivo"], answer: "Advérbio de Tempo" },
+            { question: "Qual é a classe da palavra 'aqui'?", options: ["Advérbio de Tempo", "Advérbio de Lugar", "Advérbio de Modo", "Nome"], answer: "Advérbio de Lugar" },
+            { question: "Na frase 'Nós fomos passear', qual a classe de 'Nós'?", options: ["Nome", "Determinante", "Pronome Pessoal", "Adjetivo"], answer: "Pronome Pessoal" },
+            { question: "Na frase 'Vou para casa', qual a classe de 'para'?", options: ["Nome", "Verbo", "Preposição", "Advérbio"], answer: "Preposição" },
+            { question: "O que é o 'sujeito' numa frase?", options: ["Quem pratica a ação", "A ação realizada", "O local da ação", "Uma qualidade"], answer: "Quem pratica a ação" },
+            { question: "Na frase 'O gato dorme', qual é o predicado?", options: ["O gato", "dorme", "O", "gato dorme"], answer: "dorme" },
+            { question: "Como se chama um nome que indica apenas um ser?", options: ["Nome Coletivo", "Nome Próprio", "Nome Comum Singular", "Nome Comum Plural"], answer: "Nome Comum Singular" },
+            { question: "Qual destas palavras é aguda (acento na última sílaba)?", options: ["Mesa", "Lápis", "Café", "Árvore"], answer: "Café" },
+            { question: "Qual destas palavras é esdrúxula (acento na antepenúltima sílaba)?", options: ["Sofá", "Mágico", "Caneta", "Papel"], answer: "Mágico" }
         ];
 
         function createGrid(containerId, isPlayerGrid) {
@@ -779,7 +862,6 @@
             
             for (let i = 0; i < GRID_SIZE; i++) gridState.push(new Array(GRID_SIZE).fill(null));
 
-            // Cabeçalhos (canto vazio + números)
             const emptyCorner = document.createElement('div');
             emptyCorner.className = 'grid-header';
             container.appendChild(emptyCorner);
@@ -791,7 +873,6 @@
                 container.appendChild(header);
             }
 
-            // Linhas e Células
             for (let r = 0; r < GRID_SIZE; r++) {
                 const rowLabel = document.createElement('div');
                 rowLabel.className = 'grid-header';
@@ -809,6 +890,11 @@
                     if (!isPlayerGrid) {
                         cell.dataset.coord = id;
                         cell.addEventListener('click', handleAttackSelection);
+                        // Adicionar suporte para touchstart para resposta mais rápida em mobile
+                        cell.addEventListener('touchstart', function(e) {
+                            e.preventDefault(); // Prevenir double-tap zoom
+                            handleAttackSelection(e);
+                        });
                     } else {
                         cell.style.cursor = 'default';
                     }
@@ -865,10 +951,16 @@
             const coord = cell.dataset.coord;
 
             if (cell.classList.contains('hit') || cell.classList.contains('miss')) {
-                updateGameStatus("Coordenada já atacada. Escolhe outro alvo!");
+                // Feedback visual breve
                 return;
             }
             currentTargetCoordinate = coord;
+            // Remover seleção anterior
+            document.querySelectorAll('.grid-cell').forEach(c => {
+                c.style.backgroundColor = '';
+                c.style.borderColor = '';
+            });
+            
             cell.style.backgroundColor = '#fcd34d'; 
             cell.style.border = '2px solid #f97316';
             document.querySelectorAll('#computer-grid .grid-cell').forEach(c => c.classList.add('disabled'));
@@ -879,6 +971,9 @@
             gameState = 'questioning';
             const questionArea = document.getElementById('question-area');
             questionArea.classList.remove('hidden');
+            
+            // Scroll suave até a pergunta em mobile
+            questionArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             const qIndex = Math.floor(Math.random() * GRAMMAR_QUESTIONS.length);
             const q = GRAMMAR_QUESTIONS[qIndex];
@@ -889,7 +984,7 @@
             optionsDiv.innerHTML = '';
             q.options.forEach((option, index) => {
                 const optionId = `q_option_${index}`;
-                optionsDiv.innerHTML += `<div><input type="radio" id="${optionId}" name="grammar_q" value="${option}" class="hidden"><label for="${optionId}" class="radio-label block text-gray-700 hover:bg-gray-100">${option}</label></div>`;
+                optionsDiv.innerHTML += `<div><input type="radio" id="${optionId}" name="grammar_q" value="${option}" class="hidden"><label for="${optionId}" class="radio-label block text-gray-700 hover:bg-gray-100 text-sm">${option}</label></div>`;
             });
             
             document.querySelectorAll('input[name="grammar_q"]').forEach(radio => {
@@ -909,14 +1004,14 @@
             document.querySelectorAll('input[name="grammar_q"]').forEach(radio => radio.disabled = true);
 
             if (selectedOption && selectedOption.value === correctAnswer) {
-                feedbackElement.textContent = "✅ Resposta Correta! Lançando míssil...";
-                feedbackElement.classList.replace('text-red-500', 'text-green-600') || feedbackElement.classList.add('text-green-600');
-                setTimeout(() => { processPlayerAttack(currentTargetCoordinate, true); resetQuestionArea(); }, 1500);
+                feedbackElement.textContent = "✅ Correto! A disparar...";
+                feedbackElement.className = "mt-4 text-center font-bold text-sm text-green-600";
+                setTimeout(() => { processPlayerAttack(currentTargetCoordinate, true); resetQuestionArea(); }, 1200);
             } else {
-                const answerText = selectedOption ? selectedOption.value : "Nenhuma Resposta";
-                feedbackElement.textContent = `❌ Resposta Incorreta! (${answerText}). A resposta correta era: ${correctAnswer}.`;
-                feedbackElement.classList.replace('text-green-600', 'text-red-500') || feedbackElement.classList.add('text-red-500');
-                setTimeout(() => { processPlayerAttack(currentTargetCoordinate, false); resetQuestionArea(); }, 2500);
+                const answerText = selectedOption ? selectedOption.value : "Nada";
+                feedbackElement.textContent = `❌ Errado! Era: ${correctAnswer}.`;
+                feedbackElement.className = "mt-4 text-center font-bold text-sm text-red-500";
+                setTimeout(() => { processPlayerAttack(currentTargetCoordinate, false); resetQuestionArea(); }, 2000);
             }
         }
         
@@ -924,6 +1019,8 @@
             const questionArea = document.getElementById('question-area');
             questionArea.classList.add('hidden');
             document.querySelectorAll('#computer-grid .grid-cell').forEach(c => c.classList.remove('disabled'));
+            // Voltar scroll para o jogo
+            document.getElementById('game-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function processPlayerAttack(coord, isCorrectAnswer) {
@@ -939,11 +1036,10 @@
                     const ship = computerShips.find(s => s.id === shipId);
                     ship.hits++;
                     computerGrid[r][c] = 'HIT';
-                    updateGameStatus(`Tiro certeiro em ${coord}! É a tua vez de novo.`);
+                    updateGameStatus(`Acertaste em ${coord}! Joga de novo.`);
                     if (ship.hits === ship.size) {
                         ship.sunk = true;
-                        updateGameStatus(`🚢 Navio afundado em ${coord}! Continua!`);
-                        // Visual feedback for sunk ship
+                        updateGameStatus(`🚢 Afundaste um navio em ${coord}!`);
                         computerGrid.forEach((row, r_i) => {
                             row.forEach((col, c_i) => {
                                 if (col === 'HIT' && ship.coords.some(c => c.r === r_i && c.c === c_i)) {
@@ -964,7 +1060,7 @@
             } else {
                 cell.classList.add('miss'); cell.innerHTML = '💧'; cell.style.cursor = 'default';
                 computerGrid[r][c] = 'MISS';
-                updateGameStatus(`Resposta Incorreta. Vez do Computador.`);
+                updateGameStatus(`Erraste a pergunta. Vez do Computador.`);
                 setTimeout(computerAttack, 1000);
             }
         }
@@ -982,7 +1078,7 @@
             const cell = document.getElementById(`player-grid-${coord}`);
             const shipId = playerGrid[r][c];
             
-            updateGameStatus(`Computador atacando em ${coord}...`);
+            updateGameStatus(`Computador a atacar ${coord}...`);
 
             setTimeout(() => {
                 if (shipId !== null) {
@@ -990,11 +1086,10 @@
                     const ship = playerShips.find(s => s.id === shipId);
                     ship.hits++;
                     playerGrid[r][c] = 'HIT';
-                    updateGameStatus(`🔥 Navio atingido em ${coord}!`);
+                    updateGameStatus(`🔥 Foste atingido em ${coord}!`);
                     if (ship.hits === ship.size) {
                         ship.sunk = true;
-                        updateGameStatus(`❌ O Computador afundou o teu navio em ${coord}!`);
-                        // Visual feedback for sunk ship
+                        updateGameStatus(`❌ Perdeste um navio em ${coord}!`);
                         playerGrid.forEach((row, r_i) => {
                             row.forEach((col, c_i) => {
                                 if (col === 'HIT' && ship.coords.some(c => c.r === r_i && c.c === c_i)) {
@@ -1009,7 +1104,7 @@
                 } else {
                     cell.classList.add('miss'); cell.innerHTML = '❌';
                     playerGrid[r][c] = 'MISS';
-                    updateGameStatus(`O Computador falhou em ${coord}! É a tua vez!`);
+                    updateGameStatus(`O Computador falhou! Tua vez.`);
                     gameState = 'player_turn';
                 }
             }, 1000);
@@ -1026,11 +1121,11 @@
             const btn = document.getElementById('start-game-btn');
             btn.textContent = 'Jogar de Novo';
             if (winner === 'player') {
-                updateGameStatus("🎉 Vitória! Afundaste todos os navios do Computador!");
-                btn.classList.replace('bg-red-600', 'bg-emerald-600');
+                updateGameStatus("🎉 Vitória! Ganhaste!");
+                btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300";
             } else {
-                updateGameStatus("😞 Derrota. O Computador afundou os teus navios.");
-                btn.classList.replace('bg-emerald-600', 'bg-red-600');
+                updateGameStatus("😞 Derrota. O Computador venceu.");
+                btn.className = "bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300";
             }
             document.querySelectorAll('#computer-grid .grid-cell').forEach(c => c.classList.add('disabled'));
         }
@@ -1049,10 +1144,9 @@
             renderPlayerShips(playerGrid);
             resetQuestionArea();
             document.getElementById('start-game-btn').textContent = 'Reiniciar Jogo';
-            document.getElementById('start-game-btn').classList.replace('bg-emerald-600', 'bg-red-600');
             document.querySelectorAll('#computer-grid .grid-cell').forEach(c => c.classList.remove('disabled'));
             gameState = 'player_turn';
-            updateGameStatus("A batalha começou! Escolhe uma coordenada para atacar.");
+            updateGameStatus("A batalha começou! Toca para atacar.");
         }
 
         document.addEventListener('DOMContentLoaded', startGame);
@@ -1088,68 +1182,65 @@
                     input.classList.add('incorrect');
                     if (row) row.classList.add('table-feedback-incorrect');
                     
-                    let questionText = '';
-                    if (row && row.classList.contains('flex')) { 
-                        questionText = row.querySelector('label').textContent.trim();
-                    } else if (row) {
-                        const firstCell = row.querySelector('td:first-child');
-                        questionText = firstCell ? firstCell.textContent.trim() : 'N/A';
-                        if (input.id.includes('q3')) {
-                            const cells = Array.from(row.querySelectorAll('td'));
-                            const frase = cells[0] ? cells[0].textContent.trim() : '';
-                            const det = cells[1] && cells[1].querySelector('input') ? cells[1].querySelector('input').value : '...';
-                            if (input.id.includes('_det')) questionText = `Frase: ${frase} (Determinante)`;
-                            else if (input.id.includes('_sub')) questionText = `Frase: ${frase} (Subclasse de ${det})`;
-                        }
-                    } else {
-                        questionText = input.placeholder || input.id;
-                    }
+                    let questionText = 'Questão';
+                    if (row && row.querySelector('label')) questionText = row.querySelector('label').textContent.replace(':','').trim();
+                    else if (row && row.querySelector('td')) questionText = row.querySelector('td').textContent.trim();
+                    else if (input.placeholder) questionText = input.placeholder;
+
                     const correctDisplay = input.getAttribute('data-answer').replace(/,/g, ' ou ');
-                    feedbackHTML += `<div class="p-3 border-l-4 border-red-500 bg-red-50"><p class="font-semibold text-red-700">❌ Questão: ${questionText}</p><p class="text-sm text-gray-700">A tua resposta: <span class="font-mono text-red-700">${input.value}</span></p><p class="text-sm text-gray-700">Resposta(s) correta(s): <span class="font-mono text-green-700">${correctDisplay}</span></p></div>`;
+                    feedbackHTML += `<div class="p-3 border-l-4 border-red-500 bg-red-50 text-sm"><p class="font-bold text-red-700">❌ ${questionText}</p><p class="text-gray-700">Tu: <span class="font-mono text-red-600">${input.value}</span> | Correto: <span class="font-mono text-green-600">${correctDisplay}</span></p></div>`;
                 }
             });
 
+            // Radio Logic (Same as before but optimized)
             const radioGroupNames = ['q4_a', 'q4_b', 'q4_c', 'q4_d', 'q5_a', 'q5_b', 'q5_c', 'q5_d', 'q5_e', 'q5_f', 'q5_g', 'q5_h'];
             radioGroupNames.forEach(groupName => {
                 const checkedRadio = form.querySelector(`input[name="${groupName}"]:checked`);
                 const answerRadio = form.querySelector(`input[name="${groupName}"][data-answer]`);
-                let row, questionText = 'N/A';
-
+                
                 if (answerRadio) {
                     totalPoints += parseInt(answerRadio.getAttribute('data-points'), 10);
-                    if (answerRadio.closest('tr')) { 
-                        row = answerRadio.closest('tr');
-                        questionText = row.querySelector('td:first-child').textContent.trim();
-                        row.classList.remove('table-feedback-correct', 'table-feedback-incorrect');
-                    } else { 
-                        const outerDiv = answerRadio.closest('div').parentElement;
-                        questionText = outerDiv.querySelector('p').textContent.trim();
-                        document.querySelectorAll(`input[name="${groupName}"]`).forEach(radio => {
-                            const labelElement = radio.nextElementSibling;
-                            if (labelElement) { labelElement.style.backgroundColor = ''; labelElement.style.color = ''; labelElement.style.border = '2px solid #d1d5db'; }
-                        });
-                    }
+                    // Reset visuals
+                    document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+                        if(r.parentElement.classList.contains('radio-label')) {
+                            r.parentElement.style.backgroundColor = '';
+                            r.parentElement.style.color = '';
+                            r.parentElement.style.borderColor = '';
+                        }
+                    });
                 }
 
                 if (checkedRadio) {
                     const userAnswer = checkedRadio.value;
                     const correctAnswer = answerRadio ? normalizeAnswer(answerRadio.getAttribute('data-answer')) : '';
                     const points = answerRadio ? parseInt(answerRadio.getAttribute('data-points'), 10) : 0;
-                    const labelElement = checkedRadio.nextElementSibling;
+                    const labelElement = checkedRadio.parentElement;
 
                     if (normalizeAnswer(userAnswer) === correctAnswer) {
                         earnedPoints += points;
-                        if (row && row.tagName.toLowerCase() === 'tr') row.classList.add('table-feedback-correct');
-                        else if (labelElement) { labelElement.style.backgroundColor = '#10b981'; labelElement.style.color = 'white'; labelElement.style.borderColor = '#059669'; }
-                    } else {
-                        if (row && row.tagName.toLowerCase() === 'tr') row.classList.add('table-feedback-incorrect');
-                        else if (labelElement) { 
-                            labelElement.style.backgroundColor = '#fef2f2'; labelElement.style.borderColor = '#f87171';
-                            const correctLabel = answerRadio ? answerRadio.nextElementSibling : null;
-                            if (correctLabel) { correctLabel.style.backgroundColor = '#d1fae5'; correctLabel.style.color = '#047857'; correctLabel.style.border = '2px solid #34d399'; }
+                        if(labelElement.classList.contains('radio-label')) {
+                            labelElement.style.backgroundColor = '#10b981';
+                            labelElement.style.color = 'white';
+                            labelElement.style.borderColor = '#059669';
                         }
-                        const correctDisplay = answerRadio ? answerRadio.nextElementSibling.textContent.trim() : 'N/A';
-                        feedbackHTML += `<div class="p-3 border-l-4 border-red-500 bg-red-50"><p class="font-semibold text-red-700">❌ Questão: ${questionText}</p><p class="text-sm text-gray-700">A tua resposta: <span class="font-mono text-red-700">${labelElement ? labelElement.textContent.trim() : 'N/A'}</span></p><p class="text-sm text-gray-700">Resposta correta: <span class="font-mono text-green-700">${correctDisplay}</span></p></div>`;
+                    } else {
+                        if(labelElement.classList.contains('radio-label')) {
+                            labelElement.style.backgroundColor = '#fef2f2';
+                            labelElement.style.borderColor = '#f87171';
+                        }
+                        // Highlight correct one
+                        if(answerRadio && answerRadio.parentElement.classList.contains('radio-label')) {
+                            answerRadio.parentElement.style.backgroundColor = '#d1fae5';
+                            answerRadio.parentElement.style.borderColor = '#34d399';
+                        }
+                        
+                        let qText = "Pergunta de escolha múltipla";
+                        const container = checkedRadio.closest('.rounded-lg') || checkedRadio.closest('tr');
+                        if(container.querySelector('p')) qText = container.querySelector('p').textContent;
+                        else if(container.querySelector('td')) qText = container.querySelector('td').textContent;
+
+                        const correctLabelText = answerRadio ? answerRadio.parentElement.textContent.trim() : 'N/A';
+                        feedbackHTML += `<div class="p-3 border-l-4 border-red-500 bg-red-50 text-sm"><p class="font-bold text-red-700">❌ ${qText}</p><p class="text-gray-700">Tu: <span class="font-mono text-red-600">${labelElement.textContent.trim()}</span> | Correto: <span class="font-mono text-green-600">${correctLabelText}</span></p></div>`;
                     }
                 }
             });
@@ -1161,28 +1252,29 @@
             const scoreSummary = document.getElementById('score-summary');
             const detailedFeedback = document.getElementById('detailed-feedback');
             const scorePercentage = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
-            let resultText, resultClass;
+            let resultClass = scorePercentage >= 50 ? 'bg-green-50 text-green-800 border-green-500' : 'bg-red-50 text-red-800 border-red-500';
 
-            if (scorePercentage >= 90) { resultText = 'Muito Bom! Excelente trabalho.'; resultClass = 'bg-lime-50 text-lime-700 border-lime-500'; }
-            else if (scorePercentage >= 75) { resultText = 'Bom. Um resultado sólido!'; resultClass = 'bg-green-50 text-green-700 border-green-500'; }
-            else if (scorePercentage >= 50) { resultText = 'Suficiente. Continua a estudar!'; resultClass = 'bg-yellow-50 text-yellow-700 border-yellow-500'; }
-            else { resultText = 'Insuficiente. É necessário rever a matéria.'; resultClass = 'bg-red-50 text-red-700 border-red-500'; }
-
-            scoreSummary.innerHTML = `<p class="text-2xl font-bold text-gray-800">${earnedPoints} / ${totalPoints} Pontos</p><p class="text-4xl font-extrabold my-2 ${resultClass.split(' ').filter(c => c.includes('text-')).join(' ')}">${scorePercentage.toFixed(1)}%</p><p class="text-lg font-medium ${resultClass}">${resultText}</p>`;
             scoreSummary.className = `p-4 text-center rounded-lg mb-6 border-l-4 ${resultClass}`;
-            detailedFeedback.innerHTML = feedbackHTML === '' ? '<p class="text-center text-gray-500">🎉 Parabéns! Não foram encontrados erros.</p>' : feedbackHTML;
+            scoreSummary.innerHTML = `<p class="text-xl font-bold">${earnedPoints} / ${totalPoints} Pontos</p><p class="text-3xl font-extrabold my-2">${scorePercentage.toFixed(0)}%</p>`;
+            detailedFeedback.innerHTML = feedbackHTML === '' ? '<p class="text-center text-green-600 font-bold">🎉 Parabéns! Tudo certo!</p>' : feedbackHTML;
+            
+            // Scroll para resultados
+            document.getElementById('quiz-results').scrollIntoView({ behavior: 'smooth' });
         }
 
         function resetQuiz() {
             document.getElementById('grammar-quiz-form').reset();
             document.getElementById('quiz-results').classList.add('hidden');
             document.getElementById('submit-button').disabled = false;
-            document.getElementById('submit-button').textContent = "Submeter e Corrigir a Zona de Avaliação";
+            document.getElementById('submit-button').textContent = "Submeter Avaliação";
             
             document.querySelectorAll('.input-text').forEach(input => input.classList.remove('correct', 'incorrect'));
-            document.querySelectorAll('tr').forEach(row => row.classList.remove('table-feedback-correct', 'table-feedback-incorrect'));
-            document.querySelectorAll('.flex').forEach(row => row.classList.remove('table-feedback-correct', 'table-feedback-incorrect'));
-            document.querySelectorAll('#section-5 .radio-label').forEach(label => { label.style.backgroundColor = ''; label.style.color = ''; label.style.border = '2px solid #d1d5db'; });
+            document.querySelectorAll('.radio-label').forEach(label => { 
+                label.style.backgroundColor = ''; 
+                label.style.color = ''; 
+                label.style.borderColor = '#d1d5db'; 
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
