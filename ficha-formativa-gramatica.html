@@ -1009,8 +1009,8 @@
                 setTimeout(() => { processPlayerAttack(currentTargetCoordinate, true); resetQuestionArea(); }, 1200);
             } else {
                 const answerText = selectedOption ? selectedOption.value : "Nada";
-                feedbackElement.textContent = `❌ Errado! Era: ${correctAnswer}.`;
-                feedbackElement.className = "mt-4 text-center font-bold text-sm text-red-500";
+                feedbackElement.textContent = `⚠️ Resposta Errada: ${answerText}. A correta era: ${correctAnswer}.`;
+                feedbackElement.className = "mt-4 text-center font-bold text-sm text-yellow-600";
                 setTimeout(() => { processPlayerAttack(currentTargetCoordinate, false); resetQuestionArea(); }, 2000);
             }
         }
@@ -1058,10 +1058,13 @@
                     setTimeout(computerAttack, 1000);
                 }
             } else {
-                cell.classList.add('miss'); cell.innerHTML = '💧'; cell.style.cursor = 'default';
-                computerGrid[r][c] = 'MISS';
-                updateGameStatus(`Erraste a pergunta. Vez do Computador.`);
-                setTimeout(computerAttack, 1000);
+                // CANHÃO ENCRAVADO (Resposta Incorreta)
+                // Não marca como 'MISS' nem 'HIT'. A célula volta ao estado original.
+                // O turno passa para o computador.
+                updateGameStatus(`⚠️ Canhão encravado (Resposta Errada)! O turno passa para o Computador.`);
+                
+                // Passa a vez
+                setTimeout(computerAttack, 1500);
             }
         }
 
