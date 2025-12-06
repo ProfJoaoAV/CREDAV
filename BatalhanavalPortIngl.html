@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Batalha Naval Gramatical - Edição Mestre</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
+        
+        /* Jogo - 10 colunas */
+        .game-grid { display: grid; grid-template-columns: repeat(10, 1fr); width: 100%; max-width: 380px; aspect-ratio: 1; margin: 0 auto; border: 2px solid #1e40af; background-color: #eff6ff; }
+        .grid-cell { border: 1px solid #bfdbfe; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; font-weight: 600; font-size: 0.8rem; }
+        .grid-header { background-color: #1e40af; color: white; font-size: 0.7rem; display: flex; justify-content: center; align-items: center; }
+        
+        .ship { background-color: #4b5563; color: white; }
+        .hit { background-color: #ef4444; color: white; animation: hit-pulse 0.5s infinite; }
+        .miss { background-color: #60a5fa; color: white; }
+        .sunk { background-color: #dc2626; color: white; font-weight: bold; border: 2px solid #7f1d1d; }
+        .disabled { pointer-events: none; opacity: 0.8; }
+
+        @keyframes hit-pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 100% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); } }
+
+        /* Configuração de Tópicos */
+        .topic-checkbox:checked + div { background-color: #dbeafe; border-color: #3b82f6; color: #1e40af; font-weight: 600; }
+        .topic-checkbox:checked + div .check-icon { display: block; }
+        
+        .topic-scroll::-webkit-scrollbar { width: 8px; }
+        .topic-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .topic-scroll::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
+        .topic-scroll::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+    </style>
+</head>
+<body class="p-2 sm:p-4 min-h-screen flex flex-col">
+
+    <div class="max-w-7xl mx-auto w-full bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col min-h-[90vh]">
+        
+        <header class="text-center p-4 border-b bg-white flex items-center justify-center gap-4">
+            <div class="w-16 h-16">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-full h-full drop-shadow-md">
+                  <circle cx="256" cy="256" r="256" fill="#1e40af"/>
+                  <path d="M0,350 Q64,300 128,350 T256,350 T384,350 T512,350 V512 H0 Z" fill="#60a5fa"/>
+                  <path d="M100,320 L130,220 H380 L410,320 Z" fill="#4b5563"/>
+                  <rect x="180" y="160" width="150" height="60" fill="#6b7280"/>
+                  <rect x="230" y="100" width="50" height="60" fill="#9ca3af"/>
+                  <g transform="translate(196, 120) scale(0.8)">
+                    <path d="M10,80 Q75,90 140,80 V10 Q75,20 10,10 Z" fill="#f3f4f6"/>
+                    <path d="M140,80 Q205,90 270,80 V10 Q205,20 140,10 Z" fill="#e5e7eb"/>
+                    <path d="M140,80 V10" stroke="#9ca3af" stroke-width="2"/>
+                  </g>
+                  <g stroke="#ef4444" stroke-width="12" fill="none"><circle cx="256" cy="200" r="130"/><line x1="256" y1="50" x2="256" y2="120"/><line x1="256" y1="280" x2="256" y2="350"/><line x1="106" y1="200" x2="176" y2="200"/><line x1="336" y1="200" x2="406" y2="200"/></g>
+                </svg>
+            </div>
+            <div class="text-left">
+                <h1 class="text-xl sm:text-3xl font-extrabold text-gray-900">Batalha Naval Gramatical</h1>
+                <p class="text-xs sm:text-sm text-gray-600">Português e Inglês (5.º/6.º Ano)</p>
+            </div>
+        </header>
+
+        <div class="p-4 flex-grow overflow-y-auto bg-gray-50">
+            
+            <!-- 1. ECRÃ DE CONFIGURAÇÃO (Seleção de Tópicos) -->
+            <div id="game-setup" class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Configuração da Missão</h2>
+                <p class="text-center text-gray-500 mb-6 text-sm">Seleciona os tópicos para a batalha.</p>
+                
+                <div class="grid md:grid-cols-3 gap-4 mb-8 h-[60vh] md:h-[500px]">
+                    
+                    <!-- Coluna Inglês -->
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-100 flex flex-col h-full overflow-hidden">
+                        <h3 class="font-bold text-red-800 mb-3 flex items-center border-b border-red-200 pb-2">
+                            <span class="mr-2 text-xl">🇬🇧</span> Inglês
+                        </h3>
+                        <div class="space-y-1 overflow-y-auto topic-scroll pr-2 flex-grow">
+                            <p class="text-xs font-bold text-red-400 uppercase mt-2 mb-1">Verbs</p>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_to_be"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Verb To Be</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_have_got"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Verb Have Got</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_present_simple"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Present Simple</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_present_continuous"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Present Continuous</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_past_simple"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Past Simple</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_past_to_be"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Past Simple (To Be)</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_there_be"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>There To Be</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            
+                            <p class="text-xs font-bold text-red-400 uppercase mt-3 mb-1">Grammar</p>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_pronouns"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Personal Pronouns</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_possessives"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Possessives (Det/Pron)</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_demonstratives"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Demonstratives</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="en_comparatives"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-red-300 transition flex justify-between"><span>Comp/Superlatives</span><span class="check-icon hidden text-red-600">✓</span></div></label>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Português - Classes -->
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex flex-col h-full overflow-hidden">
+                        <h3 class="font-bold text-blue-800 mb-3 flex items-center border-b border-blue-200 pb-2">
+                            <span class="mr-2 text-xl">🇵🇹</span> PT: Classes
+                        </h3>
+                        <div class="space-y-1 overflow-y-auto topic-scroll pr-2 flex-grow">
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_classes_geral"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Identificação Geral</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_nomes"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Nomes (Subclasses)</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_adjetivos"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Adjetivos (Classes e Graus)</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_verbos"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Verbos</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_determinantes"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Determinantes</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_pronomes"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Pronomes</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_quantificadores"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Quantificadores</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_adverbios"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Advérbios</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_preposicoes"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Preposições</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_conjuncoes"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Conjunções</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_interjeicoes"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-blue-300 transition flex justify-between"><span>Interjeições</span><span class="check-icon hidden text-blue-600">✓</span></div></label>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Português - Sintaxe -->
+                    <div class="bg-green-50 p-3 rounded-lg border border-green-100 flex flex-col h-full overflow-hidden">
+                        <h3 class="font-bold text-green-800 mb-3 flex items-center border-b border-green-200 pb-2">
+                            <span class="mr-2 text-xl">🧩</span> PT: Sintaxe
+                        </h3>
+                        <div class="space-y-1 overflow-y-auto topic-scroll pr-2 flex-grow">
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_sujeito"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Sujeito</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_predicado"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Predicado</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_cd"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Complemento Direto</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_ci"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Complemento Indireto</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_obliquo"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Complemento Oblíquo</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_predicativo"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Predicativo do Sujeito</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_agente"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Agente da Passiva</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_vocativo"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Vocativo</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_modificador"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Modificador</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                            <label class="cursor-pointer block relative"><input type="checkbox" class="topic-checkbox hidden" value="pt_sintaxe_passiva"><div class="p-2 bg-white border border-gray-200 rounded text-sm hover:border-green-300 transition flex justify-between"><span>Frase Ativa / Passiva</span><span class="check-icon hidden text-green-600">✓</span></div></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center flex justify-center gap-4">
+                    <button onclick="selectAll(true)" class="text-sm text-gray-500 underline hover:text-blue-600">Selecionar Tudo</button>
+                    <button onclick="initGame()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-12 rounded-full shadow-lg transform transition hover:scale-105 text-lg flex items-center">
+                        Iniciar Batalha <span class="ml-2">🚀</span>
+                    </button>
+                    <button onclick="selectAll(false)" class="text-sm text-gray-500 underline hover:text-blue-600">Limpar Tudo</button>
+                </div>
+            </div>
+
+            <!-- 2. ÁREA DE JOGO -->
+            <div id="game-active-area" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <button onclick="showSetup()" class="text-sm text-gray-500 hover:text-indigo-600 flex items-center px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">
+                        ← Voltar ao Menu
+                    </button>
+                    <div id="game-status" class="font-bold text-indigo-800 bg-indigo-50 px-4 py-2 rounded-full text-sm border border-indigo-100 shadow-sm">
+                        À espera de ordens...
+                    </div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row justify-center items-start gap-8">
+                    <div class="w-full max-w-[350px] mx-auto text-center order-2 lg:order-1 opacity-80">
+                        <h3 class="text-sm font-bold text-gray-500 mb-2">A TUA FROTA</h3>
+                        <div id="player-grid" class="game-grid"></div>
+                        <div class="mt-2 flex justify-center gap-2 text-xs text-gray-400">
+                            <span class="flex items-center"><span class="w-3 h-3 bg-gray-600 mr-1"></span>Navio</span>
+                            <span class="flex items-center"><span class="w-3 h-3 bg-red-500 mr-1"></span>Dano</span>
+                        </div>
+                    </div>
+
+                    <div class="w-full max-w-[350px] mx-auto text-center order-1 lg:order-2">
+                        <h3 class="text-sm font-bold text-indigo-600 mb-2 animate-pulse flex items-center justify-center gap-2">
+                            <span>🎯</span> ALVO (INIMIGO)
+                        </h3>
+                        <div id="computer-grid" class="game-grid border-indigo-500 shadow-xl cursor-crosshair"></div>
+                        <p class="text-xs mt-2 text-indigo-600 font-bold">Toca numa célula para atacar!</p>
+                    </div>
+                </div>
+
+                <!-- Modal de Pergunta -->
+                <div id="question-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+                    <div class="bg-white rounded-xl shadow-2xl p-6 max-w-lg w-full transform transition-all scale-100 border-t-4 border-indigo-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <span id="q-topic-badge" class="bg-blue-100 text-blue-800 text-xs font-bold uppercase px-2 py-1 rounded">Tópico</span>
+                            <div class="text-right">
+                                <span class="text-xs text-gray-400 font-mono">COORDENADAS <span id="q-coord" class="text-gray-800">??</span></span>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-lg font-bold text-gray-800 mb-6 leading-tight" id="q-text">A carregar pergunta...</h3>
+                        
+                        <div id="q-options" class="space-y-3 mb-6"></div>
+
+                        <div id="q-feedback" class="hidden mb-4 p-3 rounded-lg text-center font-bold text-sm"></div>
+
+                        <button id="q-submit" onclick="submitAnswer()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            DISPARAR CANHÃO! 🔥
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Game Over Modal -->
+                <div id="game-over-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden p-4">
+                    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center">
+                        <div id="go-icon" class="text-6xl mb-4">🏆</div>
+                        <h2 id="go-title" class="text-3xl font-extrabold text-gray-900 mb-2">Vitória!</h2>
+                        <p id="go-msg" class="text-gray-600 mb-6">Afundaste todos os navios inimigos.</p>
+                        <button onclick="initGame()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg w-full mb-3 transform hover:scale-105 transition">
+                            Jogar Novamente
+                        </button>
+                        <button onclick="showSetup()" class="text-gray-500 hover:text-gray-800 text-sm underline">
+                            Voltar ao Menu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DADOS DE PERGUNTAS EXPANDIDA (25-30 por tópico) ---
+        const QUESTION_DATABASE = {
+            // --- INGLÊS (VERBS) ---
+            'en_to_be': [
+                { q: "Complete: 'I ___ a student.'", opts: ["am", "is", "are"], a: "am" },
+                { q: "Complete: 'She ___ my sister.'", opts: ["is", "am", "are"], a: "is" },
+                { q: "Complete: 'We ___ happy.'", opts: ["are", "is", "am"], a: "are" },
+                { q: "Complete: 'You ___ smart.'", opts: ["are", "is", "am"], a: "are" },
+                { q: "Complete: 'They ___ at home.'", opts: ["are", "is", "am"], a: "are" },
+                { q: "Complete: 'It ___ a dog.'", opts: ["is", "am", "are"], a: "is" },
+                { q: "Complete: 'The book ___ red.'", opts: ["is", "am", "are"], a: "is" },
+                { q: "Complete: 'John and I ___ friends.'", opts: ["are", "is", "am"], a: "are" },
+                { q: "Negative: 'He is tall.' -> 'He ___ tall.'", opts: ["isn't", "aren't", "not"], a: "isn't" },
+                { q: "Negative: 'I am hungry.' -> 'I ___ hungry.'", opts: ["am not", "isn't", "aren't"], a: "am not" },
+                { q: "Negative: 'We are late.' -> 'We ___ late.'", opts: ["aren't", "isn't", "not are"], a: "aren't" },
+                { q: "Negative: 'It is cold.' -> 'It ___ cold.'", opts: ["isn't", "aren't", "not"], a: "isn't" },
+                { q: "Interrogative: 'You are Portuguese.' -> '___ Portuguese?'", opts: ["Are you", "Is you", "Am you"], a: "Are you" },
+                { q: "Interrogative: 'He is happy.' -> '___ happy?'", opts: ["Is he", "Are he", "Am he"], a: "Is he" },
+                { q: "Interrogative: 'They are here.' -> '___ here?'", opts: ["Are they", "Is they", "Do they"], a: "Are they" },
+                { q: "Short answer: 'Is she nice?' -> 'No, she ___.'", opts: ["isn't", "aren't", "not"], a: "isn't" },
+                { q: "Short answer: 'Are you ready?' -> 'Yes, I ___.'", opts: ["am", "are", "is"], a: "am" },
+                { q: "Short answer: 'Are they boys?' -> 'Yes, they ___.'", opts: ["are", "is", "do"], a: "are" },
+                { q: "Complete: 'Where ___ you from?'", opts: ["are", "is", "am"], a: "are" },
+                { q: "Complete: 'What ___ your name?'", opts: ["is", "are", "am"], a: "is" },
+                { q: "Complete: 'How old ___ he?'", opts: ["is", "are", "am"], a: "is" },
+                { q: "Complete: 'These ___ my pens.'", opts: ["are", "is", "am"], a: "are" },
+                { q: "Complete: 'That ___ a cat.'", opts: ["is", "are", "am"], a: "is" },
+                { q: "Complete: 'Tom ___ English.'", opts: ["is", "are", "am"], a: "is" },
+                { q: "Complete: 'Sue and Tom ___ students.'", opts: ["are", "is", "am"], a: "are" }
+            ],
+            'en_have_got': [
+                { q: "Complete: 'I ___ got a new bike.'", opts: ["have", "has", "had"], a: "have" },
+                { q: "Complete: 'She ___ got blue eyes.'", opts: ["has", "have", "is"], a: "has" },
+                { q: "Complete: 'He ___ got a dog.'", opts: ["has", "have", "is"], a: "has" },
+                { q: "Complete: 'We ___ got a big house.'", opts: ["have", "has", "are"], a: "have" },
+                { q: "Complete: 'They ___ got two cars.'", opts: ["have", "has", "do"], a: "have" },
+                { q: "Complete: 'It ___ got four legs.'", opts: ["has", "have", "is"], a: "has" },
+                { q: "Complete: 'You ___ got a pen.'", opts: ["have", "has", "are"], a: "have" },
+                { q: "Negative: 'He has got a sister.' -> 'He ___ got a sister.'", opts: ["hasn't", "haven't", "don't have"], a: "hasn't" },
+                { q: "Negative: 'I have got time.' -> 'I ___ got time.'", opts: ["haven't", "hasn't", "not have"], a: "haven't" },
+                { q: "Negative: 'We have got money.' -> 'We ___ got money.'", opts: ["haven't", "hasn't", "don't"], a: "haven't" },
+                { q: "Negative: 'She has got a cold.' -> 'She ___ got a cold.'", opts: ["hasn't", "haven't", "isn't"], a: "hasn't" },
+                { q: "Interrogative: '___ you got a pen?'", opts: ["Have", "Has", "Do"], a: "Have" },
+                { q: "Interrogative: '___ she got a brother?'", opts: ["Has", "Have", "Is"], a: "Has" },
+                { q: "Interrogative: '___ they got a car?'", opts: ["Have", "Has", "Do"], a: "Have" },
+                { q: "Short answer: 'Has she got hair?' -> 'No, she ___.'", opts: ["hasn't", "haven't", "isn't"], a: "hasn't" },
+                { q: "Short answer: 'Have you got a pet?' -> 'Yes, I ___.'", opts: ["have", "has", "do"], a: "have" },
+                { q: "Complete: 'My mum ___ got long hair.'", opts: ["has", "have", "is"], a: "has" },
+                { q: "Complete: 'The boys ___ got a ball.'", opts: ["have", "has", "are"], a: "have" },
+                { q: "Complete: 'The cat ___ got a tail.'", opts: ["has", "have", "is"], a: "has" },
+                { q: "Complete: '___ Jane got a book?'", opts: ["Has", "Have", "Is"], a: "Has" },
+                { q: "Complete: '___ Peter and Paul got money?'", opts: ["Have", "Has", "Do"], a: "Have" },
+                { q: "Complete: 'My school ___ got a gym.'", opts: ["has", "have", "is"], a: "has" },
+                { q: "Complete: 'You and I ___ got ideas.'", opts: ["have", "has", "are"], a: "have" },
+                { q: "Negative: 'It has got wings.' -> 'It ___ got wings.'", opts: ["hasn't", "haven't", "isn't"], a: "hasn't" },
+                { q: "Complete: '___ the dog got a bone?'", opts: ["Has", "Have", "Is"], a: "Has" }
+            ],
+            'en_present_simple': [
+                { q: "Complete: 'I ___ (play) football.'", opts: ["play", "plays", "playing"], a: "play" },
+                { q: "Complete: 'He ___ (watch) TV.'", opts: ["watches", "watch", "watching"], a: "watches" },
+                { q: "Complete: 'She ___ (live) in London.'", opts: ["lives", "live", "living"], a: "lives" },
+                { q: "Complete: 'They ___ (go) to school.'", opts: ["go", "goes", "going"], a: "go" },
+                { q: "Complete: 'We ___ (study) English.'", opts: ["study", "studies", "studying"], a: "study" },
+                { q: "Complete: 'It ___ (rain) a lot.'", opts: ["rains", "rain", "raining"], a: "rains" },
+                { q: "Complete: 'You ___ (like) pizza.'", opts: ["like", "likes", "liking"], a: "like" },
+                { q: "Complete: 'My dad ___ (work) here.'", opts: ["works", "work", "working"], a: "works" },
+                { q: "Complete: 'Sarah ___ (wash) the car.'", opts: ["washes", "wash", "washing"], a: "washes" },
+                { q: "Complete: 'Tom ___ (cry) sometimes.'", opts: ["cries", "cry", "crys"], a: "cries" },
+                { q: "Negative: 'I like apples.' -> 'I ___ like apples.'", opts: ["don't", "doesn't", "not"], a: "don't" },
+                { q: "Negative: 'He plays.' -> 'He ___ play.'", opts: ["doesn't", "don't", "isn't"], a: "doesn't" },
+                { q: "Negative: 'She runs.' -> 'She ___ run.'", opts: ["doesn't", "don't", "isn't"], a: "doesn't" },
+                { q: "Negative: 'We sleep.' -> 'We ___ sleep.'", opts: ["don't", "doesn't", "aren't"], a: "don't" },
+                { q: "Interrogative: '___ she like music?'", opts: ["Does", "Do", "Is"], a: "Does" },
+                { q: "Interrogative: '___ you play tennis?'", opts: ["Do", "Does", "Are"], a: "Do" },
+                { q: "Interrogative: '___ they live here?'", opts: ["Do", "Does", "Are"], a: "Do" },
+                { q: "Interrogative: '___ it eat meat?'", opts: ["Does", "Do", "Is"], a: "Does" },
+                { q: "Short Answer: 'Do you play?' -> 'Yes, I ___.'", opts: ["do", "does", "play"], a: "do" },
+                { q: "Short Answer: 'Does he work?' -> 'No, he ___.'", opts: ["doesn't", "don't", "isn't"], a: "doesn't" },
+                { q: "Complete: 'The sun ___ (shine).' ", opts: ["shines", "shine", "shining"], a: "shines" },
+                { q: "Complete: 'Birds ___ (fly).'", opts: ["fly", "flies", "flying"], a: "fly" },
+                { q: "Complete: 'My mum ___ (cook).' ", opts: ["cooks", "cook", "cooking"], a: "cooks" },
+                { q: "Complete: 'I always ___ (brush) my teeth.'", opts: ["brush", "brushes", "brushing"], a: "brush" },
+                { q: "Complete: 'He never ___ (listen).'", opts: ["listens", "listen", "listening"], a: "listens" }
+            ],
+            'en_present_continuous': [
+                { q: "Complete: 'I ___ (read) now.'", opts: ["am reading", "reading", "read"], a: "am reading" },
+                { q: "Complete: 'She ___ (sleep) now.'", opts: ["is sleeping", "sleeps", "sleeping"], a: "is sleeping" },
+                { q: "Complete: 'They ___ (play) now.'", opts: ["are playing", "is playing", "plays"], a: "are playing" },
+                { q: "Complete: 'We ___ (watch) TV.'", opts: ["are watching", "is watching", "watching"], a: "are watching" },
+                { q: "Complete: 'He ___ (run) fast.'", opts: ["is running", "are running", "running"], a: "is running" },
+                { q: "Complete: 'You ___ (eat) lunch.'", opts: ["are eating", "is eating", "eating"], a: "are eating" },
+                { q: "Complete: 'It ___ (rain) outside.'", opts: ["is raining", "are raining", "rains"], a: "is raining" },
+                { q: "Complete: 'The dog ___ (bark).'", opts: ["is barking", "are barking", "barking"], a: "is barking" },
+                { q: "Complete: 'Look! The bus ___ (come).'", opts: ["is coming", "comes", "coming"], a: "is coming" },
+                { q: "Negative: 'He is running.' -> 'He ___ running.'", opts: ["isn't", "aren't", "don't"], a: "isn't" },
+                { q: "Negative: 'I am playing.' -> 'I ___ playing.'", opts: ["am not", "isn't", "don't"], a: "am not" },
+                { q: "Negative: 'They are singing.' -> 'They ___ singing.'", opts: ["aren't", "isn't", "don't"], a: "aren't" },
+                { q: "Interrogative: '___ she sleeping?'", opts: ["Is", "Are", "Do"], a: "Is" },
+                { q: "Interrogative: '___ you listening?'", opts: ["Are", "Is", "Do"], a: "Are" },
+                { q: "Interrogative: '___ they working?'", opts: ["Are", "Is", "Do"], a: "Are" },
+                { q: "Complete: 'John ___ (dance).'", opts: ["is dancing", "dance", "dancing"], a: "is dancing" },
+                { q: "Complete: 'We ___ (make) a cake.'", opts: ["are making", "making", "make"], a: "are making" },
+                { q: "Complete: 'The birds ___ (sing).'", opts: ["are singing", "is singing", "singing"], a: "are singing" },
+                { q: "Complete: 'I ___ (sit) down.'", opts: ["am sitting", "is sitting", "sitting"], a: "am sitting" },
+                { q: "Complete: 'She ___ (swim).'", opts: ["is swimming", "swims", "swimming"], a: "is swimming" },
+                { q: "Complete: 'They ___ (stop) the car.'", opts: ["are stopping", "is stopping", "stopping"], a: "are stopping" },
+                { q: "Complete: 'He ___ (write) a letter.'", opts: ["is writing", "are writing", "writing"], a: "is writing" },
+                { q: "Short Answer: 'Is it raining?' -> 'Yes, it ___.'", opts: ["is", "does", "has"], a: "is" },
+                { q: "Short Answer: 'Are you coming?' -> 'No, I ___.'", opts: ["am not", "aren't", "don't"], a: "am not" },
+                { q: "Complete: 'My mum ___ (drive).'", opts: ["is driving", "driving", "drives"], a: "is driving" }
+            ],
+            'en_past_simple': [
+                { q: "Past of 'Play'?", opts: ["Played", "Plaid", "Played"], a: "Played" },
+                { q: "Past of 'Go'?", opts: ["Went", "Goed", "Gone"], a: "Went" },
+                { q: "Past of 'See'?", opts: ["Saw", "Seed", "Seen"], a: "Saw" },
+                { q: "Past of 'Buy'?", opts: ["Bought", "Buyed", "Bring"], a: "Bought" },
+                { q: "Past of 'Do'?", opts: ["Did", "Doed", "Done"], a: "Did" },
+                { q: "Past of 'Have'?", opts: ["Had", "Haved", "Has"], a: "Had" },
+                { q: "Past of 'Eat'?", opts: ["Ate", "Eated", "Eaten"], a: "Ate" },
+                { q: "Past of 'Drink'?", opts: ["Drank", "Drinked", "Drunk"], a: "Drank" },
+                { q: "Past of 'Make'?", opts: ["Made", "Maked", "Making"], a: "Made" },
+                { q: "Past of 'Take'?", opts: ["Took", "Taked", "Taken"], a: "Took" },
+                { q: "Past of 'Come'?", opts: ["Came", "Comed", "Coming"], a: "Came" },
+                { q: "Past of 'Give'?", opts: ["Gave", "Gived", "Given"], a: "Gave" },
+                { q: "Past of 'Write'?", opts: ["Wrote", "Writed", "Written"], a: "Wrote" },
+                { q: "Past of 'Read'?", opts: ["Read", "Red", "Reeded"], a: "Read" },
+                { q: "Past of 'Speak'?", opts: ["Spoke", "Speaked", "Spoken"], a: "Spoke" },
+                { q: "Past of 'Run'?", opts: ["Ran", "Runned", "Run"], a: "Ran" },
+                { q: "Past of 'Sleep'?", opts: ["Slept", "Sleeped", "Sleeping"], a: "Slept" },
+                { q: "Past of 'Think'?", opts: ["Thought", "Thinked", "Thinking"], a: "Thought" },
+                { q: "Past of 'Get'?", opts: ["Got", "Getted", "Getting"], a: "Got" },
+                { q: "Negative: 'I walked.' -> 'I ___ walk.'", opts: ["didn't", "don't", "not"], a: "didn't" },
+                { q: "Negative: 'She ate.' -> 'She ___ eat.'", opts: ["didn't", "doesn't", "not"], a: "didn't" },
+                { q: "Interrogative: '___ you see it?'", opts: ["Did", "Do", "Were"], a: "Did" },
+                { q: "Interrogative: '___ he go?'", opts: ["Did", "Does", "Was"], a: "Did" },
+                { q: "Short Answer: 'Did they arrive?' -> 'Yes, they ___.'", opts: ["did", "do", "have"], a: "did" },
+                { q: "Complete: 'Yesterday, I ___ (watch) TV.'", opts: ["watched", "watch", "watching"], a: "watched" }
+            ],
+            'en_past_to_be': [
+                { q: "Complete: 'I ___ happy yesterday.'", opts: ["was", "were", "am"], a: "was" },
+                { q: "Complete: 'We ___ tired.'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Complete: 'She ___ at school.'", opts: ["was", "were", "is"], a: "was" },
+                { q: "Complete: 'They ___ in the park.'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Complete: 'It ___ cold last night.'", opts: ["was", "were", "is"], a: "was" },
+                { q: "Complete: 'You ___ late.'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Complete: 'He ___ sad.'", opts: ["was", "were", "is"], a: "was" },
+                { q: "Complete: 'My parents ___ angry.'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Complete: 'The movie ___ good.'", opts: ["was", "were", "is"], a: "was" },
+                { q: "Negative: 'He was sad.' -> 'He ___ sad.'", opts: ["wasn't", "weren't", "didn't"], a: "wasn't" },
+                { q: "Negative: 'They were home.' -> 'They ___ home.'", opts: ["weren't", "wasn't", "didn't"], a: "weren't" },
+                { q: "Negative: 'I was ill.' -> 'I ___ ill.'", opts: ["wasn't", "weren't", "am not"], a: "wasn't" },
+                { q: "Negative: 'We were busy.' -> 'We ___ busy.'", opts: ["weren't", "wasn't", "didn't"], a: "weren't" },
+                { q: "Interrogative: '___ she ill?'", opts: ["Was", "Were", "Did"], a: "Was" },
+                { q: "Interrogative: '___ they friends?'", opts: ["Were", "Was", "Did"], a: "Were" },
+                { q: "Interrogative: '___ you at home?'", opts: ["Were", "Was", "Did"], a: "Were" },
+                { q: "Short Answer: 'Was it cold?' -> 'Yes, it ___.'", opts: ["was", "were", "did"], a: "was" },
+                { q: "Short Answer: 'Were you happy?' -> 'No, I ___.'", opts: ["wasn't", "weren't", "didn't"], a: "wasn't" },
+                { q: "Short Answer: 'Were they late?' -> 'Yes, they ___.'", opts: ["were", "was", "did"], a: "were" },
+                { q: "Complete: 'Where ___ you yesterday?'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Complete: 'Who ___ that man?' (Past)", opts: ["was", "were", "is"], a: "was" },
+                { q: "Complete: 'The dogs ___ noisy.'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Complete: 'That book ___ boring.'", opts: ["was", "were", "is"], a: "was" },
+                { q: "Complete: 'There ___ a lot of people.'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Complete: 'It ___ sunny last week.'", opts: ["was", "were", "is"], a: "was" }
+            ],
+            'en_there_be': [
+                { q: "Present Singular: '___ is a book here.'", opts: ["There", "Their", "They"], a: "There" },
+                { q: "Present Plural: '___ are two pens.'", opts: ["There", "Their", "They"], a: "There" },
+                { q: "Negative Present: 'There ___ a cat.'", opts: ["isn't", "aren't", "not"], a: "isn't" },
+                { q: "Negative Present: 'There ___ any apples.'", opts: ["aren't", "isn't", "not"], a: "aren't" },
+                { q: "Interrogative Present: '___ there a park?'", opts: ["Is", "Are", "Be"], a: "Is" },
+                { q: "Interrogative Present: '___ there students?'", opts: ["Are", "Is", "Be"], a: "Are" },
+                { q: "Past Singular: '___ was a party.'", opts: ["There", "Their", "Where"], a: "There" },
+                { q: "Past Plural: '___ were many people.'", opts: ["There", "Their", "Where"], a: "There" },
+                { q: "Negative Past: 'There ___ a cloud.'", opts: ["wasn't", "weren't", "didn't"], a: "wasn't" },
+                { q: "Negative Past: 'There ___ any cookies.'", opts: ["weren't", "wasn't", "didn't"], a: "weren't" },
+                { q: "Interrogative Past: '___ there a doctor?'", opts: ["Was", "Were", "Did"], a: "Was" },
+                { q: "Interrogative Past: '___ there dinosaurs?'", opts: ["Were", "Was", "Did"], a: "Were" },
+                { q: "Short Answer: 'Is there a dog?' -> 'Yes, there ___.'", opts: ["is", "are", "do"], a: "is" },
+                { q: "Short Answer: 'Are there cars?' -> 'No, there ___.'", opts: ["aren't", "isn't", "don't"], a: "aren't" },
+                { q: "Short Answer: 'Was there a noise?' -> 'Yes, there ___.'", opts: ["was", "were", "did"], a: "was" },
+                { q: "Short Answer: 'Were there gifts?' -> 'No, there ___.'", opts: ["weren't", "wasn't", "didn't"], a: "weren't" },
+                { q: "Complete: 'There ___ some milk.' (Present)", opts: ["is", "are", "was"], a: "is" },
+                { q: "Complete: 'There ___ five players.' (Present)", opts: ["are", "is", "was"], a: "are" },
+                { q: "Complete: 'There ___ an accident yesterday.'", opts: ["was", "were", "is"], a: "was" },
+                { q: "Complete: 'There ___ two dogs yesterday.'", opts: ["were", "was", "are"], a: "were" },
+                { q: "Interrogative: 'How many books ___ there?'", opts: ["are", "is", "be"], a: "are" },
+                { q: "Complete: 'There ___ nothing here.'", opts: ["is", "are", "be"], a: "is" },
+                { q: "Complete: 'There ___ no milk left.' (Past)", opts: ["was", "were", "is"], a: "was" },
+                { q: "Complete: 'There ___ a spider on the wall.'", opts: ["is", "are", "were"], a: "is" },
+                { q: "Negative: 'There ___ any water.'", opts: ["isn't", "aren't", "not"], a: "isn't" }
+            ],
+
+            // --- INGLÊS (GRAMMAR) ---
+            'en_pronouns': [
+                { q: "Subject: '___ (Maria) is tall.'", opts: ["She", "Her", "He"], a: "She" },
+                { q: "Subject: '___ (John) is nice.'", opts: ["He", "Him", "She"], a: "He" },
+                { q: "Subject: '___ (The dog) is black.'", opts: ["It", "He", "She"], a: "It" },
+                { q: "Subject: '___ (You and I) are friends.'", opts: ["We", "Us", "They"], a: "We" },
+                { q: "Subject: '___ (Tom and Sue) are here.'", opts: ["They", "Them", "We"], a: "They" },
+                { q: "Object: 'Give the book to ___ (me).'", opts: ["me", "I", "my"], a: "me" },
+                { q: "Object: 'I see ___ (John).'", opts: ["him", "he", "his"], a: "him" },
+                { q: "Object: 'Listen to ___ (Sarah).'", opts: ["her", "she", "hers"], a: "her" },
+                { q: "Object: 'Look at ___ (the cars).'", opts: ["them", "they", "their"], a: "them" },
+                { q: "Object: 'Wait for ___ (us).'", opts: ["us", "we", "our"], a: "us" },
+                { q: "Object: 'I like ___ (pizza).'", opts: ["it", "him", "her"], a: "it" },
+                { q: "Object: 'Can you help ___ (I)?'", opts: ["me", "I", "my"], a: "me" },
+                { q: "Subject: '___ am happy.'", opts: ["I", "Me", "My"], a: "I" },
+                { q: "Subject: '___ (Peter) plays.'", opts: ["He", "Him", "His"], a: "He" },
+                { q: "Object: 'I love ___ (my mum).'", opts: ["her", "she", "hers"], a: "her" },
+                { q: "Subject: '___ (The cat and dog) fight.'", opts: ["They", "Them", "It"], a: "They" },
+                { q: "Object: 'Talk to ___ (Peter).'", opts: ["him", "he", "his"], a: "him" },
+                { q: "Subject: '___ are late.'", opts: ["We", "Us", "Our"], a: "We" },
+                { q: "Object: 'She called ___ (you).'", opts: ["you", "your", "yours"], a: "you" },
+                { q: "Subject: '___ (The book) is blue.'", opts: ["It", "He", "She"], a: "It" },
+                { q: "Object: 'Don't eat ___ (the apple).'", opts: ["it", "them", "him"], a: "it" },
+                { q: "Subject: '___ (My parents) are nice.'", opts: ["They", "Them", "We"], a: "They" },
+                { q: "Object: 'Show ___ (I) the photo.'", opts: ["me", "I", "my"], a: "me" },
+                { q: "Subject: '___ (Sarah) likes dogs.'", opts: ["She", "Her", "Him"], a: "She" },
+                { q: "Object: 'Play with ___ (the dog).'", opts: ["it", "him", "her"], a: "it" }
+            ],
+            'en_possessives': [
+                { q: "Possessive Det: 'This is ___ (I) book.'", opts: ["my", "mine", "me"], a: "my" },
+                { q: "Possessive Pron: 'The book is ___ (I).'", opts: ["mine", "my", "me"], a: "mine" },
+                { q: "Possessive Det: 'Is that ___ (you) car?'", opts: ["your", "yours", "you"], a: "your" },
+                { q: "Possessive Pron: 'The car is ___ (you).'", opts: ["yours", "your", "you"], a: "yours" },
+                { q: "Possessive Det: '___ (He) name is Tom.'", opts: ["His", "Him", "He"], a: "His" },
+                { q: "Possessive Pron: 'The pen is ___ (she).'", opts: ["hers", "her", "she"], a: "hers" },
+                { q: "Possessive Det: 'We love ___ (we) school.'", opts: ["our", "us", "ours"], a: "our" },
+                { q: "Possessive Pron: 'The house is ___ (we).'", opts: ["ours", "our", "us"], a: "ours" },
+                { q: "Possessive Det: 'Look at ___ (they) dog.'", opts: ["their", "them", "they"], a: "their" },
+                { q: "Possessive Pron: 'The dog is ___ (they).'", opts: ["theirs", "their", "them"], a: "theirs" },
+                { q: "Possessive Det: 'This is ___ (she) bag.'", opts: ["her", "hers", "she"], a: "her" },
+                { q: "Possessive Pron: 'Is this yours or ___ (he)?'", opts: ["his", "him", "he"], a: "his" },
+                { q: "Possessive Det: 'The cat eats ___ (it) food.'", opts: ["its", "it", "it's"], a: "its" },
+                { q: "Possessive Det: '___ (You) hair is long.'", opts: ["Your", "Yours", "You"], a: "Your" },
+                { q: "Possessive Pron: 'That seat is ___ (mine).'", opts: ["mine", "my", "me"], a: "mine" },
+                { q: "Possessive Det: '___ (I) phone is new.'", opts: ["My", "Mine", "Me"], a: "My" },
+                { q: "Possessive Pron: 'Is this bag ___ (you)?'", opts: ["yours", "your", "you"], a: "yours" },
+                { q: "Possessive Det: 'They lost ___ (they) keys.'", opts: ["their", "theirs", "them"], a: "their" },
+                { q: "Possessive Pron: 'The victory is ___ (we).'", opts: ["ours", "our", "us"], a: "ours" },
+                { q: "Possessive Det: '___ (He) eyes are blue.'", opts: ["His", "Him", "He"], a: "His" },
+                { q: "Possessive Det: 'Give me ___ (you) hand.'", opts: ["your", "yours", "you"], a: "your" },
+                { q: "Possessive Pron: 'This pen is ___ (I).'", opts: ["mine", "my", "me"], a: "mine" },
+                { q: "Possessive Det: '___ (She) brother is tall.'", opts: ["Her", "Hers", "She"], a: "Her" },
+                { q: "Possessive Det: '___ (We) teacher is nice.'", opts: ["Our", "Ours", "Us"], a: "Our" },
+                { q: "Possessive Pron: 'Those shoes are ___ (she).'", opts: ["hers", "her", "she"], a: "hers" }
+            ],
+            'en_demonstratives': [
+                { q: "Singular, Near: '___ is my pen.'", opts: ["This", "That", "These"], a: "This" },
+                { q: "Singular, Far: '___ is a star.'", opts: ["That", "This", "Those"], a: "That" },
+                { q: "Plural, Near: '___ are my shoes.'", opts: ["These", "Those", "This"], a: "These" },
+                { q: "Plural, Far: '___ are birds.'", opts: ["Those", "These", "That"], a: "Those" },
+                { q: "Near: 'Look at ___ picture in my hand.'", opts: ["this", "that", "these"], a: "this" },
+                { q: "Far: 'Look at ___ man over there.'", opts: ["that", "this", "those"], a: "that" },
+                { q: "Near: 'Are ___ your books here?'", opts: ["these", "those", "this"], a: "these" },
+                { q: "Far: 'Who are ___ boys in the park?'", opts: ["those", "these", "that"], a: "those" },
+                { q: "Singular: '___ apple is red.'", opts: ["This", "These", "Those"], a: "This" },
+                { q: "Plural: '___ flowers are beautiful.'", opts: ["These", "This", "That"], a: "These" },
+                { q: "Near: 'I like ___ cake (here).'", opts: ["this", "that", "those"], a: "this" },
+                { q: "Far: 'I don't like ___ car (there).'", opts: ["that", "this", "these"], a: "that" },
+                { q: "Near: '___ days are cold.'", opts: ["These", "This", "That"], a: "These" },
+                { q: "Far: 'Do you remember ___ days?'", opts: ["those", "these", "this"], a: "those" },
+                { q: "Singular, Near: '___ is my friend.'", opts: ["This", "That", "These"], a: "This" },
+                { q: "Singular, Far: '___ is the moon.'", opts: ["That", "This", "Those"], a: "That" },
+                { q: "Plural, Near: '___ cookies are tasty.'", opts: ["These", "Those", "This"], a: "These" },
+                { q: "Plural, Far: '___ mountains are high.'", opts: ["Those", "These", "That"], a: "Those" },
+                { q: "'What is ___?' (pointing near)", opts: ["this", "that", "those"], a: "this" },
+                { q: "'What are ___?' (pointing far)", opts: ["those", "these", "that"], a: "those" },
+                { q: "'___ is a nice day.'", opts: ["This", "These", "Those"], a: "This" },
+                { q: "'___ are my glasses.' (holding them)", opts: ["These", "Those", "This"], a: "These" },
+                { q: "'Look at ___ plane!' (sky)", opts: ["that", "this", "these"], a: "that" },
+                { q: "'I want ___ shoes.' (in window)", opts: ["those", "these", "this"], a: "those" },
+                { q: "'Is ___ your pen?' (holding it)", opts: ["this", "that", "those"], a: "this" }
+            ],
+            'en_comparatives': [
+                { q: "Comparative of 'Tall'", opts: ["Taller", "Tallest", "More tall"], a: "Taller" },
+                { q: "Superlative of 'Tall'", opts: ["Tallest", "Taller", "Most tall"], a: "Tallest" },
+                { q: "Comparative of 'Big'", opts: ["Bigger", "Biggest", "More big"], a: "Bigger" },
+                { q: "Superlative of 'Big'", opts: ["Biggest", "Bigger", "Most big"], a: "Biggest" },
+                { q: "Comparative of 'Happy'", opts: ["Happier", "Happyer", "More happy"], a: "Happier" },
+                { q: "Superlative of 'Happy'", opts: ["Happiest", "Happyest", "Most happy"], a: "Happiest" },
+                { q: "Comparative of 'Intelligent'", opts: ["More intelligent", "Intelligenter", "Most intelligent"], a: "More intelligent" },
+                { q: "Superlative of 'Intelligent'", opts: ["Most intelligent", "Intelligentest", "More intelligent"], a: "Most intelligent" },
+                { q: "Comparative of 'Good'", opts: ["Better", "Gooder", "Best"], a: "Better" },
+                { q: "Superlative of 'Good'", opts: ["Best", "Goodest", "Better"], a: "Best" },
+                { q: "Comparative of 'Bad'", opts: ["Worse", "Badder", "Worst"], a: "Worse" },
+                { q: "Superlative of 'Bad'", opts: ["Worst", "Baddest", "Worse"], a: "Worst" },
+                { q: "Sentence: 'John is ___ (old) than Mary.'", opts: ["older", "oldest", "more old"], a: "older" },
+                { q: "Sentence: 'This is the ___ (fast) car.'", opts: ["fastest", "faster", "most fast"], a: "fastest" },
+                { q: "Sentence: 'Summer is ___ (hot) than winter.'", opts: ["hotter", "hottest", "more hot"], a: "hotter" },
+                { q: "Sentence: 'She is the ___ (beautiful) girl.'", opts: ["most beautiful", "more beautiful", "beautifullest"], a: "most beautiful" },
+                { q: "Comparative of 'Far'", opts: ["Farther/Further", "Farer", "More far"], a: "Farther/Further" },
+                { q: "Sentence: 'Maths is ___ (difficult) than Art.'", opts: ["more difficult", "difficulter", "most difficult"], a: "more difficult" },
+                { q: "Sentence: 'He is the ___ (funny) boy.'", opts: ["funniest", "funnier", "most funny"], a: "funniest" },
+                { q: "Sentence: 'My bag is ___ (heavy) than yours.'", opts: ["heavier", "heavyer", "more heavy"], a: "heavier" },
+                { q: "Comparative of 'Small'", opts: ["Smaller", "Smallest", "More small"], a: "Smaller" },
+                { q: "Superlative of 'Fast'", opts: ["Fastest", "Faster", "Most fast"], a: "Fastest" },
+                { q: "Sentence: 'A Ferrari is ___ (expensive) than a Fiat.'", opts: ["more expensive", "expensiver", "most expensive"], a: "more expensive" },
+                { q: "Sentence: 'This is the ___ (good) pizza.'", opts: ["best", "goodest", "better"], a: "best" },
+                { q: "Sentence: 'Today is ___ (bad) than yesterday.'", opts: ["worse", "worst", "badder"], a: "worse" }
+            ],
+
+            // --- PORTUGUÊS (CLASSES) ---
+            'pt_classes_geral': [
+                { q: "Classe de 'mesa'?", opts: ["Nome", "Verbo", "Adjetivo"], a: "Nome" },
+                { q: "Classe de 'correr'?", opts: ["Verbo", "Nome", "Advérbio"], a: "Verbo" },
+                { q: "Classe de 'bonito'?", opts: ["Adjetivo", "Nome", "Advérbio"], a: "Adjetivo" },
+                { q: "Classe de 'rapidamente'?", opts: ["Advérbio", "Adjetivo", "Verbo"], a: "Advérbio" },
+                { q: "Classe de 'o'?", opts: ["Determinante", "Pronome", "Preposição"], a: "Determinante" },
+                { q: "Classe de 'ele'?", opts: ["Pronome", "Determinante", "Nome"], a: "Pronome" },
+                { q: "Classe de 'com'?", opts: ["Preposição", "Conjunção", "Advérbio"], a: "Preposição" },
+                { q: "Classe de 'e'?", opts: ["Conjunção", "Preposição", "Determinante"], a: "Conjunção" },
+                { q: "Classe de 'Ah!'?", opts: ["Interjeição", "Conjunção", "Verbo"], a: "Interjeição" },
+                { q: "Classe de 'dois'?", opts: ["Quantificador", "Adjetivo", "Nome"], a: "Quantificador" },
+                { q: "Classe em: 'O *gato* mia.'", opts: ["Nome", "Verbo", "Adjetivo"], a: "Nome" },
+                { q: "Classe em: 'Ela *canta* bem.'", opts: ["Verbo", "Nome", "Advérbio"], a: "Verbo" },
+                { q: "Classe em: 'Casa *grande*.'", opts: ["Adjetivo", "Nome", "Verbo"], a: "Adjetivo" },
+                { q: "Classe em: '*Ontem* choveu.'", opts: ["Advérbio", "Adjetivo", "Verbo"], a: "Advérbio" },
+                { q: "Classe em: '*A* minha mãe.'", opts: ["Determinante", "Pronome", "Preposição"], a: "Determinante" },
+                { q: "Classe em: '*Nós* fomos.'", opts: ["Pronome", "Nome", "Determinante"], a: "Pronome" },
+                { q: "Classe em: 'Pão *com* manteiga.'", opts: ["Preposição", "Conjunção", "Advérbio"], a: "Preposição" },
+                { q: "Classe em: 'Sol *e* chuva.'", opts: ["Conjunção", "Preposição", "Interjeição"], a: "Conjunção" },
+                { q: "Classe em: '*Olá*!'", opts: ["Interjeição", "Verbo", "Nome"], a: "Interjeição" },
+                { q: "Classe em: '*Muitos* alunos.'", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" },
+                { q: "Classe de 'azul'?", opts: ["Adjetivo", "Nome", "Verbo"], a: "Adjetivo" },
+                { q: "Classe de 'saltar'?", opts: ["Verbo", "Nome", "Adjetivo"], a: "Verbo" },
+                { q: "Classe de 'hoje'?", opts: ["Advérbio", "Nome", "Adjetivo"], a: "Advérbio" },
+                { q: "Classe de 'mas'?", opts: ["Conjunção", "Preposição", "Advérbio"], a: "Conjunção" },
+                { q: "Classe de 'para'?", opts: ["Preposição", "Verbo", "Advérbio"], a: "Preposição" }
+            ],
+            'pt_nomes': [
+                { q: "Nome 'Maria' é...", opts: ["Próprio", "Comum", "Coletivo"], a: "Próprio" },
+                { q: "Nome 'Cadeira' é...", opts: ["Comum", "Próprio", "Coletivo"], a: "Comum" },
+                { q: "Nome 'Alcateia' é...", opts: ["Coletivo", "Comum", "Próprio"], a: "Coletivo" },
+                { q: "Coletivo de 'pássaros'?", opts: ["Bando", "Cardume", "Manada"], a: "Bando" },
+                { q: "Coletivo de 'peixes'?", opts: ["Cardume", "Vara", "Enxame"], a: "Cardume" },
+                { q: "Coletivo de 'árvores'?", opts: ["Floresta", "Cardume", "Bando"], a: "Floresta" },
+                { q: "Nome 'Portugal' é...", opts: ["Próprio", "Comum", "Coletivo"], a: "Próprio" },
+                { q: "Nome 'Amor' é...", opts: ["Comum", "Próprio", "Coletivo"], a: "Comum" },
+                { q: "Coletivo de 'músicos'?", opts: ["Banda", "Turma", "Cardume"], a: "Banda" },
+                { q: "Coletivo de 'navios'?", opts: ["Esquadra", "Bando", "Vara"], a: "Esquadra" },
+                { q: "Nome 'Tejo' é...", opts: ["Próprio", "Comum", "Coletivo"], a: "Próprio" },
+                { q: "Nome 'Livro' é...", opts: ["Comum", "Próprio", "Coletivo"], a: "Comum" },
+                { q: "Coletivo de 'lobos'?", opts: ["Alcateia", "Rebanho", "Manada"], a: "Alcateia" },
+                { q: "Coletivo de 'estrelas'?", opts: ["Constelação", "Arquipélago", "Frota"], a: "Constelação" },
+                { q: "Coletivo de 'ovelhas'?", opts: ["Rebanho", "Alcateia", "Cardume"], a: "Rebanho" },
+                { q: "Nome 'Caneta' é...", opts: ["Comum", "Próprio", "Coletivo"], a: "Comum" },
+                { q: "Nome 'Porto' (cidade) é...", opts: ["Próprio", "Comum", "Coletivo"], a: "Próprio" },
+                { q: "Coletivo de 'ilhas'?", opts: ["Arquipélago", "Continente", "Cordilheira"], a: "Arquipélago" },
+                { q: "Coletivo de 'pessoas'?", opts: ["Multidão", "Cardume", "Bando"], a: "Multidão" },
+                { q: "Nome 'Cão' é...", opts: ["Comum", "Próprio", "Coletivo"], a: "Comum" },
+                { q: "Coletivo de 'abelhas'?", opts: ["Enxame", "Ninho", "Bando"], a: "Enxame" },
+                { q: "Coletivo de 'porcos'?", opts: ["Vara", "Manada", "Rebanho"], a: "Vara" },
+                { q: "Nome 'João' é...", opts: ["Próprio", "Comum", "Coletivo"], a: "Próprio" },
+                { q: "Nome 'Rio' (sem ser nome próprio) é...", opts: ["Comum", "Próprio", "Coletivo"], a: "Comum" },
+                { q: "Coletivo de 'soldados'?", opts: ["Exército", "Batalhão", "Pelotão"], a: "Exército" }
+            ],
+            'pt_adjetivos': [
+                { q: "Grau de 'muito alto'?", opts: ["Sup. Abs. Analítico", "Sup. Abs. Sintético", "Comparativo"], a: "Sup. Abs. Analítico" },
+                { q: "Grau de 'altíssimo'?", opts: ["Sup. Abs. Sintético", "Sup. Abs. Analítico", "Superlativo Relativo"], a: "Sup. Abs. Sintético" },
+                { q: "Grau de 'mais alto que'?", opts: ["Comp. Superioridade", "Comp. Igualdade", "Superlativo"], a: "Comp. Superioridade" },
+                { q: "Grau de 'tão alto como'?", opts: ["Comp. Igualdade", "Comp. Superioridade", "Comp. Inferioridade"], a: "Comp. Igualdade" },
+                { q: "Grau de 'menos alto que'?", opts: ["Comp. Inferioridade", "Comp. Igualdade", "Superlativo"], a: "Comp. Inferioridade" },
+                { q: "Grau de 'o mais alto de'?", opts: ["Sup. Relativo Superioridade", "Sup. Absoluto", "Comparativo"], a: "Sup. Relativo Superioridade" },
+                { q: "Grau de 'o menos alto de'?", opts: ["Sup. Relativo Inferioridade", "Sup. Absoluto", "Comparativo"], a: "Sup. Relativo Inferioridade" },
+                { q: "Sup. Abs. Sintético de 'fácil'?", opts: ["Facílimo", "Faciíssimo", "Muito fácil"], a: "Facílimo" },
+                { q: "Sup. Abs. Sintético de 'difícil'?", opts: ["Dificílimo", "Difícilíssimo", "Muito difícil"], a: "Dificílimo" },
+                { q: "Sup. Abs. Sintético de 'pobre'?", opts: ["Paupérrimo", "Pobríssimo", "Muito pobre"], a: "Paupérrimo" },
+                { q: "Comparativo de 'bom'?", opts: ["Melhor", "Mais bom", "Boníssimo"], a: "Melhor" },
+                { q: "Comparativo de 'grande'?", opts: ["Maior", "Mais grande", "Grandíssimo"], a: "Maior" },
+                { q: "Comparativo de 'pequeno'?", opts: ["Menor", "Mais pequeno", "Pequeníssimo"], a: "Menor" },
+                { q: "Comparativo de 'mau'?", opts: ["Pior", "Mais mau", "Malíssimo"], a: "Pior" },
+                { q: "'Primeiro' é um adjetivo...", opts: ["Numeral", "Qualificativo", "Relacional"], a: "Numeral" },
+                { q: "Sup. Abs. Sintético de 'amável'?", opts: ["Amabilíssimo", "Amavelíssimo", "Muito amável"], a: "Amabilíssimo" },
+                { q: "Sup. Abs. Sintético de 'feliz'?", opts: ["Felicíssimo", "Felizíssimo", "Muito feliz"], a: "Felicíssimo" },
+                { q: "Sup. Abs. Sintético de 'amargo'?", opts: ["Amaríssimo", "Amarguíssimo", "Muito amargo"], a: "Amaríssimo" },
+                { q: "'Bonito' é um adjetivo...", opts: ["Qualificativo", "Numeral", "Relacional"], a: "Qualificativo" },
+                { q: "'Último' é um adjetivo...", opts: ["Numeral", "Qualificativo", "Relacional"], a: "Numeral" },
+                { q: "Sup. Abs. Sintético de 'sábio'?", opts: ["Sapientíssimo", "Sabíssimo", "Muito sábio"], a: "Sapientíssimo" },
+                { q: "Sup. Abs. Sintético de 'doce'?", opts: ["Dulcíssimo", "Docíssimo", "Muito doce"], a: "Dulcíssimo" },
+                { q: "Sup. Abs. Sintético de 'fiel'?", opts: ["Fidelíssimo", "Fielíssimo", "Muito fiel"], a: "Fidelíssimo" },
+                { q: "'Grande' é um adjetivo...", opts: ["Qualificativo", "Numeral", "Relacional"], a: "Qualificativo" },
+                { q: "'Segundo' é um adjetivo...", opts: ["Numeral", "Qualificativo", "Relacional"], a: "Numeral" }
+            ],
+            'pt_verbos': [
+                { q: "'O João comeu'. O verbo 'comeu' é...", opts: ["Transitivo", "Auxiliar", "Copulativo"], a: "Transitivo" },
+                { q: "'O gato está doente'. O verbo 'está' é...", opts: ["Copulativo", "Principal", "Auxiliar"], a: "Copulativo" },
+                { q: "'Tenho estudado'. O verbo 'ter' é...", opts: ["Auxiliar", "Principal", "Copulativo"], a: "Auxiliar" },
+                { q: "Tempo verbal de 'Faria'?", opts: ["Condicional", "Futuro", "Pretérito"], a: "Condicional" },
+                { q: "Tempo verbal de 'Fizeste'?", opts: ["Pretérito Perfeito", "Imperfeito", "Presente"], a: "Pretérito Perfeito" },
+                { q: "'Ele dorme'. O verbo 'dorme' é...", opts: ["Intransitivo", "Transitivo", "Copulativo"], a: "Intransitivo" },
+                { q: "Tempo verbal de 'Farei'?", opts: ["Futuro", "Condicional", "Presente"], a: "Futuro" },
+                { q: "Tempo verbal de 'Fazia'?", opts: ["Pretérito Imperfeito", "Perfeito", "Presente"], a: "Pretérito Imperfeito" },
+                { q: "Verbo Copulativo?", opts: ["Ser", "Comer", "Fazer"], a: "Ser" },
+                { q: "Verbo Copulativo?", opts: ["Estar", "Ter", "Haver"], a: "Estar" },
+                { q: "'Eu sou aluno'. 'Sou' é...", opts: ["Copulativo", "Transitivo", "Auxiliar"], a: "Copulativo" },
+                { q: "'Ele viu o filme'. 'Viu' é...", opts: ["Transitivo", "Intransitivo", "Copulativo"], a: "Transitivo" },
+                { q: "Infinitivo de 'fui'?", opts: ["Ser/Ir", "Fazer", "Ficar"], a: "Ser/Ir" },
+                { q: "Particípio Passado de 'fazer'?", opts: ["Feito", "Fazido", "Fazer"], a: "Feito" },
+                { q: "Particípio Passado de 'abrir'?", opts: ["Aberto", "Abrido", "Abrir"], a: "Aberto" },
+                { q: "Gerúndio de 'andar'?", opts: ["Andando", "Andado", "Andar"], a: "Andando" },
+                { q: "Tempo verbal de 'Estudo'?", opts: ["Presente", "Futuro", "Pretérito"], a: "Presente" },
+                { q: "'Havia muita gente'. 'Havia' é...", opts: ["Impessoal", "Pessoal", "Copulativo"], a: "Impessoal" },
+                { q: "'Choveu ontem'. 'Choveu' é...", opts: ["Impessoal", "Pessoal", "Transitivo"], a: "Impessoal" },
+                { q: "Tempo verbal de 'Tinha feito'?", opts: ["Pretérito Mais-que-perfeito", "Perfeito", "Futuro"], a: "Pretérito Mais-que-perfeito" },
+                { q: "'Eles leem'. Verbo?", opts: ["Ler", "Lei", "Lidar"], a: "Ler" },
+                { q: "'Nós vamos'. Verbo?", opts: ["Ir", "Vir", "Ver"], a: "Ir" },
+                { q: "'Tu és'. Verbo?", opts: ["Ser", "Estar", "Ter"], a: "Ser" },
+                { q: "'Ele pôs'. Verbo?", opts: ["Pôr", "Poder", "Parar"], a: "Pôr" },
+                { q: "Modo verbal de 'Se eu fosse...'?", opts: ["Conjuntivo", "Indicativo", "Imperativo"], a: "Conjuntivo" }
+            ],
+            'pt_determinantes': [
+                { q: "'O' em 'O gato'", opts: ["Artigo Definido", "Artigo Indefinido", "Demonstrativo"], a: "Artigo Definido" },
+                { q: "'Uma' em 'Uma casa'", opts: ["Artigo Indefinido", "Artigo Definido", "Numeral"], a: "Artigo Indefinido" },
+                { q: "'Este' em 'Este livro'", opts: ["Demonstrativo", "Possessivo", "Artigo"], a: "Demonstrativo" },
+                { q: "'Meu' em 'Meu pai'", opts: ["Possessivo", "Demonstrativo", "Indefinido"], a: "Possessivo" },
+                { q: "'Aquele' em 'Aquele carro'", opts: ["Demonstrativo", "Possessivo", "Indefinido"], a: "Demonstrativo" },
+                { q: "'Nossa' em 'Nossa escola'", opts: ["Possessivo", "Demonstrativo", "Artigo"], a: "Possessivo" },
+                { q: "'Que' em 'Que horas são?'", opts: ["Interrogativo", "Exclamativo", "Relativo"], a: "Interrogativo" },
+                { q: "'As' em 'As meninas'", opts: ["Artigo Definido", "Artigo Indefinido", "Demonstrativo"], a: "Artigo Definido" },
+                { q: "'Uns' em 'Uns patins'", opts: ["Artigo Indefinido", "Artigo Definido", "Numeral"], a: "Artigo Indefinido" },
+                { q: "'Teu' em 'Teu amigo'", opts: ["Possessivo", "Demonstrativo", "Indefinido"], a: "Possessivo" },
+                { q: "'Essa' em 'Essa caneta'", opts: ["Demonstrativo", "Possessivo", "Artigo"], a: "Demonstrativo" },
+                { q: "'Seus' em 'Seus avós'", opts: ["Possessivo", "Demonstrativo", "Indefinido"], a: "Possessivo" },
+                { q: "'Qual' em 'Qual dia?'", opts: ["Interrogativo", "Relativo", "Indefinido"], a: "Interrogativo" },
+                { q: "'Outra' em 'Outra vez'", opts: ["Indefinido", "Demonstrativo", "Possessivo"], a: "Indefinido" },
+                { q: "'Certo' em 'Certo dia'", opts: ["Indefinido", "Qualificativo", "Demonstrativo"], a: "Indefinido" },
+                { q: "'Vossa' em 'Vossa casa'", opts: ["Possessivo", "Demonstrativo", "Artigo"], a: "Possessivo" },
+                { q: "'Umas' em 'Umas férias'", opts: ["Artigo Indefinido", "Artigo Definido", "Numeral"], a: "Artigo Indefinido" },
+                { q: "'Que' em 'Que lindo!'", opts: ["Exclamativo", "Interrogativo", "Relativo"], a: "Exclamativo" },
+                { q: "'Quantos' em 'Quantos anos?'", opts: ["Interrogativo", "Indefinido", "Exclamativo"], a: "Interrogativo" },
+                { q: "'Aqueles' em 'Aqueles dias'", opts: ["Demonstrativo", "Possessivo", "Indefinido"], a: "Demonstrativo" },
+                { q: "'Sua' em 'Sua mala'", opts: ["Possessivo", "Demonstrativo", "Artigo"], a: "Possessivo" },
+                { q: "'O' em 'O João'", opts: ["Artigo Definido", "Artigo Indefinido", "Pronome"], a: "Artigo Definido" },
+                { q: "'Um' em 'Um dia'", opts: ["Artigo Indefinido", "Numeral", "Pronome"], a: "Artigo Indefinido" },
+                { q: "'Estas' em 'Estas flores'", opts: ["Demonstrativo", "Possessivo", "Artigo"], a: "Demonstrativo" },
+                { q: "'Minhas' em 'Minhas coisas'", opts: ["Possessivo", "Demonstrativo", "Indefinido"], a: "Possessivo" }
+            ],
+            'pt_pronomes': [
+                { q: "'Eu' é um pronome...", opts: ["Pessoal", "Demonstrativo", "Possessivo"], a: "Pessoal" },
+                { q: "'Isto' é um pronome...", opts: ["Demonstrativo", "Indefinido", "Relativo"], a: "Demonstrativo" },
+                { q: "'Meu' (sozinho) é pronome...", opts: ["Possessivo", "Pessoal", "Demonstrativo"], a: "Possessivo" },
+                { q: "'Ninguém' é um pronome...", opts: ["Indefinido", "Relativo", "Pessoal"], a: "Indefinido" },
+                { q: "'Quem' em 'Quem fala?' é...", opts: ["Interrogativo", "Relativo", "Indefinido"], a: "Interrogativo" },
+                { q: "'Ele' é um pronome...", opts: ["Pessoal", "Demonstrativo", "Indefinido"], a: "Pessoal" },
+                { q: "'Nós' é um pronome...", opts: ["Pessoal", "Possessivo", "Indefinido"], a: "Pessoal" },
+                { q: "'Isso' é um pronome...", opts: ["Demonstrativo", "Indefinido", "Relativo"], a: "Demonstrativo" },
+                { q: "'Aquilo' é um pronome...", opts: ["Demonstrativo", "Possessivo", "Pessoal"], a: "Demonstrativo" },
+                { q: "'Tudo' é um pronome...", opts: ["Indefinido", "Demonstrativo", "Relativo"], a: "Indefinido" },
+                { q: "'Nada' é um pronome...", opts: ["Indefinido", "Interrogativo", "Pessoal"], a: "Indefinido" },
+                { q: "'Alguém' é um pronome...", opts: ["Indefinido", "Relativo", "Pessoal"], a: "Indefinido" },
+                { q: "'Mim' é um pronome...", opts: ["Pessoal", "Possessivo", "Indefinido"], a: "Pessoal" },
+                { q: "'Ti' é um pronome...", opts: ["Pessoal", "Possessivo", "Demonstrativo"], a: "Pessoal" },
+                { q: "'Si' é um pronome...", opts: ["Pessoal", "Possessivo", "Indefinido"], a: "Pessoal" },
+                { q: "'O' em 'Vi-o' é...", opts: ["Pessoal", "Demonstrativo", "Artigo"], a: "Pessoal" },
+                { q: "'Lhe' em 'Dei-lhe' é...", opts: ["Pessoal", "Possessivo", "Indefinido"], a: "Pessoal" },
+                { q: "'Que' em 'O livro que li' é...", opts: ["Relativo", "Interrogativo", "Indefinido"], a: "Relativo" },
+                { q: "'Qual' em 'Qual queres?' é...", opts: ["Interrogativo", "Relativo", "Indefinido"], a: "Interrogativo" },
+                { q: "'Vosso' (sozinho) é pronome...", opts: ["Possessivo", "Pessoal", "Demonstrativo"], a: "Possessivo" },
+                { q: "'Ela' é um pronome...", opts: ["Pessoal", "Demonstrativo", "Indefinido"], a: "Pessoal" },
+                { q: "'Este' (sozinho) é pronome...", opts: ["Demonstrativo", "Possessivo", "Artigo"], a: "Demonstrativo" },
+                { q: "'Teu' (sozinho) é pronome...", opts: ["Possessivo", "Pessoal", "Indefinido"], a: "Possessivo" },
+                { q: "'Todos' (sozinho) é pronome...", opts: ["Indefinido", "Demonstrativo", "Relativo"], a: "Indefinido" },
+                { q: "'Me' em 'Chama-me' é...", opts: ["Pessoal", "Possessivo", "Indefinido"], a: "Pessoal" }
+            ],
+            'pt_quantificadores': [
+                { q: "'Dois' em 'Dois gatos'", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Metade' em 'Metade da maçã'", opts: ["Quantificador", "Adjetivo", "Nome"], a: "Quantificador" },
+                { q: "'Muitos' em 'Muitos livros'", opts: ["Quantificador", "Determinante", "Adjetivo"], a: "Quantificador" },
+                { q: "'Bastantes' em 'Bastantes amigos'", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" },
+                { q: "'Nenhum' erro", opts: ["Quantificador", "Advérbio", "Nome"], a: "Quantificador" },
+                { q: "'Pouco' açúcar", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" },
+                { q: "'Três' carros", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Dobro' das páginas", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Várias' canetas", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" },
+                { q: "'Tantas' dúvidas", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" },
+                { q: "'Todos' os alunos", opts: ["Quantificador Universal", "Existencial", "Numeral"], a: "Quantificador Universal" },
+                { q: "'Alguns' dias", opts: ["Quantificador Existencial", "Universal", "Numeral"], a: "Quantificador Existencial" },
+                { q: "'Vinte' euros", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Qualquer' pessoa", opts: ["Quantificador Universal", "Existencial", "Numeral"], a: "Quantificador Universal" },
+                { q: "'Muita' água", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" },
+                { q: "'Cinco' minutos", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Cada' aluno", opts: ["Quantificador Universal", "Existencial", "Numeral"], a: "Quantificador Universal" },
+                { q: "'Zero' vontade", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Triplo' do tempo", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Toda' a gente", opts: ["Quantificador Universal", "Existencial", "Numeral"], a: "Quantificador Universal" },
+                { q: "'Poucas' vezes", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" },
+                { q: "'Cem' metros", opts: ["Quantificador Numeral", "Adjetivo", "Nome"], a: "Quantificador Numeral" },
+                { q: "'Algumas' flores", opts: ["Quantificador Existencial", "Universal", "Numeral"], a: "Quantificador Existencial" },
+                { q: "'Nenhuma' pessoa", opts: ["Quantificador Universal", "Existencial", "Numeral"], a: "Quantificador Universal" },
+                { q: "'Tanto' barulho", opts: ["Quantificador", "Adjetivo", "Advérbio"], a: "Quantificador" }
+            ],
+            'pt_adverbios': [
+                { q: "Advérbio de Tempo: '___ choveu.'", opts: ["Ontem", "Aqui", "Bem"], a: "Ontem" },
+                { q: "Advérbio de Lugar: 'Moro ___.'", opts: ["Aqui", "Ontem", "Muito"], a: "Aqui" },
+                { q: "Advérbio de Modo: 'Canta ___.'", opts: ["Bem", "Hoje", "Sim"], a: "Bem" },
+                { q: "Advérbio de Quantidade: 'Gosto ___.'", opts: ["Muito", "Bem", "Longe"], a: "Muito" },
+                { q: "Advérbio de Negação: '___ vou.'", opts: ["Não", "Sim", "Talvez"], a: "Não" },
+                { q: "Advérbio de Afirmação: '___, quero.'", opts: ["Sim", "Não", "Talvez"], a: "Sim" },
+                { q: "Advérbio de Dúvida: '___ vou.'", opts: ["Talvez", "Sim", "Não"], a: "Talvez" },
+                { q: "Advérbio de Tempo: 'Vou ___.'", opts: ["Amanhã", "Aqui", "Bem"], a: "Amanhã" },
+                { q: "Advérbio de Lugar: 'Está ___.'", opts: ["Lá", "Hoje", "Sim"], a: "Lá" },
+                { q: "Advérbio de Modo: 'Fez ___.'", opts: ["Mal", "Ontem", "Aqui"], a: "Mal" },
+                { q: "Advérbio de Modo: 'Corre ___.'", opts: ["Depressa", "Hoje", "Lá"], a: "Depressa" },
+                { q: "Advérbio de Modo: 'Anda ___.'", opts: ["Devagar", "Amanhã", "Sim"], a: "Devagar" },
+                { q: "Advérbio de Tempo: '___ é dia 1.'", opts: ["Hoje", "Aqui", "Bem"], a: "Hoje" },
+                { q: "Advérbio de Tempo: '___ fui lá.'", opts: ["Nunca", "Longe", "Mal"], a: "Nunca" },
+                { q: "Advérbio de Tempo: '___ estudo.'", opts: ["Sempre", "Lá", "Sim"], a: "Sempre" },
+                { q: "Advérbio de Lugar: 'Está ___.'", opts: ["Dentro", "Ontem", "Bem"], a: "Dentro" },
+                { q: "Advérbio de Lugar: 'Ficou ___.'", opts: ["Fora", "Hoje", "Mal"], a: "Fora" },
+                { q: "Advérbio de Quantidade: 'Comi ___.'", opts: ["Bastante", "Aqui", "Ontem"], a: "Bastante" },
+                { q: "Advérbio de Quantidade: 'Dormi ___.'", opts: ["Pouco", "Lá", "Hoje"], a: "Pouco" },
+                { q: "Advérbio de Lugar: 'Mora ___.'", opts: ["Longe", "Bem", "Sim"], a: "Longe" },
+                { q: "Advérbio de Lugar: 'Vem ___.'", opts: ["Perto", "Ontem", "Mal"], a: "Perto" },
+                { q: "Advérbio de Modo: 'Fala ___.'", opts: ["Assim", "Hoje", "Lá"], a: "Assim" },
+                { q: "Advérbio de Tempo: '___ cheguei.'", opts: ["Já", "Aqui", "Bem"], a: "Já" },
+                { q: "Advérbio de Tempo: 'Vem ___.'", opts: ["Agora", "Longe", "Sim"], a: "Agora" },
+                { q: "Advérbio de Quantidade: 'Estudo ___.'", opts: ["Demais", "Aqui", "Ontem"], a: "Demais" }
+            ],
+            'pt_preposicoes': [
+                { q: "Identifica a preposição: 'Vou a casa'", opts: ["a", "Vou", "casa"], a: "a" },
+                { q: "Identifica a preposição: 'Ante o juiz'", opts: ["Ante", "o", "juiz"], a: "Ante" },
+                { q: "Identifica a preposição: 'Após o almoço'", opts: ["Após", "o", "almoço"], a: "Após" },
+                { q: "Identifica a preposição: 'Até amanhã'", opts: ["Até", "amanhã", "o"], a: "Até" },
+                { q: "Identifica a preposição: 'Com manteiga'", opts: ["Com", "manteiga", "pão"], a: "Com" },
+                { q: "Identifica a preposição: 'Contra mim'", opts: ["Contra", "mim", "eu"], a: "Contra" },
+                { q: "Identifica a preposição: 'Gosto de ti'", opts: ["de", "Gosto", "ti"], a: "de" },
+                { q: "Identifica a preposição: 'Desde ontem'", opts: ["Desde", "ontem", "o"], a: "Desde" },
+                { q: "Identifica a preposição: 'Em casa'", opts: ["Em", "casa", "na"], a: "Em" },
+                { q: "Identifica a preposição: 'Entre nós'", opts: ["Entre", "nós", "os"], a: "Entre" },
+                { q: "Identifica a preposição: 'Para ti'", opts: ["Para", "ti", "o"], a: "Para" },
+                { q: "Identifica a preposição: 'Por favor'", opts: ["Por", "favor", "o"], a: "Por" },
+                { q: "Identifica a preposição: 'Sem sal'", opts: ["Sem", "sal", "com"], a: "Sem" },
+                { q: "Identifica a preposição: 'Sob a mesa'", opts: ["Sob", "a", "mesa"], a: "Sob" },
+                { q: "Identifica a preposição: 'Sobre o mar'", opts: ["Sobre", "o", "mar"], a: "Sobre" },
+                { q: "Contração 'Do' é:", opts: ["De + o", "Em + o", "Por + o"], a: "De + o" },
+                { q: "Contração 'Na' é:", opts: ["Em + a", "De + a", "A + a"], a: "Em + a" },
+                { q: "Contração 'Pelo' é:", opts: ["Por + o", "Para + o", "Per + o"], a: "Por + o" },
+                { q: "Contração 'À' é:", opts: ["A + a", "De + a", "Em + a"], a: "A + a" },
+                { q: "Contração 'No' é:", opts: ["Em + o", "Na + o", "De + o"], a: "Em + o" },
+                { q: "Contração 'Dos' é:", opts: ["De + os", "Em + os", "Por + os"], a: "De + os" },
+                { q: "Contração 'Nas' é:", opts: ["Em + as", "De + as", "Por + as"], a: "Em + as" },
+                { q: "Contração 'Pelas' é:", opts: ["Por + as", "Para + as", "Per + as"], a: "Por + as" },
+                { q: "Contração 'Ao' é:", opts: ["A + o", "De + o", "Em + o"], a: "A + o" },
+                { q: "Contração 'Desta' é:", opts: ["De + esta", "Em + esta", "Por + esta"], a: "De + esta" }
+            ],
+            'pt_conjuncoes': [
+                { q: "'Gosto de sol E praia'. 'E' é...", opts: ["Copulativa", "Adversativa", "Disjuntiva"], a: "Copulativa" },
+                { q: "'Estudei MAS tive má nota'. 'Mas' é...", opts: ["Adversativa", "Causal", "Conclusiva"], a: "Adversativa" },
+                { q: "'Queres chá OU café?'. 'Ou' é...", opts: ["Disjuntiva", "Copulativa", "Condicional"], a: "Disjuntiva" },
+                { q: "'Estudo, LOGO aprendo'. 'Logo' é...", opts: ["Conclusiva", "Causal", "Temporal"], a: "Conclusiva" },
+                { q: "'Não fui PORQUE estava doente'. 'Porque' é...", opts: ["Causal", "Final", "Temporal"], a: "Causal" },
+                { q: "'SE estudares, passas'. 'Se' é...", opts: ["Condicional", "Causal", "Temporal"], a: "Condicional" },
+                { q: "'Cheguei QUANDO chovia'. 'Quando' é...", opts: ["Temporal", "Causal", "Condicional"], a: "Temporal" },
+                { q: "'Disse QUE vinha'. 'Que' é...", opts: ["Completiva", "Causal", "Temporal"], a: "Completiva" },
+                { q: "'Não como NEM durmo'. 'Nem' é...", opts: ["Copulativa", "Adversativa", "Disjuntiva"], a: "Copulativa" },
+                { q: "'É tarde, POIS despacha-te'. 'Pois' é...", opts: ["Conclusiva", "Causal", "Temporal"], a: "Conclusiva" },
+                { q: "'Estudei, PORTANTO sei'. 'Portanto' é...", opts: ["Conclusiva", "Adversativa", "Causal"], a: "Conclusiva" },
+                { q: "'Tentei, CONTUDO falhei'. 'Contudo' é...", opts: ["Adversativa", "Conclusiva", "Causal"], a: "Adversativa" },
+                { q: "'Corri, PORÉM caí'. 'Porém' é...", opts: ["Adversativa", "Copulativa", "Disjuntiva"], a: "Adversativa" },
+                { q: "'Fui, EMBORA chovesse'. 'Embora' é...", opts: ["Concessiva", "Causal", "Condicional"], a: "Concessiva" },
+                { q: "'Li ENQUANTO comia'. 'Enquanto' é...", opts: ["Temporal", "Causal", "Final"], a: "Temporal" },
+                { q: "'Estudo PARA QUE saiba'. 'Para que' é...", opts: ["Final", "Causal", "Temporal"], a: "Final" },
+                { q: "'VISTO QUE chove, não vou'. 'Visto que' é...", opts: ["Causal", "Temporal", "Condicional"], a: "Causal" },
+                { q: "'A FIM DE QUE aprendas'. 'A fim de que' é...", opts: ["Final", "Causal", "Temporal"], a: "Final" },
+                { q: "'COMO estava sol, saí'. 'Como' é...", opts: ["Causal", "Comparativa", "Temporal"], a: "Causal" },
+                { q: "'Ela é bela COMO uma flor'. 'Como' é...", opts: ["Comparativa", "Causal", "Temporal"], a: "Comparativa" },
+                { q: "'ASSIM QUE entrares, avisa'. 'Assim que' é...", opts: ["Temporal", "Causal", "Condicional"], a: "Temporal" },
+                { q: "'Ou vais OU ficas'. 'Ou...ou' é...", opts: ["Disjuntiva", "Copulativa", "Adversativa"], a: "Disjuntiva" },
+                { q: "'Quer chova QUER faça sol'. 'Quer...quer' é...", opts: ["Disjuntiva", "Copulativa", "Adversativa"], a: "Disjuntiva" },
+                { q: "'Não só estuda COMO trabalha'. 'Como' é...", opts: ["Copulativa", "Comparativa", "Causal"], a: "Copulativa" },
+                { q: "'Ora ri ORA chora'. 'Ora...ora' é...", opts: ["Disjuntiva", "Copulativa", "Adversativa"], a: "Disjuntiva" }
+            ],
+            'pt_interjeicoes': [
+                { q: "Identifica a interjeição: 'Ah! Que susto.'", opts: ["Ah", "Que", "susto"], a: "Ah" },
+                { q: "Identifica a interjeição: 'Oh! Que lindo.'", opts: ["Oh", "Que", "lindo"], a: "Oh" },
+                { q: "Identifica a interjeição: 'Ai! Dói-me.'", opts: ["Ai", "Dói", "me"], a: "Ai" },
+                { q: "Identifica a interjeição: 'Ui! Que frio.'", opts: ["Ui", "Que", "frio"], a: "Ui" },
+                { q: "Identifica a interjeição: 'Olá! Tudo bem?'", opts: ["Olá", "Tudo", "bem"], a: "Olá" },
+                { q: "Identifica a interjeição: 'Adeus! Até logo.'", opts: ["Adeus", "Até", "logo"], a: "Adeus" },
+                { q: "Identifica a interjeição: 'Bravo! Muito bem.'", opts: ["Bravo", "Muito", "bem"], a: "Bravo" },
+                { q: "Identifica a interjeição: 'Cuidado! O cão.'", opts: ["Cuidado", "O", "cão"], a: "Cuidado" },
+                { q: "Identifica a interjeição: 'Psiu! Silêncio.'", opts: ["Psiu", "Silêncio", "!"], a: "Psiu" },
+                { q: "Identifica a interjeição: 'Bolas! Falhei.'", opts: ["Bolas", "Falhei", "!"], a: "Bolas" },
+                { q: "Identifica a interjeição: 'Caramba! É difícil.'", opts: ["Caramba", "É", "difícil"], a: "Caramba" },
+                { q: "Identifica a interjeição: 'Oxalá! Corra bem.'", opts: ["Oxalá", "Corra", "bem"], a: "Oxalá" },
+                { q: "Identifica a interjeição: 'Fogo! Que seca.'", opts: ["Fogo", "Que", "seca"], a: "Fogo" },
+                { q: "Identifica a interjeição: 'Socorro! Ajudem.'", opts: ["Socorro", "Ajudem", "!"], a: "Socorro" },
+                { q: "A palavra 'Uf!' exprime...", opts: ["Alívio", "Dor", "Alegria"], a: "Alívio" },
+                { q: "A palavra 'Eia!' exprime...", opts: ["Espanto/Incentivo", "Dor", "Tristeza"], a: "Espanto/Incentivo" },
+                { q: "A palavra 'Irra!' exprime...", opts: ["Irritação", "Alegria", "Medo"], a: "Irritação" },
+                { q: "A palavra 'Puxa!' exprime...", opts: ["Desagrado/Espanto", "Alegria", "Medo"], a: "Desagrado/Espanto" },
+                { q: "A palavra 'Credo!' exprime...", opts: ["Medo/Repulsa", "Alegria", "Alívio"], a: "Medo/Repulsa" },
+                { q: "A palavra 'Viva!' exprime...", opts: ["Alegria/Aplauso", "Dor", "Medo"], a: "Alegria/Aplauso" },
+                { q: "A palavra 'Tomara!' exprime...", opts: ["Desejo", "Medo", "Dor"], a: "Desejo" },
+                { q: "A palavra 'Xô!' exprime...", opts: ["Afugentamento", "Chamamento", "Dúvida"], a: "Afugentamento" },
+                { q: "A palavra 'Psit!' serve para...", opts: ["Chamar", "Expulsar", "Agradecer"], a: "Chamar" },
+                { q: "A palavra 'Hem?' exprime...", opts: ["Dúvida/Interrogação", "Certeza", "Negação"], a: "Dúvida/Interrogação" },
+                { q: "A palavra 'Livra!' exprime...", opts: ["Alívio/Livramento", "Desejo", "Alegria"], a: "Alívio/Livramento" }
+            ],
+
+            // --- PORTUGUÊS (SINTAXE - Separado) ---
+            'pt_sintaxe_sujeito': [
+                { q: "O que é o Sujeito?", opts: ["Quem pratica/sofre a ação", "A ação", "O local"], a: "Quem pratica/sofre a ação" },
+                { q: "Sujeito em: 'O gato dorme.'", opts: ["O gato", "dorme", "O"], a: "O gato" },
+                { q: "Sujeito em: 'A turma saiu.'", opts: ["A turma", "saiu", "A"], a: "A turma" },
+                { q: "Sujeito em: 'Nós fomos.'", opts: ["Nós", "fomos", "fomos nós"], a: "Nós" },
+                { q: "Sujeito em: 'Choveu.'", opts: ["Nulo (Inexistente)", "Choveu", "Ele"], a: "Nulo (Inexistente)" },
+                { q: "Sujeito em: 'Dizem coisas.'", opts: ["Nulo (Indeterminado)", "Dizem", "Eles"], a: "Nulo (Indeterminado)" },
+                { q: "Sujeito em: 'Fui à praia.'", opts: ["Nulo (Subentendido 'Eu')", "Fui", "Praia"], a: "Nulo (Subentendido 'Eu')" },
+                { q: "Sujeito em: 'O João e a Ana leem.'", opts: ["O João e a Ana", "O João", "A Ana"], a: "O João e a Ana" },
+                { q: "Sujeito em: 'Quem chegou?'", opts: ["Quem", "chegou", "?"], a: "Quem" },
+                { q: "Sujeito em: 'A casa é bela.'", opts: ["A casa", "é", "bela"], a: "A casa" },
+                { q: "Sujeito em: 'Eu estudo.'", opts: ["Eu", "estudo", "estudo eu"], a: "Eu" },
+                { q: "Sujeito em: 'Eles cantam.'", opts: ["Eles", "cantam", "cantam eles"], a: "Eles" },
+                { q: "Sujeito em: 'O cão ladra.'", opts: ["O cão", "ladra", "O"], a: "O cão" },
+                { q: "Sujeito em: 'A flor cresce.'", opts: ["A flor", "cresce", "A"], a: "A flor" },
+                { q: "Sujeito em: 'Nevou muito.'", opts: ["Nulo (Inexistente)", "Nevou", "muito"], a: "Nulo (Inexistente)" },
+                { q: "Sujeito em: 'Há pão.'", opts: ["Nulo (Inexistente)", "pão", "Há"], a: "Nulo (Inexistente)" },
+                { q: "Sujeito em: 'Batem à porta.'", opts: ["Nulo (Indeterminado)", "Batem", "porta"], a: "Nulo (Indeterminado)" },
+                { q: "Sujeito em: 'Gosto de ti.'", opts: ["Nulo (Subentendido 'Eu')", "Gosto", "ti"], a: "Nulo (Subentendido 'Eu')" },
+                { q: "Sujeito em: 'O meu pai trabalha.'", opts: ["O meu pai", "trabalha", "pai"], a: "O meu pai" },
+                { q: "Sujeito em: 'Tu és fixe.'", opts: ["Tu", "és", "fixe"], a: "Tu" },
+                { q: "Sujeito em: 'Alguém veio.'", opts: ["Alguém", "veio", "veio alguém"], a: "Alguém" },
+                { q: "Sujeito em: 'Ninguém sabe.'", opts: ["Ninguém", "sabe", "sabe ninguém"], a: "Ninguém" },
+                { q: "Sujeito em: 'O sol brilha.'", opts: ["O sol", "brilha", "sol"], a: "O sol" },
+                { q: "Sujeito em: 'As aves voam.'", opts: ["As aves", "voam", "aves"], a: "As aves" },
+                { q: "Sujeito em: 'Lisboa é linda.'", opts: ["Lisboa", "é", "linda"], a: "Lisboa" }
+            ],
+            'pt_sintaxe_predicado': [
+                { q: "Predicado em: 'O gato dorme.'", opts: ["dorme", "O gato", "gato"], a: "dorme" },
+                { q: "Predicado em: 'Choveu muito.'", opts: ["Choveu muito", "Choveu", "muito"], a: "Choveu muito" },
+                { q: "O predicado contém sempre um...", opts: ["Verbo", "Nome", "Adjetivo"], a: "Verbo" },
+                { q: "Predicado em: 'A Ana leu o livro.'", opts: ["leu o livro", "A Ana", "livro"], a: "leu o livro" },
+                { q: "Predicado em: 'Eu fui a casa.'", opts: ["fui a casa", "Eu", "casa"], a: "fui a casa" },
+                { q: "Predicado em: 'Eles estão felizes.'", opts: ["estão felizes", "Eles", "felizes"], a: "estão felizes" },
+                { q: "Predicado em: 'O cão ladrou.'", opts: ["ladrou", "O cão", "cão"], a: "ladrou" },
+                { q: "Predicado em: 'Nós chegámos cedo.'", opts: ["chegámos cedo", "Nós", "cedo"], a: "chegámos cedo" },
+                { q: "Predicado em: 'O sol brilha.'", opts: ["brilha", "O sol", "sol"], a: "brilha" },
+                { q: "Predicado em: 'Ela comeu a sopa.'", opts: ["comeu a sopa", "Ela", "sopa"], a: "comeu a sopa" },
+                { q: "Predicado em: 'Vou sair.'", opts: ["Vou sair", "Vou", "sair"], a: "Vou sair" },
+                { q: "Predicado em: 'Está calor.'", opts: ["Está calor", "Está", "calor"], a: "Está calor" },
+                { q: "Predicado em: 'Há flores.'", opts: ["Há flores", "Há", "flores"], a: "Há flores" },
+                { q: "Predicado em: 'O Pedro joga bola.'", opts: ["joga bola", "O Pedro", "bola"], a: "joga bola" },
+                { q: "Predicado em: 'A mãe fez bolo.'", opts: ["fez bolo", "A mãe", "bolo"], a: "fez bolo" },
+                { q: "Predicado em: 'Tu corres bem.'", opts: ["corres bem", "Tu", "bem"], a: "corres bem" },
+                { q: "Predicado em: 'O dia está lindo.'", opts: ["está lindo", "O dia", "lindo"], a: "está lindo" },
+                { q: "Predicado em: 'Falei contigo.'", opts: ["Falei contigo", "Falei", "contigo"], a: "Falei contigo" },
+                { q: "Predicado em: 'Ouvi um barulho.'", opts: ["Ouvi um barulho", "Ouvi", "barulho"], a: "Ouvi um barulho" },
+                { q: "Predicado em: 'Eles estudam muito.'", opts: ["estudam muito", "Eles", "muito"], a: "estudam muito" },
+                { q: "Predicado em: 'A porta abriu.'", opts: ["abriu", "A porta", "porta"], a: "abriu" },
+                { q: "Predicado em: 'O vento sopra.'", opts: ["sopra", "O vento", "vento"], a: "sopra" },
+                { q: "Predicado em: 'Ela sorriu.'", opts: ["sorriu", "Ela", "sorriu ela"], a: "sorriu" },
+                { q: "Predicado em: 'Acabou o jogo.'", opts: ["Acabou", "o jogo", "Acabou o jogo"], a: "Acabou" },
+                { q: "Predicado em: 'Chegaram os tios.'", opts: ["Chegaram", "os tios", "Chegaram os tios"], a: "Chegaram" }
+            ],
+            'pt_sintaxe_cd': [
+                { q: "CD em: 'Comi o bolo.'", opts: ["o bolo", "Comi", "bolo"], a: "o bolo" },
+                { q: "CD em: 'Li o livro.'", opts: ["o livro", "Li", "livro"], a: "o livro" },
+                { q: "O que substitui o CD?", opts: ["o, a, os, as", "lhe, lhes", "ele, ela"], a: "o, a, os, as" },
+                { q: "CD em: 'Vi a Ana.'", opts: ["a Ana", "Vi", "Ana"], a: "a Ana" },
+                { q: "CD em: 'Comprei flores.'", opts: ["flores", "Comprei", "Comprei flores"], a: "flores" },
+                { q: "CD em: 'Fiz a cama.'", opts: ["a cama", "Fiz", "cama"], a: "a cama" },
+                { q: "CD em: 'Ela ama o gato.'", opts: ["o gato", "Ela", "ama"], a: "o gato" },
+                { q: "CD em: 'Ele partiu o vidro.'", opts: ["o vidro", "Ele", "partiu"], a: "o vidro" },
+                { q: "CD em: 'Nós vimos o filme.'", opts: ["o filme", "Nós", "vimos"], a: "o filme" },
+                { q: "CD em: 'Tu leste a carta.'", opts: ["a carta", "Tu", "leste"], a: "a carta" },
+                { q: "CD em: 'Eu desenhei um sol.'", opts: ["um sol", "Eu", "desenhei"], a: "um sol" },
+                { q: "CD em: 'O cão roeu o osso.'", opts: ["o osso", "O cão", "roeu"], a: "o osso" },
+                { q: "CD em: 'Apanhei o autocarro.'", opts: ["o autocarro", "Apanhei", "autocarro"], a: "o autocarro" },
+                { q: "CD em: 'Bebi água.'", opts: ["água", "Bebi", "Bebi água"], a: "água" },
+                { q: "CD em: 'Quero gelado.'", opts: ["gelado", "Quero", "Quero gelado"], a: "gelado" },
+                { q: "CD em: 'Abri a porta.'", opts: ["a porta", "Abri", "porta"], a: "a porta" },
+                { q: "CD em: 'Fechei a janela.'", opts: ["a janela", "Fechei", "janela"], a: "a janela" },
+                { q: "CD em: 'Vesti o casaco.'", opts: ["o casaco", "Vesti", "casaco"], a: "o casaco" },
+                { q: "CD em: 'Calcei os sapatos.'", opts: ["os sapatos", "Calcei", "sapatos"], a: "os sapatos" },
+                { q: "CD em: 'Lavei a loiça.'", opts: ["a loiça", "Lavei", "loiça"], a: "a loiça" },
+                { q: "CD em: 'Ela cantou uma canção.'", opts: ["uma canção", "Ela", "cantou"], a: "uma canção" },
+                { q: "CD em: 'Escrevi um texto.'", opts: ["um texto", "Escrevi", "texto"], a: "um texto" },
+                { q: "CD em: 'Pintei o muro.'", opts: ["o muro", "Pintei", "muro"], a: "o muro" },
+                { q: "CD em: 'Ouvimos música.'", opts: ["música", "Ouvimos", "Ouvimos música"], a: "música" },
+                { q: "CD em: 'Eles jogaram futebol.'", opts: ["futebol", "Eles", "jogaram"], a: "futebol" }
+            ],
+            'pt_sintaxe_ci': [
+                { q: "CI em: 'Dei ao João.'", opts: ["ao João", "Dei", "João"], a: "ao João" },
+                { q: "CI em: 'Telefonei à avó.'", opts: ["à avó", "Telefonei", "avó"], a: "à avó" },
+                { q: "O que substitui o CI?", opts: ["lhe, lhes", "o, a", "ele, ela"], a: "lhe, lhes" },
+                { q: "CI em: 'Escrevi ao meu pai.'", opts: ["ao meu pai", "Escrevi", "pai"], a: "ao meu pai" },
+                { q: "CI em: 'Disse a verdade à mãe.'", opts: ["à mãe", "a verdade", "Disse"], a: "à mãe" },
+                { q: "CI em: 'Entreguei a carta ao carteiro.'", opts: ["ao carteiro", "a carta", "Entreguei"], a: "ao carteiro" },
+                { q: "CI em: 'Perguntei ao professor.'", opts: ["ao professor", "Perguntei", "professor"], a: "ao professor" },
+                { q: "CI em: 'Sorri para o bebé.'", opts: ["para o bebé", "Sorri", "bebé"], a: "para o bebé" },
+                { q: "CI em: 'Ofereci flores à Ana.'", opts: ["à Ana", "flores", "Ofereci"], a: "à Ana" },
+                { q: "CI em: 'Mostrei o desenho ao avô.'", opts: ["ao avô", "o desenho", "Mostrei"], a: "ao avô" },
+                { q: "CI em: 'Emprestei o lápis ao Rui.'", opts: ["ao Rui", "o lápis", "Emprestei"], a: "ao Rui" },
+                { q: "CI em: 'Mandei um email à escola.'", opts: ["à escola", "um email", "Mandei"], a: "à escola" },
+                { q: "CI em: 'Pedi ajuda ao polícia.'", opts: ["ao polícia", "ajuda", "Pedi"], a: "ao polícia" },
+                { q: "CI em: 'Respondi à carta.'", opts: ["à carta", "Respondi", "carta"], a: "à carta" },
+                { q: "CI em: 'Obedeci aos pais.'", opts: ["aos pais", "Obedeci", "pais"], a: "aos pais" },
+                { q: "CI em: 'Agradeci ao médico.'", opts: ["ao médico", "Agradeci", "médico"], a: "ao médico" },
+                { q: "CI em: 'Contei o segredo à amiga.'", opts: ["à amiga", "o segredo", "Contei"], a: "à amiga" },
+                { q: "CI em: 'Devolvi o livro à biblioteca.'", opts: ["à biblioteca", "o livro", "Devolvi"], a: "à biblioteca" },
+                { q: "CI em: 'Perdoei ao inimigo.'", opts: ["ao inimigo", "Perdoei", "inimigo"], a: "ao inimigo" },
+                { q: "CI em: 'Liguei aos bombeiros.'", opts: ["aos bombeiros", "Liguei", "bombeiros"], a: "aos bombeiros" },
+                { q: "CI em: 'Dei comida ao cão.'", opts: ["ao cão", "comida", "Dei"], a: "ao cão" },
+                { q: "CI em: 'Ensinei a lição ao aluno.'", opts: ["ao aluno", "a lição", "Ensinei"], a: "ao aluno" },
+                { q: "CI em: 'Falei ao povo.'", opts: ["ao povo", "Falei", "povo"], a: "ao povo" },
+                { q: "CI em: 'Mentiu ao juiz.'", opts: ["ao juiz", "Mentiu", "juiz"], a: "ao juiz" },
+                { q: "CI em: 'Prometi ao meu irmão.'", opts: ["ao meu irmão", "Prometi", "irmão"], a: "ao meu irmão" }
+            ],
+            'pt_sintaxe_obliquo': [
+                { q: "Comp. Oblíquo em: 'Vou a Lisboa.'", opts: ["a Lisboa", "Vou", "Lisboa"], a: "a Lisboa" },
+                { q: "Comp. Oblíquo em: 'Gosto de ti.'", opts: ["de ti", "Gosto", "ti"], a: "de ti" },
+                { q: "Comp. Oblíquo em: 'Moro em Braga.'", opts: ["em Braga", "Moro", "Braga"], a: "em Braga" },
+                { q: "Comp. Oblíquo em: 'Preciso de ajuda.'", opts: ["de ajuda", "Preciso", "ajuda"], a: "de ajuda" },
+                { q: "Comp. Oblíquo em: 'Fui ao Porto.'", opts: ["ao Porto", "Fui", "Porto"], a: "ao Porto" },
+                { q: "Comp. Oblíquo em: 'Venho da escola.'", opts: ["da escola", "Venho", "escola"], a: "da escola" },
+                { q: "Comp. Oblíquo em: 'Concordo contigo.'", opts: ["contigo", "Concordo", "Concordo contigo"], a: "contigo" },
+                { q: "Comp. Oblíquo em: 'Olhei para o céu.'", opts: ["para o céu", "Olhei", "céu"], a: "para o céu" },
+                { q: "Comp. Oblíquo em: 'Acredito em Deus.'", opts: ["em Deus", "Acredito", "Deus"], a: "em Deus" },
+                { q: "Comp. Oblíquo em: 'Desisti do jogo.'", opts: ["do jogo", "Desisti", "jogo"], a: "do jogo" },
+                { q: "Comp. Oblíquo em: 'Passei por ti.'", opts: ["por ti", "Passei", "ti"], a: "por ti" },
+                { q: "Comp. Oblíquo em: 'Entrei na sala.'", opts: ["na sala", "Entrei", "sala"], a: "na sala" },
+                { q: "Comp. Oblíquo em: 'Saí de casa.'", opts: ["de casa", "Saí", "casa"], a: "de casa" },
+                { q: "Comp. Oblíquo em: 'Confio em ti.'", opts: ["em ti", "Confio", "ti"], a: "em ti" },
+                { q: "Comp. Oblíquo em: 'Lembrei-me de ti.'", opts: ["de ti", "Lembrei-me", "ti"], a: "de ti" },
+                { q: "Comp. Oblíquo em: 'Vou para a cama.'", opts: ["para a cama", "Vou", "cama"], a: "para a cama" },
+                { q: "Comp. Oblíquo em: 'Cheguei a tempo.'", opts: ["a tempo", "Cheguei", "tempo"], a: "a tempo" },
+                { q: "Comp. Oblíquo em: 'Falo de política.'", opts: ["de política", "Falo", "política"], a: "de política" },
+                { q: "Comp. Oblíquo em: 'Depende do dia.'", opts: ["do dia", "Depende", "dia"], a: "do dia" },
+                { q: "Comp. Oblíquo em: 'Sonhei com anjos.'", opts: ["com anjos", "Sonhei", "anjos"], a: "com anjos" },
+                { q: "Comp. Oblíquo em: 'Vou ao cinema.'", opts: ["ao cinema", "Vou", "cinema"], a: "ao cinema" },
+                { q: "Comp. Oblíquo em: 'Nasci em Maio.'", opts: ["em Maio", "Nasci", "Maio"], a: "em Maio" },
+                { q: "Comp. Oblíquo em: 'Vives em paz.'", opts: ["em paz", "Vives", "paz"], a: "em paz" },
+                { q: "Comp. Oblíquo em: 'Regressei de viagem.'", opts: ["de viagem", "Regressei", "viagem"], a: "de viagem" },
+                { q: "Comp. Oblíquo em: 'Vou contigo.'", opts: ["contigo", "Vou", "Vou contigo"], a: "contigo" }
+            ],
+            'pt_sintaxe_predicativo': [
+                { q: "Predicativo em: 'A casa é bonita.'", opts: ["bonita", "A casa", "é"], a: "bonita" },
+                { q: "Predicativo em: 'Ele está feliz.'", opts: ["feliz", "Ele", "está"], a: "feliz" },
+                { q: "Predicativo em: 'O céu parece azul.'", opts: ["azul", "O céu", "parece"], a: "azul" },
+                { q: "Predicativo em: 'Ela ficou triste.'", opts: ["triste", "Ela", "ficou"], a: "triste" },
+                { q: "Predicativo em: 'O mar permanece calmo.'", opts: ["calmo", "O mar", "permanece"], a: "calmo" },
+                { q: "Predicativo em: 'O cão é leal.'", opts: ["leal", "O cão", "é"], a: "leal" },
+                { q: "Predicativo em: 'Nós estamos cansados.'", opts: ["cansados", "Nós", "estamos"], a: "cansados" },
+                { q: "Predicativo em: 'Tu pareces doente.'", opts: ["doente", "Tu", "pareces"], a: "doente" },
+                { q: "Predicativo em: 'O bolo estava delicioso.'", opts: ["delicioso", "O bolo", "estava"], a: "delicioso" },
+                { q: "Predicativo em: 'A festa foi divertida.'", opts: ["divertida", "A festa", "foi"], a: "divertida" },
+                { q: "Predicativo em: 'O homem tornou-se rico.'", opts: ["rico", "O homem", "tornou-se"], a: "rico" },
+                { q: "Predicativo em: 'A sopa está quente.'", opts: ["quente", "A sopa", "está"], a: "quente" },
+                { q: "Predicativo em: 'O dia continua chuvoso.'", opts: ["chuvoso", "O dia", "continua"], a: "chuvoso" },
+                { q: "Predicativo em: 'Elas são amigas.'", opts: ["amigas", "Elas", "são"], a: "amigas" },
+                { q: "Predicativo em: 'O teste foi fácil.'", opts: ["fácil", "O teste", "foi"], a: "fácil" },
+                { q: "Predicativo em: 'A noite está escura.'", opts: ["escura", "A noite", "está"], a: "escura" },
+                { q: "Predicativo em: 'O quarto é grande.'", opts: ["grande", "O quarto", "é"], a: "grande" },
+                { q: "Predicativo em: 'Eu sou aluno.'", opts: ["aluno", "Eu", "sou"], a: "aluno" },
+                { q: "Predicativo em: 'Ele parece simpático.'", opts: ["simpático", "Ele", "parece"], a: "simpático" },
+                { q: "Predicativo em: 'A água está fria.'", opts: ["fria", "A água", "está"], a: "fria" },
+                { q: "O Predicativo surge com verbos...", opts: ["Copulativos", "Transitivos", "Intransitivos"], a: "Copulativos" },
+                { q: "Verbo copulativo comum?", opts: ["Ser", "Fazer", "Ter"], a: "Ser" },
+                { q: "Verbo copulativo comum?", opts: ["Estar", "Ir", "Ver"], a: "Estar" },
+                { q: "Verbo copulativo comum?", opts: ["Parecer", "Olhar", "Ouvir"], a: "Parecer" },
+                { q: "Verbo copulativo comum?", opts: ["Ficar", "Correr", "Saltar"], a: "Ficar" }
+            ],
+            'pt_sintaxe_agente': [
+                { q: "Agente da Passiva em: 'Foi feito pelo João.'", opts: ["pelo João", "Foi feito", "João"], a: "pelo João" },
+                { q: "Agente da Passiva em: 'O bolo foi comido por mim.'", opts: ["por mim", "O bolo", "foi comido"], a: "por mim" },
+                { q: "Agente da Passiva em: 'A carta foi escrita pela Ana.'", opts: ["pela Ana", "A carta", "foi escrita"], a: "pela Ana" },
+                { q: "Agente da Passiva em: 'O golo foi marcado pelo Ronaldo.'", opts: ["pelo Ronaldo", "O golo", "foi marcado"], a: "pelo Ronaldo" },
+                { q: "Agente da Passiva em: 'O vidro foi partido pela pedra.'", opts: ["pela pedra", "O vidro", "foi partido"], a: "pela pedra" },
+                { q: "Agente da Passiva em: 'O livro foi lido por todos.'", opts: ["por todos", "O livro", "foi lido"], a: "por todos" },
+                { q: "Agente da Passiva em: 'A casa foi construída pelo pedreiro.'", opts: ["pelo pedreiro", "A casa", "foi construída"], a: "pelo pedreiro" },
+                { q: "Agente da Passiva em: 'O rato foi caçado pelo gato.'", opts: ["pelo gato", "O rato", "foi caçado"], a: "pelo gato" },
+                { q: "Agente da Passiva em: 'A flor foi regada pela avó.'", opts: ["pela avó", "A flor", "foi regada"], a: "pela avó" },
+                { q: "Agente da Passiva em: 'O quadro foi pintado pelo artista.'", opts: ["pelo artista", "O quadro", "foi pintado"], a: "pelo artista" },
+                { q: "Agente da Passiva em: 'A música foi cantada pelo coro.'", opts: ["pelo coro", "A música", "foi cantada"], a: "pelo coro" },
+                { q: "Agente da Passiva em: 'O carro foi lavado pelo pai.'", opts: ["pelo pai", "O carro", "foi lavado"], a: "pelo pai" },
+                { q: "Agente da Passiva em: 'A sopa foi feita pela mãe.'", opts: ["pela mãe", "A sopa", "foi feita"], a: "pela mãe" },
+                { q: "Agente da Passiva em: 'O texto foi corrigido pelo professor.'", opts: ["pelo professor", "O texto", "foi corrigido"], a: "pelo professor" },
+                { q: "Agente da Passiva em: 'A árvore foi cortada pelo lenhador.'", opts: ["pelo lenhador", "A árvore", "foi cortada"], a: "pelo lenhador" },
+                { q: "Agente da Passiva em: 'O cão foi passeado pelo dono.'", opts: ["pelo dono", "O cão", "foi passeado"], a: "pelo dono" },
+                { q: "Agente da Passiva em: 'O peixe foi pescado pelo homem.'", opts: ["pelo homem", "O peixe", "foi pescado"], a: "pelo homem" },
+                { q: "Agente da Passiva em: 'A notícia foi dada pela rádio.'", opts: ["pela rádio", "A notícia", "foi dada"], a: "pela rádio" },
+                { q: "Agente da Passiva em: 'O prémio foi ganho por nós.'", opts: ["por nós", "O prémio", "foi ganho"], a: "por nós" },
+                { q: "Agente da Passiva em: 'O segredo foi descoberto por ela.'", opts: ["por ela", "O segredo", "foi descoberto"], a: "por ela" },
+                { q: "O Agente da Passiva começa sempre por...", opts: ["Por (pelo, pela...)", "De (do, da...)", "A (ao, à...)"], a: "Por (pelo, pela...)" },
+                { q: "Na frase ativa, o Agente da Passiva era o...", opts: ["Sujeito", "Complemento Direto", "Predicado"], a: "Sujeito" },
+                { q: "Agente da Passiva em: 'Fui mordido pelo cão.'", opts: ["pelo cão", "Fui", "mordido"], a: "pelo cão" },
+                { q: "Agente da Passiva em: 'Serás visto por alguém.'", opts: ["por alguém", "Serás", "visto"], a: "por alguém" },
+                { q: "Agente da Passiva em: 'Foi amado por todos.'", opts: ["por todos", "Foi", "amado"], a: "por todos" }
+            ],
+            'pt_sintaxe_vocativo': [
+                { q: "Vocativo em: 'Ó Maria, vem cá.'", opts: ["Ó Maria", "vem", "cá"], a: "Ó Maria" },
+                { q: "Vocativo em: 'Bom dia, turma.'", opts: ["turma", "Bom dia", "dia"], a: "turma" },
+                { q: "Vocativo em: 'João, cala-te.'", opts: ["João", "cala-te", "te"], a: "João" },
+                { q: "Vocativo em: 'Ouve, ó rapaz!'", opts: ["ó rapaz", "Ouve", "rapaz"], a: "ó rapaz" },
+                { q: "Vocativo em: 'Mãe, tenho fome.'", opts: ["Mãe", "tenho", "fome"], a: "Mãe" },
+                { q: "Vocativo em: 'Olá, amigo.'", opts: ["amigo", "Olá", "amigo Olá"], a: "amigo" },
+                { q: "Vocativo em: 'Senhor, ajude-me.'", opts: ["Senhor", "ajude", "me"], a: "Senhor" },
+                { q: "Vocativo em: 'Anda cá, cão.'", opts: ["cão", "Anda", "cá"], a: "cão" },
+                { q: "Vocativo em: 'Estuda, filho.'", opts: ["filho", "Estuda", "filho estuda"], a: "filho" },
+                { q: "Vocativo em: 'Adeus, professora.'", opts: ["professora", "Adeus", "professora Adeus"], a: "professora" },
+                { q: "Vocativo em: 'Ó pá, deixa isso.'", opts: ["Ó pá", "deixa", "isso"], a: "Ó pá" },
+                { q: "Vocativo em: 'Cuidado, meninos!'", opts: ["meninos", "Cuidado", "meninos Cuidado"], a: "meninos" },
+                { q: "Vocativo em: 'Vem, amor.'", opts: ["amor", "Vem", "amor Vem"], a: "amor" },
+                { q: "Vocativo em: 'Deus, protege-nos.'", opts: ["Deus", "protege", "nos"], a: "Deus" },
+                { q: "Vocativo em: 'Ouve lá, tu.'", opts: ["tu", "Ouve", "lá"], a: "tu" },
+                { q: "Vocativo em: 'Não faças isso, Rui.'", opts: ["Rui", "Não", "faças"], a: "Rui" },
+                { q: "Vocativo em: 'Avó, gosto de ti.'", opts: ["Avó", "gosto", "ti"], a: "Avó" },
+                { q: "Vocativo em: 'Passa a bola, Pedro!'", opts: ["Pedro", "Passa", "bola"], a: "Pedro" },
+                { q: "Vocativo em: 'Diz, ó esperto.'", opts: ["ó esperto", "Diz", "esperto"], a: "ó esperto" },
+                { q: "Vocativo em: 'Entrem, alunos.'", opts: ["alunos", "Entrem", "alunos Entrem"], a: "alunos" },
+                { q: "Vocativo em: 'Pai, posso ir?'", opts: ["Pai", "posso", "ir"], a: "Pai" },
+                { q: "Vocativo em: 'Ó sol, brilha.'", opts: ["Ó sol", "brilha", "sol"], a: "Ó sol" },
+                { q: "Vocativo em: 'Anda, cavalo.'", opts: ["cavalo", "Anda", "Anda cavalo"], a: "cavalo" },
+                { q: "Vocativo em: 'Ouve, ó mar.'", opts: ["ó mar", "Ouve", "mar"], a: "ó mar" },
+                { q: "O vocativo serve para...", opts: ["Chamar alguém", "Indicar o sujeito", "Completar o verbo"], a: "Chamar alguém" }
+            ],
+            'pt_sintaxe_modificador': [
+                { q: "Modificador em: 'Estudei ontem.'", opts: ["ontem", "Estudei", "Estudei ontem"], a: "ontem" },
+                { q: "Modificador em: 'Corri no parque.'", opts: ["no parque", "Corri", "Corri no"], a: "no parque" },
+                { q: "Modificador em: 'Li o livro atentamente.'", opts: ["atentamente", "Li", "o livro"], a: "atentamente" },
+                { q: "Modificador em: 'Amanhã vou sair.'", opts: ["Amanhã", "vou", "sair"], a: "Amanhã" },
+                { q: "Modificador em: 'Comi muito.'", opts: ["muito", "Comi", "Comi muito"], a: "muito" },
+                { q: "Modificador em: 'Eles falam baixo.'", opts: ["baixo", "Eles", "falam"], a: "baixo" },
+                { q: "Modificador em: 'Chove lá fora.'", opts: ["lá fora", "Chove", "lá"], a: "lá fora" },
+                { q: "Modificador em: 'Cheguei cedo.'", opts: ["cedo", "Cheguei", "Cheguei cedo"], a: "cedo" },
+                { q: "Modificador em: 'Vives aqui.'", opts: ["aqui", "Vives", "Vives aqui"], a: "aqui" },
+                { q: "Modificador em: 'Ela dança bem.'", opts: ["bem", "Ela", "dança"], a: "bem" },
+                { q: "Modificador em: 'Fui ao cinema sexta-feira.'", opts: ["sexta-feira", "Fui", "ao cinema"], a: "sexta-feira" },
+                { q: "Modificador em: 'Dormi dez horas.'", opts: ["dez horas", "Dormi", "Dormi dez"], a: "dez horas" },
+                { q: "Modificador em: 'Estudei na biblioteca.'", opts: ["na biblioteca", "Estudei", "biblioteca"], a: "na biblioteca" },
+                { q: "Modificador em: 'Falei com calma.'", opts: ["com calma", "Falei", "calma"], a: "com calma" },
+                { q: "Modificador em: 'Escrevi à pressa.'", opts: ["à pressa", "Escrevi", "pressa"], a: "à pressa" },
+                { q: "Modificador em: 'Talvez vá.'", opts: ["Talvez", "vá", "Talvez vá"], a: "Talvez" },
+                { q: "Modificador em: 'Não quero.'", opts: ["Não", "quero", "Não quero"], a: "Não" },
+                { q: "Modificador em: 'Sim, aceito.'", opts: ["Sim", "aceito", "Sim aceito"], a: "Sim" },
+                { q: "Modificador em: 'Vi-te hoje.'", opts: ["hoje", "Vi", "te"], a: "hoje" },
+                { q: "Modificador em: 'Moro perto.'", opts: ["perto", "Moro", "Moro perto"], a: "perto" },
+                { q: "Modificador em: 'Anda depressa.'", opts: ["depressa", "Anda", "Anda depressa"], a: "depressa" },
+                { q: "Modificador em: 'Fica longe.'", opts: ["longe", "Fica", "Fica longe"], a: "longe" },
+                { q: "Modificador em: 'Estou bem.'", opts: ["bem", "Estou", "Estou bem"], a: "bem" },
+                { q: "Modificador em: 'Volto logo.'", opts: ["logo", "Volto", "Volto logo"], a: "logo" },
+                { q: "O modificador é...", opts: ["Opcional", "Obrigatório", "Essencial"], a: "Opcional" }
+            ],
+            'pt_sintaxe_passiva': [
+                { q: "Frase Passiva de: 'O gato comeu o rato.'", opts: ["O rato foi comido pelo gato", "O gato foi comido", "O rato comeu o gato"], a: "O rato foi comido pelo gato" },
+                { q: "Frase Ativa de: 'O livro foi lido pela Ana.'", opts: ["A Ana leu o livro", "O livro leu a Ana", "A Ana foi lida"], a: "A Ana leu o livro" },
+                { q: "Frase Passiva de: 'O João fez o bolo.'", opts: ["O bolo foi feito pelo João", "O João foi feito", "O bolo fez o João"], a: "O bolo foi feito pelo João" },
+                { q: "Frase Passiva de: 'A mãe lava a loiça.'", opts: ["A loiça é lavada pela mãe", "A mãe é lavada", "A loiça foi lavada"], a: "A loiça é lavada pela mãe" },
+                { q: "Frase Passiva de: 'O cão mordeu o homem.'", opts: ["O homem foi mordido pelo cão", "O cão foi mordido", "O homem mordeu o cão"], a: "O homem foi mordido pelo cão" },
+                { q: "Frase Passiva de: 'Eu escrevi a carta.'", opts: ["A carta foi escrita por mim", "Eu fui escrito", "A carta escreveu-me"], a: "A carta foi escrita por mim" },
+                { q: "Frase Passiva de: 'Tu compraste o pão.'", opts: ["O pão foi comprado por ti", "Tu foste comprado", "O pão comprou-te"], a: "O pão foi comprado por ti" },
+                { q: "Frase Passiva de: 'Eles viram o filme.'", opts: ["O filme foi visto por eles", "Eles foram vistos", "O filme viu eles"], a: "O filme foi visto por eles" },
+                { q: "Frase Passiva de: 'Nós limpámos a casa.'", opts: ["A casa foi limpa por nós", "Nós fomos limpos", "A casa limpou-nos"], a: "A casa foi limpa por nós" },
+                { q: "Frase Passiva de: 'O vento partiu o ramo.'", opts: ["O ramo foi partido pelo vento", "O vento foi partido", "O ramo partiu o vento"], a: "O ramo foi partido pelo vento" },
+                { q: "Frase Passiva de: 'A chuva molhou a rua.'", opts: ["A rua foi molhada pela chuva", "A chuva foi molhada", "A rua molhou a chuva"], a: "A rua foi molhada pela chuva" },
+                { q: "Frase Ativa de: 'O peixe foi pescado pelo pai.'", opts: ["O pai pescou o peixe", "O peixe pescou o pai", "O pai foi pescado"], a: "O pai pescou o peixe" },
+                { q: "Frase Ativa de: 'A flor foi colhida pela menina.'", opts: ["A menina colheu a flor", "A flor colheu a menina", "A menina foi colhida"], a: "A menina colheu a flor" },
+                { q: "Frase Ativa de: 'O golo foi marcado pelo jogador.'", opts: ["O jogador marcou o golo", "O golo marcou o jogador", "O jogador foi marcado"], a: "O jogador marcou o golo" },
+                { q: "Frase Ativa de: 'A notícia foi ouvida por todos.'", opts: ["Todos ouviram a notícia", "A notícia ouviu todos", "Todos foram ouvidos"], a: "Todos ouviram a notícia" },
+                { q: "Frase Ativa de: 'O teste foi corrigido pelo professor.'", opts: ["O professor corrigiu o teste", "O teste corrigiu o professor", "O professor foi corrigido"], a: "O professor corrigiu o teste" },
+                { q: "Frase Ativa de: 'A casa foi vendida pelo agente.'", opts: ["O agente vendeu a casa", "A casa vendeu o agente", "O agente foi vendido"], a: "O agente vendeu a casa" },
+                { q: "Frase Ativa de: 'O carro foi lavado pelo Rui.'", opts: ["O Rui lavou o carro", "O carro lavou o Rui", "O Rui foi lavado"], a: "O Rui lavou o carro" },
+                { q: "Qual está na Passiva?", opts: ["O bolo foi comido.", "O menino comeu.", "A Ana corre."], a: "O bolo foi comido." },
+                { q: "Qual está na Ativa?", opts: ["O sol brilha.", "O carro foi lavado.", "A casa foi feita."], a: "O sol brilha." },
+                { q: "Verbo auxiliar da passiva?", opts: ["Ser", "Ter", "Haver"], a: "Ser" },
+                { q: "Passiva de 'Ele ama-a'.", opts: ["Ela é amada por ele", "Ele é amado", "Ela ama-o"], a: "Ela é amada por ele" },
+                { q: "Passiva de 'Eu fi-lo'.", opts: ["Foi feito por mim", "Eu fui feito", "Ele fez-me"], a: "Foi feito por mim" },
+                { q: "Passiva de 'O sol seca a roupa'.", opts: ["A roupa é seca pelo sol", "O sol é seco", "A roupa seca o sol"], a: "A roupa é seca pelo sol" },
+                { q: "Passiva de 'A neve cobriu tudo'.", opts: ["Tudo foi coberto pela neve", "A neve foi coberta", "Tudo cobriu a neve"], a: "Tudo foi coberto pela neve" }
+            ]
+        };
+
+        // --- VARIÁVEIS GLOBAIS ---
+        const GRID_SIZE = 9; 
+        const LETTERS = ['A','B','C','D','E','F','G','H','I'];
+        const SHIPS = [ {s:4, id:1}, {s:3, id:2}, {s:2, id:3} ];
+        
+        let activeQuestions = [];
+        let playerGrid, computerGrid, playerShips, computerShips;
+        let gameState = 'setup'; 
+        let currentTarget = null; 
+
+        // --- SISTEMA DE SELEÇÃO ---
+        function selectAll(shouldSelect) {
+            document.querySelectorAll('.topic-checkbox').forEach(cb => cb.checked = shouldSelect);
+        }
+
+        // --- INICIALIZAÇÃO ---
+        function showSetup() {
+            document.getElementById('game-setup').classList.remove('hidden');
+            document.getElementById('game-active-area').classList.add('hidden');
+            document.getElementById('game-over-modal').classList.add('hidden');
+            gameState = 'setup';
+        }
+
+        function initGame() {
+            activeQuestions = [];
+            const checkboxes = document.querySelectorAll('.topic-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                alert("Seleciona pelo menos um tópico!");
+                return;
+            }
+
+            checkboxes.forEach(chk => {
+                const topicKey = chk.value;
+                if (QUESTION_DATABASE[topicKey]) {
+                    const cleanTag = topicKey.includes('pt_') ? 'PT' : 'EN';
+                    const questionsWithTag = QUESTION_DATABASE[topicKey].map(q => ({...q, tag: cleanTag}));
+                    activeQuestions = activeQuestions.concat(questionsWithTag);
+                }
+            });
+
+            activeQuestions.sort(() => Math.random() - 0.5);
+
+            document.getElementById('game-setup').classList.add('hidden');
+            document.getElementById('game-active-area').classList.remove('hidden');
+            document.getElementById('game-over-modal').classList.add('hidden');
+            
+            createGrids();
+            placeShipsLogic();
+            gameState = 'playing';
+            updateStatus("A batalha começou! Seleciona um alvo.");
+        }
+
+        // --- LÓGICA DE TABULEIRO ---
+        function createGrids() {
+            const pGrid = document.getElementById('player-grid');
+            const cGrid = document.getElementById('computer-grid');
+            pGrid.innerHTML = ''; cGrid.innerHTML = '';
+            
+            const empty = document.createElement('div'); empty.className = 'grid-header';
+            pGrid.appendChild(empty.cloneNode()); cGrid.appendChild(empty);
+            
+            for(let i=1; i<=GRID_SIZE; i++) {
+                const h = document.createElement('div'); h.className = 'grid-header'; h.innerText = i;
+                pGrid.appendChild(h.cloneNode(true)); cGrid.appendChild(h);
+            }
+
+            playerGrid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
+            computerGrid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null));
+
+            for(let r=0; r<GRID_SIZE; r++) {
+                const rowLabel = document.createElement('div'); rowLabel.className = 'grid-header'; rowLabel.innerText = LETTERS[r];
+                pGrid.appendChild(rowLabel.cloneNode(true)); cGrid.appendChild(rowLabel);
+
+                for(let c=0; c<GRID_SIZE; c++) {
+                    const pCell = document.createElement('div'); pCell.className = 'grid-cell'; pCell.id = `p-${r}-${c}`;
+                    pGrid.appendChild(pCell);
+                    
+                    const cCell = document.createElement('div'); cCell.className = 'grid-cell hover:bg-blue-100 transition'; 
+                    cCell.id = `c-${r}-${c}`;
+                    cCell.onclick = () => handlePlayerClick(r, c, cCell);
+                    cGrid.appendChild(cCell);
+                }
+            }
+        }
+
+        function placeShipsLogic() {
+            playerShips = JSON.parse(JSON.stringify(SHIPS));
+            computerShips = JSON.parse(JSON.stringify(SHIPS));
+            
+            [ {grid: playerGrid, ships: playerShips, prefix:'p'}, {grid: computerGrid, ships: computerShips, prefix:'c'} ].forEach(data => {
+                data.ships.forEach(ship => {
+                    let placed = false;
+                    while(!placed) {
+                        const dir = Math.random() < 0.5;
+                        const r = Math.floor(Math.random() * (dir ? GRID_SIZE : GRID_SIZE - ship.s + 1));
+                        const c = Math.floor(Math.random() * (dir ? GRID_SIZE - ship.s + 1 : GRID_SIZE));
+                        
+                        let canPlace = true;
+                        for(let i=0; i<ship.s; i++) {
+                            if(data.grid[dir ? r : r+i][dir ? c+i : c] !== null) canPlace = false;
+                        }
+
+                        if(canPlace) {
+                            ship.coords = [];
+                            for(let i=0; i<ship.s; i++) {
+                                const rr = dir ? r : r+i, cc = dir ? c+i : c;
+                                data.grid[rr][cc] = ship.id;
+                                ship.coords.push({r:rr, c:cc});
+                                if(data.prefix === 'p') document.getElementById(`p-${rr}-${cc}`).classList.add('ship');
+                            }
+                            ship.hits = 0;
+                            placed = true;
+                        }
+                    }
+                });
+            });
+        }
+
+        // --- FLUXO DE JOGO ---
+        function handlePlayerClick(r, c, cell) {
+            if(gameState !== 'playing' || cell.classList.contains('hit') || cell.classList.contains('miss') || cell.classList.contains('disabled')) return;
+            currentTarget = {r, c, cell};
+            openQuestion();
+        }
+
+        function openQuestion() {
+            gameState = 'question';
+            const modal = document.getElementById('question-modal');
+            const qData = activeQuestions[Math.floor(Math.random() * activeQuestions.length)];
+            
+            document.getElementById('q-topic-badge').innerText = qData.tag;
+            document.getElementById('q-text').innerText = qData.q;
+            document.getElementById('q-coord').innerText = `${LETTERS[currentTarget.r]}${currentTarget.c + 1}`;
+            
+            const optsContainer = document.getElementById('q-options');
+            optsContainer.innerHTML = '';
+            
+            const shuffledOpts = [...qData.opts].sort(() => Math.random() - 0.5);
+            
+            shuffledOpts.forEach(opt => {
+                const btn = document.createElement('div');
+                btn.className = "p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition text-sm font-medium text-gray-700";
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(btn, opt, qData.a);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('q-submit').disabled = true;
+            document.getElementById('q-feedback').classList.add('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        let selectedBtn = null;
+        let isAnswerCorrect = false;
+
+        function selectOption(btn, value, correct) {
+            if(document.getElementById('q-feedback').className.includes('block')) return; 
+            if(selectedBtn) selectedBtn.classList.remove('bg-indigo-100', 'border-indigo-600', 'text-indigo-700');
+            selectedBtn = btn;
+            selectedBtn.classList.add('bg-indigo-100', 'border-indigo-600', 'text-indigo-700');
+            isAnswerCorrect = (value === correct);
+            document.getElementById('q-submit').disabled = false;
+        }
+
+        function submitAnswer() {
+            const feedback = document.getElementById('q-feedback');
+            const submitBtn = document.getElementById('q-submit');
+            
+            feedback.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+            if(isAnswerCorrect) {
+                feedback.className = "mb-4 p-3 rounded-lg text-center font-bold text-sm bg-green-100 text-green-700 border border-green-300";
+                feedback.innerHTML = "✅ Resposta Correta! A disparar...";
+                setTimeout(() => { closeModal(); resolveShot(true); }, 1500);
+            } else {
+                feedback.className = "mb-4 p-3 rounded-lg text-center font-bold text-sm bg-yellow-100 text-yellow-700 border border-yellow-300";
+                feedback.innerHTML = "⚠️ Resposta Incorreta! Canhão encravou.";
+                setTimeout(() => { closeModal(); resolveShot(false); }, 2000);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('question-modal').classList.add('hidden');
+        }
+
+        function resolveShot(success) {
+            const {r, c, cell} = currentTarget;
+
+            if (success) {
+                const shipId = computerGrid[r][c];
+                if (shipId) {
+                    cell.classList.add('hit'); cell.innerText = '💥';
+                    const ship = computerShips.find(s => s.id === shipId);
+                    ship.hits++;
+                    updateStatus("Tiro certeiro! Joga de novo.");
+                    
+                    if(ship.hits >= ship.s) {
+                        ship.coords.forEach(coord => {
+                            const sunkCell = document.getElementById(`c-${coord.r}-${coord.c}`);
+                            sunkCell.classList.add('sunk'); sunkCell.innerText = '💀';
+                        });
+                        updateStatus("Afundaste um navio inimigo!");
+                    }
+
+                    if(computerShips.every(s => s.hits >= s.s)) { endGame(true); return; }
+                    gameState = 'playing'; 
+                } else {
+                    cell.classList.add('miss'); cell.innerText = '🌊';
+                    updateStatus("Água... Vez do computador.");
+                    setTimeout(computerTurn, 1000);
+                }
+            } else {
+                updateStatus("Canhão encravado! Perdeste a vez.");
+                setTimeout(computerTurn, 1500);
+            }
+        }
+
+        function computerTurn() {
+            let r, c;
+            do {
+                r = Math.floor(Math.random() * GRID_SIZE);
+                c = Math.floor(Math.random() * GRID_SIZE);
+            } while (document.getElementById(`p-${r}-${c}`).innerText !== '');
+
+            const cell = document.getElementById(`p-${r}-${c}`);
+            const shipId = playerGrid[r][c];
+
+            if(shipId) {
+                cell.classList.remove('ship'); cell.classList.add('hit'); cell.innerText = '🔥';
+                const ship = playerShips.find(s => s.id === shipId);
+                ship.hits++;
+                
+                if(ship.hits >= ship.s) {
+                    updateStatus("O Computador afundou um navio teu!");
+                    ship.coords.forEach(coord => {
+                        document.getElementById(`p-${coord.r}-${coord.c}`).classList.add('sunk');
+                    });
+                } else { updateStatus("Foste atingido!"); }
+
+                if(playerShips.every(s => s.hits >= s.s)) { endGame(false); return; }
+                setTimeout(computerTurn, 1500);
+            } else {
+                cell.classList.add('miss'); cell.innerText = '❌';
+                updateStatus("O Computador falhou. Tua vez!");
+                gameState = 'playing';
+            }
+        }
+
+        function updateStatus(msg) { document.getElementById('game-status').innerText = msg; }
+
+        function endGame(playerWon) {
+            gameState = 'gameover';
+            const modal = document.getElementById('game-over-modal');
+            const icon = document.getElementById('go-icon');
+            const title = document.getElementById('go-title');
+            const msg = document.getElementById('go-msg');
+
+            if(playerWon) {
+                icon.innerText = "🏆"; title.innerText = "VITÓRIA!"; title.className = "text-3xl font-extrabold text-green-600 mb-2"; msg.innerText = "Parabéns, Comandante!";
+            } else {
+                icon.innerText = "⚓"; title.innerText = "DERROTA..."; title.className = "text-3xl font-extrabold text-red-600 mb-2"; msg.innerText = "A tua frota foi destruída.";
+            }
+            modal.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
