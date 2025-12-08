@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O Verbo Mágico de Tim Burton (5º Ano)</title>
+    <!-- Importações do Firebase (necessárias para o funcionamento da Zona de Treino/Score) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Variáveis globais de ambiente (fornecidas pelo sistema)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // --- DADOS BASE PARA GERAÇÃO DAS 120 PERGUNTAS ---
+        const persons = ["eu", "tu", "ele/ela/você", "nós", "vós", "eles/elas/vocês"];
+        const topicKeys = ['conjugation', 'conjugation_group', 'verb_type', 'non_finite'];
+        
+        // Expor topicKeys para o escopo global (para o openTab funcionar)
+        window.topicKeys = topicKeys;
+
+        const verbData = {
+            // Verbos Regulares e Irregulares de Alta Frequência
+            "Cantar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["canto", "cantas", "canta", "cantamos", "cantais", "cantam"], "Pretérito Perfeito": ["cantei", "cantaste", "cantou", "cantamos", "cantastes", "cantaram"], gerundio: 'cantando', participio: 'cantado' },
+            "Falar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["falo", "falas", "fala", "falamos", "falais", "falam"], "Pretérito Perfeito": ["falei", "falaste", "falou", "falamos", "falastes", "falaram"], gerundio: 'falando', participio: 'falado' },
+            "Correr": { c: '2.ª', p: 'er', "Presente do Indicativo": ["corro", "corres", "corre", "corremos", "correis", "correm"], "Pretérito Perfeito": ["corri", "correste", "correu", "corremos", "correstes", "correram"], gerundio: 'correndo', participio: 'corrido' },
+            "Vender": { c: '2.ª', p: 'er', "Presente do Indicativo": ["vendo", "vendes", "vende", "vendemos", " vendeis", "vendem"], "Pretérito Perfeito": ["vendi", "vendeste", "vendeu", "vendemos", "vendestes", "venderam"], gerundio: 'vendendo', participio: 'vendido' },
+            "Partir": { c: '3.ª', p: 'ir', "Presente do Indicativo": ["parto", "partes", "parte", "partimos", "partis", "partem"], "Pretérito Perfeito": ["parti", "partiste", "partiu", "partimos", "partistes", "partiram"], gerundio: 'partindo', participio: 'partido' },
+            "Dividir": { c: '3.ª', p: 'ir', "Presente do Indicativo": ["divido", "divides", "divide", "dividimos", "dividis", "dividem"], "Pretérito Perfeito": ["dividi", "dividiste", "dividiu", "dividimos", "dividis", "dividiram"], gerundio: 'dividindo', participio: 'dividido' },
+            "Pôr": { c: '2.ª', p: 'er', "Presente do Indicativo": ["ponho", "pões", "põe", "pomos", "pondes", "põem"], "Pretérito Perfeito": ["pus", "puseste", "pôs", "pusemos", "pusestes", "puseram"], gerundio: 'pondo', participio: 'posto' },
+            "Fazer": { c: '2.ª', p: 'er', "Presente do Indicativo": ["faço", "fazes", "faz", "fazemos", "fazeis", "fazem"], "Pretérito Perfeito": ["fiz", "fizeste", "fez", "fizemos", "fizestes", "fizeram"], gerundio: 'fazendo', participio: 'feito' },
+            "Ser": { c: '2.ª', p: 'er', "Presente do Indicativo": ["sou", "és", "é", "somos", "sois", "são"], "Pretérito Perfeito": ["fui", "foste", "foi", "fomos", "fostes", "foram"], gerundio: 'sendo', participio: 'sido' },
+            "Estar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["estou", "estás", "está", "estamos", "estais", "estão"], "Pretérito Perfeito": ["estive", "esteve", "esteve", "estivemos", "estivestes", "estiveram"], gerundio: 'estando', participio: 'estado' },
+            "Ter": { c: '2.ª', p: 'er', "Presente do Indicativo": ["tenho", "tens", "tem", "temos", "tendes", "têm"], "Pretérito Perfeito": ["tive", "tiveste", "teve", "tivemos", "tivestes", "tiveram"], gerundio: 'tendo', participio: 'tido' }
+        };
+
+        const conjugacaoVerbs = [
+            'Cantar', 'Falar', 'Amar', 'Nadar', 'Pensar', 'Saltar', 'Comprar', 'Chamar', 'Lavar', 'Gostar', 
+            'Correr', 'Vender', 'Saber', 'Ler', 'Escrever', 'Fazer', 'Pôr', 'Ver', 'Dever', 'Beber', 
+            'Partir', 'Dividir', 'Dormir', 'Ouvir', 'Sorrir', 'Fugir', 'Abrir', 'Pedir', 'Sentir', 'Construir' 
+        ];
+
+        
+        // --- VARIÁVEIS GLOBAIS DE ESTADO ---
+        let app = null;
+        let db = null;
+        let auth = null;
+        let currentUserId = null;
+        let userDocRef = null;
+        
+        let userName = '';
+        let userPhotoBase64 = '';
+        let score = { currentTopicScore: 0, totalAttempts: 0 }; // Score atual do tópico
+        let topicProgress = { 
+            conjugation: false, 
+            conjugation_group: false, 
+            verb_type: false, 
+            non_finite: false 
+        }; // Progresso dos 4 tópicos
+        
+        // Expor topicProgress para o escopo global
+        window.topicProgress = topicProgress;
+        
+        let currentQuestion = { type: null, promptText: null, correctAnswer: null };
+        let currentQuestionIndex = 0;
+        let currentTopic = 'conjugation'; // Tópico inicial
+
+        let conjugationPool = [];
+        let conjGroupPool = [];
+        let verbTypePool = [];
+        let nonFinitePool = [];
+        let selectedPool = []; // O pool atualmente ativo
+
+        // --- FUNÇÕES FIREBASE (PERSISTÊNCIA DE DADOS) ---
+
+        function getUserDocRef() {
+            if (db && currentUserId) {
+                // Caminho para dados privados do utilizador: /artifacts/{appId}/users/{userId}/progress/verb_mastery
+                return doc(db, "artifacts", appId, "users", currentUserId, "progress", "verb_mastery");
+            }
+            return null;
+        }
+        
+        async function saveUserData() {
+            const ref = getUserDocRef();
+            if (ref) {
+                try {
+                    // **CORREÇÃO/REFORÇO:** Garantir que o tópico de progresso é gravado junto com o nome
+                    await setDoc(ref, {
+                        userName: userName,
+                        userPhotoBase64: userPhotoBase64,
+                        topicProgress: topicProgress, 
+                        lastUpdate: new Date().toISOString()
+                    }, { merge: true });
+                    console.log("[Firestore] Dados do utilizador guardados com sucesso.");
+                    updateTopicCompletionUI();
+                } catch (e) {
+                    console.error("[Firestore] Erro ao guardar dados:", e);
+                }
+            }
+        }
+
+        async function loadUserData() {
+            const ref = getUserDocRef();
+            if (ref) {
+                try {
+                    const docSnap = await getDoc(ref);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        userName = data.userName || '';
+                        userPhotoBase64 = data.userPhotoBase64 || '';
+                        topicProgress = data.topicProgress || topicProgress;
+                        
+                        // Atualizar a referência global
+                        window.topicProgress = topicProgress;
+                        
+                        console.log("[Firestore] Dados do utilizador carregados:", data);
+                        
+                        // Após carregar, fechar o modal se o nome estiver preenchido
+                        if (userName) {
+                            closeStartModal();
+                            // Atualizar a IU com o progresso
+                            updateTopicCompletionUI();
+                        }
+                    } else {
+                        console.log("[Firestore] Nenhum dado de utilizador encontrado. Novo utilizador.");
+                        showStartModal();
+                    }
+                } catch (e) {
+                    console.error("[Firestore] Erro ao carregar dados:", e);
+                    showStartModal(); // Em caso de erro, pedir o nome
+                }
+            } else {
+                showStartModal(); // Se não houver auth, pedir o nome
+            }
+        }
+        
+        async function saveCurrentTopicScore() {
+             const ref = getUserDocRef();
+            if (ref) {
+                 try {
+                    // **CORREÇÃO/REFORÇO:** Garantir que o progresso do tópico é gravado imediatamente
+                    await setDoc(ref, {
+                        topicProgress: topicProgress,
+                        lastUpdate: new Date().toISOString()
+                    }, { merge: true });
+                    console.log("[Firestore] Progresso do tópico guardado.");
+                    updateTopicCompletionUI(); // Atualiza a IU (botões e certificado) após guardar
+                } catch (e) {
+                    console.error("[Firestore] Erro ao guardar progresso do tópico:", e);
+                }
+            }
+        }
+
+
+        // --- FUNÇÕES CÂMARA ---
+
+        let videoStream = null;
+
+        window.startCamera = async function() {
+            const video = document.getElementById('camera-preview');
+            const cameraBtn = document.getElementById('camera-btn');
+            const takePhotoBtn = document.getElementById('take-photo-btn');
+            
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
+                video.srcObject = videoStream;
+                video.style.display = 'block';
+                cameraBtn.style.display = 'none';
+                takePhotoBtn.style.display = 'block';
+                video.play();
+                document.getElementById('photo-message').textContent = 'Pronto! Tira a tua foto de mestre.';
+            } catch (err) {
+                console.error("Erro ao aceder à câmara: ", err);
+                document.getElementById('photo-message').textContent = 'Erro ao aceder à câmara. Tenta novamente ou avança sem foto.';
+            }
+        }
+
+        window.takePhoto = function() {
+            const video = document.getElementById('camera-preview');
+            const canvas = document.getElementById('photo-canvas');
+            const photoPreview = document.getElementById('photo-preview');
+            
+            if (videoStream) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Parar a stream
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+                video.srcObject = null;
+                video.style.display = 'none';
+                document.getElementById('camera-btn').style.display = 'block';
+                document.getElementById('take-photo-btn').style.display = 'none';
+
+                // Guardar a foto como Base64 e mostrar o preview
+                userPhotoBase64 = canvas.toDataURL('image/png');
+                photoPreview.src = userPhotoBase64;
+                photoPreview.style.display = 'block';
+                document.getElementById('photo-message').textContent = 'Foto capturada! Podes tirar outra ou avançar.';
+            }
+        }
+
+        // --- FUNÇÕES MODAL INICIAL ---
+        
+        function showStartModal() {
+            document.getElementById('start-modal').style.display = 'flex';
+            document.getElementById('app-container').style.filter = 'blur(5px)';
+            document.getElementById('name-input').value = userName;
+            
+            // Mostrar foto se existir
+            if (userPhotoBase64) {
+                 document.getElementById('photo-preview').src = userPhotoBase64;
+                 document.getElementById('photo-preview').style.display = 'block';
+            } else {
+                 document.getElementById('photo-preview').style.display = 'none';
+            }
+        }
+
+        function closeStartModal() {
+            document.getElementById('start-modal').style.display = 'none';
+            document.getElementById('app-container').style.filter = 'none';
+            
+            // Parar a câmara se estiver ativa
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+                document.getElementById('camera-preview').srcObject = null;
+            }
+        }
+
+        window.captureName = function() {
+            const inputName = document.getElementById('name-input').value.trim();
+            if (inputName) {
+                userName = inputName;
+                saveUserData(); // Guardar nome e foto (se houver) no Firestore
+                closeStartModal();
+            } else {
+                // Em vez de alert(), usar um feedback visual no modal
+                document.getElementById('name-input').classList.add('input-error');
+                setTimeout(() => document.getElementById('name-input').classList.remove('input-error'), 1000);
+            }
+        }
+
+        // --- LÓGICA DE SELEÇÃO DE TÓPICO E PROGRESSO ---
+
+        function updateTopicCompletionUI() {
+            const allCompleted = topicKeys.every(topic => topicProgress[topic]);
+            
+            topicKeys.forEach(topic => {
+                const btn = document.getElementById(`topic-${topic}`);
+                if (btn) {
+                    // Define a classe 'completed-topic' com base no estado do tópico no objeto topicProgress
+                    btn.classList.toggle('completed-topic', topicProgress[topic]);
+                }
+            });
+            
+            // **CORREÇÃO:** Ativar/Desativar botão do Certificado na barra de navegação
+            const certTab = document.querySelector('.tabs [onclick*="certificado"]');
+            if (certTab) {
+                certTab.disabled = !allCompleted;
+                certTab.style.opacity = allCompleted ? '1' : '0.5';
+            }
+            
+            // Atualizar o nome do aluno em todo o lado
+            document.getElementById('certificate-name-display').textContent = userName;
+            document.getElementById('cert-photo-display').src = userPhotoBase64 || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // Placeholder transparente se vazio
+            document.getElementById('cert-photo-display').style.display = userPhotoBase64 ? 'block' : 'none';
+        }
+
+        window.selectTopic = function(topic) {
+            // Resetar score (apenas o score da sessão atual)
+            score.currentTopicScore = 0;
+            score.totalAttempts = 0;
+            
+            // Se o tópico já estiver completo, define o score para 100 visualmente, mas mantém o contador a zero.
+            if (topicProgress[topic]) {
+                score.currentTopicScore = 100;
+            }
+            
+            // Atribui o pool correto
+            switch (topic) {
+                case 'conjugation':
+                    selectedPool = conjugationPool;
+                    break;
+                case 'conjugation_group':
+                    selectedPool = conjGroupPool;
+                    break;
+                case 'verb_type':
+                    selectedPool = verbTypePool;
+                    break;
+                case 'non_finite':
+                    selectedPool = nonFinitePool;
+                    break;
+                default:
+                    selectedPool = conjugationPool;
+                    topic = 'conjugation';
+            }
+            
+            currentTopic = topic;
+            currentQuestionIndex = 0; // Reinicia o contador de perguntas dentro do ciclo de 30
+            
+            // Atualizar o estado visual dos botões
+            document.querySelectorAll('.topic-button').forEach(btn => {
+                if (btn.id === `topic-${topic}`) {
+                    btn.classList.add('active-topic');
+                } else {
+                    btn.classList.remove('active-topic');
+                }
+            });
+            
+            updateScoreDisplay(); // Resetar display
+            generateQuestion();
+        }
+
+        // --- LÓGICA DO QUIZ (ZONA DE TREINO) ---
+
+        function generateQuestion() {
+             // **CORREÇÃO:** Não avança a pergunta se o tópico estiver completo
+            if (topicProgress[currentTopic] && score.currentTopicScore >= 100) {
+                 document.getElementById('question-prompt').innerHTML = `<div class="feedback-text feedback-success">🎉 TÓPICO COMPLETO! 🎉</div><p class="feedback-text feedback-success-sub">Seleciona outro tópico para continuar o treino.</p>`;
+                 document.getElementById('submit-btn').style.display = 'none';
+                 document.getElementById('next-btn').style.display = 'none';
+                 document.getElementById('answer-input').disabled = true;
+                 return;
+            }
+
+            if (selectedPool.length === 0) {
+                document.getElementById('question-prompt').innerHTML = 'Selecione um tópico para começar o treino!';
+                return;
+            }
+
+            // Resetar o índice se atingir o final do pool selecionado (ciclo de 30 perguntas)
+            if (currentQuestionIndex >= selectedPool.length) {
+                currentQuestionIndex = 0;
+                // Opcional: Misturar o pool novamente
+                selectedPool.sort(() => Math.random() - 0.5); 
+            }
+            
+            const nextQ = selectedPool[currentQuestionIndex];
+            currentQuestionIndex++;
+
+            currentQuestion.type = nextQ.type;
+            currentQuestion.promptText = nextQ.promptText;
+            currentQuestion.correctAnswer = nextQ.correctAnswer;
+            
+            const totalQuestionsInPool = selectedPool.length;
+            
+            const topicDisplay = {
+                'conjugation': 'A Máquina da Metamorfose Temporal (Conjugação Verbal)',
+                'conjugation_group': 'O Teste da Linhagem Fantasma (Conjugação)',
+                'verb_type': 'O Auxiliar e o Sombra (Classe de Verbos)',
+                'non_finite': 'O Trio Além-Túmulo (Formas Não Finitas)'
+            };
+
+            document.getElementById('question-prompt').innerHTML = nextQ.promptText;
+            document.getElementById('question-counter').textContent = `Tópico: ${topicDisplay[currentTopic]} | Pergunta ${currentQuestionIndex} de ${totalQuestionsInPool}`;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+            document.getElementById('result-feedback').innerHTML = ''; 
+            
+            // Reativar botões
+            document.getElementById('submit-btn').style.display = 'block';
+            document.getElementById('submit-btn').disabled = false;
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('next-btn').style.display = 'none';
+        }
+
+        function checkAnswer() {
+            // Normalização idêntica à anterior
+            const userInput = document.getElementById('answer-input').value.trim().toLowerCase().replace(/[.\s]/g, '').replace(/º|ª|°/g, 'a').replace(/[áãàâ]/g, 'a').replace(/[éê]/g, 'e').replace(/[í]/g, 'i').replace(/[óõô]/g, 'o').replace(/[ú]/g, 'u').replace(/[ç]/g, 'c');
+            const normalizedCorrectAnswer = currentQuestion.correctAnswer.toLowerCase().replace(/[.\s]/g, '').replace(/ª/g, 'a').replace(/[áãàâ]/g, 'a').replace(/[éê]/g, 'e').replace(/[í]/g, 'i').replace(/[óõô]/g, 'o').replace(/[ú]/g, 'u').replace(/[ç]/g, 'c');
+            
+            let isCorrect = (userInput === normalizedCorrectAnswer);
+
+            if (currentQuestion.type === 'conjugation_group') {
+                const correctNumber = normalizedCorrectAnswer.replace('a', '');
+                if (userInput === correctNumber) {
+                    isCorrect = true;
+                }
+            }
+
+            const feedbackEl = document.getElementById('result-feedback');
+            
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('answer-input').disabled = true;
+
+            score.totalAttempts++;
+
+            if (isCorrect) {
+                // Atribuição de 10 pontos
+                score.currentTopicScore += 10;
+                
+                // Limite o score a 100
+                if (score.currentTopicScore > 100) {
+                    score.currentTopicScore = 100;
+                }
+                
+                feedbackEl.innerHTML = `<p class="feedback-text feedback-correct">✅ Correto! Ganhaste <span class="text-xl font-bold">10 pontos</span>!</p>`;
+                
+                // **CORREÇÃO CRÍTICA:** Verificação de Conclusão do Tópico
+                if (score.currentTopicScore >= 100) {
+                    topicProgress[currentTopic] = true; // Define o tópico como COMPLETO
+                    saveCurrentTopicScore(); // PERSISTE o estado no Firebase
+                    feedbackEl.innerHTML = `<p class="feedback-text feedback-success">🎉 TÓPICO COMPLETO! 🎉</p><p class="feedback-text feedback-success-sub">Atingiste os 100 pontos. Podes passar ao próximo desafio!</p>`;
+                    document.getElementById('next-btn').style.display = 'none';
+                    updateScoreDisplay(); // Atualiza para 100%
+                    return; // Não mostra o botão Próxima Pergunta, pois o tópico está completo
+                }
+
+            } else {
+                // Não perde pontos, apenas tenta de novo
+                feedbackEl.innerHTML = `<p class="feedback-text feedback-incorrect">❌ Incorreto. A resposta correta é: <strong>${currentQuestion.correctAnswer}</strong></p>`;
+            }
+
+            updateScoreDisplay();
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function updateScoreDisplay() {
+            // **CORREÇÃO/REFORÇO:** Garante que o score é 100% se o tópico estiver completo
+            const displayScore = topicProgress[currentTopic] ? 100 : score.currentTopicScore;
+
+            document.getElementById('score-current').textContent = displayScore;
+            document.getElementById('score-total-attempts').textContent = score.totalAttempts;
+            document.getElementById('score-completion-status').textContent = topicProgress[currentTopic] ? 'COMPLETO' : `${displayScore}%`;
+            
+            // Atualizar barra de progresso
+            const progressBar = document.getElementById('score-progress-bar');
+            progressBar.style.width = `${displayScore}%`;
+            progressBar.classList.toggle('bg-burton-green-bg', displayScore >= 100);
+            progressBar.classList.toggle('bg-burton-purple', displayScore < 100);
+        }
+        
+        // --- FUNÇÃO DE GERAÇÃO DO CERTIFICADO ---
+
+        window.generateCertificate = function() {
+            const allCompleted = topicKeys.every(topic => topicProgress[topic]);
+            
+            if (allCompleted) {
+                document.getElementById('cert-date-display').textContent = new Date().toLocaleDateString('pt-PT');
+                
+                // **CORREÇÃO IMPRESSÃO:** Copia o conteúdo para a área de impressão
+                const certContent = document.getElementById('certificate-display').cloneNode(true);
+                const printContainer = document.getElementById('certificate-display-print');
+                printContainer.innerHTML = ''; // Limpa conteúdo anterior
+                printContainer.appendChild(certContent);
+
+                window.print();
+            } else {
+                document.getElementById('cert-message').textContent = 'Ainda não completaste todos os 4 tópicos! Volta quando fores um Mestre dos Verbos.';
+            }
+        }
+
+
+        // --- FUNÇÕES DE CONSTRUÇÃO DOS BANCOS DE DADOS (COM NOVO LAYOUT REFORÇADO) ---
+        
+        function generateConjugationQuestions() {
+            const qs = [];
+            const verbKeys = ["Cantar", "Falar", "Correr", "Vender", "Partir", "Dividir", "Pôr", "Fazer", "Ser", "Estar", "Ter"];
+            const tenses = ["Presente do Indicativo", "Pretérito Perfeito"];
+
+            const combos = [
+                { v: "Cantar", t: tenses[0], p: persons[0] }, { v: "Cantar", t: tenses[1], p: persons[3] },
+                { v: "Falar", t: tenses[0], p: persons[1] }, { v: "Falar", t: tenses[1], p: persons[4] },
+                { v: "Correr", t: tenses[0], p: persons[2] }, { v: "Correr", t: tenses[1], p: persons[5] },
+                { v: "Vender", t: tenses[0], p: persons[3] }, { v: "Vender", t: tenses[1], p: persons[0] },
+                { v: "Partir", t: tenses[0], p: persons[4] }, { v: "Partir", t: tenses[1], p: persons[1] },
+                { v: "Dividir", t: tenses[0], p: persons[5] }, { v: "Dividir", t: tenses[1], p: persons[2] },
+                { v: "Pôr", t: tenses[0], p: persons[0] }, { v: "Pôr", t: tenses[1], p: persons[3] },
+                { v: "Fazer", t: tenses[0], p: persons[1] }, { v: "Fazer", t: tenses[1], p: persons[4] },
+                { v: "Ser", t: tenses[0], p: persons[2] }, { v: "Ser", t: tenses[1], p: persons[5] },
+                { v: "Estar", t: tenses[0], p: persons[3] }, { v: "Estar", t: tenses[1], p: persons[0] },
+                { v: "Ter", t: tenses[0], p: persons[4] }, { v: "Ter", t: tenses[1], p: persons[1] },
+                { v: "Cantar", t: tenses[0], p: persons[5] }, { v: "Falar", t: tenses[1], p: persons[2] },
+                { v: "Correr", t: tenses[0], p: persons[1] }, { v: "Vender", t: tenses[1], p: persons[4] },
+                { v: "Partir", t: tenses[0], p: persons[2] }, { v: "Dividir", t: tenses[1], p: persons[5] },
+                { v: "Ser", t: tenses[0], p: persons[0] }, { v: "Ter", t: tenses[1], p: persons[3] },
+            ];
+
+            combos.forEach(combo => {
+                const answer = verbData[combo.v][combo.t][persons.indexOf(combo.p)].split(' ').pop().trim();
+                
+                // NOVO LAYOUT: Uso de DIVs internos para garantir que os blocos de informação não se misturem na renderização
+                const prompt = `
+                    <div style="margin-bottom: 10px;">Conjuga o verbo: <strong class="highlight">${combo.v.toUpperCase()}</strong></div>
+                    <div style="margin-bottom: 10px;">no tempo: <strong class="highlight">${combo.t}</strong></div>
+                    <div>Para a pessoa: <strong class="highlight">${combo.p.toUpperCase()}</strong></div>
+                `;
+                
+                qs.push({ type: 'conjugation', promptText: prompt, correctAnswer: answer });
+            });
+            return qs;
+        }
+
+        function generateConjugationGroupQuestions() {
+            const qs = [];
+            
+            conjugacaoVerbs.forEach(verb => {
+                let answer;
+                if (verb === 'Pôr') {
+                    answer = '2.ª'; 
+                } else if (verb.toLowerCase().endsWith('ar')) {
+                    answer = '1.ª';
+                } else if (verb.toLowerCase().endsWith('er')) {
+                    answer = '2.ª';
+                } else if (verb.toLowerCase().endsWith('ir')) {
+                    answer = '3.ª';
+                } else {
+                    answer = 'Não definido';
+                }
+
+                // NOVO LAYOUT
+                const prompt = `
+                    A que conjugação pertence o verbo?
+                    <div style="margin: 15px 0; font-size: 1.2em; border: 2px dashed var(--burton-red); padding: 5px 10px; border-radius: 5px;">
+                        <strong class="highlight">${verb.toUpperCase()}</strong>
+                    </div>
+                    (Ex: 1.ª, 2.ª ou 3.ª)
+                `;
+                
+                qs.push({ type: 'conjugation_group', promptText: prompt, correctAnswer: answer });
+            });
+            return qs;
+        }
+
+        // FUNÇÃO DE CLASSE (PRINCIPAL/AUXILIAR)
+        function generateVerbTypeQuestions() {
+            const qs = [];
+            
+            const contextualVerbTypeData = [
+                // Auxiliar
+                { sentence: "O gato [V] comido a ração.", verbForm: "tem", answer: "Auxiliar" },
+                { sentence: "Eles [V] chegado cedo.", verbForm: "tinham", answer: "Auxiliar" },
+                { sentence: "A carta [V] escrita por ela.", verbForm: "foi", answer: "Auxiliar" },
+                { sentence: "Nós [V] a construir um castelo.", verbForm: "estamos", answer: "Auxiliar" },
+                { sentence: "Acho que [V] de chover.", verbForm: "há", answer: "Auxiliar" },
+                { sentence: "Tu [V] visto o fantasma?", verbForm: "tens", answer: "Auxiliar" },
+                { sentence: "O chão [V] molhado pela chuva.", verbForm: "estava", answer: "Auxiliar" },
+                { sentence: "Eu [V] guardado os meus segredos.", verbForm: "tenho", answer: "Auxiliar" },
+                { sentence: "O monstro [V] fugido antes de eu chegar.", verbForm: "havia", answer: "Auxiliar" },
+                { sentence: "A porta [V] a ranger.", verbForm: "está", answer: "Auxiliar" },
+                { sentence: "Os alunos [V] falado sobre o filme.", verbForm: "têm", answer: "Auxiliar" },
+                { sentence: "Tu [V] a desenhar criaturas sombrias.", verbForm: "estavas", answer: "Auxiliar" },
+                { sentence: "O presente [V] oferecido ao Tim.", verbForm: "foi", answer: "Auxiliar" },
+                { sentence: "Nós [V] de encontrar o caminho.", verbForm: "haveremos", answer: "Auxiliar" },
+                { sentence: "Eles [V] feito a sua parte.", verbForm: "têm", answer: "Auxiliar" },
+                
+                // Principal
+                { sentence: "A casa [V] velha.", verbForm: "é", answer: "Principal" }, // Ser como copulativo
+                { sentence: "Eu [V] medo de palhaços.", verbForm: "tenho", answer: "Principal" }, // Ter como trans. direto
+                { sentence: "Eles [V] contentes.", verbForm: "estão", answer: "Principal" }, // Estar como copulativo
+                { sentence: "[V] pouca luz nesta cripta.", verbForm: "Há", answer: "Principal" }, // Haver como impessoal
+                { sentence: "A bruxa [V] na vassoura.", verbForm: "voa", answer: "Principal" },
+                { sentence: "Nós [V] a noz.", verbForm: "partimos", answer: "Principal" },
+                { sentence: "Eu [V] pelo cemitério.", verbForm: "corri", answer: "Principal" },
+                { sentence: "Eles [V] os bonecos.", verbForm: "fazem", answer: "Principal" },
+                { sentence: "O cão [V] no sofá.", verbForm: "dorme", answer: "Principal" },
+                { sentence: "Tu [V] a resposta?", verbForm: "sabes", answer: "Principal" },
+                { sentence: "O palácio [V] enorme.", verbForm: "é", answer: "Principal" },
+                { sentence: "Ele [V] três olhos.", verbForm: "tem", answer: "Principal" },
+                { sentence: "As flores [V] murchas.", verbForm: "estavam", answer: "Principal" },
+                { sentence: "O monstro [V] a maçã.", verbForm: "comeu", answer: "Principal" },
+                { sentence: "Eu [V] um beijo de boa noite.", verbForm: "dou", answer: "Principal" },
+            ];
+            
+            const highlightStart = '<strong class="highlight" style="text-decoration: underline;">';
+            const highlightEnd = '</strong>';
+
+            contextualVerbTypeData.forEach(item => {
+                // Encontra o placeholder [V] e substitui pelo verbo sublinhado e destacado
+                const sentenceWithHighlight = item.sentence.replace('[V]', highlightStart + item.verbForm + highlightEnd);
+                
+                // NOVO LAYOUT: Frase em DIV separado para centralização e clareza
+                const prompt = `
+                    Na frase, o verbo sublinhado é Principal ou Auxiliar?
+                    <div style="margin: 15px 0; font-size: 1.2em; border: 2px solid var(--burton-purple); padding: 10px; border-radius: 5px; background-color: var(--burton-dark); color: var(--burton-white);">
+                        Frase: "${sentenceWithHighlight}"
+                    </div>
+                    (Escreva 'Auxiliar' ou 'Principal')
+                `;
+                
+                qs.push({ 
+                    type: 'verb_type', 
+                    promptText: prompt, 
+                    correctAnswer: item.answer 
+                });
+            });
+
+            return qs.sort(() => Math.random() - 0.5);
+        }
+
+        function generateNonFiniteQuestions() {
+            const qs = [];
+            const verbKeys = ["Cantar", "Falar", "Correr", "Vender", "Partir", "Dividir", "Pôr", "Fazer", "Ser", "Estar", "Ter"];
+            
+            const forms = [];
+            for(let i=0; i<15; i++) forms.push('gerundio');
+            for(let i=0; i<15; i++) forms.push('participio');
+            forms.sort(() => Math.random() - 0.5); 
+
+            forms.forEach((form, index) => {
+                const verb = verbKeys[index % verbKeys.length];
+                let answer;
+                let formName;
+
+                if (form === 'gerundio') {
+                    answer = verbData[verb].gerundio;
+                    formName = 'Gerúndio';
+                } else {
+                    answer = verbData[verb].participio;
+                    formName = 'Particípio Passado';
+                }
+
+                // NOVO LAYOUT
+                const prompt = `
+                    Qual é o <strong class="highlight">${formName}</strong>
+                    <div style="margin: 15px 0; font-size: 1.2em;">
+                        do verbo: <strong class="highlight">${verb.toUpperCase()}</strong>
+                    </div>
+                `;
+                
+                qs.push({ type: 'non_finite', promptText: prompt, correctAnswer: answer });
+            });
+
+            return qs;
+        }
+
+        function buildQuestionPools() {
+            conjugationPool = generateConjugationQuestions().sort(() => Math.random() - 0.5);
+            conjGroupPool = generateConjugationGroupQuestions().sort(() => Math.random() - 0.5);
+            verbTypePool = generateVerbTypeQuestions();
+            nonFinitePool = generateNonFiniteQuestions(); 
+        }
+
+        // --- INICIALIZAÇÃO E AUTENTICAÇÃO ---
+
+        function initApp() {
+            buildQuestionPools();
+            
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.error("Configuração do Firebase não encontrada. A app será inicializada sem autenticação.");
+                showStartModal();
+            } else {
+                setLogLevel('debug');
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                initAuthProcess();
+            }
+            
+            // Configurar Listeners
+            document.getElementById('submit-btn').addEventListener('click', checkAnswer);
+            document.getElementById('next-btn').addEventListener('click', generateQuestion);
+            
+            document.getElementById('answer-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    if (!document.getElementById('submit-btn').disabled && document.getElementById('submit-btn').style.display !== 'none') {
+                        checkAnswer();
+                    } else if (document.getElementById('next-btn').style.display !== 'none') {
+                         document.getElementById('next-btn').click();
+                    }
+                }
+            });
+
+            // Iniciar o primeiro tópico por defeito
+            selectTopic('conjugation');
+        }
+        
+        async function initAuthProcess() {
+            if (!auth) {
+                console.warn("[AUTH] O Firebase Auth não está disponível. A aplicação funcionará offline.");
+                return;
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    console.log(`[AUTH] Utilizador autenticado: ${currentUserId}`);
+                    loadUserData(); // Tenta carregar dados após a autenticação
+                } else {
+                    console.log("[AUTH] Nenhum utilizador encontrado. Sign In Anónimo.");
+                }
+            });
+
+            // Autenticação inicial
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("[AUTH] Erro ao tentar sign-in:", error);
+                showStartModal();
+            }
+        }
+        
+        window.onload = initApp;
+    </script>
+    <style>
+        /* Importação das fontes para o efeito Burtoniano */
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Gothic+A1:wght@300;400;700&display=swap');
+
+        /* Cores Temáticas */
+        :root {
+            --burton-dark: #2c2c34;
+            --burton-purple: #6a0572;
+            --burton-grey: #8d8d8d;
+            --burton-light-grey: #e0e0e0;
+            --burton-white: #f8f8f8;
+            --burton-green: #38b000; /* Toque de Beetlejuice/Halloween */
+            --burton-blue: #0077b6;
+            --burton-red: #d00000;
+        }
+
+        body {
+            font-family: 'Gothic A1', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--burton-dark);
+            color: var(--burton-light-grey);
+            line-height: 1.6;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%233a3a46" stroke-width="2"/><path d="M10 50l40-40 40 40-40 40z" fill="none" stroke="%233a3a46" stroke-width="2"/></svg>');
+            background-size: 100px 100px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #3d3d45;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5), 0 0 0 5px var(--burton-purple);
+            border: 2px solid var(--burton-grey);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            background: linear-gradient(45deg, rgba(106, 5, 114, 0.1) 0%, rgba(56, 176, 0, 0.1) 100%);
+            z-index: -1;
+            border-radius: 20px;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Creepster', cursive; 
+            color: var(--burton-white);
+            text-align: center;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+            margin-bottom: 25px;
+            border-bottom: 2px dashed var(--burton-purple);
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: var(--burton-green);
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: var(--burton-blue);
+        }
+
+        h3 {
+            font-size: 2em;
+            color: var(--burton-red);
+            border-bottom: 1px dashed var(--burton-grey);
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+
+        h4 {
+            font-size: 1.5em;
+            color: var(--burton-light-grey);
+            margin-top: 20px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--burton-light-grey);
+        }
+
+        strong {
+            color: var(--burton-white);
+        }
+        
+        em {
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+            color: var(--burton-light-grey);
+        }
+
+        ul li::before {
+            content: '💀'; 
+            position: absolute;
+            left: 0;
+            color: var(--burton-green);
+        }
+
+        /* Tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #4a4a52;
+            border: 1px solid var(--burton-grey);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        th, td {
+            border: 1px solid var(--burton-dark);
+            padding: 12px;
+            text-align: left;
+            color: var(--burton-light-grey);
+        }
+
+        th {
+            background-color: var(--burton-purple);
+            color: var(--burton-white);
+            font-family: 'Gothic A1', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .note {
+            background-color: #35353d;
+            border-left: 5px solid var(--burton-green);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .note p {
+            margin: 0;
+            color: var(--burton-light-grey);
+        }
+        
+        /* Modal Inicial (Nome/Foto) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #3d3d45;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(106, 5, 114, 0.8);
+            max-width: 400px;
+            text-align: center;
+            border: 3px solid var(--burton-purple);
+            animation: modalPop 0.4s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .photo-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #photo-preview, #camera-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px dashed var(--burton-green);
+            margin-bottom: 15px;
+            display: none; /* Inicia oculto */
+        }
+        
+        #camera-preview {
+            border-style: solid;
+        }
+
+        #photo-canvas {
+            display: none;
+        }
+        
+        .modal-button {
+            background-color: var(--burton-green);
+            color: var(--burton-dark);
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        .modal-button:hover {
+            background-color: #4cd40a;
+        }
+
+        /* --- ESTILOS DE TABS --- */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            border-bottom: 2px solid var(--burton-grey);
+            gap: 5px;
+        }
+        
+        .tab-button {
+            background-color: var(--burton-grey);
+            color: var(--burton-dark);
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            font-family: 'Gothic A1', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        
+        .tab-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5; /* Mantém a opacidade baixa quando desativado */
+        }
+
+        .tab-button:hover {
+            background-color: var(--burton-purple);
+            color: var(--burton-white);
+            transform: translateY(-2px);
+        }
+        
+        .tab-button.active {
+            background-color: var(--burton-purple);
+            color: var(--burton-white);
+            border-bottom: 2px solid var(--burton-purple);
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background-color: #3d3d45;
+            border: 2px solid var(--burton-purple);
+            border-top: none;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.5s ease-out;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilo das Sub-Abas */
+        .sub-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            border-bottom: 1px dashed var(--burton-grey);
+            gap: 3px;
+        }
+
+        .sub-tab-button {
+            background-color: #55555f;
+            color: var(--burton-light-grey);
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 5px 5px 0 0;
+            font-weight: 700;
+        }
+        
+        .sub-tab-button:hover {
+            background-color: var(--burton-blue);
+            color: var(--burton-white);
+        }
+        
+        .sub-tab-button.active {
+            background-color: var(--burton-blue);
+            color: var(--burton-white);
+            border-bottom: 3px solid var(--burton-green);
+        }
+        
+        .sub-tab-content {
+            padding: 20px 0;
+            display: none;
+        }
+
+        .sub-tab-content.active {
+            display: block;
+        }
+
+        /* Estilo da Tabela de Conjugação */
+        .conjugation-table {
+            border: 2px solid var(--burton-blue);
+        }
+        
+        .conjugation-table th.mode-header {
+            background-color: var(--burton-red);
+            text-align: center;
+        }
+
+        .conjugation-table th.time-header {
+            background-color: var(--burton-blue);
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        .conjugation-table td {
+            text-align: center;
+        }
+        
+        .conjugation-table td:first-child {
+             text-align: left;
+             font-weight: bold;
+             background-color: #35353d;
+        }
+        
+        /* Classe de Destaque */
+        strong.highlight {
+            color: var(--burton-green);
+            font-weight: bold;
+        }
+
+        /* --- ESTILOS ESPECÍFICOS DA ZONA DE TREINO --- */
+        .topic-selection-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #35353d;
+            border-radius: 10px;
+            border: 1px solid var(--burton-grey);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .topic-button {
+            padding: 10px 15px;
+            border: 2px solid var(--burton-purple);
+            border-radius: 8px;
+            background-color: var(--burton-dark);
+            color: var(--burton-light-grey);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            flex-grow: 1;
+            min-width: 180px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .topic-button:hover {
+            background-color: #3a3a46;
+            color: var(--burton-white);
+        }
+
+        .topic-button.active-topic {
+            background-color: var(--burton-purple);
+            border-color: var(--burton-white);
+            color: var(--burton-white);
+            box-shadow: 0 0 10px var(--burton-purple);
+        }
+
+        .topic-button.completed-topic {
+            background-color: var(--burton-green);
+            border-color: var(--burton-white);
+            color: var(--burton-dark);
+            box-shadow: 0 0 10px var(--burton-green);
+            /* Adicionar um ícone de "concluído" */
+        }
+        
+        .topic-button.completed-topic::after {
+            content: ' ✓';
+            font-size: 1.2em;
+            font-weight: 900;
+        }
+
+        .score-box {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #4a4a52;
+            border: 2px dashed var(--burton-blue);
+            border-radius: 10px;
+        }
+
+        .score-header {
+            font-family: 'Creepster', cursive;
+            font-size: 1.8em;
+            color: var(--burton-green);
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-family: 'Creepster', cursive;
+            font-size: 3em;
+            color: var(--burton-white);
+            line-height: 1;
+        }
+
+        .progress-bar-container {
+            height: 20px;
+            background-color: var(--burton-dark);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            border: 1px solid var(--burton-grey);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--burton-purple);
+            transition: width 0.5s ease-in-out, background-color 0.3s;
+        }
+
+        .bg-burton-green-bg {
+            background-color: var(--burton-green) !important;
+        }
+        
+        .quiz-area {
+            background-color: #35353d;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid var(--burton-red);
+        }
+
+        #question-prompt {
+            font-family: 'Gothic A1', sans-serif;
+            font-size: 1.3em;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--burton-dark);
+            border-radius: 8px;
+            border-left: 5px solid var(--burton-purple);
+            min-height: 100px; /* Aumentado para acomodar 3 DIVs em blocos */
+            display: flex;
+            flex-direction: column; /* Usar coluna para empilhar os DIVs */
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+            color: var(--burton-light-grey);
+        }
+        
+        #question-counter {
+            text-align: center;
+            font-weight: bold;
+            color: var(--burton-grey);
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .quiz-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--burton-grey);
+            border-radius: 8px;
+            background-color: var(--burton-dark);
+            color: var(--burton-white);
+            font-size: 1.1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .quiz-input::placeholder {
+            color: var(--burton-grey);
+        }
+
+        .quiz-input:focus {
+            border-color: var(--burton-green);
+            box-shadow: 0 0 10px rgba(56, 176, 0, 0.5);
+        }
+        
+        .quiz-input.input-error {
+            border-color: var(--burton-red) !important;
+            box-shadow: 0 0 10px rgba(208, 0, 0, 0.8) !important;
+        }
+
+        .quiz-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4);
+            margin-top: 10px;
+            font-family: 'Gothic A1', sans-serif;
+        }
+
+        .submit-btn {
+            background-color: var(--burton-purple);
+            color: var(--burton-white);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background-color: #8b0a97;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background-color: #55555f;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .next-btn {
+            background-color: var(--burton-green);
+            color: var(--burton-dark);
+        }
+        
+        .next-btn:hover:not(:disabled) {
+            background-color: #4cd40a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .feedback-text {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-top: 15px;
+        }
+
+        .feedback-correct {
+            color: var(--burton-green);
+        }
+
+        .feedback-incorrect {
+            color: var(--burton-red);
+        }
+
+        .feedback-success {
+            font-family: 'Creepster', cursive;
+            font-size: 2em;
+            color: var(--burton-green);
+            line-height: 1.2;
+            height: auto;
+            flex-direction: column;
+        }
+
+        .feedback-success-sub {
+            font-family: 'Gothic A1', sans-serif;
+            font-size: 0.9em;
+            color: var(--burton-light-grey);
+            margin-top: 0;
+            font-weight: normal;
+        }
+
+
+        /* --- ESTILOS DO CERTIFICADO (APENAS IMPRESSÃO) --- */
+        #certificate-display {
+            padding: 50px;
+            background-color: var(--burton-light-grey);
+            color: var(--burton-dark);
+            border: 10px solid var(--burton-purple);
+            border-radius: 15px;
+            margin: 30px auto;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            font-family: 'Gothic A1', sans-serif;
+            text-align: center;
+        }
+
+        .cert-header {
+            font-family: 'Creepster', cursive;
+            font-size: 3em;
+            color: var(--burton-red);
+            margin-bottom: 10px;
+            border-bottom: 3px double var(--burton-dark);
+            padding-bottom: 5px;
+        }
+
+        .cert-title {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            color: var(--burton-dark);
+        }
+
+        .cert-recipient {
+            font-family: 'Creepster', cursive;
+            font-size: 4em;
+            color: var(--burton-purple);
+            margin: 20px 0;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .cert-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--burton-green);
+            margin-bottom: 20px;
+        }
+
+        .cert-footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            border-top: 1px solid var(--burton-dark);
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        /* Ocultar elementos da app na impressão (apenas mostrar o certificado) */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #certificate-print-area, #certificate-print-area * {
+                visibility: visible;
+            }
+            #certificate-print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: white;
+            }
+            /* Hide the body scrollbar */
+            body {
+                overflow: hidden;
+            }
+            #certificate-display {
+                width: 100%;
+                max-width: none;
+                height: 100%;
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MODAL INICIAL (Nome e Foto) -->
+    <div id="start-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Bem-vindo à mansão dos Verbos!</h2>
+            <p>Para começarmos o treino, preciso de saber o teu nome.</p>
+            <input type="text" id="name-input" placeholder="O teu nome de mestre..." class="quiz-input" style="margin-bottom: 15px;">
+            
+            <div class="photo-area">
+                <canvas id="photo-canvas" style="display: none;"></canvas>
+                <img id="photo-preview" src="" alt="Foto de Perfil" style="display: none;">
+                <video id="camera-preview" autoplay style="display: none;"></video>
+                <p id="photo-message" style="font-size: 0.8em; color: var(--burton-grey); margin-bottom: 10px;">Opcional: Tira uma foto para o teu certificado!</p>
+                
+                <button id="camera-btn" class="modal-button" onclick="startCamera()">📷 Ligar Câmara</button>
+                <button id="take-photo-btn" class="modal-button" onclick="takePhoto()" style="display: none;">📸 Tirar Foto</button>
+            </div>
+            
+            <button class="modal-button submit-btn" onclick="captureName()">Avançar para o Treino!</button>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL DA APP -->
+    <div id="app-container" class="container">
+        
+        <h1>O Verbo Mágico de Tim Burton</h1>
+        
+        <!-- Abas de Navegação -->
+        <div class="tabs">
+            <button class="tab-button" onclick="openTab(event, 'introducao')">Introdução ao Verbo</button>
+            <button class="tab-button" onclick="openTab(event, 'subclasses')">Subclasses</button>
+            <button class="tab-button" onclick="openTab(event, 'conjugacoes')">Conjugações & Regularidade</button>
+            <button class="tab-button" onclick="openTab(event, 'modos-tempos')">Modos e Tempos</button>
+            <button class="tab-button" onclick="openTab(event, 'formas-nao-finitas')">Formas Não Finitas</button>
+            <button class="tab-button" onclick="openTab(event, 'conjugacao-completa')">Conjugação Completa</button>
+            <button class="tab-button" onclick="openTab(event, 'treino')">Zona de Treino (Prática)</button>
+            <button class="tab-button" onclick="openTab(event, 'certificado')">Certificado de Mestre</button>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 1: INTRODUÇÃO (mantida) -->
+        <div id="introducao" class="tab-content active">
+            <h2>O que é um Verbo?</h2>
+            <p>O verbo é a palavra mágica que nos permite descrever o que acontece no mundo sombrio e maravilhoso da língua portuguesa!</p>
+            <ul>
+                <li>Exprime <strong>ações</strong>: O gato <strong class="highlight">ronrona</strong> baixinho.</li>
+                <li>Exprime <strong>acontecimentos</strong>: Lá fora, <strong class="highlight">chove</strong> a cântaros.</li>
+                <li>Exprime <strong>estados</strong>: O gato <strong class="highlight">está</strong> muito tranquilo.</li>
+            </ul>
+            <p>Lembra-te: o verbo é uma palavra <strong>variável</strong>. Isso significa que ele se transforma para nos dar informações sobre quem faz, quando faz e como faz!</p>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 2: SUBCLASSES (mantida) -->
+        <div id="subclasses" class="tab-content">
+            <h2>Subclasses do Verbo: Os Ajudantes e os Chefes</h2>
+            <p>Os verbos podem ser como os personagens de um filme: uns são os heróis principais e outros são os seus fiéis ajudantes!</p>
+            
+            <div class="sub-tabs">
+                <button class="sub-tab-button active" onclick="openSubTab(event, 'verbo-principal')">Verbo Principal</button>
+                <button class="sub-tab-button" onclick="openSubTab(event, 'verbo-auxiliar')">Verbo Auxiliar</button>
+            </div>
+            
+            <div id="verbo-principal" class="sub-tab-content active">
+                <h3>Verbos Principais (O Centro das Atenções)</h3>
+                <p>São aqueles que têm um significado completo e conseguem exprimir a ação, o estado ou o acontecimento <strong>sozinhos</strong>.</p>
+                <ul>
+                    <li>Ex: Eu <strong class="highlight">canto</strong> uma canção de ninar.</li>
+                    <li>Ex: Eles <strong class="highlight">comeram</strong> toda a abóbora.</li>
+                </ul>
+            </div>
+            
+            <div id="verbo-auxiliar" class="sub-tab-content">
+                <h3>Verbos Auxiliares (Os Ajudantes)</h3>
+                <p>São verbos que perdem o seu significado original e apenas servem para ajudar um Verbo Principal a formar os <strong>Tempos Compostos</strong> ou a <strong>Voz Passiva</strong>.</p>
+                <h4>Os Auxiliares Mágicos (Ter e Haver):</h4>
+                <p>Usados para formar os <strong>Tempos Compostos</strong> (duas formas verbais, como em 'tenho cantado').</p>
+                <ul>
+                    <li>Ex: A bruxa <strong class="highlight">tinha misturado</strong> o veneno.</li>
+                    <li>Ex: Eu <strong class="highlight">hei de fazer</strong> uma poção.</li>
+                </ul>
+                <h4>O Auxiliar do Estado (Ser e Estar):</h4>
+                <p>Usados para formar a <strong>Voz Passiva</strong> (o sujeito não pratica, mas sofre a ação).</p>
+                <ul>
+                    <li>Ex: O quadro <strong class="highlight">foi pintado</strong> pelo artista (Voz Passiva).</li>
+                    <li>*Nota: O verbo <strong>Ser</strong> também pode ser principal quando exprime um estado ou qualidade: "O Tim <strong class="highlight">é</strong> estranho".</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 3: CONJUGAÇÕES E REGULARIDADE (mantida) -->
+        <div id="conjugacoes" class="tab-content">
+            <h2>Conjugação e Irregularidade: As Famílias e os Rebeldes</h2>
+
+            <h3>As 3 Conjugações: As Famílias de Verbos</h3>
+            <p>Os verbos são divididos em três grandes famílias, de acordo com a sua terminação no <strong>Infinitivo</strong> (o nome do verbo, como se encontra no dicionário).</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Conjugação</th>
+                        <th>Terminação</th>
+                        <th>Exemplos Sombrios</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1.ª Conjugação</strong></td>
+                        <td>Verbos terminados em <strong>-ar</strong></td>
+                        <td>cantar, falar, amar, <strong class="highlight">assombrar</strong>...</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2.ª Conjugação</strong></td>
+                        <td>Verbos terminados em <strong>-er</strong></td>
+                        <td>correr, ver, sofrer, <strong class="highlight">chover</strong>...</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3.ª Conjugação</strong></td>
+                        <td>Verbos terminados em <strong>-ir</strong></td>
+                        <td>ouvir, sorrir, partir, <strong class="highlight">surgir</strong>...</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note">
+                <p><strong>Nota Sombria:</strong> O verbo <strong class="highlight">pôr</strong> e os verbos da sua família (repor, depor, impor, expor...) pertencem à 2.ª conjugação, devido à sua origem latina (<em>ponere</em>).</p>
+            </div>
+
+            <h3>Verbos Regulares e Irregulares: Comportamentos Estranhos</h3>
+            <p>A forma que identifica o verbo é o <strong>infinitivo</strong>. Ao retirar a terminação (<em>-ar, -er, -ir</em>), ficamos com o <strong>radical</strong>.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Verbo Regular (Comportamento Previsível)</th>
+                        <th>Verbo Irregular (Comportamento Inesperado)</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        <tr>
+                            <td>O <strong>radical</strong> <strong class="highlight">mantém-se igual</strong> em todas as formas.</td>
+                            <td>O <strong>radical</strong> <strong class="highlight">não se mantém igual</strong> em todas as formas.</td>
+                        </tr>
+                        <tr>
+                            <td><p>Exemplo: <strong>Pensar</strong> (radical: **pens**)</p>
+                                <ul>
+                                    <li>Eu <strong class="highlight">pens</strong>o</li>
+                                    <li>Tu <strong class="highlight">pens</strong>aste</li>
+                                    <li>Eu <strong class="highlight">pens</strong>ava</li>
+                                </ul>
+                            </td>
+                            <td><p>Exemplo: <strong>Fazer</strong> (radical muda)</p>
+                                <ul>
+                                    <li>Eu <strong class="highlight">faç</strong>o</li>
+                                    <li>Eu <strong class="highlight">fiz</strong></li>
+                                    <li>Eu <strong class="highlight">faz</strong>ia</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 4: MODOS E TEMPOS (mantida) -->
+        <div id="modos-tempos" class="tab-content">
+            <h2>Modos e Tempos: As Dimensões do Verbo</h2>
+            <p>O verbo muda para nos dizer não só <em>quando</em>, mas também <em>como</em> a ação acontece!</p>
+
+            <div class="sub-tabs">
+                <button class="sub-tab-button active" onclick="openSubTab(event, 'variacao-modo')">Variação em Modo</button>
+                <button class="sub-tab-button" onclick="openSubTab(event, 'variacao-tempo')">Variação em Tempo</button>
+            </div>
+
+            <div id="variacao-modo" class="sub-tab-content active">
+                <h3>Os 3 Modos Verbais (Como a Ação se Apresenta):</h3>
+                <ul>
+                    <li><strong>Modo Indicativo</strong>: O modo da certeza, da realidade. A ação é apresentada como certa e real.
+                        <ul><li>Ex: Ele <strong class="highlight">está</strong> no castelo.</li></ul>
+                    </li>
+                    <li><strong>Modo Conjuntivo (ou Subjuntivo)</strong>: O modo da dúvida, da incerteza, do desejo. Ação é apresentada como possível.
+                        <ul><li>Ex: Talvez ele <strong class="highlight">esteja</strong> no castelo.</li></ul>
+                    </li>
+                    <li><strong>Modo Imperativo</strong>: O modo da ordem, do pedido, da proibição.
+                        <ul><li>Ex: <strong class="highlight">Vem</strong> para o castelo!</li></ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="variacao-tempo" class="sub-tab-content">
+                <h3>Tempos Verbais (Quando a Ação Acontece):</h3>
+                <p>Os tempos indicam se a ação se realiza no <strong>Presente</strong>, no <strong>Passado (Pretérito)</strong> ou no <strong>Futuro</strong>.</p>
+                
+                <h4>Tempos Simples e Compostos:</h4>
+                <ul>
+                    <li><strong>Tempos Simples</strong>: Formados por <strong class="highlight">uma só forma verbal</strong>.
+                        <ul><li>Ex: Eu <strong class="highlight">coloquei</strong> as chaves em cima da mesa (Pretérito Perfeito).</li></ul>
+                    </li>
+                    <li><strong>Tempos Compostos</strong>: Formados por <strong class="highlight">duas formas verbais</strong>: um verbo auxiliar (ter ou haver) e o verbo principal no particípio passado.
+                        <ul><li>Ex: <strong class="highlight">Tinha colocado</strong> as chaves em cima da mesa (Pretérito Mais-que-Perfeito Composto).</li></ul>
+                    </li>
+                </ul>
+                <div class="note">
+                    <p><strong>A Dupla Face do Pretérito Mais-Que-Perfeito (Passado antes de outro Passado):</strong></p>
+                    <ul>
+                        <li><strong class="highlight">Forma Simples:</strong> Ele <strong class="highlight">colocara</strong> as chaves. (Uma só palavra)</li>
+                        <li><strong class="highlight">Forma Composta:</strong> Ele <strong class="highlight">tinha colocado</strong> as chaves. (Duas palavras: auxiliar + particípio)</li>
+                    </ul>
+                </div>
+                <h4>Tabela de Tempos Principais (do verbo "pensar"):</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Presente</th>
+                            <th colspan="3">Pretérito (Passado)</th>
+                            <th>Futuro</th>
+                        </tr>
+                        <tr>
+                            <td>(agora)</td>
+                            <td>Perfeito (ontem, acabado)</td>
+                            <td>Imperfeito (antigamente, não acabado)</td>
+                            <td>Mais-que-perfeito (antes de outro passado)</td>
+                            <td>(amanhã)</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong class="highlight">penso</strong></td>
+                            <td><strong class="highlight">pensei</strong></td>
+                            <td><strong class="highlight">pensava</strong></td>
+                            <td><strong class="highlight">tinha pensado</strong></td>
+                            <td><strong class="highlight">pensarei</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 5: FORMAS NÃO FINITAS (mantida) -->
+        <div id="formas-nao-finitas" class="tab-content">
+            <h2>Formas Verbais Não Finitas: O Verbo sem Hora Marcada</h2>
+            <p>Nem todas as formas do verbo se preocupam com a pessoa, o número ou o tempo!</p>
+
+            <h3>Formas Finitas:</h3>
+            <ul>
+                <li>Variam em <strong class="highlight">tempo, pessoa e número</strong>.</li>
+                <li>São todas as formas dos modos Indicativo e Imperativo.</li>
+            </ul>
+
+            <h3>Formas Não Finitas:</h3>
+            <ul>
+                <li><strong class="highlight">Não variam</strong> em tempo, pessoa e número. São as formas mais "livres" do verbo.</li>
+            </ul>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Forma Não Finita</th>
+                        <th>Função</th>
+                        <th>Exemplos (1.ª, 2.ª, 3.ª Conjugação)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Infinitivo</strong></td>
+                        <td>Nome da ação, como um título.</td>
+                        <td><strong class="highlight">pensar</strong>, <strong class="highlight">ler</strong>, <strong class="highlight">sorrir</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gerúndio</strong></td>
+                        <td>Ação em curso, a acontecer.</td>
+                        <td><strong class="highlight">pensando</strong>, <strong class="highlight">lendo</strong>, <strong class="highlight">sorrindo</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Particípio Passado</strong></td>
+                        <td>Ação já acabada; forma os tempos compostos.</td>
+                        <td><strong class="highlight">pensado</strong>, <strong class="highlight">lido</strong>, <strong class="highlight">sorrido</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 6: CONJUGAÇÃO COMPLETA (mantida) -->
+        <div id="conjugacao-completa" class="tab-content">
+            <h2>Conjugação Completa: Mergulhando nas Sombras do Verbo</h2>
+            <p>Consulta aqui a conjugação completa dos verbos principais de cada conjugação no <strong>Modo Indicativo</strong> e nas <strong>Formas Não Finitas</strong>.</p>
+
+            <div class="sub-tabs">
+                <button class="sub-tab-button" onclick="openSubTab(event, 'conj-cantar')">1.ª Conjugação (Cantar)</button>
+                <button class="sub-tab-button" onclick="openSubTab(event, 'conj-correr')">2.ª Conjugação (Correr)</button>
+                <button class="sub-tab-button" onclick="openSubTab(event, 'conj-partir')">3.ª Conjugação (Partir)</button>
+            </div>
+            
+            <!-- 1.ª CONJUGAÇÃO: CANTAR -->
+            <div id="conj-cantar" class="sub-tab-content">
+                <h3>Verbo: <strong class="highlight">CANTAR</strong> (1.ª Conjugação)</h3>
+                <table class="conjugation-table">
+                    <thead>
+                        <tr>
+                            <th>Pessoa</th>
+                            <th class="mode-header" colspan="6">Modo Indicativo</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th class="time-header">Presente</th>
+                            <th class="time-header">Pretérito Perfeito</th>
+                            <th class="time-header">Pretérito Imperfeito</th>
+                            <th class="time-header">Pretérito Mais-Que-Perfeito Simples</th>
+                            <th class="time-header">Pretérito Mais-Que-Perfeito Composto</th>
+                            <th class="time-header">Futuro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Eu</td><td>canto</td><td>cantei</td><td>cantava</td><td>cantara</td><td>tinha cantado</td><td>cantarei</td></tr>
+                        <tr><td>Tu</td><td>cantas</td><td>cantaste</td><td>cantavas</td><td>cantaras</td><td>tinhas cantado</td><td>cantarás</td></tr>
+                        <tr><td>Ele/Ela/Você</td><td>canta</td><td>cantou</td><td>cantava</td><td>cantara</td><td>tinha cantado</td><td>cantará</td></tr>
+                        <tr><td>Nós</td><td>cantamos</td><td>cantámos</td><td>cantávamos</td><td>cantáramos</td><td>tínhamos cantado</td><td>cantaremos</td></tr>
+                        <tr><td>Vós</td><td>cantais</td><td>cantastes</td><td>cantáveis</td><td>cantáreis</td><td>tínheis cantado</td><td>cantareis</td></tr>
+                        <tr><td>Eles/Elas/Vocês</td><td>cantam</td><td>cantaram</td><td>cantavam</td><td>cantaram</td><td>tinham cantado</td><td>cantarão</td></tr>
+                    </tbody>
+                </table>
+                <h4>Modo Imperativo:</h4>
+                <table>
+                    <thead><tr><th></th><th>Formas</th></tr></thead>
+                    <tbody>
+                        <tr><td>Tu</td><td>canta</td></tr>
+                        <tr><td>Vós</td><td>cantai</td></tr>
+                    </tbody>
+                </table>
+                <h4>Formas Não Finitas:</h4>
+                <table>
+                    <thead><tr><th>Infinitivo</th><th>Particípio Passado</th><th>Gerúndio</th></tr></thead>
+                    <tbody>
+                        <tr><td>cantar</td><td>cantado</td><td>cantando</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 2.ª CONJUGAÇÃO: CORRER -->
+            <div id="conj-correr" class="sub-tab-content">
+                <h3>Verbo: <strong class="highlight">CORRER</strong> (2.ª Conjugação)</h3>
+                <table class="conjugation-table">
+                    <thead>
+                        <tr>
+                            <th>Pessoa</th>
+                            <th class="mode-header" colspan="6">Modo Indicativo</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th class="time-header">Presente</th>
+                            <th class="time-header">Pretérito Perfeito</th>
+                            <th class="time-header">Pretérito Imperfeito</th>
+                            <th class="time-header">Pretérito Mais-Que-Perfeito Simples</th>
+                            <th class="time-header">Pretérito Mais-Que-Perfeito Composto</th>
+                            <th class="time-header">Futuro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Eu</td><td>corro</td><td>corri</td><td>corria</td><td>correra</td><td>tinha corrido</td><td>correrei</td></tr>
+                        <tr><td>Tu</td><td>corres</td><td>correste</td><td>corrias</td><td>correras</td><td>tinhas corrido</td><td>correrás</td></tr>
+                        <tr><td>Ele/Ela/Você</td><td>corre</td><td>correu</td><td>corria</td><td>correra</td><td>tinha corrido</td><td>correrá</td></tr>
+                        <tr><td>Nós</td><td>corremos</td><td>corremos</td><td>corríamos</td><td>corrêramos</td><td>tínhamos corrido</td><td>correremos</td></tr>
+                        <tr><td>Vós</td><td>correis</td><td>correstes</td><td>corríeis</td><td>corrêreis</td><td>tínheis corrido</td><td>correreis</td></tr>
+                        <tr><td>Eles/Elas/Vocês</td><td>correm</td><td>correram</td><td>corriam</td><td>correram</td><td>tinham corrido</td><td>correrão</td></tr>
+                    </tbody>
+                </table>
+                <h4>Modo Imperativo:</h4>
+                <table>
+                    <thead><tr><th></th><th>Formas</th></tr></thead>
+                    <tbody>
+                        <tr><td>Tu</td><td>corre</td></tr>
+                        <tr><td>Vós</td><td>correi</td></tr>
+                    </tbody>
+                </table>
+                <h4>Formas Não Finitas:</h4>
+                <table>
+                    <thead><tr><th>Infinitivo</th><th>Particípio Passado</th><th>Gerúndio</th></tr></thead>
+                    <tbody>
+                        <tr><td>correr</td><td>corrido</td><td>correndo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 3.ª CONJUGAÇÃO: PARTIR -->
+            <div id="conj-partir" class="sub-tab-content">
+                <h3>Verbo: <strong class="highlight">PARTIR</strong> (3.ª Conjugação)</h3>
+                <table class="conjugation-table">
+                    <thead>
+                        <tr>
+                            <th>Pessoa</th>
+                            <th class="mode-header" colspan="6">Modo Indicativo</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th class="time-header">Presente</th>
+                            <th class="time-header">Pretérito Perfeito</th>
+                            <th class="time-header">Pretérito Imperfeito</th>
+                            <th class="time-header">Pretérito Mais-Que-Perfeito Simples</th>
+                            <th class="time-header">Pretérito Mais-Que-Perfeito Composto</th>
+                            <th class="time-header">Futuro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Eu</td><td>parto</td><td>parti</td><td>partia</td><td>partira</td><td>tinha partido</td><td>partirei</td></tr>
+                        <tr><td>Tu</td><td>partes</td><td>partiste</td><td>partias</td><td>partiras</td><td>tinhas partido</td><td>partirás</td></tr>
+                        <tr><td>Ele/Ela/Você</td><td>parte</td><td>partiu</td><td>partia</td><td>partira</td><td>tinha partido</td><td>partirá</td></tr>
+                        <tr><td>Nós</td><td>partimos</td><td>partimos</td><td>partíamos</td><td>partíramos</td><td>tínhamos partido</td><td>partiremos</td></tr>
+                        <tr><td>Vós</td><td>partis</td><td>partistes</td><td>partíeis</td><td>partíreis</td><td>tínheis partido</td><td>partireis</td></tr>
+                        <tr><td>Eles/Elas/Vocês</td><td>partem</td><td>partiram</td><td>partiam</td><td>partiram</td><td>tinham partido</td><td>partirão</td></tr>
+                    </tbody>
+                </table>
+                <h4>Modo Imperativo:</h4>
+                <table>
+                    <thead><tr><th></th><th>Formas</th></tr></thead>
+                    <tbody>
+                        <tr><td>Tu</td><td>parte</td></tr>
+                        <tr><td>Vós</td><td>parti</td></tr>
+                    </tbody>
+                </table>
+                <h4>Formas Não Finitas:</h4>
+                <table>
+                    <thead><tr><th>Infinitivo</th><th>Particípio Passado</th><th>Gerúndio</th></tr></thead>
+                    <tbody>
+                        <tr><td>partir</td><td>partido</td><td>partindo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 7: ZONA DE TREINO -->
+        <div id="treino" class="tab-content">
+            <h2>Zona de Treino: Prova o teu Conhecimento!</h2>
+            <p>Acumula 100 pontos em cada tópico para te tornares um Mestre dos Verbos!</p>
+            
+            <!-- Seleção de Tópico -->
+            <div class="topic-selection-area">
+                <button id="topic-conjugation" class="topic-button" onclick="selectTopic('conjugation')">Conjugação Verbal</button>
+                <button id="topic-conjugation_group" class="topic-button" onclick="selectTopic('conjugation_group')">Grupo de Conjugação</button>
+                <button id="topic-verb_type" class="topic-button" onclick="selectTopic('verb_type')">Verbo Principal/Auxiliar</button>
+                <button id="topic-non_finite" class="topic-button" onclick="selectTopic('non_finite')">Formas Não Finitas</button>
+            </div>
+            
+            <!-- Display de Score e Progresso -->
+            <div class="score-box">
+                <div style="display: flex; justify-content: space-around; width: 100%;">
+                    <div>
+                        <div class="score-header">Pontuação Atual</div>
+                        <div class="score-value" id="score-current">0</div>
+                    </div>
+                    <div>
+                        <div class="score-header">Tentativas Totais</div>
+                        <div class="score-value" id="score-total-attempts">0</div>
+                    </div>
+                    <div>
+                        <div class="score-header">Estado do Tópico</div>
+                        <div class="score-value" id="score-completion-status">0%</div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="score-progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- Área do Quiz -->
+            <div class="quiz-area">
+                <div id="question-counter">Tópico: A carregar | Pergunta 0 de 0</div>
+                <!-- Pergunta -->
+                <div id="question-prompt"> A carregar pergunta... </div>
+
+                <!-- Formulário de Resposta -->
+                <div class="mb-4">
+                    <input type="text" id="answer-input" placeholder="Escreva a resposta aqui..." class="quiz-input">
+                    <button id="submit-btn" class="quiz-button submit-btn"> Verificar Resposta </button>
+
+                    <!-- Mensagem de Resultado -->
+                    <div id="result-feedback" class="feedback-text">
+                        <!-- Feedback aparece aqui -->
+                    </div>
+                    
+                    <button id="next-btn" class="quiz-button next-btn" style="display: none;"> Próxima Pergunta </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO DA ABA 8: CERTIFICADO -->
+        <div id="certificado" class="tab-content">
+            <h2>Certificado de Mestre dos Verbos</h2>
+            <p id="cert-message" style="text-align: center; color: var(--burton-green);"> Completa todos os 4 tópicos para desbloqueares o teu certificado e seres nomeado Mestre dos Verbos! </p>
+
+            <div id="certificate-template" style="display: flex; justify-content: center;">
+                <div id="certificate-display" style="border: 5px solid var(--burton-green); padding: 40px; border-radius: 10px; background-color: #f0f0f0; color: #333; max-width: 600px;">
+                    <div class="cert-header" style="color: var(--burton-purple);">O Verbo Mágico de Tim Burton</div>
+                    <div class="cert-title" style="color: var(--burton-dark);">Certificado de Conclusão</div>
+                    
+                    <p style="font-size: 1.1em; color: var(--burton-dark);">É com grande satisfação que declaramos que</p>
+                    
+                    <img id="cert-photo-display" class="cert-photo" src="" alt="Foto do Mestre" style="display: none;">
+                    
+                    <div class="cert-recipient" id="certificate-name-display" style="color: var(--burton-red);">[Nome do Aluno]</div>
+                    
+                    <p style="font-size: 1.2em; color: var(--burton-dark); font-weight: bold;">Completou com Sucesso o Desafio:</p>
+                    <p style="font-family: 'Creepster', cursive; font-size: 2.5em; color: var(--burton-blue); margin-top: 5px;">Mestre dos Verbos</p>
+                    
+                    <p style="font-size: 0.9em; margin-top: 30px;">Por demonstrar proficiência nas 4 classes de verbos da 5.ª Classe: Conjugação, Grupo de Conjugação, Classe e Formas Não Finitas.</p>
+                    
+                    <div class="cert-footer">
+                        <span>Data: <span id="cert-date-display"></span></span>
+                        <span>Assinatura do Mestre: ____________________</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="generate-cert-btn" class="quiz-button next-btn" style="margin-top: 30px;" onclick="generateCertificate()">Imprimir/Guardar Certificado</button>
+
+        </div>
+        
+        <!-- FIM DOS CONTEÚDOS DAS ABAS -->
+
+        <!-- Código para as abas (mantido no final para fácil leitura/separação) -->
+        <script>
+            // Função para abrir as abas principais
+            function openTab(evt, tabName) {
+                var i, tabContent, tabLinks;
+                
+                tabContent = document.getElementsByClassName("tab-content");
+                for (i = 0; i < tabContent.length; i++) {
+                    tabContent[i].style.display = "none";
+                    tabContent[i].classList.remove("active");
+                }
+                
+                tabLinks = document.getElementsByClassName("tab-button");
+                for (i = 0; i < tabLinks.length; i++) {
+                    tabLinks[i].classList.remove("active");
+                }
+                
+                document.getElementById(tabName).style.display = "block";
+                document.getElementById(tabName).classList.add("active");
+                evt.currentTarget.classList.add("active");
+
+                // Ações especiais ao abrir certas abas
+                if (tabName === 'certificado') {
+                    // VERIFICAÇÃO SE topicKeys ESTÁ DEFINIDO GLOBALMENTE (SE NÃO, DEVE FALHAR)
+                    // MAS COMO AGORA ESTÁ EM WINDOW, DEVE FUNCIONAR.
+                    if (typeof window.topicKeys !== 'undefined' && typeof window.topicProgress !== 'undefined') {
+                        const allCompleted = window.topicKeys.every(topic => window.topicProgress[topic]);
+                        document.getElementById('cert-date-display').textContent = new Date().toLocaleDateString('pt-PT');
+                        
+                        // **CORREÇÃO:** Ativa o botão de impressão no certificado se todos os tópicos estiverem completos
+                        const certBtn = document.getElementById('generate-cert-btn');
+                        certBtn.disabled = !allCompleted;
+                        certBtn.style.opacity = allCompleted ? '1' : '0.5';
+
+                        document.getElementById('cert-message').textContent = allCompleted 
+                            ? 'Parabéns! Podes descarregar o teu Certificado.' 
+                            : 'Ainda não completaste todos os 4 tópicos! Volta quando fores um Mestre dos Verbos.';
+                    }
+                }
+
+                if (tabName === 'conjugacao-completa') {
+                    var firstSubTabButton = document.querySelector('#conjugacao-completa .sub-tab-button');
+                    if (firstSubTabButton && !firstSubTabButton.classList.contains('active')) {
+                        firstSubTabButton.click();
+                    }
+                }
+            }
+
+            // Função para abrir as sub-abas
+            function openSubTab(evt, subTabName) {
+                var i, subTabContent, subTabLinks;
+                
+                subTabContent = evt.currentTarget.closest('.tab-content').querySelectorAll('.sub-tab-content');
+                for (i = 0; i < subTabContent.length; i++) {
+                    subTabContent[i].style.display = "none";
+                    subTabContent[i].classList.remove("active");
+                }
+
+                subTabLinks = evt.currentTarget.closest('.sub-tabs').querySelectorAll('.sub-tab-button');
+                for (i = 0; i < subTabLinks.length; i++) {
+                    subTabLinks[i].classList.remove("active");
+                }
+
+                document.getElementById(subTabName).style.display = "block";
+                document.getElementById(subTabName).classList.add("active");
+                evt.currentTarget.classList.add("active");
+            }
+            
+            document.addEventListener("DOMContentLoaded", function() {
+                // Ativar a primeira sub-aba na introdução por defeito
+                var firstSubTabButton = document.querySelector('#subclasses .sub-tab-button');
+                if (firstSubTabButton) {
+                    firstSubTabButton.click();
+                }
+                // Ativar a primeira aba principal ao carregar a página
+                var firstMainTabButton = document.querySelector('.tabs .tab-button');
+                 if (firstMainTabButton) {
+                    firstMainTabButton.click();
+                }
+            });
+        </script>
+
+    </div>
+    
+    <!-- Area moved outside -->
+    <div id="certificate-print-area" style="display: none;">
+        <div id="certificate-display-print"></div>
+    </div>
+</body>
+</html>
