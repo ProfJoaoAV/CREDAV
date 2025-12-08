@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>O Verbo Mágico de Tim Burton (5º Ano)</title>
-    <!-- Importações do Firebase (necessárias para o funcionamento da Zona de Treino/Score) -->
+    
+    <!-- Lógica da Aplicação -->
     <script type="module">
+        // Importações do Firebase (mantidas para compatibilidade, mas com fallback robusto)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Variáveis globais de ambiente (fornecidas pelo sistema)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
         // Tenta ler a config, se falhar ou estiver vazia, usaremos LocalStorage
         let firebaseConfig = {};
         try {
@@ -20,7 +23,7 @@
         
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
-        // --- DADOS BASE PARA GERAÇÃO DAS 120 PERGUNTAS ---
+        // --- DADOS BASE PARA GERAÇÃO DAS PERGUNTAS ---
         const persons = ["eu", "tu", "ele/ela/você", "nós", "vós", "eles/elas/vocês"];
         const topicKeys = ['conjugation', 'conjugation_group', 'verb_type', 'non_finite'];
         
@@ -28,7 +31,6 @@
         window.topicKeys = topicKeys;
 
         const verbData = {
-            // Verbos Regulares e Irregulares de Alta Frequência
             "Cantar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["canto", "cantas", "canta", "cantamos", "cantais", "cantam"], "Pretérito Perfeito": ["cantei", "cantaste", "cantou", "cantamos", "cantastes", "cantaram"], gerundio: 'cantando', participio: 'cantado' },
             "Falar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["falo", "falas", "fala", "falamos", "falais", "falam"], "Pretérito Perfeito": ["falei", "falaste", "falou", "falamos", "falastes", "falaram"], gerundio: 'falando', participio: 'falado' },
             "Correr": { c: '2.ª', p: 'er', "Presente do Indicativo": ["corro", "corres", "corre", "corremos", "correis", "correm"], "Pretérito Perfeito": ["corri", "correste", "correu", "corremos", "correstes", "correram"], gerundio: 'correndo', participio: 'corrido' },
@@ -61,26 +63,26 @@
 
         let userName = '';
         let userPhotoBase64 = '';
-        let score = { currentTopicScore: 0, totalAttempts: 0 }; // Score atual do tópico
+        let score = { currentTopicScore: 0, totalAttempts: 0 }; 
         let topicProgress = { 
             conjugation: false, 
             conjugation_group: false, 
             verb_type: false, 
             non_finite: false 
-        }; // Progresso dos 4 tópicos
+        }; 
         
-        // Expor topicProgress para o escopo global
+        // Expor para o escopo global
         window.topicProgress = topicProgress;
         
         let currentQuestion = { type: null, promptText: null, correctAnswer: null };
         let currentQuestionIndex = 0;
-        let currentTopic = 'conjugation'; // Tópico inicial
+        let currentTopic = 'conjugation'; 
 
         let conjugationPool = [];
         let conjGroupPool = [];
         let verbTypePool = [];
         let nonFinitePool = [];
-        let selectedPool = []; // O pool atualmente ativo
+        let selectedPool = []; 
 
         // --- FUNÇÕES DE PERSISTÊNCIA (FIREBASE OU LOCALSTORAGE) ---
 
@@ -93,7 +95,6 @@
         
         // Função unificada para salvar dados
         async function saveUserData() {
-            // Atualiza objeto global
             const dataToSave = {
                 userName: userName,
                 userPhotoBase64: userPhotoBase64,
@@ -101,10 +102,16 @@
                 lastUpdate: new Date().toISOString()
             };
 
+            // Atualiza global também para garantir sincronia
+            window.topicProgress = topicProgress;
+
             if (useLocalStorage) {
-                // Modo Offline: Salva no navegador do utilizador
-                localStorage.setItem('burton_verb_mastery_data', JSON.stringify(dataToSave));
-                console.log("[LocalStorage] Dados guardados localmente.");
+                try {
+                    localStorage.setItem('burton_verb_mastery_data', JSON.stringify(dataToSave));
+                    console.log("[LocalStorage] Dados guardados localmente.");
+                } catch(e) {
+                    console.error("Erro ao gravar no LocalStorage", e);
+                }
                 updateTopicCompletionUI();
                 return;
             }
@@ -118,6 +125,9 @@
                     updateTopicCompletionUI();
                 } catch (e) {
                     console.error("[Firestore] Erro ao guardar:", e);
+                    // Fallback silencioso para localstorage se firebase falhar
+                    useLocalStorage = true; 
+                    localStorage.setItem('burton_verb_mastery_data', JSON.stringify(dataToSave));
                 }
             }
         }
@@ -125,22 +135,26 @@
         // Função unificada para carregar dados
         async function loadUserData() {
             if (useLocalStorage) {
-                // Modo Offline
                 const localData = localStorage.getItem('burton_verb_mastery_data');
                 if (localData) {
-                    const data = JSON.parse(localData);
-                    userName = data.userName || '';
-                    userPhotoBase64 = data.userPhotoBase64 || '';
-                    // Mesclar progresso salvo com o objeto base (para garantir integridade)
-                    topicProgress = { ...topicProgress, ...data.topicProgress };
-                    window.topicProgress = topicProgress; // Atualiza global
-                    
-                    console.log("[LocalStorage] Dados carregados:", data);
-                    
-                    if (userName) {
-                        closeStartModal();
-                        updateTopicCompletionUI();
-                    } else {
+                    try {
+                        const data = JSON.parse(localData);
+                        userName = data.userName || '';
+                        userPhotoBase64 = data.userPhotoBase64 || '';
+                        // Mesclar progresso salvo
+                        topicProgress = { ...topicProgress, ...data.topicProgress };
+                        window.topicProgress = topicProgress;
+                        
+                        console.log("[LocalStorage] Dados carregados:", data);
+                        
+                        if (userName) {
+                            closeStartModal();
+                            updateTopicCompletionUI();
+                        } else {
+                            showStartModal();
+                        }
+                    } catch(e) {
+                        console.error("Erro ao ler dados locais", e);
                         showStartModal();
                     }
                 } else {
@@ -173,7 +187,9 @@
                     }
                 } catch (e) {
                     console.error("[Firestore] Erro ao carregar:", e);
-                    showStartModal();
+                    // Fallback para offline se falhar o carregamento
+                    useLocalStorage = true;
+                    loadUserData();
                 }
             } else {
                 showStartModal();
@@ -181,7 +197,6 @@
         }
         
         async function saveCurrentTopicScore() {
-            // Reutiliza a função principal pois ela já trata de tudo
             saveUserData();
         }
 
@@ -256,7 +271,6 @@
             document.getElementById('start-modal').style.display = 'none';
             document.getElementById('app-container').style.filter = 'none';
             
-            // Parar a câmara se estiver ativa
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
                 videoStream = null;
@@ -268,7 +282,7 @@
             const inputName = document.getElementById('name-input').value.trim();
             if (inputName) {
                 userName = inputName;
-                saveUserData(); // Agora chama a função unificada
+                saveUserData(); 
                 closeStartModal();
             } else {
                 document.getElementById('name-input').classList.add('input-error');
@@ -279,7 +293,7 @@
         // --- LÓGICA DE SELEÇÃO DE TÓPICO E PROGRESSO ---
 
         function updateTopicCompletionUI() {
-            // Atualiza visualização dos botões
+            // Atualiza botões
             topicKeys.forEach(topic => {
                 const btn = document.getElementById(`topic-${topic}`);
                 if (btn) {
@@ -287,7 +301,6 @@
                 }
             });
             
-            // Atualiza botão do certificado
             const allCompleted = topicKeys.every(topic => topicProgress[topic]);
             const certTab = document.querySelector('.tabs [onclick*="certificado"]');
             if (certTab) {
@@ -295,13 +308,18 @@
                 certTab.style.opacity = allCompleted ? '1' : '0.5';
             }
             
-            // Atualiza dados no certificado (Nome e Foto)
-            document.getElementById('certificate-name-display').textContent = userName || "[Nome do Aluno]";
-            if (userPhotoBase64) {
-                document.getElementById('cert-photo-display').src = userPhotoBase64;
-                document.getElementById('cert-photo-display').style.display = 'block';
-            } else {
-                document.getElementById('cert-photo-display').style.display = 'none';
+            // ATUALIZAÇÃO CRÍTICA DO CERTIFICADO
+            const nameDisplay = document.getElementById('certificate-name-display');
+            if(nameDisplay) nameDisplay.textContent = userName || "[Nome do Aluno]";
+            
+            const photoDisplay = document.getElementById('cert-photo-display');
+            if(photoDisplay) {
+                if (userPhotoBase64) {
+                    photoDisplay.src = userPhotoBase64;
+                    photoDisplay.style.display = 'block';
+                } else {
+                    photoDisplay.style.display = 'none';
+                }
             }
         }
 
@@ -364,17 +382,8 @@
             currentQuestion.promptText = nextQ.promptText;
             currentQuestion.correctAnswer = nextQ.correctAnswer;
             
-            const totalQuestionsInPool = selectedPool.length;
-            
-            const topicDisplay = {
-                'conjugation': 'A Máquina da Metamorfose Temporal (Conjugação Verbal)',
-                'conjugation_group': 'O Teste da Linhagem Fantasma (Conjugação)',
-                'verb_type': 'O Auxiliar e o Sombra (Classe de Verbos)',
-                'non_finite': 'O Trio Além-Túmulo (Formas Não Finitas)'
-            };
-
             document.getElementById('question-prompt').innerHTML = nextQ.promptText;
-            document.getElementById('question-counter').textContent = `Tópico: ${topicDisplay[currentTopic]} | Pergunta ${currentQuestionIndex} de ${totalQuestionsInPool}`;
+            document.getElementById('question-counter').textContent = `Tópico: ${currentTopic} | Pergunta ${currentQuestionIndex} de ${selectedPool.length}`;
             document.getElementById('answer-input').value = '';
             document.getElementById('answer-input').focus();
             document.getElementById('result-feedback').innerHTML = ''; 
@@ -393,16 +402,12 @@
 
             if (currentQuestion.type === 'conjugation_group') {
                 const correctNumber = normalizedCorrectAnswer.replace('a', '');
-                if (userInput === correctNumber) {
-                    isCorrect = true;
-                }
+                if (userInput === correctNumber) isCorrect = true;
             }
 
             const feedbackEl = document.getElementById('result-feedback');
-            
             document.getElementById('submit-btn').disabled = true;
             document.getElementById('answer-input').disabled = true;
-
             score.totalAttempts++;
 
             if (isCorrect) {
@@ -413,13 +418,12 @@
                 
                 if (score.currentTopicScore >= 100) {
                     topicProgress[currentTopic] = true;
-                    saveCurrentTopicScore(); // Salva no LS ou Firebase
+                    saveCurrentTopicScore(); 
                     feedbackEl.innerHTML = `<p class="feedback-text feedback-success">🎉 TÓPICO COMPLETO! 🎉</p><p class="feedback-text feedback-success-sub">Atingiste os 100 pontos. Podes passar ao próximo desafio!</p>`;
                     document.getElementById('next-btn').style.display = 'none';
                     updateScoreDisplay();
                     return;
                 }
-
             } else {
                 feedbackEl.innerHTML = `<p class="feedback-text feedback-incorrect">❌ Incorreto. A resposta correta é: <strong>${currentQuestion.correctAnswer}</strong></p>`;
             }
@@ -446,6 +450,8 @@
             const allCompleted = topicKeys.every(topic => topicProgress[topic]);
             
             if (allCompleted) {
+                // Força atualização dos dados antes de imprimir
+                updateTopicCompletionUI();
                 document.getElementById('cert-date-display').textContent = new Date().toLocaleDateString('pt-PT');
                 
                 // Atualizar o container de impressão
@@ -461,13 +467,10 @@
         }
 
 
-        // --- FUNÇÕES DE CONSTRUÇÃO DE PERGUNTAS (Layouts melhorados) ---
-        
+        // --- FUNÇÕES DE CONSTRUÇÃO DE PERGUNTAS ---
         function generateConjugationQuestions() {
             const qs = [];
-            const verbKeys = ["Cantar", "Falar", "Correr", "Vender", "Partir", "Dividir", "Pôr", "Fazer", "Ser", "Estar", "Ter"];
             const tenses = ["Presente do Indicativo", "Pretérito Perfeito"];
-
             const combos = [
                 { v: "Cantar", t: tenses[0], p: persons[0] }, { v: "Cantar", t: tenses[1], p: persons[3] },
                 { v: "Falar", t: tenses[0], p: persons[1] }, { v: "Falar", t: tenses[1], p: persons[4] },
@@ -485,14 +488,9 @@
                 { v: "Partir", t: tenses[0], p: persons[2] }, { v: "Dividir", t: tenses[1], p: persons[5] },
                 { v: "Ser", t: tenses[0], p: persons[0] }, { v: "Ter", t: tenses[1], p: persons[3] },
             ];
-
             combos.forEach(combo => {
                 const answer = verbData[combo.v][combo.t][persons.indexOf(combo.p)].split(' ').pop().trim();
-                const prompt = `
-                    <div style="margin-bottom: 10px;">Conjuga o verbo: <strong class="highlight">${combo.v.toUpperCase()}</strong></div>
-                    <div style="margin-bottom: 10px;">no tempo: <strong class="highlight">${combo.t}</strong></div>
-                    <div>Para a pessoa: <strong class="highlight">${combo.p.toUpperCase()}</strong></div>
-                `;
+                const prompt = `<div style="margin-bottom: 10px;">Conjuga o verbo: <strong class="highlight">${combo.v.toUpperCase()}</strong></div><div style="margin-bottom: 10px;">no tempo: <strong class="highlight">${combo.t}</strong></div><div>Para a pessoa: <strong class="highlight">${combo.p.toUpperCase()}</strong></div>`;
                 qs.push({ type: 'conjugation', promptText: prompt, correctAnswer: answer });
             });
             return qs;
@@ -507,14 +505,7 @@
                 else if (verb.toLowerCase().endsWith('er')) answer = '2.ª';
                 else if (verb.toLowerCase().endsWith('ir')) answer = '3.ª';
                 else answer = 'Não definido';
-
-                const prompt = `
-                    A que conjugação pertence o verbo?
-                    <div style="margin: 15px 0; font-size: 1.2em; border: 2px dashed var(--burton-red); padding: 5px 10px; border-radius: 5px;">
-                        <strong class="highlight">${verb.toUpperCase()}</strong>
-                    </div>
-                    (Ex: 1.ª, 2.ª ou 3.ª)
-                `;
+                const prompt = `A que conjugação pertence o verbo?<div style="margin: 15px 0; font-size: 1.2em; border: 2px dashed var(--burton-red); padding: 5px 10px; border-radius: 5px;"><strong class="highlight">${verb.toUpperCase()}</strong></div>(Ex: 1.ª, 2.ª ou 3.ª)`;
                 qs.push({ type: 'conjugation_group', promptText: prompt, correctAnswer: answer });
             });
             return qs;
@@ -556,16 +547,9 @@
             ];
             const highlightStart = '<strong class="highlight" style="text-decoration: underline;">';
             const highlightEnd = '</strong>';
-
             contextualVerbTypeData.forEach(item => {
                 const sentenceWithHighlight = item.sentence.replace('[V]', highlightStart + item.verbForm + highlightEnd);
-                const prompt = `
-                    Na frase, o verbo sublinhado é Principal ou Auxiliar?
-                    <div style="margin: 15px 0; font-size: 1.2em; border: 2px solid var(--burton-purple); padding: 10px; border-radius: 5px; background-color: var(--burton-dark); color: var(--burton-white);">
-                        Frase: "${sentenceWithHighlight}"
-                    </div>
-                    (Escreva 'Auxiliar' ou 'Principal')
-                `;
+                const prompt = `Na frase, o verbo sublinhado é Principal ou Auxiliar?<div style="margin: 15px 0; font-size: 1.2em; border: 2px solid var(--burton-purple); padding: 10px; border-radius: 5px; background-color: var(--burton-dark); color: var(--burton-white);">Frase: "${sentenceWithHighlight}"</div>(Escreva 'Auxiliar' ou 'Principal')`;
                 qs.push({ type: 'verb_type', promptText: prompt, correctAnswer: item.answer });
             });
             return qs.sort(() => Math.random() - 0.5);
@@ -578,24 +562,13 @@
             for(let i=0; i<15; i++) forms.push('gerundio');
             for(let i=0; i<15; i++) forms.push('participio');
             forms.sort(() => Math.random() - 0.5); 
-
             forms.forEach((form, index) => {
                 const verb = verbKeys[index % verbKeys.length];
                 let answer;
                 let formName;
-                if (form === 'gerundio') {
-                    answer = verbData[verb].gerundio;
-                    formName = 'Gerúndio';
-                } else {
-                    answer = verbData[verb].participio;
-                    formName = 'Particípio Passado';
-                }
-                const prompt = `
-                    Qual é o <strong class="highlight">${formName}</strong>
-                    <div style="margin: 15px 0; font-size: 1.2em;">
-                        do verbo: <strong class="highlight">${verb.toUpperCase()}</strong>
-                    </div>
-                `;
+                if (form === 'gerundio') { answer = verbData[verb].gerundio; formName = 'Gerúndio'; } 
+                else { answer = verbData[verb].participio; formName = 'Particípio Passado'; }
+                const prompt = `Qual é o <strong class="highlight">${formName}</strong><div style="margin: 15px 0; font-size: 1.2em;">do verbo: <strong class="highlight">${verb.toUpperCase()}</strong></div>`;
                 qs.push({ type: 'non_finite', promptText: prompt, correctAnswer: answer });
             });
             return qs;
@@ -615,9 +588,8 @@
             
             // Verifica configuração do Firebase
             if (Object.keys(firebaseConfig).length === 0) {
-                console.log("Configuração do Firebase não encontrada ou vazia. A usar LocalStorage.");
+                console.log("Modo Offline ativado (LocalStorage).");
                 useLocalStorage = true;
-                // Em modo local, carregamos os dados imediatamente
                 loadUserData();
             } else {
                 setLogLevel('debug');
@@ -635,7 +607,6 @@
             
             document.getElementById('submit-btn').addEventListener('click', checkAnswer);
             document.getElementById('next-btn').addEventListener('click', generateQuestion);
-            
             document.getElementById('answer-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     if (!document.getElementById('submit-btn').disabled && document.getElementById('submit-btn').style.display !== 'none') {
@@ -655,16 +626,14 @@
                 loadUserData();
                 return;
             }
-
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentUserId = user.uid;
                     loadUserData(); 
                 } else {
-                    console.log("Nenhum utilizador.");
+                    console.log("Nenhum utilizador logado no Firebase.");
                 }
             });
-
             try {
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
@@ -691,7 +660,7 @@
             --burton-grey: #8d8d8d;
             --burton-light-grey: #e0e0e0;
             --burton-white: #f8f8f8;
-            --burton-green: #38b000;
+            --burton-green: #38b000; 
             --burton-blue: #0077b6;
             --burton-red: #d00000;
         }
@@ -741,644 +710,145 @@
             padding-bottom: 10px;
         }
 
-        h1 {
-            font-size: 3.5em;
-            color: var(--burton-green);
-        }
+        h1 { font-size: 3.5em; color: var(--burton-green); }
+        h2 { font-size: 2.5em; color: var(--burton-blue); }
+        h3 { font-size: 2em; color: var(--burton-red); border-bottom: 1px dashed var(--burton-grey); padding-bottom: 5px; margin-top: 30px; }
+        h4 { font-size: 1.5em; color: var(--burton-light-grey); margin-top: 20px; }
+        p { margin-bottom: 15px; color: var(--burton-light-grey); }
+        strong { color: var(--burton-white); }
+        em { font-style: italic; font-weight: bold; }
+        ul { list-style: none; padding-left: 0; }
+        ul li { position: relative; padding-left: 25px; margin-bottom: 10px; color: var(--burton-light-grey); }
+        ul li::before { content: '💀'; position: absolute; left: 0; color: var(--burton-green); }
 
-        h2 {
-            font-size: 2.5em;
-            color: var(--burton-blue);
-        }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background-color: #4a4a52; border: 1px solid var(--burton-grey); box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); }
+        th, td { border: 1px solid var(--burton-dark); padding: 12px; text-align: left; color: var(--burton-light-grey); }
+        th { background-color: var(--burton-purple); color: var(--burton-white); font-family: 'Gothic A1', sans-serif; text-transform: uppercase; font-size: 0.9em; }
 
-        h3 {
-            font-size: 2em;
-            color: var(--burton-red);
-            border-bottom: 1px dashed var(--burton-grey);
-            padding-bottom: 5px;
-            margin-top: 30px;
-        }
-
-        h4 {
-            font-size: 1.5em;
-            color: var(--burton-light-grey);
-            margin-top: 20px;
-        }
-
-        p {
-            margin-bottom: 15px;
-            color: var(--burton-light-grey);
-        }
-
-        strong {
-            color: var(--burton-white);
-        }
+        .note { background-color: #35353d; border-left: 5px solid var(--burton-green); padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .note p { margin: 0; color: var(--burton-light-grey); }
         
-        em {
-            font-style: italic;
-            font-weight: bold;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: #3d3d45; padding: 30px; border-radius: 15px; box-shadow: 0 0 30px rgba(106, 5, 114, 0.8); max-width: 400px; text-align: center; border: 3px solid var(--burton-purple); animation: modalPop 0.4s ease-out; }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        ul li {
-            position: relative;
-            padding-left: 25px;
-            margin-bottom: 10px;
-            color: var(--burton-light-grey);
-        }
-
-        ul li::before {
-            content: '💀'; 
-            position: absolute;
-            left: 0;
-            color: var(--burton-green);
-        }
-
-        /* Tabelas */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            background-color: #4a4a52;
-            border: 1px solid var(--burton-grey);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        th, td {
-            border: 1px solid var(--burton-dark);
-            padding: 12px;
-            text-align: left;
-            color: var(--burton-light-grey);
-        }
-
-        th {
-            background-color: var(--burton-purple);
-            color: var(--burton-white);
-            font-family: 'Gothic A1', sans-serif;
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
-
-        .note {
-            background-color: #35353d;
-            border-left: 5px solid var(--burton-green);
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-
-        .note p {
-            margin: 0;
-            color: var(--burton-light-grey);
-        }
+        .photo-area { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        #photo-preview, #camera-preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px dashed var(--burton-green); margin-bottom: 15px; display: none; }
+        #camera-preview { border-style: solid; }
+        #photo-canvas { display: none; }
         
-        /* Modal Inicial (Nome/Foto) */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+        .modal-button { background-color: var(--burton-green); color: var(--burton-dark); padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: background-color 0.3s; text-transform: uppercase; }
+        .modal-button:hover { background-color: #4cd40a; }
+
+        .tabs { display: flex; flex-wrap: wrap; margin-top: 30px; border-bottom: 2px solid var(--burton-grey); gap: 5px; }
+        .tab-button { background-color: var(--burton-grey); color: var(--burton-dark); border: none; padding: 12px 20px; cursor: pointer; transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease; border-radius: 8px 8px 0 0; font-weight: bold; font-family: 'Gothic A1', sans-serif; text-transform: uppercase; letter-spacing: 1px; flex-grow: 1; min-width: 120px; }
+        .tab-button:disabled { cursor: not-allowed; opacity: 0.5; }
+        .tab-button:hover { background-color: var(--burton-purple); color: var(--burton-white); transform: translateY(-2px); }
+        .tab-button.active { background-color: var(--burton-purple); color: var(--burton-white); border-bottom: 2px solid var(--burton-purple); transform: translateY(-2px); }
+
+        .tab-content { display: none; padding: 25px; background-color: #3d3d45; border: 2px solid var(--burton-purple); border-top: none; border-radius: 0 0 15px 15px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); animation: fadeIn 0.5s ease-out; width: 100%; box-sizing: border-box; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .sub-tabs { display: flex; flex-wrap: wrap; margin-top: 20px; border-bottom: 1px dashed var(--burton-grey); gap: 3px; }
+        .sub-tab-button { background-color: #55555f; color: var(--burton-light-grey); padding: 8px 15px; border: none; cursor: pointer; transition: background-color 0.3s, color 0.3s; border-radius: 5px 5px 0 0; font-weight: 700; }
+        .sub-tab-button:hover { background-color: var(--burton-blue); color: var(--burton-white); }
+        .sub-tab-button.active { background-color: var(--burton-blue); color: var(--burton-white); border-bottom: 3px solid var(--burton-green); }
+        .sub-tab-content { padding: 20px 0; display: none; }
+        .sub-tab-content.active { display: block; }
+
+        .conjugation-table { border: 2px solid var(--burton-blue); }
+        .conjugation-table th.mode-header { background-color: var(--burton-red); text-align: center; }
+        .conjugation-table th.time-header { background-color: var(--burton-blue); font-size: 0.8em; text-align: center; }
+        .conjugation-table td { text-align: center; }
+        .conjugation-table td:first-child { text-align: left; font-weight: bold; background-color: #35353d; }
         
-        .modal-content {
-            background-color: #3d3d45;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(106, 5, 114, 0.8);
-            max-width: 400px;
-            text-align: center;
-            border: 3px solid var(--burton-purple);
-            animation: modalPop 0.4s ease-out;
-        }
+        strong.highlight { color: var(--burton-green); font-weight: bold; }
 
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
+        .topic-selection-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; padding: 15px; background-color: #35353d; border-radius: 10px; border: 1px solid var(--burton-grey); box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); }
+        .topic-button { padding: 10px 15px; border: 2px solid var(--burton-purple); border-radius: 8px; background-color: var(--burton-dark); color: var(--burton-light-grey); font-weight: bold; cursor: pointer; transition: background-color 0.3s, color 0.3s, border-color 0.3s; flex-grow: 1; min-width: 180px; text-align: center; font-size: 0.9em; }
+        .topic-button:hover { background-color: #3a3a46; color: var(--burton-white); }
+        .topic-button.active-topic { background-color: var(--burton-purple); border-color: var(--burton-white); color: var(--burton-white); box-shadow: 0 0 10px var(--burton-purple); }
+        .topic-button.completed-topic { background-color: var(--burton-green); border-color: var(--burton-white); color: var(--burton-dark); box-shadow: 0 0 10px var(--burton-green); }
+        .topic-button.completed-topic::after { content: ' ✓'; font-size: 1.2em; font-weight: 900; }
 
-        .photo-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        #photo-preview, #camera-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px dashed var(--burton-green);
-            margin-bottom: 15px;
-            display: none; /* Inicia oculto */
-        }
+        .score-box { display: flex; flex-direction: column; text-align: center; margin-bottom: 25px; padding: 20px; background-color: #4a4a52; border: 2px dashed var(--burton-blue); border-radius: 10px; }
+        .score-header { font-family: 'Creepster', cursive; font-size: 1.8em; color: var(--burton-green); margin-bottom: 5px; }
+        .score-value { font-family: 'Creepster', cursive; font-size: 3em; color: var(--burton-white); line-height: 1; }
+        .progress-bar-container { height: 20px; background-color: var(--burton-dark); border-radius: 10px; overflow: hidden; margin-top: 15px; border: 1px solid var(--burton-grey); }
+        .progress-bar { height: 100%; width: 0%; background-color: var(--burton-purple); transition: width 0.5s ease-in-out, background-color 0.3s; }
+        .bg-burton-green-bg { background-color: var(--burton-green) !important; }
         
-        #camera-preview {
-            border-style: solid;
-        }
+        .quiz-area { background-color: #35353d; padding: 25px; border-radius: 10px; border: 2px solid var(--burton-red); }
+        #question-prompt { font-family: 'Gothic A1', sans-serif; font-size: 1.3em; text-align: center; margin-bottom: 20px; padding: 15px; background-color: var(--burton-dark); border-radius: 8px; border-left: 5px solid var(--burton-purple); min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.4; color: var(--burton-light-grey); }
+        #question-counter { text-align: center; font-weight: bold; color: var(--burton-grey); margin-bottom: 10px; font-size: 0.9em; }
 
-        #photo-canvas {
-            display: none;
-        }
+        .quiz-input { width: 100%; padding: 12px; border: 2px solid var(--burton-grey); border-radius: 8px; background-color: var(--burton-dark); color: var(--burton-white); font-size: 1.1em; box-sizing: border-box; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .quiz-input::placeholder { color: var(--burton-grey); }
+        .quiz-input:focus { border-color: var(--burton-green); box-shadow: 0 0 10px rgba(56, 176, 0, 0.5); }
+        .quiz-input.input-error { border-color: var(--burton-red) !important; box-shadow: 0 0 10px rgba(208, 0, 0, 0.8) !important; }
+
+        .quiz-button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4); margin-top: 10px; font-family: 'Gothic A1', sans-serif; }
+        .submit-btn { background-color: var(--burton-purple); color: var(--burton-white); }
+        .submit-btn:hover:not(:disabled) { background-color: #8b0a97; transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4); }
+        .submit-btn:disabled { background-color: #55555f; cursor: not-allowed; box-shadow: none; }
         
-        .modal-button {
-            background-color: var(--burton-green);
-            color: var(--burton-dark);
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-            text-transform: uppercase;
-        }
+        .next-btn { background-color: var(--burton-green); color: var(--burton-dark); }
+        .next-btn:hover:not(:disabled) { background-color: #4cd40a; transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4); }
 
-        .modal-button:hover {
-            background-color: #4cd40a;
-        }
+        .feedback-text { height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; margin-top: 15px; }
+        .feedback-correct { color: var(--burton-green); }
+        .feedback-incorrect { color: var(--burton-red); }
+        .feedback-success { font-family: 'Creepster', cursive; font-size: 2em; color: var(--burton-green); line-height: 1.2; height: auto; flex-direction: column; }
+        .feedback-success-sub { font-family: 'Gothic A1', sans-serif; font-size: 0.9em; color: var(--burton-light-grey); margin-top: 0; font-weight: normal; }
 
-        /* --- ESTILOS DE TABS --- */
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            margin-top: 30px;
-            border-bottom: 2px solid var(--burton-grey);
-            gap: 5px;
-        }
-        
-        .tab-button {
-            background-color: var(--burton-grey);
-            color: var(--burton-dark);
-            border: none;
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-            border-radius: 8px 8px 0 0;
-            font-weight: bold;
-            font-family: 'Gothic A1', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex-grow: 1;
-            min-width: 120px;
-        }
-        
-        .tab-button:disabled {
-            cursor: not-allowed;
-            opacity: 0.5; /* Mantém a opacidade baixa quando desativado */
-        }
+        #certificate-display { padding: 50px; background-color: var(--burton-light-grey); color: var(--burton-dark); border: 10px solid var(--burton-purple); border-radius: 15px; margin: 30px auto; width: 80%; max-width: 800px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); font-family: 'Gothic A1', sans-serif; text-align: center; }
+        .cert-header { font-family: 'Creepster', cursive; font-size: 3em; color: var(--burton-red); margin-bottom: 10px; border-bottom: 3px double var(--burton-dark); padding-bottom: 5px; }
+        .cert-title { font-size: 1.5em; margin-bottom: 30px; color: var(--burton-dark); }
+        .cert-recipient { font-family: 'Creepster', cursive; font-size: 4em; color: var(--burton-purple); margin: 20px 0; text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2); }
+        .cert-photo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--burton-green); margin-bottom: 20px; }
+        .cert-footer { margin-top: 40px; font-size: 0.9em; border-top: 1px solid var(--burton-dark); padding-top: 10px; display: flex; justify-content: space-around; }
 
-        .tab-button:hover {
-            background-color: var(--burton-purple);
-            color: var(--burton-white);
-            transform: translateY(-2px);
-        }
-        
-        .tab-button.active {
-            background-color: var(--burton-purple);
-            color: var(--burton-white);
-            border-bottom: 2px solid var(--burton-purple);
-            transform: translateY(-2px);
-        }
-
-        .tab-content {
-            display: none;
-            padding: 25px;
-            background-color: #3d3d45;
-            border: 2px solid var(--burton-purple);
-            border-top: none;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-            animation: fadeIn 0.5s ease-out;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Estilo das Sub-Abas */
-        .sub-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            border-bottom: 1px dashed var(--burton-grey);
-            gap: 3px;
-        }
-
-        .sub-tab-button {
-            background-color: #55555f;
-            color: var(--burton-light-grey);
-            padding: 8px 15px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            border-radius: 5px 5px 0 0;
-            font-weight: 700;
-        }
-        
-        .sub-tab-button:hover {
-            background-color: var(--burton-blue);
-            color: var(--burton-white);
-        }
-        
-        .sub-tab-button.active {
-            background-color: var(--burton-blue);
-            color: var(--burton-white);
-            border-bottom: 3px solid var(--burton-green);
-        }
-        
-        .sub-tab-content {
-            padding: 20px 0;
-            display: none;
-        }
-
-        .sub-tab-content.active {
-            display: block;
-        }
-
-        /* Estilo da Tabela de Conjugação */
-        .conjugation-table {
-            border: 2px solid var(--burton-blue);
-        }
-        
-        .conjugation-table th.mode-header {
-            background-color: var(--burton-red);
-            text-align: center;
-        }
-
-        .conjugation-table th.time-header {
-            background-color: var(--burton-blue);
-            font-size: 0.8em;
-            text-align: center;
-        }
-
-        .conjugation-table td {
-            text-align: center;
-        }
-        
-        .conjugation-table td:first-child {
-             text-align: left;
-             font-weight: bold;
-             background-color: #35353d;
-        }
-        
-        /* Classe de Destaque */
-        strong.highlight {
-            color: var(--burton-green);
-            font-weight: bold;
-        }
-
-        /* --- ESTILOS ESPECÍFICOS DA ZONA DE TREINO --- */
-        .topic-selection-area {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            padding: 15px;
-            background-color: #35353d;
-            border-radius: 10px;
-            border: 1px solid var(--burton-grey);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .topic-button {
-            padding: 10px 15px;
-            border: 2px solid var(--burton-purple);
-            border-radius: 8px;
-            background-color: var(--burton-dark);
-            color: var(--burton-light-grey);
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-            flex-grow: 1;
-            min-width: 180px;
-            text-align: center;
-            font-size: 0.9em;
-        }
-
-        .topic-button:hover {
-            background-color: #3a3a46;
-            color: var(--burton-white);
-        }
-
-        .topic-button.active-topic {
-            background-color: var(--burton-purple);
-            border-color: var(--burton-white);
-            color: var(--burton-white);
-            box-shadow: 0 0 10px var(--burton-purple);
-        }
-
-        .topic-button.completed-topic {
-            background-color: var(--burton-green);
-            border-color: var(--burton-white);
-            color: var(--burton-dark);
-            box-shadow: 0 0 10px var(--burton-green);
-            /* Adicionar um ícone de "concluído" */
-        }
-        
-        .topic-button.completed-topic::after {
-            content: ' ✓';
-            font-size: 1.2em;
-            font-weight: 900;
-        }
-
-        .score-box {
-            display: flex;
-            flex-direction: column;
-            text-align: center;
-            margin-bottom: 25px;
-            padding: 20px;
-            background-color: #4a4a52;
-            border: 2px dashed var(--burton-blue);
-            border-radius: 10px;
-        }
-
-        .score-header {
-            font-family: 'Creepster', cursive;
-            font-size: 1.8em;
-            color: var(--burton-green);
-            margin-bottom: 5px;
-        }
-
-        .score-value {
-            font-family: 'Creepster', cursive;
-            font-size: 3em;
-            color: var(--burton-white);
-            line-height: 1;
-        }
-
-        .progress-bar-container {
-            height: 20px;
-            background-color: var(--burton-dark);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 15px;
-            border: 1px solid var(--burton-grey);
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background-color: var(--burton-purple);
-            transition: width 0.5s ease-in-out, background-color 0.3s;
-        }
-
-        .bg-burton-green-bg {
-            background-color: var(--burton-green) !important;
-        }
-        
-        .quiz-area {
-            background-color: #35353d;
-            padding: 25px;
-            border-radius: 10px;
-            border: 2px solid var(--burton-red);
-        }
-
-        #question-prompt {
-            font-family: 'Gothic A1', sans-serif;
-            font-size: 1.3em;
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: var(--burton-dark);
-            border-radius: 8px;
-            border-left: 5px solid var(--burton-purple);
-            min-height: 100px; /* Aumentado para acomodar 3 DIVs em blocos */
-            display: flex;
-            flex-direction: column; /* Usar coluna para empilhar os DIVs */
-            align-items: center;
-            justify-content: center;
-            line-height: 1.4;
-            color: var(--burton-light-grey);
-        }
-        
-        #question-counter {
-            text-align: center;
-            font-weight: bold;
-            color: var(--burton-grey);
-            margin-bottom: 10px;
-            font-size: 0.9em;
-        }
-
-        .quiz-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--burton-grey);
-            border-radius: 8px;
-            background-color: var(--burton-dark);
-            color: var(--burton-white);
-            font-size: 1.1em;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .quiz-input::placeholder {
-            color: var(--burton-grey);
-        }
-
-        .quiz-input:focus {
-            border-color: var(--burton-green);
-            box-shadow: 0 0 10px rgba(56, 176, 0, 0.5);
-        }
-        
-        .quiz-input.input-error {
-            border-color: var(--burton-red) !important;
-            box-shadow: 0 0 10px rgba(208, 0, 0, 0.8) !important;
-        }
-
-        .quiz-button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4);
-            margin-top: 10px;
-            font-family: 'Gothic A1', sans-serif;
-        }
-
-        .submit-btn {
-            background-color: var(--burton-purple);
-            color: var(--burton-white);
-        }
-
-        .submit-btn:hover:not(:disabled) {
-            background-color: #8b0a97;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4);
-        }
-
-        .submit-btn:disabled {
-            background-color: #55555f;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        
-        .next-btn {
-            background-color: var(--burton-green);
-            color: var(--burton-dark);
-        }
-        
-        .next-btn:hover:not(:disabled) {
-            background-color: #4cd40a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.4);
-        }
-
-        .feedback-text {
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-top: 15px;
-        }
-
-        .feedback-correct {
-            color: var(--burton-green);
-        }
-
-        .feedback-incorrect {
-            color: var(--burton-red);
-        }
-
-        .feedback-success {
-            font-family: 'Creepster', cursive;
-            font-size: 2em;
-            color: var(--burton-green);
-            line-height: 1.2;
-            height: auto;
-            flex-direction: column;
-        }
-
-        .feedback-success-sub {
-            font-family: 'Gothic A1', sans-serif;
-            font-size: 0.9em;
-            color: var(--burton-light-grey);
-            margin-top: 0;
-            font-weight: normal;
-        }
-
-
-        /* --- ESTILOS DO CERTIFICADO (APENAS IMPRESSÃO) --- */
-        #certificate-display {
-            padding: 50px;
-            background-color: var(--burton-light-grey);
-            color: var(--burton-dark);
-            border: 10px solid var(--burton-purple);
-            border-radius: 15px;
-            margin: 30px auto;
-            width: 80%;
-            max-width: 800px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            font-family: 'Gothic A1', sans-serif;
-            text-align: center;
-        }
-
-        .cert-header {
-            font-family: 'Creepster', cursive;
-            font-size: 3em;
-            color: var(--burton-red);
-            margin-bottom: 10px;
-            border-bottom: 3px double var(--burton-dark);
-            padding-bottom: 5px;
-        }
-
-        .cert-title {
-            font-size: 1.5em;
-            margin-bottom: 30px;
-            color: var(--burton-dark);
-        }
-
-        .cert-recipient {
-            font-family: 'Creepster', cursive;
-            font-size: 4em;
-            color: var(--burton-purple);
-            margin: 20px 0;
-            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
-        }
-
-        .cert-photo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--burton-green);
-            margin-bottom: 20px;
-        }
-
-        .cert-footer {
-            margin-top: 40px;
-            font-size: 0.9em;
-            border-top: 1px solid var(--burton-dark);
-            padding-top: 10px;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        /* Ocultar elementos da app na impressão (apenas mostrar o certificado) */
+        /* Estilos de Impressão Corrigidos */
         @media print {
-            body {
-                background-color: white !important; /* Força fundo branco */
+            body, .container, #app-container {
+                visibility: hidden;
+                background-color: white !important;
                 color: black !important;
-                visibility: hidden; /* Esconde tudo por defeito */
-                overflow: visible !important;
-            }
-            
-            #certificate-print-area, #certificate-print-area * {
-                visibility: visible; /* Torna o certificado visível */
             }
             
             #certificate-print-area {
-                position: absolute;
+                visibility: visible;
+                position: fixed;
                 left: 0;
                 top: 0;
                 width: 100%;
-                margin: 0;
-                padding: 0;
-                background-color: white; /* Garante fundo branco no contentor */
-            }
-            
-            #certificate-display {
-                width: 100%;
-                max-width: none;
                 height: 100%;
                 margin: 0;
-                border: 2px solid black !important; /* Borda simples para impressão */
+                padding: 0;
+                background-color: white !important;
+                z-index: 9999;
+            }
+            
+            #certificate-print-area * {
+                visibility: visible;
+            }
+            
+            #certificate-display-print > div {
+                width: 100%;
+                max-width: none;
+                height: auto;
+                margin: 20px auto;
+                border: 2px solid black !important;
                 box-shadow: none !important;
                 border-radius: 0;
-                color: black !important; /* Texto preto */
-            }
-            
-            .cert-recipient {
-                color: black !important; /* Força nome a preto */
-                text-shadow: none !important;
-            }
-            
-            .cert-header, .cert-title {
                 color: black !important;
+                background-color: white !important;
+            }
+            
+            .cert-recipient, .cert-header, .cert-title, .cert-footer {
+                color: black !important;
+                text-shadow: none !important;
             }
         }
     </style>
