@@ -30,18 +30,107 @@
         // Expor topicKeys para o escopo global (para o openTab funcionar)
         window.topicKeys = topicKeys;
 
+        // --- DADOS VERBAIS EXPANDIDOS (Imperfeito, Futuro, Mais-Que-Perfeito) ---
         const verbData = {
-            "Cantar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["canto", "cantas", "canta", "cantamos", "cantais", "cantam"], "Pretérito Perfeito": ["cantei", "cantaste", "cantou", "cantamos", "cantastes", "cantaram"], gerundio: 'cantando', participio: 'cantado' },
-            "Falar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["falo", "falas", "fala", "falamos", "falais", "falam"], "Pretérito Perfeito": ["falei", "falaste", "falou", "falamos", "falastes", "falaram"], gerundio: 'falando', participio: 'falado' },
-            "Correr": { c: '2.ª', p: 'er', "Presente do Indicativo": ["corro", "corres", "corre", "corremos", "correis", "correm"], "Pretérito Perfeito": ["corri", "correste", "correu", "corremos", "correstes", "correram"], gerundio: 'correndo', participio: 'corrido' },
-            "Vender": { c: '2.ª', p: 'er', "Presente do Indicativo": ["vendo", "vendes", "vende", "vendemos", " vendeis", "vendem"], "Pretérito Perfeito": ["vendi", "vendeste", "vendeu", "vendemos", "vendestes", "venderam"], gerundio: 'vendendo', participio: 'vendido' },
-            "Partir": { c: '3.ª', p: 'ir', "Presente do Indicativo": ["parto", "partes", "parte", "partimos", "partis", "partem"], "Pretérito Perfeito": ["parti", "partiste", "partiu", "partimos", "partistes", "partiram"], gerundio: 'partindo', participio: 'partido' },
-            "Dividir": { c: '3.ª', p: 'ir', "Presente do Indicativo": ["divido", "divides", "divide", "dividimos", "dividis", "dividem"], "Pretérito Perfeito": ["dividi", "dividiste", "dividiu", "dividimos", "dividis", "dividiram"], gerundio: 'dividindo', participio: 'dividido' },
-            "Pôr": { c: '2.ª', p: 'er', "Presente do Indicativo": ["ponho", "pões", "põe", "pomos", "pondes", "põem"], "Pretérito Perfeito": ["pus", "puseste", "pôs", "pusemos", "pusestes", "puseram"], gerundio: 'pondo', participio: 'posto' },
-            "Fazer": { c: '2.ª', p: 'er', "Presente do Indicativo": ["faço", "fazes", "faz", "fazemos", "fazeis", "fazem"], "Pretérito Perfeito": ["fiz", "fizeste", "fez", "fizemos", "fizestes", "fizeram"], gerundio: 'fazendo', participio: 'feito' },
-            "Ser": { c: '2.ª', p: 'er', "Presente do Indicativo": ["sou", "és", "é", "somos", "sois", "são"], "Pretérito Perfeito": ["fui", "foste", "foi", "fomos", "fostes", "foram"], gerundio: 'sendo', participio: 'sido' },
-            "Estar": { c: '1.ª', p: 'ar', "Presente do Indicativo": ["estou", "estás", "está", "estamos", "estais", "estão"], "Pretérito Perfeito": ["estive", "esteve", "esteve", "estivemos", "estivestes", "estiveram"], gerundio: 'estando', participio: 'estado' },
-            "Ter": { c: '2.ª', p: 'er', "Presente do Indicativo": ["tenho", "tens", "tem", "temos", "tendes", "têm"], "Pretérito Perfeito": ["tive", "tiveste", "teve", "tivemos", "tivestes", "tiveram"], gerundio: 'tendo', participio: 'tido' }
+            "Cantar": { 
+                c: '1.ª', p: 'ar', 
+                "Presente do Indicativo": ["canto", "cantas", "canta", "cantamos", "cantais", "cantam"], 
+                "Pretérito Perfeito": ["cantei", "cantaste", "cantou", "cantamos", "cantastes", "cantaram"],
+                "Pretérito Imperfeito": ["cantava", "cantavas", "cantava", "cantávamos", "cantáveis", "cantavam"],
+                "Futuro": ["cantarei", "cantarás", "cantará", "cantaremos", "cantareis", "cantarão"],
+                "Pretérito Mais-Que-Perfeito": ["cantara", "cantaras", "cantara", "cantáramos", "cantáreis", "cantaram"],
+                gerundio: 'cantando', participio: 'cantado' 
+            },
+            "Falar": { 
+                c: '1.ª', p: 'ar', 
+                "Presente do Indicativo": ["falo", "falas", "fala", "falamos", "falais", "falam"], 
+                "Pretérito Perfeito": ["falei", "falaste", "falou", "falamos", "falastes", "falaram"],
+                "Pretérito Imperfeito": ["falava", "falavas", "falava", "falávamos", "faláveis", "falavam"],
+                "Futuro": ["falarei", "falarás", "falará", "falaremos", "falareis", "falarão"],
+                "Pretérito Mais-Que-Perfeito": ["falara", "falaras", "falara", "faláramos", "faláreis", "falaram"],
+                gerundio: 'falando', participio: 'falado' 
+            },
+            "Correr": { 
+                c: '2.ª', p: 'er', 
+                "Presente do Indicativo": ["corro", "corres", "corre", "corremos", "correis", "correm"], 
+                "Pretérito Perfeito": ["corri", "correste", "correu", "corremos", "correstes", "correram"],
+                "Pretérito Imperfeito": ["corria", "corrias", "corria", "corríamos", "corríeis", "corriam"],
+                "Futuro": ["correrei", "correrás", "correrá", "correremos", "correreis", "correrão"],
+                "Pretérito Mais-Que-Perfeito": ["correra", "correras", "correra", "corrêramos", "corrêreis", "correram"],
+                gerundio: 'correndo', participio: 'corrido' 
+            },
+            "Vender": { 
+                c: '2.ª', p: 'er', 
+                "Presente do Indicativo": ["vendo", "vendes", "vende", "vendemos", " vendeis", "vendem"], 
+                "Pretérito Perfeito": ["vendi", "vendeste", "vendeu", "vendemos", "vendestes", "venderam"],
+                "Pretérito Imperfeito": ["vendia", "vendias", "vendia", "vendíamos", "vendíeis", "vendiam"],
+                "Futuro": ["venderei", "venderás", "venderá", "venderemos", "vendereis", "venderão"],
+                "Pretérito Mais-Que-Perfeito": ["vendera", "venderas", "vendera", "vendêramos", "vendêreis", "venderam"],
+                gerundio: 'vendendo', participio: 'vendido' 
+            },
+            "Partir": { 
+                c: '3.ª', p: 'ir', 
+                "Presente do Indicativo": ["parto", "partes", "parte", "partimos", "partis", "partem"], 
+                "Pretérito Perfeito": ["parti", "partiste", "partiu", "partimos", "partistes", "partiram"],
+                "Pretérito Imperfeito": ["partia", "partias", "partia", "partíamos", "partíeis", "partiam"],
+                "Futuro": ["partirei", "partirás", "partirá", "partiremos", "partireis", "partirão"],
+                "Pretérito Mais-Que-Perfeito": ["partira", "partiras", "partira", "partíramos", "partíreis", "partiram"],
+                gerundio: 'partindo', participio: 'partido' 
+            },
+            "Dividir": { 
+                c: '3.ª', p: 'ir', 
+                "Presente do Indicativo": ["divido", "divides", "divide", "dividimos", "dividis", "dividem"], 
+                "Pretérito Perfeito": ["dividi", "dividiste", "dividiu", "dividimos", "dividis", "dividiram"],
+                "Pretérito Imperfeito": ["dividia", "dividias", "dividia", "dividíamos", "dividíeis", "dividiam"],
+                "Futuro": ["dividirei", "dividirás", "dividirá", "dividiremos", "dividireis", "dividirão"],
+                "Pretérito Mais-Que-Perfeito": ["dividira", "dividiras", "dividira", "dividíramos", "dividíreis", "dividiram"],
+                gerundio: 'dividindo', participio: 'dividido' 
+            },
+            "Pôr": { 
+                c: '2.ª', p: 'er', 
+                "Presente do Indicativo": ["ponho", "pões", "põe", "pomos", "pondes", "põem"], 
+                "Pretérito Perfeito": ["pus", "puseste", "pôs", "pusemos", "pusestes", "puseram"],
+                "Pretérito Imperfeito": ["punha", "punhas", "punha", "púnhamos", "púnheis", "punham"],
+                "Futuro": ["porei", "porás", "porá", "poremos", "poreis", "porão"],
+                "Pretérito Mais-Que-Perfeito": ["pusera", "puseras", "pusera", "puséramos", "puséreis", "puseram"],
+                gerundio: 'pondo', participio: 'posto' 
+            },
+            "Fazer": { 
+                c: '2.ª', p: 'er', 
+                "Presente do Indicativo": ["faço", "fazes", "faz", "fazemos", "fazeis", "fazem"], 
+                "Pretérito Perfeito": ["fiz", "fizeste", "fez", "fizemos", "fizestes", "fizeram"],
+                "Pretérito Imperfeito": ["fazia", "fazias", "fazia", "fazíamos", "fazíeis", "faziam"],
+                "Futuro": ["farei", "farás", "fará", "faremos", "fareis", "farão"],
+                "Pretérito Mais-Que-Perfeito": ["fizera", "fizeras", "fizera", "fizéramos", "fizéreis", "fizeram"],
+                gerundio: 'fazendo', participio: 'feito' 
+            },
+            "Ser": { 
+                c: '2.ª', p: 'er', 
+                "Presente do Indicativo": ["sou", "és", "é", "somos", "sois", "são"], 
+                "Pretérito Perfeito": ["fui", "foste", "foi", "fomos", "fostes", "foram"],
+                "Pretérito Imperfeito": ["era", "eras", "era", "éramos", "éreis", "eram"],
+                "Futuro": ["serei", "serás", "será", "seremos", "sereis", "serão"],
+                "Pretérito Mais-Que-Perfeito": ["fora", "foras", "fora", "fôramos", "fôreis", "foram"],
+                gerundio: 'sendo', participio: 'sido' 
+            },
+            "Estar": { 
+                c: '1.ª', p: 'ar', 
+                "Presente do Indicativo": ["estou", "estás", "está", "estamos", "estais", "estão"], 
+                "Pretérito Perfeito": ["estive", "esteve", "esteve", "estivemos", "estivestes", "estiveram"],
+                "Pretérito Imperfeito": ["estava", "estavas", "estava", "estávamos", "estáveis", "estavam"],
+                "Futuro": ["estarei", "estarás", "estará", "estaremos", "estareis", "estarão"],
+                "Pretérito Mais-Que-Perfeito": ["estivera", "estiveras", "estivera", "estivéramos", "estivéreis", "estiveram"],
+                gerundio: 'estando', participio: 'estado' 
+            },
+            "Ter": { 
+                c: '2.ª', p: 'er', 
+                "Presente do Indicativo": ["tenho", "tens", "tem", "temos", "tendes", "têm"], 
+                "Pretérito Perfeito": ["tive", "tiveste", "teve", "tivemos", "tivestes", "tiveram"],
+                "Pretérito Imperfeito": ["tinha", "tinhas", "tinha", "tínhamos", "tínheis", "tinham"],
+                "Futuro": ["terei", "terás", "terá", "teremos", "tereis", "terão"],
+                "Pretérito Mais-Que-Perfeito": ["tivera", "tiveras", "tivera", "tivéramos", "tivéreis", "tiveram"],
+                gerundio: 'tendo', participio: 'tido' 
+            }
         };
 
         const conjugacaoVerbs = [
@@ -505,29 +594,33 @@
         // --- FUNÇÕES DE CONSTRUÇÃO DE PERGUNTAS ---
         function generateConjugationQuestions() {
             const qs = [];
-            const tenses = ["Presente do Indicativo", "Pretérito Perfeito"];
-            const combos = [
-                { v: "Cantar", t: tenses[0], p: persons[0] }, { v: "Cantar", t: tenses[1], p: persons[3] },
-                { v: "Falar", t: tenses[0], p: persons[1] }, { v: "Falar", t: tenses[1], p: persons[4] },
-                { v: "Correr", t: tenses[0], p: persons[2] }, { v: "Correr", t: tenses[1], p: persons[5] },
-                { v: "Vender", t: tenses[0], p: persons[3] }, { v: "Vender", t: tenses[1], p: persons[0] },
-                { v: "Partir", t: tenses[0], p: persons[4] }, { v: "Partir", t: tenses[1], p: persons[1] },
-                { v: "Dividir", t: tenses[0], p: persons[5] }, { v: "Dividir", t: tenses[1], p: persons[2] },
-                { v: "Pôr", t: tenses[0], p: persons[0] }, { v: "Pôr", t: tenses[1], p: persons[3] },
-                { v: "Fazer", t: tenses[0], p: persons[1] }, { v: "Fazer", t: tenses[1], p: persons[4] },
-                { v: "Ser", t: tenses[0], p: persons[2] }, { v: "Ser", t: tenses[1], p: persons[5] },
-                { v: "Estar", t: tenses[0], p: persons[3] }, { v: "Estar", t: tenses[1], p: persons[0] },
-                { v: "Ter", t: tenses[0], p: persons[4] }, { v: "Ter", t: tenses[1], p: persons[1] },
-                { v: "Cantar", t: tenses[0], p: persons[5] }, { v: "Falar", t: tenses[1], p: persons[2] },
-                { v: "Correr", t: tenses[0], p: persons[1] }, { v: "Vender", t: tenses[1], p: persons[4] },
-                { v: "Partir", t: tenses[0], p: persons[2] }, { v: "Dividir", t: tenses[1], p: persons[5] },
-                { v: "Ser", t: tenses[0], p: persons[0] }, { v: "Ter", t: tenses[1], p: persons[3] },
-            ];
-            combos.forEach(combo => {
-                const answer = verbData[combo.v][combo.t][persons.indexOf(combo.p)].split(' ').pop().trim();
-                const prompt = `<div style="margin-bottom: 10px;">Conjuga o verbo: <strong class="highlight">${combo.v.toUpperCase()}</strong></div><div style="margin-bottom: 10px;">no tempo: <strong class="highlight">${combo.t}</strong></div><div>Para a pessoa: <strong class="highlight">${combo.p.toUpperCase()}</strong></div>`;
-                qs.push({ type: 'conjugation', promptText: prompt, correctAnswer: answer });
+            // Lista expandida de tempos verbais
+            const tenses = ["Presente do Indicativo", "Pretérito Perfeito", "Pretérito Imperfeito", "Futuro", "Pretérito Mais-Que-Perfeito"];
+            
+            // Gerar perguntas para todos os verbos em verbData e todos os tempos
+            const verbs = Object.keys(verbData);
+            
+            verbs.forEach(verb => {
+                tenses.forEach(tense => {
+                     // Escolhe 2 pessoas aleatórias por tempo para garantir variedade sem criar milhares de perguntas
+                     const selectedPersons = [];
+                     while(selectedPersons.length < 2) {
+                        const p = persons[Math.floor(Math.random() * persons.length)];
+                        if(!selectedPersons.includes(p)) selectedPersons.push(p);
+                     }
+                     
+                     selectedPersons.forEach(p => {
+                         const answer = verbData[verb][tense][persons.indexOf(p)].split(' ').pop().trim();
+                         // Ajuste no prompt para o Pretérito Mais-Que-Perfeito (Simples)
+                         let tenseDisplay = tense;
+                         if (tense === "Pretérito Mais-Que-Perfeito") tenseDisplay = "Pretérito Mais-Que-Perfeito (Simples)";
+                         
+                         const prompt = `<div style="margin-bottom: 10px;">Conjuga o verbo: <strong class="highlight">${verb.toUpperCase()}</strong></div><div style="margin-bottom: 10px;">no tempo: <strong class="highlight">${tenseDisplay}</strong></div><div>Para a pessoa: <strong class="highlight">${p.toUpperCase()}</strong></div>`;
+                         qs.push({ type: 'conjugation', promptText: prompt, correctAnswer: answer });
+                     });
+                });
             });
+
             return qs;
         }
 
@@ -864,54 +957,69 @@
             color: white;
         }
 
-        /* Estilos de Impressão Corrigidos */
+        /* Estilos de Impressão Corrigidos e Melhorados */
         @media print {
-            /* Garante que o fundo e cores são impressos */
+            @page {
+                size: auto;
+                margin: 0;
+            }
+
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                visibility: hidden; /* Esconde tudo por defeito */
             }
 
-            body, .container, #app-container {
-                visibility: hidden;
-                background-color: white !important;
+            body, html {
+                height: 100%;
                 margin: 0;
                 padding: 0;
-                overflow: visible !important;
+                overflow: hidden; /* Evita scrollbars ou páginas extras */
+                background-color: white !important;
+            }
+            
+            #app-container, .modal-overlay, .reset-btn {
+                display: none !important;
             }
             
             #certificate-print-area {
                 visibility: visible;
-                display: block !important;
-                position: absolute;
-                left: 0;
+                display: flex !important;
+                position: fixed; /* Fixa na página */
                 top: 0;
+                left: 0;
                 width: 100%;
                 height: 100%;
+                margin: 0;
+                padding: 0;
+                justify-content: center;
+                align-items: center;
                 z-index: 9999;
                 background-color: white !important;
             }
             
             #certificate-display-print {
                 visibility: visible;
-                position: absolute;
-                left: 0;
-                top: 0;
                 width: 100%;
+                /* Escala ligeiramente para baixo para garantir que cabe com margens seguras */
+                transform: scale(0.95);
+                transform-origin: center;
             }
             
             #certificate-display-print > div {
                 visibility: visible;
-                width: 90% !important;
-                max-width: none;
-                margin: 20px auto;
+                margin: 0 auto;
                 border: 5px solid var(--burton-purple) !important;
                 box-shadow: none !important;
                 color: black !important;
-                background-color: #f0f0f0 !important; /* Mantém o cinza claro do certificado */
+                background-color: #f0f0f0 !important;
             }
             
-            /* Garante que o texto dentro do certificado seja visível e tenha as cores corretas */
+            /* Garante visibilidade dos textos do certificado */
+            #certificate-display-print * {
+                visibility: visible;
+            }
+            
             .cert-header { color: var(--burton-purple) !important; }
             .cert-recipient { color: var(--burton-red) !important; text-shadow: none !important; }
             .cert-title, p, span { color: #333 !important; }
