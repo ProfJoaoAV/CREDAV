@@ -14,12 +14,12 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Mudado para flex-start para melhor scroll */
+            justify-content: flex-start;
             flex-direction: column;
             padding-top: 20px;
         }
 
-        /* --- BOTÕES DE NAVEGAÇÃO (Melhorados) --- */
+        /* --- BOTÕES DE NAVEGAÇÃO --- */
         .nav-container {
             width: 100%;
             display: flex;
@@ -51,14 +51,16 @@
             box-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
         }
 
-        /* --- ESTILOS DA ZONA DE ESTUDO --- */
+        /* --- ESTILOS GERAIS --- */
         .basket-ball {
             color: #ea580c;
             text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
         }
-        .study-board {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 0 4px #f59e0b;
+        .study-board, #game-board {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 0 5px #f59e0b;
         }
+        
+        /* Abas de Estudo */
         .tab-button {
             transition: all 0.3s ease;
             @apply px-4 py-2 font-bold text-sm sm:text-base rounded-full shadow-lg border-2 border-transparent;
@@ -79,10 +81,7 @@
             color: #ea580c;
         }
 
-        /* --- ESTILOS DA ZONA DE JOGO --- */
-        #game-board {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 0 5px #f59e0b;
-        }
+        /* Jogo e Canvas */
         #gameCanvas {
             border-bottom: 5px solid #000;
             background-color: #d1b48c;
@@ -109,7 +108,7 @@
             border: 2px solid #f97316;
         }
         
-        /* --- MODAL E INPUTS (Melhorados para Visibilidade) --- */
+        /* Modal e Opções */
         .modal {
             background-color: rgba(0, 0, 0, 0.85);
         }
@@ -117,24 +116,21 @@
             box-shadow: 0 0 30px rgba(255, 140, 0, 0.9);
             border: 6px solid #f59e0b;
         }
-        
-        /* CSS para garantir que cada opção fica na sua linha e alinhada */
         .radio-label {
-            display: flex; /* Flexbox para alinhar input e texto */
-            align-items: flex-start; /* Alinha no topo caso o texto seja longo */
-            width: 100%; /* Garante que ocupa a largura total */
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
             @apply p-4 mb-3 bg-amber-100 rounded-xl cursor-pointer transition duration-200 hover:bg-amber-200 text-gray-800 font-medium text-lg;
             border: 2px solid transparent;
         }
         .radio-label:hover {
             border-color: #f59e0b;
         }
-        /* O input (bolinha) não encolhe */
         .radio-label input[type="radio"] {
             flex-shrink: 0; 
             margin-right: 12px;
-            margin-top: 6px; /* Ajuste fino para alinhar com o texto */
-            transform: scale(1.3); /* Bolinha um pouco maior */
+            margin-top: 6px; 
+            transform: scale(1.3);
         }
 
     </style>
@@ -295,7 +291,6 @@
             </div>
 
             <div class="flex flex-col lg:flex-row gap-4">
-                
                 <div class="lg:w-3/4">
                     <canvas id="gameCanvas" width="700" height="400" class="rounded-lg w-full"></canvas>
                     <div id="game-message" class="text-center mt-3 text-lg font-semibold text-gray-700 h-6">
@@ -304,9 +299,8 @@
                 </div>
 
                 <div class="lg:w-1/4 flex flex-col space-y-4">
-                    
                     <div class="p-3 bg-gray-100 rounded-lg shadow-inner">
-                        <p class="font-semibold text-sm text-gray-700 mb-2">Força do Lançamento (Espaço / Clique)</p>
+                        <p class="font-semibold text-sm text-gray-700 mb-2">Força (Espaço / Clique)</p>
                         <div id="force-container">
                             <div id="force-bar" class="rounded-full"></div>
                         </div>
@@ -325,15 +319,9 @@
                     </button>
                     
                     <div class="p-3 bg-yellow-100 rounded-lg text-sm text-yellow-800">
-                        <p class="font-bold mb-1">Como Jogar:</p>
-                        <ol class="list-decimal list-inside space-y-1">
-                            <li>Responde à Pergunta.</li>
-                            <li>Clica no campo (ou usa a tecla ESPAÇO) para parar a seta de ângulo.</li>
-                            <li>Clica novamente (ou usa a tecla ESPAÇO) para definir a força.</li>
-                            <li>A bola será lançada!</li>
-                        </ol>
+                        <p class="font-bold mb-1">Dica:</p>
+                        <p>O cesto agora é mais largo! Aponta com calma e acerta na força verde.</p>
                     </div>
-
                 </div>
             </div>
             
@@ -367,55 +355,36 @@
     </div>
 
     <script>
-        // --- 1. LÓGICA DE NAVEGAÇÃO ENTRE VISTAS ---
+        // --- NAVEGAÇÃO ---
         function switchView(viewName) {
             const studyView = document.getElementById('study-view');
             const gameView = document.getElementById('game-view');
-
             if (viewName === 'game') {
                 studyView.classList.add('hidden');
                 gameView.classList.remove('hidden');
-                // Se o jogo nunca foi iniciado, pode-se iniciar aqui ou esperar o user clicar
             } else {
                 gameView.classList.add('hidden');
                 studyView.classList.remove('hidden');
             }
-            // Scroll para o topo ao mudar de vista
             window.scrollTo(0,0);
         }
 
-        // --- 2. LÓGICA DA ZONA DE ESTUDO (ABAS) ---
+        // --- ABAS ---
         function openTab(tabId) {
             const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => {
-                content.classList.add('hidden');
-            });
-
+            contents.forEach(content => content.classList.add('hidden'));
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(button => {
                 button.classList.remove('active-tab');
                 button.classList.add('inactive-tab');
             });
-
-            const selectedContent = document.getElementById(tabId);
-            if (selectedContent) {
-                selectedContent.classList.remove('hidden');
-            }
-
-            const selectedButton = document.querySelector(`[onclick="openTab('${tabId}')"]`);
-            if (selectedButton) {
-                selectedButton.classList.add('active-tab');
-                selectedButton.classList.remove('inactive-tab');
-            }
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelector(`[onclick="openTab('${tabId}')"]`).classList.add('active-tab');
+            document.querySelector(`[onclick="openTab('${tabId}')"]`).classList.remove('inactive-tab');
         }
-        
-        // Inicializar a primeira aba
-        document.addEventListener('DOMContentLoaded', () => {
-            openTab('sujeito');
-        });
+        document.addEventListener('DOMContentLoaded', () => openTab('sujeito'));
 
-
-        // --- 3. LÓGICA DO JOGO ---
+        // --- LÓGICA DO JOGO ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreP1El = document.getElementById('scoreP1');
@@ -427,21 +396,19 @@
         const answerForm = document.getElementById('answer-form');
         const nextTurnBtn = document.getElementById('next-turn-btn');
 
-        // Configurações do Jogo
         const GAME_WIDTH = canvas.width;
         const GAME_HEIGHT = canvas.height;
-        const GROUND_Y = GAME_HEIGHT - 30; // Altura do chão
+        const GROUND_Y = GAME_HEIGHT - 30;
         const BALL_RADIUS = 10;
         
-        // Configurações da Cesta (Aro)
-        const HOOP_X = GAME_WIDTH - 100;
+        // AJUSTE: Cesto mais largo (Era 50, agora 75)
+        const HOOP_X = GAME_WIDTH - 110; // Posição X
+        const HOOP_WIDTH = 75;           // Largura
         const HOOP_Y = 150;
-        const HOOP_WIDTH = 50;
         const HOOP_HEIGHT = 5;
-        const BACKBOARD_HEIGHT = 80;
-        const NET_HEIGHT = 10;
+        const BACKBOARD_HEIGHT = 90;
+        const NET_HEIGHT = 15;
 
-        // Estado do Jogo
         let gameState = {
             scores: { p1: 0, p2: 0 },
             currentPlayer: 1,
@@ -451,29 +418,16 @@
             isShooting: false,
         };
 
-        let ball = {
-            x: 50,
-            y: GROUND_Y - BALL_RADIUS,
-            vx: 0,
-            vy: 0,
-            gravity: 0.15,
-        };
-
-        let angle = 45; // Ângulo inicial da seta
-        let angleDirection = 1; // 1 para direita, -1 para esquerda
-        let force = 0; // Força inicial (0 a 100)
-        let forceDirection = 1; // 1 para subir, -1 para descer
-        
+        let ball = { x: 50, y: GROUND_Y - BALL_RADIUS, vx: 0, vy: 0, gravity: 0.15 };
+        let angle = 45; 
+        let angleDirection = 1;
+        let force = 0;
+        let forceDirection = 1;
         let currentQuestion = null;
 
-        // --- Desenho do Jogo ---
-
         function drawBackground() {
-            // Chão (Madeira)
             ctx.fillStyle = '#c0a27d';
             ctx.fillRect(0, GROUND_Y, GAME_WIDTH, GAME_HEIGHT - GROUND_Y);
-
-            // Linha de Lançamento (Linha de 3 pontos)
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -483,24 +437,24 @@
 
         function drawHoop() {
             // Poste
-            ctx.fillStyle = '#6b7280'; // Cinzento escuro
+            ctx.fillStyle = '#6b7280';
             ctx.fillRect(HOOP_X + HOOP_WIDTH / 2 - 5, HOOP_Y + HOOP_HEIGHT, 10, GAME_HEIGHT - HOOP_Y - HOOP_HEIGHT - 30);
-
-            // Tabela (Backboard)
-            ctx.fillStyle = '#fef3c7'; // Amarelo Claro
+            
+            // Tabela
+            ctx.fillStyle = '#fef3c7';
             ctx.fillRect(HOOP_X + HOOP_WIDTH, HOOP_Y - BACKBOARD_HEIGHT / 2, 5, BACKBOARD_HEIGHT);
-
-            // Aro (Hoop)
-            ctx.fillStyle = '#ea580c'; // Laranja
+            
+            // Aro (Frente e Trás)
+            ctx.fillStyle = '#ea580c';
             ctx.fillRect(HOOP_X, HOOP_Y, HOOP_WIDTH, HOOP_HEIGHT);
 
-            // Rede (Net) - Linhas brancas
+            // Rede
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            for (let i = 0; i <= HOOP_WIDTH; i += 10) {
+            for (let i = 0; i <= HOOP_WIDTH; i += 15) {
                 ctx.moveTo(HOOP_X + i, HOOP_Y + HOOP_HEIGHT);
-                ctx.lineTo(HOOP_X + i - (i / HOOP_WIDTH) * 10, HOOP_Y + HOOP_HEIGHT + NET_HEIGHT);
+                ctx.lineTo(HOOP_X + i + 5, HOOP_Y + HOOP_HEIGHT + NET_HEIGHT + 15); // Efeito rede solta
             }
             ctx.stroke();
         }
@@ -508,50 +462,30 @@
         function drawBall() {
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
-            ctx.fillStyle = '#f97316'; // Laranja da bola
+            ctx.fillStyle = '#f97316';
             ctx.fill();
-
-            // Detalhes da bola (para parecer basquetebol)
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
             ctx.stroke(); 
-            // Linha central
-            ctx.beginPath();
-            ctx.moveTo(ball.x - BALL_RADIUS, ball.y);
-            ctx.lineTo(ball.x + BALL_RADIUS, ball.y);
-            ctx.stroke();
         }
 
         function drawAimArrow() {
             if (!gameState.isAiming) return;
-
             const length = 50;
-            const startX = ball.x;
-            const startY = ball.y;
-
             const radians = angle * Math.PI / 180;
-            const endX = startX + length * Math.cos(radians);
-            const endY = startY - length * Math.sin(radians);
-
-            ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)'; // Amarelo néon
+            const endX = ball.x + length * Math.cos(radians);
+            const endY = ball.y - length * Math.sin(radians);
+            ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)';
             ctx.lineWidth = 3;
             ctx.setLineDash([5, 5]);
-
             ctx.beginPath();
-            ctx.moveTo(startX, startY);
+            ctx.moveTo(ball.x, ball.y);
             ctx.lineTo(endX, endY);
             ctx.stroke();
-
             ctx.setLineDash([]);
         }
 
-        function clearCanvas() {
-            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-        }
-
-        // --- Lógica do Jogo ---
+        function clearCanvas() { ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT); }
 
         function updateBall() {
             if (!gameState.isShooting) return;
@@ -560,106 +494,91 @@
             ball.x += ball.vx;
             ball.y += ball.vy;
 
-            // Colisão com o chão
+            // 1. Colisão com o chão
             if (ball.y + BALL_RADIUS > GROUND_Y) {
                 ball.y = GROUND_Y - BALL_RADIUS;
-                ball.vy *= -0.7; // Perda de energia (ressalto)
+                ball.vy *= -0.7;
                 ball.vx *= 0.8;
-                if (Math.abs(ball.vy) < 1) { // Pára de ressaltar
+                if (Math.abs(ball.vy) < 1) { 
                     gameState.isShooting = false;
                     endTurn('Falhou o cesto!', false);
                 }
             }
             
-            // Colisão com a Tabela (Backboard)
+            // 2. Colisão com a Tabela (Atrás)
             const BACKBOARD_X = HOOP_X + HOOP_WIDTH;
-            const BACKBOARD_Y_TOP = HOOP_Y - BACKBOARD_HEIGHT / 2;
-            const BACKBOARD_Y_BOTTOM = HOOP_Y + BACKBOARD_HEIGHT / 2;
-
-            if (ball.x + BALL_RADIUS > BACKBOARD_X && 
-                ball.x < BACKBOARD_X &&
-                ball.y > BACKBOARD_Y_TOP &&
-                ball.y < BACKBOARD_Y_BOTTOM) 
-            {
+            if (ball.x + BALL_RADIUS > BACKBOARD_X && ball.x < BACKBOARD_X + 10 &&
+                ball.y > HOOP_Y - BACKBOARD_HEIGHT / 2 && ball.y < HOOP_Y + BACKBOARD_HEIGHT / 2) {
                 ball.vx *= -0.8;
                 ball.x = BACKBOARD_X - BALL_RADIUS;
             }
 
-            // Colisão com o aro (Top do Aro)
-            if (ball.y < HOOP_Y && ball.y > HOOP_Y - BALL_RADIUS && ball.x > HOOP_X - BALL_RADIUS && ball.x < HOOP_X + HOOP_WIDTH + BALL_RADIUS) {
-                 ball.vy *= -0.5;
+            // 3. Colisão com o Aro (FRENTE APENAS)
+            const frontRimX = HOOP_X;
+            const rimHitboxSize = 12;
+
+            if (ball.x + BALL_RADIUS > frontRimX - rimHitboxSize && 
+                ball.x - BALL_RADIUS < frontRimX + rimHitboxSize &&
+                ball.y + BALL_RADIUS > HOOP_Y - rimHitboxSize && 
+                ball.y - BALL_RADIUS < HOOP_Y + rimHitboxSize) {
+                 ball.vy *= -0.8;
+                 ball.vx *= -0.8;
             }
             
-            // Verificação de Ponto (Entrou no Aro)
-            if (ball.x > HOOP_X && ball.x < HOOP_X + HOOP_WIDTH && ball.y > HOOP_Y && ball.y < HOOP_Y + HOOP_HEIGHT + NET_HEIGHT && ball.vy > 0) {
-                ball.y = HOOP_Y + HOOP_HEIGHT + BALL_RADIUS / 2;
+            // 4. Verificação de Ponto
+            if (ball.x > HOOP_X + 5 && ball.x < HOOP_X + HOOP_WIDTH - 5 && 
+                ball.y > HOOP_Y && ball.y < HOOP_Y + 15 && ball.vy > 0) {
+                
+                ball.x = HOOP_X + HOOP_WIDTH / 2;
+                ball.y = HOOP_Y + 20;
+                
                 gameState.isShooting = false;
                 gameState.scores[`p${gameState.currentPlayer}`]++;
                 updateScoreDisplay();
-                endTurn('PONTO! Que lançamento perfeito!', true);
+                endTurn('PONTO! CESTO! Fantástico!', true);
             }
         }
 
         function updateAngle() {
             if (!gameState.isAiming) return;
-
             angle += angleDirection * 0.5;
-            if (angle > 90 || angle < 0) {
-                angleDirection *= -1;
-            }
+            if (angle > 90 || angle < 0) angleDirection *= -1;
         }
 
         function updateForce() {
             if (!gameState.isForcing) return;
-
             force += forceDirection * 1.5;
-            if (force > 100 || force < 0) {
-                forceDirection *= -1;
-            }
-            
+            if (force > 100 || force < 0) forceDirection *= -1;
             forceBar.style.width = `${force}%`;
-            if (force > 40 && force < 70) {
-                forceBar.classList.add('ideal');
-            } else {
-                forceBar.classList.remove('ideal');
-            }
+            if (force > 40 && force < 70) forceBar.classList.add('ideal');
+            else forceBar.classList.remove('ideal');
         }
 
         function shoot() {
             if (!gameState.isQuestionAnswered || gameState.isShooting) return;
-
             gameState.isAiming = false;
             gameState.isForcing = false;
             gameState.isShooting = true;
-            
-            const speed = (force / 100) * 12 + 6; 
+            const speed = (force / 100) * 13 + 6; // Ligeiro ajuste na velocidade
             const radians = angle * Math.PI / 180; 
-
             ball.vx = speed * Math.cos(radians);
             ball.vy = -speed * Math.sin(radians);
-            
-            gameMessageEl.textContent = 'Bola no ar... Força e ângulo perfeitos?';
+            gameMessageEl.textContent = 'Bola no ar...';
         }
-        
-        // --- Loop do Jogo ---
 
         function gameLoop() {
             clearCanvas();
             drawBackground();
             drawHoop();
-            
             updateAngle();
             updateForce();
             updateBall();
-            
             drawBall();
             drawAimArrow();
-
             requestAnimationFrame(gameLoop);
         }
 
-        // --- Funções de Estado e UI ---
-        
+        // --- SISTEMA DE JOGO ---
         function updateScoreDisplay() {
             scoreP1El.textContent = gameState.scores.p1;
             scoreP2El.textContent = gameState.scores.p2;
@@ -667,12 +586,9 @@
         }
         
         function resetBallPosition() {
-            ball.x = 50;
-            ball.y = GROUND_Y - BALL_RADIUS;
-            ball.vx = 0;
-            ball.vy = 0;
-            angle = 45;
-            force = 0;
+            ball.x = 50; ball.y = GROUND_Y - BALL_RADIUS;
+            ball.vx = 0; ball.vy = 0;
+            angle = 45; force = 0;
             forceBar.style.width = '0%';
             forceBar.classList.remove('ideal');
         }
@@ -684,8 +600,6 @@
             gameState.isForcing = false;
             gameState.isShooting = false;
             nextTurnBtn.disabled = true;
-            
-            // Fazer a pergunta
             loadQuestion();
             questionModal.classList.remove('hidden');
             gameMessageEl.textContent = 'Responde à pergunta para lançar!';
@@ -694,12 +608,7 @@
         function endTurn(message, scored) {
             gameMessageEl.textContent = message;
             nextTurnBtn.disabled = false;
-            
-            if (scored) {
-                setTimeout(() => {
-                    nextTurn();
-                }, 2000);
-            }
+            if (scored) setTimeout(() => nextTurn(), 2500);
         }
         
         function nextTurn() {
@@ -716,36 +625,28 @@
             startTurn();
         }
 
-        // --- Controles de Eventos ---
-
+        // --- INPUTS ---
         canvas.addEventListener('click', handleGameControl);
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                handleGameControl();
-            }
+            if (e.code === 'Space') { e.preventDefault(); handleGameControl(); }
         });
 
         function handleGameControl() {
-            // SEGURANÇA: Se o jogo estiver escondido, não processar input (evita disparar enquanto estuda)
             const gameView = document.getElementById('game-view');
             if (gameView.classList.contains('hidden')) return;
-
             if (!gameState.isQuestionAnswered || gameState.isShooting) return;
             
             if (gameState.isAiming) {
                 gameState.isAiming = false;
                 gameState.isForcing = true;
-                gameMessageEl.textContent = 'Agora, define a força. Carrega de novo para lançar!';
+                gameMessageEl.textContent = 'Define a força!';
             } else if (gameState.isForcing) {
                 shoot();
             }
         }
         
-        // --- Lógica de Perguntas ---
-        
+        // --- TODAS AS PERGUNTAS ORIGINAIS ---
         const questions = [
-            // --- Perguntas Retidas/Adaptadas (do conjunto anterior) ---
             {
                 q: "Qual é a função sintática da expressão <span class='font-extrabold text-blue-800'>'O gelo'</span> na frase: 'O gelo derreteu.'?",
                 options: { A: "Predicado", B: "Sujeito Simples", C: "Complemento Direto" },
@@ -821,7 +722,6 @@
                 options: { A: "Complemento Indireto", B: "Sujeito", C: "Complemento Direto" },
                 answer: "C",
             },
-            // --- Perguntas Baseadas nas Suas Frases ---
             {
                 q: "Na frase 'A Petra é um furacão.', a função sintática de <span class='font-extrabold text-blue-800'>'A Petra'</span> é:",
                 options: { A: "Complemento Direto", B: "Sujeito Simples", C: "Complemento Indireto" },
@@ -872,7 +772,6 @@
                 options: { A: "Sujeito Simples", B: "Sujeito Composto", C: "Predicado" },
                 answer: "B",
             },
-            // --- Novas Perguntas (Misturadas) ---
             {
                 q: "Qual é a função sintática de <span class='font-extrabold text-blue-800'>'Eu'</span> na frase: 'Eu fiz os trabalhos de casa.'?",
                 options: { A: "Predicado", B: "Sujeito Simples", C: "Complemento Direto" },
@@ -1106,49 +1005,37 @@
         ];
 
         function loadQuestion() {
-            let availableQuestions = questions; 
+            let available = questions; 
             if (currentQuestion) {
-                 availableQuestions = questions.filter(q => q !== currentQuestion);
-                 if (availableQuestions.length === 0) availableQuestions = questions; 
+                 available = questions.filter(q => q !== currentQuestion);
+                 if (available.length === 0) available = questions; 
             }
-
-            currentQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            currentQuestion = available[Math.floor(Math.random() * available.length)];
             
             document.getElementById('question-text').innerHTML = currentQuestion.q;
             document.getElementById('option-A').innerHTML = currentQuestion.options.A;
             document.getElementById('option-B').innerHTML = currentQuestion.options.B;
             document.getElementById('option-C').innerHTML = currentQuestion.options.C;
-            
             answerForm.reset();
         }
 
         answerForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const selected = document.querySelector('input[name="answer"]:checked');
-            
-            if (!selected) {
-                gameMessageEl.textContent = 'Selecione uma resposta antes de tentar lançar!';
-                return;
-            }
+            if (!selected) return;
 
             if (selected.value === currentQuestion.answer) {
                 gameState.isQuestionAnswered = true;
                 questionModal.classList.add('hidden');
-                gameMessageEl.textContent = 'Resposta CORRETA! Agora aponta e carrega para lançar!';
-                
+                gameMessageEl.textContent = 'Correto! Lança a bola!';
             } else {
                 questionModal.classList.add('hidden');
-                endTurn('Resposta INCORRETA. Passa a bola para o próximo jogador.', false);
-                setTimeout(() => {
-                    nextTurn();
-                }, 2000);
+                endTurn('Incorreto. Vez do próximo.', false);
+                setTimeout(() => nextTurn(), 2000);
             }
         });
 
-        // Iniciar loop
         gameLoop();
-        
-        // Mensagem inicial
         gameMessageEl.textContent = 'Carrega em "Iniciar Novo Jogo" para começar.';
     </script>
 </body>
