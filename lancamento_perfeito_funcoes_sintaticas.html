@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marca o Ponto nas Funções Sintáticas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- ESTILOS GERAIS (Partilhados) --- */
+        body {
+            background-color: #92400e; /* Castanho Escuro */
+            background-image: linear-gradient(135deg, #a16207 0%, #78350f 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Mudado para flex-start para melhor scroll */
+            flex-direction: column;
+            padding-top: 20px;
+        }
+
+        /* --- BOTÕES DE NAVEGAÇÃO (Melhorados) --- */
+        .nav-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            z-index: 10;
+        }
+
+        .big-switch-btn {
+            @apply px-8 py-4 text-lg sm:text-xl font-black rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 border-4;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-to-game {
+            background-color: #16a34a; /* Verde Vibrante */
+            border-color: #86efac;
+            color: white;
+            box-shadow: 0 0 20px rgba(22, 163, 74, 0.6);
+        }
+
+        .btn-to-study {
+            background-color: #2563eb; /* Azul Vibrante */
+            border-color: #93c5fd;
+            color: white;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
+        }
+
+        /* --- ESTILOS DA ZONA DE ESTUDO --- */
+        .basket-ball {
+            color: #ea580c;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+        }
+        .study-board {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 0 4px #f59e0b;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            @apply px-4 py-2 font-bold text-sm sm:text-base rounded-full shadow-lg border-2 border-transparent;
+        }
+        .active-tab {
+            background-color: #ea580c;
+            color: white;
+            border-color: #fcd34d;
+            transform: translateY(-4px);
+        }
+        .inactive-tab {
+            background-color: #fb923c;
+            color: #333;
+            opacity: 0.8;
+        }
+        .destaque {
+            font-weight: bold;
+            color: #ea580c;
+        }
+
+        /* --- ESTILOS DA ZONA DE JOGO --- */
+        #game-board {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 0 5px #f59e0b;
+        }
+        #gameCanvas {
+            border-bottom: 5px solid #000;
+            background-color: #d1b48c;
+            cursor: pointer;
+        }
+        #force-container {
+            height: 15px;
+            border: 2px solid #5a5a5a;
+            background-color: #eee;
+            border-radius: 9999px;
+        }
+        #force-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #ef4444;
+            transition: background-color 0.1s;
+        }
+        #force-bar.ideal {
+            background-color: #10b981;
+        }
+        .game-button {
+            @apply px-6 py-3 font-bold text-white rounded-lg transition-transform transform hover:scale-105 active:scale-95 shadow-lg;
+            background-color: #ea580c;
+            border: 2px solid #f97316;
+        }
+        
+        /* --- MODAL E INPUTS (Melhorados para Visibilidade) --- */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.85);
+        }
+        .modal-content {
+            box-shadow: 0 0 30px rgba(255, 140, 0, 0.9);
+            border: 6px solid #f59e0b;
+        }
+        
+        /* CSS para garantir que cada opção fica na sua linha e alinhada */
+        .radio-label {
+            display: flex; /* Flexbox para alinhar input e texto */
+            align-items: flex-start; /* Alinha no topo caso o texto seja longo */
+            width: 100%; /* Garante que ocupa a largura total */
+            @apply p-4 mb-3 bg-amber-100 rounded-xl cursor-pointer transition duration-200 hover:bg-amber-200 text-gray-800 font-medium text-lg;
+            border: 2px solid transparent;
+        }
+        .radio-label:hover {
+            border-color: #f59e0b;
+        }
+        /* O input (bolinha) não encolhe */
+        .radio-label input[type="radio"] {
+            flex-shrink: 0; 
+            margin-right: 12px;
+            margin-top: 6px; /* Ajuste fino para alinhar com o texto */
+            transform: scale(1.3); /* Bolinha um pouco maior */
+        }
+
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div id="study-view" class="w-full flex flex-col items-center">
+        
+        <div class="nav-container">
+            <button onclick="switchView('game')" class="big-switch-btn btn-to-game">
+                <span>🏀</span> Ir para o Jogo
+            </button>
+        </div>
+
+        <div id="app" class="study-board w-full max-w-5xl bg-white/95 backdrop-blur-sm rounded-xl p-6 sm:p-10 mb-10">
+
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-center mb-8 text-gray-800">
+                <span class="basket-ball">🏀</span> Marca o Ponto nas Funções Sintáticas
+            </h1>
+
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 p-3 bg-gray-100 rounded-lg shadow-inner">
+                <button class="tab-button active-tab" onclick="openTab('sujeito')">1. Sujeito</button>
+                <button class="tab-button inactive-tab" onclick="openTab('predicado')">2. Predicado</button>
+                <button class="tab-button inactive-tab" onclick="openTab('cdireto')">3. Compl. Direto</button>
+                <button class="tab-button inactive-tab" onclick="openTab('cindireto')">4. Compl. Indireto</button>
+                <button class="tab-button inactive-tab" onclick="openTab('bivalentes')">5. Verbos Bivalentes</button>
+            </div>
+
+            <div id="sujeito" class="tab-content p-6 border-4 border-amber-600 rounded-lg bg-orange-50/70 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b pb-2 border-amber-600">O Sujeito: Quem Faz a Jogada</h2>
+                <p class="mb-4 text-gray-700">O <span class="destaque">Sujeito</span> é o elemento central da frase, é sobre ele que o Predicado diz alguma coisa. É a nossa estrela em campo!</p>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2 text-amber-800">Como Identificar (A Tua Regra de Ouro):</h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-600">
+                    <li>Faz a pergunta: <span class="destaque">"Quem/O que + Verbo?"</span></li>
+                    <li>Podes substituí-lo pelos pronomes pessoais <span class="destaque">ele/ela/eles/elas</span>.</li>
+                    <li><em class="font-medium">Exemplo:</em> Os astronautas percorreram o espaço. &rarr; **Quem** percorreu? &rarr; <span class="destaque">Os astronautas</span> (Sujeito).</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold mt-6 mb-2 text-amber-800">Tipos de Sujeito:</h3>
+                <div class="grid md:grid-cols-2 gap-4 mt-4">
+                    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500">
+                        <p class="font-bold text-lg">Simples:</p>
+                        <p class="text-sm">Um <span class="destaque">único</span> Grupo Nominal ou núcleo.</p>
+                        <p class="text-xs italic mt-1">Exemplo: **As alpinistas** subiram.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-red-500">
+                        <p class="font-bold text-lg">Composto:</p>
+                        <p class="text-sm"><span class="destaque">Dois ou mais</span> Grupos Nominais ou núcleos.</p>
+                        <p class="text-xs italic mt-1">Exemplo: **A alpinista e os amigos** subiram.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="predicado" class="tab-content hidden p-6 border-4 border-amber-600 rounded-lg bg-orange-50/70 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b pb-2 border-amber-600">O Predicado: A Ação no Campo</h2>
+                <p class="mb-4 text-gray-700">O <span class="destaque">Predicado</span> é o que se diz ou o que acontece com o Sujeito. O seu núcleo é o <span class="destaque">verbo</span> – o nosso motor de jogo!</p>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2 text-amber-800">Núcleo e Constituição:</h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-600">
+                    <li>É desempenhado pelo <span class="destaque">Grupo Verbal</span>.</li>
+                    <li>O núcleo é sempre o <span class="destaque">verbo</span> (principal ou auxiliar + principal).</li>
+                    <li><em class="font-medium">Exemplo:</em> O gelo <span class="destaque">derreteu</span>.</li>
+                    <li>O Predicado pode ter outros elementos, os <span class="destaque">Complementos</span>, que vamos estudar a seguir.</li>
+                </ul>
+                <div class="mt-6 p-4 bg-white rounded-lg shadow-inner">
+                    <p class="font-semibold text-lg text-gray-700">Recapitulando a Estrutura Base:</p>
+                    <p class="text-sm italic mt-1">**O livro (SUJEITO) é interessante (PREDICADO).**</p>
+                </div>
+            </div>
+
+            <div id="cdireto" class="tab-content hidden p-6 border-4 border-amber-600 rounded-lg bg-orange-50/70 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b pb-2 border-amber-600">Complemento Direto: A Bola (sem Preposição)</h2>
+                <p class="mb-4 text-gray-700">O <span class="destaque">Complemento Direto (CD)</span> completa o sentido do verbo e liga-se a ele <span class="destaque">diretamente</span>, **sem a preposição "a"** (é a nossa bola de basquetebol, que é passada diretamente!).</p>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2 text-amber-800">Como Identificar:</h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-600">
+                    <li>Faz a pergunta: <span class="destaque">"Verbo + o quê?"</span> ou <span class="destaque">"Verbo + quem?"</span> (se for uma pessoa).</li>
+                    <li><em class="font-medium">Exemplo:</em> A Vitória quebrou <span class="destaque">o quê</span>? &rarr; <span class="destaque">dois pratos</span> (CD).</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold mt-6 mb-2 text-amber-800">Substituição (O Drible de Mestre):</h3>
+                <div class="p-3 bg-white rounded-lg shadow-md">
+                    <p class="text-gray-700">Pode ser substituído pelos pronomes pessoais: <span class="destaque text-2xl">o, a, os, as</span>.</p>
+                    <p class="text-xs italic mt-1">Exemplo: O Bernardo escutou a mãe. &rarr; O Bernardo escutou-**a**.</p>
+                </div>
+            </div>
+
+            <div id="cindireto" class="tab-content hidden p-6 border-4 border-amber-600 rounded-lg bg-orange-50/70 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b pb-2 border-amber-600">Complemento Indireto: O Destinatário do Passe</h2>
+                <p class="mb-4 text-gray-700">O <span class="destaque">Complemento Indireto (CI)</span> completa o sentido do verbo e liga-se a ele **através da preposição "a"** (é o passe que vai **a** alguém).</p>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2 text-amber-800">Como Identificar:</h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-600">
+                    <li>Faz a pergunta: <span class="destaque">"Verbo + a quem?"</span></li>
+                    <li><em class="font-medium">Exemplo:</em> A Rita telefonou <span class="destaque">a quem</span>? &rarr; <span class="destaque">à sua melhor amiga</span> (CI).</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold mt-6 mb-2 text-amber-800">Substituição (A Assistência Perfeita):</h3>
+                <div class="p-3 bg-white rounded-lg shadow-md">
+                    <p class="text-gray-700">Pode ser substituído pelos pronomes pessoais: <span class="destaque text-2xl">lhe, lhes</span>.</p>
+                    <p class="text-xs italic mt-1">Exemplo: A Rita telefonou à sua melhor amiga. &rarr; A Rita telefonou-**lhe**.</p>
+                </div>
+            </div>
+
+            <div id="bivalentes" class="tab-content hidden p-6 border-4 border-amber-600 rounded-lg bg-orange-50/70 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900 border-b pb-2 border-amber-600">Verbos Bivalentes: Os Reis da Dupla Jogada</h2>
+                <p class="mb-4 text-gray-700">Alguns verbos são tão fortes que exigem os <span class="destaque">dois complementos ao mesmo tempo</span>: o **Direto** (a bola) e o **Indireto** (o destinatário).</p>
+
+                <div class="p-4 bg-amber-200 rounded-lg shadow-md border-2 border-amber-500 mb-6">
+                    <p class="font-bold text-lg text-amber-900">Exemplo de Dupla Jogada:</p>
+                    <p class="text-sm italic">O António **ofereceu**</p>
+                    <ul class="list-inside list-none mt-2 space-y-1">
+                        <li class="font-semibold text-green-700">1. Complemento Direto (o quê?): <span class="font-normal italic">um presente</span></li>
+                        <li class="font-semibold text-red-700">2. Complemento Indireto (a quem?): <span class="font-normal italic">aos avós</span></li>
+                    </ul>
+                </div>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2 text-amber-800">Lista de Verbos (Os Atacantes Principais):</h3>
+                <div class="flex flex-wrap gap-2 text-white text-sm font-semibold">
+                    <span class="bg-orange-500 px-3 py-1 rounded-full shadow">contar</span>
+                    <span class="bg-orange-600 px-3 py-1 rounded-full shadow">dar</span>
+                    <span class="bg-orange-500 px-3 py-1 rounded-full shadow">devolver</span>
+                    <span class="bg-orange-600 px-3 py-1 rounded-full shadow">dizer</span>
+                    <span class="bg-orange-500 px-3 py-1 rounded-full shadow">emprestar</span>
+                    <span class="bg-orange-600 px-3 py-1 rounded-full shadow">enviar</span>
+                    <span class="bg-orange-500 px-3 py-1 rounded-full shadow">explicar</span>
+                    <span class="bg-orange-600 px-3 py-1 rounded-full shadow">indicar</span>
+                    <span class="bg-orange-500 px-3 py-1 rounded-full shadow">mostrar</span>
+                    <span class="bg-orange-600 px-3 py-1 rounded-full shadow">pedir</span>
+                    <span class="bg-orange-500 px-3 py-1 rounded-full shadow">perguntar</span>
+                    <span class="bg-orange-600 px-3 py-1 rounded-full shadow">solicitar</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="game-view" class="w-full flex flex-col items-center hidden">
+
+        <div class="nav-container">
+            <button onclick="switchView('study')" class="big-switch-btn btn-to-study">
+                <span>📚</span> Voltar à Matéria
+            </button>
+        </div>
+
+        <div id="game-board" class="w-full max-w-4xl bg-white/95 backdrop-blur-sm rounded-xl p-4 sm:p-6 mb-10">
+
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b pb-4 border-gray-300">
+                <h1 class="text-3xl font-extrabold text-gray-800 mb-4 sm:mb-0">
+                    <span class="text-orange-600">🏀</span> Lançamento Perfeito
+                </h1>
+                <div class="flex space-x-6 text-xl font-bold">
+                    <span id="player-turn" class="text-gray-700">Turno: Jogador 1</span>
+                    <span class="text-orange-600">P1: <span id="scoreP1">0</span></span>
+                    <span class="text-gray-500">P2: <span id="scoreP2">0</span></span>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-4">
+                
+                <div class="lg:w-3/4">
+                    <canvas id="gameCanvas" width="700" height="400" class="rounded-lg w-full"></canvas>
+                    <div id="game-message" class="text-center mt-3 text-lg font-semibold text-gray-700 h-6">
+                        Responde à pergunta para lançar!
+                    </div>
+                </div>
+
+                <div class="lg:w-1/4 flex flex-col space-y-4">
+                    
+                    <div class="p-3 bg-gray-100 rounded-lg shadow-inner">
+                        <p class="font-semibold text-sm text-gray-700 mb-2">Força do Lançamento (Espaço / Clique)</p>
+                        <div id="force-container">
+                            <div id="force-bar" class="rounded-full"></div>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1 text-gray-500">
+                            <span>Fraca</span>
+                            <span>Ideal</span>
+                            <span>Máxima</span>
+                        </div>
+                    </div>
+
+                    <button id="start-game-btn" class="game-button bg-green-600 hover:bg-green-700" onclick="startGame()">
+                        Iniciar Novo Jogo
+                    </button>
+                    <button id="next-turn-btn" class="game-button bg-blue-600 hover:bg-blue-700" onclick="nextTurn()" disabled>
+                        Próximo Turno
+                    </button>
+                    
+                    <div class="p-3 bg-yellow-100 rounded-lg text-sm text-yellow-800">
+                        <p class="font-bold mb-1">Como Jogar:</p>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Responde à Pergunta.</li>
+                            <li>Clica no campo (ou usa a tecla ESPAÇO) para parar a seta de ângulo.</li>
+                            <li>Clica novamente (ou usa a tecla ESPAÇO) para definir a força.</li>
+                            <li>A bola será lançada!</li>
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div id="questionModal" class="modal fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="modal-content bg-white p-6 sm:p-8 rounded-xl w-11/12 max-w-2xl">
+            <h2 class="text-3xl font-bold mb-6 text-orange-600 text-center border-b-2 border-orange-200 pb-2">Pergunta Sintática!</h2>
+            <p id="question-text" class="text-xl mb-6 text-gray-800 font-medium"></p>
+            
+            <form id="answer-form" class="w-full">
+                <label class="radio-label">
+                    <input type="radio" name="answer" value="A"> 
+                    <span id="option-A"></span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="answer" value="B"> 
+                    <span id="option-B"></span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="answer" value="C"> 
+                    <span id="option-C"></span>
+                </label>
+                
+                <button type="submit" class="game-button w-full mt-6 bg-green-500 hover:bg-green-600 text-xl py-4">
+                    Responder e Lançar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. LÓGICA DE NAVEGAÇÃO ENTRE VISTAS ---
+        function switchView(viewName) {
+            const studyView = document.getElementById('study-view');
+            const gameView = document.getElementById('game-view');
+
+            if (viewName === 'game') {
+                studyView.classList.add('hidden');
+                gameView.classList.remove('hidden');
+                // Se o jogo nunca foi iniciado, pode-se iniciar aqui ou esperar o user clicar
+            } else {
+                gameView.classList.add('hidden');
+                studyView.classList.remove('hidden');
+            }
+            // Scroll para o topo ao mudar de vista
+            window.scrollTo(0,0);
+        }
+
+        // --- 2. LÓGICA DA ZONA DE ESTUDO (ABAS) ---
+        function openTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active-tab');
+                button.classList.add('inactive-tab');
+            });
+
+            const selectedContent = document.getElementById(tabId);
+            if (selectedContent) {
+                selectedContent.classList.remove('hidden');
+            }
+
+            const selectedButton = document.querySelector(`[onclick="openTab('${tabId}')"]`);
+            if (selectedButton) {
+                selectedButton.classList.add('active-tab');
+                selectedButton.classList.remove('inactive-tab');
+            }
+        }
+        
+        // Inicializar a primeira aba
+        document.addEventListener('DOMContentLoaded', () => {
+            openTab('sujeito');
+        });
+
+
+        // --- 3. LÓGICA DO JOGO ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreP1El = document.getElementById('scoreP1');
+        const scoreP2El = document.getElementById('scoreP2');
+        const playerTurnEl = document.getElementById('player-turn');
+        const gameMessageEl = document.getElementById('game-message');
+        const forceBar = document.getElementById('force-bar');
+        const questionModal = document.getElementById('questionModal');
+        const answerForm = document.getElementById('answer-form');
+        const nextTurnBtn = document.getElementById('next-turn-btn');
+
+        // Configurações do Jogo
+        const GAME_WIDTH = canvas.width;
+        const GAME_HEIGHT = canvas.height;
+        const GROUND_Y = GAME_HEIGHT - 30; // Altura do chão
+        const BALL_RADIUS = 10;
+        
+        // Configurações da Cesta (Aro)
+        const HOOP_X = GAME_WIDTH - 100;
+        const HOOP_Y = 150;
+        const HOOP_WIDTH = 50;
+        const HOOP_HEIGHT = 5;
+        const BACKBOARD_HEIGHT = 80;
+        const NET_HEIGHT = 10;
+
+        // Estado do Jogo
+        let gameState = {
+            scores: { p1: 0, p2: 0 },
+            currentPlayer: 1,
+            isQuestionAnswered: false,
+            isAiming: true,
+            isForcing: false,
+            isShooting: false,
+        };
+
+        let ball = {
+            x: 50,
+            y: GROUND_Y - BALL_RADIUS,
+            vx: 0,
+            vy: 0,
+            gravity: 0.15,
+        };
+
+        let angle = 45; // Ângulo inicial da seta
+        let angleDirection = 1; // 1 para direita, -1 para esquerda
+        let force = 0; // Força inicial (0 a 100)
+        let forceDirection = 1; // 1 para subir, -1 para descer
+        
+        let currentQuestion = null;
+
+        // --- Desenho do Jogo ---
+
+        function drawBackground() {
+            // Chão (Madeira)
+            ctx.fillStyle = '#c0a27d';
+            ctx.fillRect(0, GROUND_Y, GAME_WIDTH, GAME_HEIGHT - GROUND_Y);
+
+            // Linha de Lançamento (Linha de 3 pontos)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(HOOP_X - 100, GROUND_Y, 200, Math.PI, 2 * Math.PI);
+            ctx.stroke();
+        }
+
+        function drawHoop() {
+            // Poste
+            ctx.fillStyle = '#6b7280'; // Cinzento escuro
+            ctx.fillRect(HOOP_X + HOOP_WIDTH / 2 - 5, HOOP_Y + HOOP_HEIGHT, 10, GAME_HEIGHT - HOOP_Y - HOOP_HEIGHT - 30);
+
+            // Tabela (Backboard)
+            ctx.fillStyle = '#fef3c7'; // Amarelo Claro
+            ctx.fillRect(HOOP_X + HOOP_WIDTH, HOOP_Y - BACKBOARD_HEIGHT / 2, 5, BACKBOARD_HEIGHT);
+
+            // Aro (Hoop)
+            ctx.fillStyle = '#ea580c'; // Laranja
+            ctx.fillRect(HOOP_X, HOOP_Y, HOOP_WIDTH, HOOP_HEIGHT);
+
+            // Rede (Net) - Linhas brancas
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i <= HOOP_WIDTH; i += 10) {
+                ctx.moveTo(HOOP_X + i, HOOP_Y + HOOP_HEIGHT);
+                ctx.lineTo(HOOP_X + i - (i / HOOP_WIDTH) * 10, HOOP_Y + HOOP_HEIGHT + NET_HEIGHT);
+            }
+            ctx.stroke();
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
+            ctx.fillStyle = '#f97316'; // Laranja da bola
+            ctx.fill();
+
+            // Detalhes da bola (para parecer basquetebol)
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
+            ctx.stroke(); 
+            // Linha central
+            ctx.beginPath();
+            ctx.moveTo(ball.x - BALL_RADIUS, ball.y);
+            ctx.lineTo(ball.x + BALL_RADIUS, ball.y);
+            ctx.stroke();
+        }
+
+        function drawAimArrow() {
+            if (!gameState.isAiming) return;
+
+            const length = 50;
+            const startX = ball.x;
+            const startY = ball.y;
+
+            const radians = angle * Math.PI / 180;
+            const endX = startX + length * Math.cos(radians);
+            const endY = startY - length * Math.sin(radians);
+
+            ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)'; // Amarelo néon
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        }
+
+        // --- Lógica do Jogo ---
+
+        function updateBall() {
+            if (!gameState.isShooting) return;
+
+            ball.vy += ball.gravity;
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+
+            // Colisão com o chão
+            if (ball.y + BALL_RADIUS > GROUND_Y) {
+                ball.y = GROUND_Y - BALL_RADIUS;
+                ball.vy *= -0.7; // Perda de energia (ressalto)
+                ball.vx *= 0.8;
+                if (Math.abs(ball.vy) < 1) { // Pára de ressaltar
+                    gameState.isShooting = false;
+                    endTurn('Falhou o cesto!', false);
+                }
+            }
+            
+            // Colisão com a Tabela (Backboard)
+            const BACKBOARD_X = HOOP_X + HOOP_WIDTH;
+            const BACKBOARD_Y_TOP = HOOP_Y - BACKBOARD_HEIGHT / 2;
+            const BACKBOARD_Y_BOTTOM = HOOP_Y + BACKBOARD_HEIGHT / 2;
+
+            if (ball.x + BALL_RADIUS > BACKBOARD_X && 
+                ball.x < BACKBOARD_X &&
+                ball.y > BACKBOARD_Y_TOP &&
+                ball.y < BACKBOARD_Y_BOTTOM) 
+            {
+                ball.vx *= -0.8;
+                ball.x = BACKBOARD_X - BALL_RADIUS;
+            }
+
+            // Colisão com o aro (Top do Aro)
+            if (ball.y < HOOP_Y && ball.y > HOOP_Y - BALL_RADIUS && ball.x > HOOP_X - BALL_RADIUS && ball.x < HOOP_X + HOOP_WIDTH + BALL_RADIUS) {
+                 ball.vy *= -0.5;
+            }
+            
+            // Verificação de Ponto (Entrou no Aro)
+            if (ball.x > HOOP_X && ball.x < HOOP_X + HOOP_WIDTH && ball.y > HOOP_Y && ball.y < HOOP_Y + HOOP_HEIGHT + NET_HEIGHT && ball.vy > 0) {
+                ball.y = HOOP_Y + HOOP_HEIGHT + BALL_RADIUS / 2;
+                gameState.isShooting = false;
+                gameState.scores[`p${gameState.currentPlayer}`]++;
+                updateScoreDisplay();
+                endTurn('PONTO! Que lançamento perfeito!', true);
+            }
+        }
+
+        function updateAngle() {
+            if (!gameState.isAiming) return;
+
+            angle += angleDirection * 0.5;
+            if (angle > 90 || angle < 0) {
+                angleDirection *= -1;
+            }
+        }
+
+        function updateForce() {
+            if (!gameState.isForcing) return;
+
+            force += forceDirection * 1.5;
+            if (force > 100 || force < 0) {
+                forceDirection *= -1;
+            }
+            
+            forceBar.style.width = `${force}%`;
+            if (force > 40 && force < 70) {
+                forceBar.classList.add('ideal');
+            } else {
+                forceBar.classList.remove('ideal');
+            }
+        }
+
+        function shoot() {
+            if (!gameState.isQuestionAnswered || gameState.isShooting) return;
+
+            gameState.isAiming = false;
+            gameState.isForcing = false;
+            gameState.isShooting = true;
+            
+            const speed = (force / 100) * 12 + 6; 
+            const radians = angle * Math.PI / 180; 
+
+            ball.vx = speed * Math.cos(radians);
+            ball.vy = -speed * Math.sin(radians);
+            
+            gameMessageEl.textContent = 'Bola no ar... Força e ângulo perfeitos?';
+        }
+        
+        // --- Loop do Jogo ---
+
+        function gameLoop() {
+            clearCanvas();
+            drawBackground();
+            drawHoop();
+            
+            updateAngle();
+            updateForce();
+            updateBall();
+            
+            drawBall();
+            drawAimArrow();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- Funções de Estado e UI ---
+        
+        function updateScoreDisplay() {
+            scoreP1El.textContent = gameState.scores.p1;
+            scoreP2El.textContent = gameState.scores.p2;
+            playerTurnEl.textContent = `Turno: Jogador ${gameState.currentPlayer}`;
+        }
+        
+        function resetBallPosition() {
+            ball.x = 50;
+            ball.y = GROUND_Y - BALL_RADIUS;
+            ball.vx = 0;
+            ball.vy = 0;
+            angle = 45;
+            force = 0;
+            forceBar.style.width = '0%';
+            forceBar.classList.remove('ideal');
+        }
+
+        function startTurn() {
+            resetBallPosition();
+            gameState.isQuestionAnswered = false;
+            gameState.isAiming = true;
+            gameState.isForcing = false;
+            gameState.isShooting = false;
+            nextTurnBtn.disabled = true;
+            
+            // Fazer a pergunta
+            loadQuestion();
+            questionModal.classList.remove('hidden');
+            gameMessageEl.textContent = 'Responde à pergunta para lançar!';
+        }
+
+        function endTurn(message, scored) {
+            gameMessageEl.textContent = message;
+            nextTurnBtn.disabled = false;
+            
+            if (scored) {
+                setTimeout(() => {
+                    nextTurn();
+                }, 2000);
+            }
+        }
+        
+        function nextTurn() {
+            gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+            updateScoreDisplay();
+            startTurn();
+        }
+
+        function startGame() {
+            gameState.scores = { p1: 0, p2: 0 };
+            gameState.currentPlayer = 1;
+            updateScoreDisplay();
+            document.getElementById('start-game-btn').textContent = 'Reiniciar Jogo';
+            startTurn();
+        }
+
+        // --- Controles de Eventos ---
+
+        canvas.addEventListener('click', handleGameControl);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                handleGameControl();
+            }
+        });
+
+        function handleGameControl() {
+            // SEGURANÇA: Se o jogo estiver escondido, não processar input (evita disparar enquanto estuda)
+            const gameView = document.getElementById('game-view');
+            if (gameView.classList.contains('hidden')) return;
+
+            if (!gameState.isQuestionAnswered || gameState.isShooting) return;
+            
+            if (gameState.isAiming) {
+                gameState.isAiming = false;
+                gameState.isForcing = true;
+                gameMessageEl.textContent = 'Agora, define a força. Carrega de novo para lançar!';
+            } else if (gameState.isForcing) {
+                shoot();
+            }
+        }
+        
+        // --- Lógica de Perguntas ---
+        
+        const questions = [
+            // --- Perguntas Retidas/Adaptadas (do conjunto anterior) ---
+            {
+                q: "Qual é a função sintática da expressão <span class='font-extrabold text-blue-800'>'O gelo'</span> na frase: 'O gelo derreteu.'?",
+                options: { A: "Predicado", B: "Sujeito Simples", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Vitória quebrou <span class='font-extrabold text-blue-800'>dois pratos</span>.', qual é a função sintática da expressão a negrito?",
+                options: { A: "Complemento Indireto (CI)", B: "Sujeito Composto", C: "Complemento Direto (CD)" },
+                answer: "C",
+            },
+            {
+                q: "Qual pronome pessoal pode substituir o Complemento Indireto (CI) na frase: 'A Rita telefonou <span class='font-extrabold text-blue-800'>à sua melhor amiga</span>.'?",
+                options: { A: "O/A", B: "Lhe/Lhes", C: "Ele/Ela" },
+                answer: "B",
+            },
+            {
+                q: "O núcleo da função <span class='font-extrabold text-blue-800'>Predicado</span> é sempre o...",
+                options: { A: "Nome", B: "Verbo", C: "Adjetivo" },
+                answer: "B",
+            },
+            {
+                q: "Um sujeito é considerado '<span class='font-extrabold text-blue-800'>Composto</span>' quando tem:",
+                options: { A: "Apenas um Grupo Nominal.", B: "Dois ou mais Grupos Nominais.", C: "Um Complemento Indireto." },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O Bernardo <span class='font-extrabold text-blue-800'>escutou a mãe</span>.', qual é a função sintática da expressão a negrito?",
+                options: { A: "Sujeito", B: "Complemento Direto", C: "Predicado" },
+                answer: "C",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'O João e a Ana'</span> na frase: 'O João e a Ana foram ao parque.'?",
+                options: { A: "Sujeito Composto", B: "Sujeito Simples", C: "Predicado" },
+                answer: "A",
+            },
+            {
+                q: "Na frase 'Eu li <span class='font-extrabold text-blue-800'>um livro</span> interessante.', a expressão a negrito é:",
+                options: { A: "Complemento Indireto", B: "Sujeito", C: "Complemento Direto" },
+                answer: "C",
+            },
+            {
+                q: "A frase 'Choveu <span class='font-extrabold text-blue-800'>muito</span>.' tem um Sujeito...",
+                options: { A: "Simples", B: "Composto", C: "Indeterminado / Inexistente" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'A mãe deu <span class='font-extrabold text-blue-800'>flores</span> ao pai.', qual a função de 'flores'?",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função de <span class='font-extrabold text-blue-800'>'à professora'</span> na frase: 'Eu entreguei o trabalho à professora.'?",
+                options: { A: "Complemento Direto", B: "Sujeito", C: "Complemento Indireto" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'O Vasco <span class='font-extrabold text-blue-800'>comprou o bilhete</span>.', a expressão a negrito é o...",
+                options: { A: "Sujeito", B: "Predicado", C: "Complemento Indireto" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'Nós'</span> na frase: 'Nós jogámos à bola no recreio.'?",
+                options: { A: "Complemento Direto", B: "Sujeito Simples", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Marta <span class='font-extrabold text-blue-800'>leu um postal</span>.', a expressão a negrito é o...",
+                options: { A: "Sujeito", B: "Complemento Indireto", C: "Predicado" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'Oferecemos <span class='font-extrabold text-blue-800'>um presente</span> ao avô.', a expressão a negrito é:",
+                options: { A: "Complemento Indireto", B: "Sujeito", C: "Complemento Direto" },
+                answer: "C",
+            },
+            // --- Perguntas Baseadas nas Suas Frases ---
+            {
+                q: "Na frase 'A Petra é um furacão.', a função sintática de <span class='font-extrabold text-blue-800'>'A Petra'</span> é:",
+                options: { A: "Complemento Direto", B: "Sujeito Simples", C: "Complemento Indireto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O Ítalo apanhou uns bichos no recreio.', qual a função de <span class='font-extrabold text-blue-800'>'uns bichos'</span>?",
+                options: { A: "Complemento Direto", B: "Sujeito Simples", C: "Predicado" },
+                answer: "A",
+            },
+            {
+                q: "Na frase 'A Mariana é muito calma.', qual é o <span class='font-extrabold text-blue-800'>Sujeito</span>?",
+                options: { A: "Muito calma", B: "A Mariana", C: "É" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O Tomás gosta de participar.', qual é o <span class='font-extrabold text-blue-800'>Predicado</span>?",
+                options: { A: "Gosta", B: "Gosta de participar", C: "O Tomás" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O Branquinho é um bom aluno.', qual é a função de <span class='font-extrabold text-blue-800'>'O Branquinho'</span>?",
+                options: { A: "Complemento Direto", B: "Sujeito Simples", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Carolina é do Benfica.', a expressão <span class='font-extrabold text-blue-800'>'é do Benfica'</span> é o:",
+                options: { A: "Complemento Direto", B: "Sujeito Composto", C: "Predicado" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'O Adonai comeu <span class='font-extrabold text-blue-800'>um panado</span>.', a expressão a negrito é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito Simples" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O Gonçalo deu um rebuçado <span class='font-extrabold text-blue-800'>ao Afonso</span>.', qual a função de 'ao Afonso'?",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Predicado" },
+                answer: "A",
+            },
+            {
+                q: "Na frase 'A Sofiia desenhou <span class='font-extrabold text-blue-800'>um gato lindo</span>.', qual a função sintática da expressão a negrito?",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito Simples" },
+                answer: "B",
+            },
+            {
+                q: "Se dissermos 'A Petra e o Ítalo brincaram.', qual é a função sintática de <span class='font-extrabold text-blue-800'>'A Petra e o Ítalo'</span>?",
+                options: { A: "Sujeito Simples", B: "Sujeito Composto", C: "Predicado" },
+                answer: "B",
+            },
+            // --- Novas Perguntas (Misturadas) ---
+            {
+                q: "Qual é a função sintática de <span class='font-extrabold text-blue-800'>'Eu'</span> na frase: 'Eu fiz os trabalhos de casa.'?",
+                options: { A: "Predicado", B: "Sujeito Simples", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Joana e o Pedro chegaram.', qual a função de <span class='font-extrabold text-blue-800'>'chegaram'</span>?",
+                options: { A: "Sujeito Composto", B: "Complemento Direto", C: "Predicado" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'Os colegas ofereceram <span class='font-extrabold text-blue-800'>um álbum</span> à Maria.', 'um álbum' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito Simples" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O cão e o gato dormem.', qual é o <span class='font-extrabold text-blue-800'>Sujeito</span>?",
+                options: { A: "O cão", B: "O cão e o gato", C: "Dormem" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'ao rapaz'</span> na frase: 'A Ana emprestou o livro ao rapaz.'?",
+                options: { A: "Complemento Direto", B: "Complemento Indireto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'Nós <span class='font-extrabold text-blue-800'>ouvimos música</span>.', a expressão a negrito é o:",
+                options: { A: "Complemento Direto", B: "Predicado", C: "Sujeito Simples" },
+                answer: "B",
+            },
+            {
+                q: "Qual é o <span class='font-extrabold text-blue-800'>Sujeito</span> da frase 'Trouxe-me um postal.'?",
+                options: { A: "Postal", B: "Sujeito Subentendido ('Eu')", C: "Nenhum" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Maria viu <span class='font-extrabold text-blue-800'>os primos</span> na festa.', 'os primos' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'Eu pedi <span class='font-extrabold text-blue-800'>desculpa</span> à minha irmã.', 'desculpa' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática da expressão <span class='font-extrabold text-blue-800'>'A Sara e o Diogo'</span> na frase: 'A Sara e o Diogo foram de férias.'?",
+                options: { A: "Sujeito Simples", B: "Sujeito Composto", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O Tiago <span class='font-extrabold text-blue-800'>entregou o relatório</span>.', a expressão a negrito é o:",
+                options: { A: "Sujeito", B: "Predicado", C: "Complemento Indireto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O João escreveu <span class='font-extrabold text-blue-800'>uma mensagem</span> à Mãe.', 'uma mensagem' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'ao vizinho'</span> na frase: 'O carteiro entregou a encomenda ao vizinho.'?",
+                options: { A: "Complemento Direto", B: "Complemento Indireto", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A minha tia <span class='font-extrabold text-blue-800'>ensinou a receita</span> aos netos.', a expressão a negrito é o:",
+                options: { A: "Complemento Direto", B: "Predicado", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Filipa <span class='font-extrabold text-blue-800'>dança muito bem</span>.', a expressão a negrito é o:",
+                options: { A: "Predicado", B: "Complemento Direto", C: "Sujeito Simples" },
+                answer: "A",
+            },
+            {
+                q: "A quem se refere o <span class='font-extrabold text-blue-800'>Sujeito Subentendido</span> na frase: 'Comprámos fruta fresca.'?",
+                options: { A: "Eu", B: "Nós", C: "Eles/Elas" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'Os bombeiros combateram <span class='font-extrabold text-blue-800'>o incêndio</span>.', 'o incêndio' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito Composto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A gata pediu <span class='font-extrabold text-blue-800'>comida</span>.', qual a função sintática de 'comida'?",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'O professor e os alunos'</span> na frase: 'O professor e os alunos organizaram a festa.'?",
+                options: { A: "Sujeito Simples", B: "Predicado", C: "Sujeito Composto" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'Ajudámos <span class='font-extrabold text-blue-800'>os idosos</span>.', 'os idosos' é:",
+                options: { A: "Sujeito Simples", B: "Complemento Indireto", C: "Complemento Direto" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'O André <span class='font-extrabold text-blue-800'>ofereceu um presente</span>.', a expressão a negrito é o:",
+                options: { A: "Sujeito", B: "Predicado", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'Eles <span class='font-extrabold text-blue-800'>comeram a sandes</span>.', qual a função de 'comeram a sandes'?",
+                options: { A: "Sujeito Simples", B: "Predicado", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'a chave'</span> na frase: 'Eu encontrei a chave de casa.'?",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O Rodrigo e o Tiago <span class='font-extrabold text-blue-800'>jogaram futebol</span>.', a expressão a negrito é o:",
+                options: { A: "Sujeito Composto", B: "Predicado", C: "Complemento Indireto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O João deu <span class='font-extrabold text-blue-800'>um beijo</span> à tia.', 'um beijo' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Maria explicou a lição <span class='font-extrabold text-blue-800'>aos colegas</span>.', a função de 'aos colegas' é:",
+                options: { A: "Complemento Direto", B: "Complemento Indireto", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "O <span class='font-extrabold text-blue-800'>Complemento Direto</span> pode ser substituído pelos pronomes:",
+                options: { A: "Me, Te, Lhe", B: "O, A, Os, As", C: "Nos, Vos, Lhes" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'Os turistas visitaram <span class='font-extrabold text-blue-800'>o castelo</span>.', 'o castelo' é:",
+                options: { A: "Sujeito Simples", B: "Complemento Direto", C: "Complemento Indireto" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'O sol e a lua'</span> na frase: 'O sol e a lua iluminam o céu.'?",
+                options: { A: "Sujeito Composto", B: "Predicado", C: "Complemento Direto" },
+                answer: "A",
+            },
+            {
+                q: "Na frase 'A Patrícia respondeu <span class='font-extrabold text-blue-800'>ao desafio</span>.', qual a função de 'ao desafio'?",
+                options: { A: "Complemento Direto", B: "Complemento Indireto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O livro <span class='font-extrabold text-blue-800'>caiu</span>.', 'caiu' é o:",
+                options: { A: "Sujeito Simples", B: "Predicado", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A minha mãe <span class='font-extrabold text-blue-800'>comprou o bilhete</span> ao meu pai.', a expressão a negrito é o:",
+                options: { A: "Complemento Direto", B: "Predicado", C: "Sujeito Simples" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'a carta'</span> na frase: 'Eu escrevi a carta ao meu irmão.'?",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A avó contou uma história <span class='font-extrabold text-blue-800'>aos netos</span>.', qual a função de 'aos netos'?",
+                options: { A: "Complemento Direto", B: "Sujeito Composto", C: "Complemento Indireto" },
+                answer: "C",
+            },
+            {
+                q: "Qual é o <span class='font-extrabold text-blue-800'>Sujeito</span> da frase 'Pintámos a parede de azul.'?",
+                options: { A: "A parede", B: "Sujeito Subentendido ('Nós')", C: "Nenhum" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O professor elogiou <span class='font-extrabold text-blue-800'>o trabalho</span>.', 'o trabalho' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Predicado" },
+                answer: "B",
+            },
+            {
+                q: "A função sintática de <span class='font-extrabold text-blue-800'>'Os livros'</span> na frase: 'Os livros estão na mesa.' é:",
+                options: { A: "Predicado", B: "Sujeito Simples", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "O <span class='font-extrabold text-blue-800'>Complemento Indireto</span> é geralmente introduzido pela preposição:",
+                options: { A: "Para", B: "Em", C: "A" },
+                answer: "C",
+            },
+            {
+                q: "Na frase 'A Rita e a Sara <span class='font-extrabold text-blue-800'>visitaram o museu</span>.', a expressão a negrito é o:",
+                options: { A: "Sujeito Composto", B: "Predicado", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "Qual a função sintática de <span class='font-extrabold text-blue-800'>'uma guloseima'</span> na frase: 'Ele deu uma guloseima ao amigo.'?",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A minha prima <span class='font-extrabold text-blue-800'>vive em Lisboa</span>.', a expressão a negrito é o:",
+                options: { A: "Predicado", B: "Sujeito Simples", C: "Complemento Direto" },
+                answer: "A",
+            },
+            {
+                q: "O <span class='font-extrabold text-blue-800'>Predicado</span> é a parte da frase que contém...",
+                options: { A: "O Nome", B: "O Verbo", C: "O Adjetivo" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Sofia ofereceu flores <span class='font-extrabold text-blue-800'>à tia</span>.', 'à tia' é:",
+                options: { A: "Complemento Direto", B: "Complemento Indireto", C: "Sujeito Simples" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'Os telemóveis <span class='font-extrabold text-blue-800'>são caros</span>.', qual é a função sintática de 'Os telemóveis'?",
+                options: { A: "Predicado", B: "Sujeito Simples", C: "Complemento Direto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'A Ana e o Gil escreveram <span class='font-extrabold text-blue-800'>um poema</span>.', 'um poema' é:",
+                options: { A: "Complemento Indireto", B: "Complemento Direto", C: "Sujeito Composto" },
+                answer: "B",
+            },
+            {
+                q: "Na frase 'O João <span class='font-extrabold text-blue-800'>gritou</span>.', a expressão a negrito é o:",
+                options: { A: "Sujeito", B: "Predicado", C: "Complemento Direto" },
+                answer: "B",
+            },
+        ];
+
+        function loadQuestion() {
+            let availableQuestions = questions; 
+            if (currentQuestion) {
+                 availableQuestions = questions.filter(q => q !== currentQuestion);
+                 if (availableQuestions.length === 0) availableQuestions = questions; 
+            }
+
+            currentQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+            
+            document.getElementById('question-text').innerHTML = currentQuestion.q;
+            document.getElementById('option-A').innerHTML = currentQuestion.options.A;
+            document.getElementById('option-B').innerHTML = currentQuestion.options.B;
+            document.getElementById('option-C').innerHTML = currentQuestion.options.C;
+            
+            answerForm.reset();
+        }
+
+        answerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const selected = document.querySelector('input[name="answer"]:checked');
+            
+            if (!selected) {
+                gameMessageEl.textContent = 'Selecione uma resposta antes de tentar lançar!';
+                return;
+            }
+
+            if (selected.value === currentQuestion.answer) {
+                gameState.isQuestionAnswered = true;
+                questionModal.classList.add('hidden');
+                gameMessageEl.textContent = 'Resposta CORRETA! Agora aponta e carrega para lançar!';
+                
+            } else {
+                questionModal.classList.add('hidden');
+                endTurn('Resposta INCORRETA. Passa a bola para o próximo jogador.', false);
+                setTimeout(() => {
+                    nextTurn();
+                }, 2000);
+            }
+        });
+
+        // Iniciar loop
+        gameLoop();
+        
+        // Mensagem inicial
+        gameMessageEl.textContent = 'Carrega em "Iniciar Novo Jogo" para começar.';
+    </script>
+</body>
+</html>
