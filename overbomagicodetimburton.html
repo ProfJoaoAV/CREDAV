@@ -251,7 +251,7 @@
             }
         }
 
-        // --- FUNÇÕES MODAL INICIAL ---
+        // --- FUNÇÕES MODAL INICIAL E RESET ---
         
         function showStartModal() {
             document.getElementById('start-modal').style.display = 'flex';
@@ -287,6 +287,41 @@
             } else {
                 document.getElementById('name-input').classList.add('input-error');
                 setTimeout(() => document.getElementById('name-input').classList.remove('input-error'), 1000);
+            }
+        }
+
+        // Função para apagar tudo e recomeçar
+        window.resetProgress = function() {
+            if(confirm("Tens a certeza? Isto vai apagar todo o teu progresso, nome e foto.")) {
+                // Limpa variáveis
+                userName = '';
+                userPhotoBase64 = '';
+                topicProgress = { 
+                    conjugation: false, 
+                    conjugation_group: false, 
+                    verb_type: false, 
+                    non_finite: false 
+                };
+                window.topicProgress = topicProgress;
+                score = { currentTopicScore: 0, totalAttempts: 0 };
+                
+                // Limpa LocalStorage
+                localStorage.removeItem('burton_verb_mastery_data');
+                
+                // Se estiver no Firebase, tenta limpar lá também (opcional, mas recomendado)
+                if (db && currentUserId) {
+                   // Para simplificar, vamos apenas re-salvar os dados vazios
+                   saveUserData();
+                }
+
+                // Atualiza UI e mostra modal
+                updateTopicCompletionUI();
+                updateScoreDisplay();
+                showStartModal();
+                
+                // Reseta abas para a primeira
+                const firstTab = document.querySelector('.tab-button');
+                if(firstTab) firstTab.click();
             }
         }
 
@@ -808,48 +843,78 @@
         .cert-recipient { font-family: 'Creepster', cursive; font-size: 4em; color: var(--burton-purple); margin: 20px 0; text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2); }
         .cert-photo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--burton-green); margin-bottom: 20px; }
         .cert-footer { margin-top: 40px; font-size: 0.9em; border-top: 1px solid var(--burton-dark); padding-top: 10px; display: flex; justify-content: space-around; }
+        
+        .reset-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: transparent;
+            border: 1px solid var(--burton-red);
+            color: var(--burton-red);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .reset-btn:hover {
+            background-color: var(--burton-red);
+            color: white;
+        }
 
         /* Estilos de Impressão Corrigidos */
         @media print {
+            /* Garante que o fundo e cores são impressos */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
             body, .container, #app-container {
                 visibility: hidden;
                 background-color: white !important;
-                color: black !important;
+                margin: 0;
+                padding: 0;
+                overflow: visible !important;
             }
             
             #certificate-print-area {
                 visibility: visible;
-                position: fixed;
+                display: block !important;
+                position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
                 height: 100%;
-                margin: 0;
-                padding: 0;
-                background-color: white !important;
                 z-index: 9999;
+                background-color: white !important;
             }
             
-            #certificate-print-area * {
+            #certificate-display-print {
                 visibility: visible;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
             }
             
             #certificate-display-print > div {
-                width: 100%;
+                visibility: visible;
+                width: 90% !important;
                 max-width: none;
-                height: auto;
                 margin: 20px auto;
-                border: 2px solid black !important;
+                border: 5px solid var(--burton-purple) !important;
                 box-shadow: none !important;
-                border-radius: 0;
                 color: black !important;
-                background-color: white !important;
+                background-color: #f0f0f0 !important; /* Mantém o cinza claro do certificado */
             }
             
-            .cert-recipient, .cert-header, .cert-title, .cert-footer {
-                color: black !important;
-                text-shadow: none !important;
-            }
+            /* Garante que o texto dentro do certificado seja visível e tenha as cores corretas */
+            .cert-header { color: var(--burton-purple) !important; }
+            .cert-recipient { color: var(--burton-red) !important; text-shadow: none !important; }
+            .cert-title, p, span { color: #333 !important; }
         }
     </style>
 </head>
@@ -878,6 +943,7 @@
 
     <!-- CONTEÚDO PRINCIPAL DA APP -->
     <div id="app-container" class="container">
+        <button onclick="resetProgress()" class="reset-btn">Sair / Recomeçar</button>
         
         <h1>O Verbo Mágico de Tim Burton</h1>
         
