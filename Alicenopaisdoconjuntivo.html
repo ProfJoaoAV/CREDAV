@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alice no País do Conjuntivo - Edição Avançada</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-dark: #4834d4;
+            --secondary: #00b894;
+            --accent: #fdcb6e;
+            --danger: #d63031;
+            --text: #2d3436;
+            --bg: #dfe6e9;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            background-image: radial-gradient(#6c5ce7 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-bottom: 5px solid var(--accent);
+        }
+
+        header h1 { margin: 0; font-size: 2.2rem; text-shadow: 2px 2px 0px rgba(0,0,0,0.2); }
+        header p { margin: 5px 0 0; font-style: italic; opacity: 0.9; }
+
+        /* NAVEGAÇÃO PRINCIPAL */
+        nav {
+            display: flex;
+            justify-content: center;
+            background: white;
+            padding: 10px;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        nav button {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        nav button.active, nav button:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* CONTAINER PRINCIPAL */
+        main {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 25px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .section { display: none; animation: fadeIn 0.4s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { color: var(--primary); border-bottom: 2px dashed var(--secondary); padding-bottom: 10px; margin-top: 0; }
+        h3 { color: var(--primary-dark); margin-top: 20px; }
+
+        /* --- ESTILOS DA SECÇÃO DE ESTUDO (TABS) --- */
+        .study-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: #eee;
+            border: none;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+        .tab-btn.active-tab {
+            background: var(--accent);
+            color: var(--text);
+            padding-bottom: 12px; /* overlap border */
+        }
+        .study-content { display: none; }
+        .study-content.active-content { display: block; animation: fadeIn 0.3s; }
+
+        .info-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .warning-box {
+            background: #fff5f5;
+            border-left: 4px solid var(--danger);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .mnemonic {
+            font-size: 1.2rem;
+            background: var(--accent);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        th { background: #f9f9f9; color: var(--primary); }
+        .highlight { color: var(--danger); font-weight: bold; text-decoration: underline; }
+
+        /* --- ESTILOS DO TREINO (FASES) --- */
+        .level-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #eee;
+            border-radius: 20px;
+            padding: 5px;
+        }
+        .level-step {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #aaa;
+            font-weight: bold;
+        }
+        .level-step.active-level { background: var(--secondary); color: white; }
+        .level-step.locked { opacity: 0.6; }
+
+        .progress-bar-container { height: 10px; background: #eee; border-radius: 5px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+        .question-text { font-size: 1.3rem; margin-bottom: 20px; color: #2d3436; }
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .option-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background: #f0f0ff; }
+        .option-btn.correct { background: #00b894; color: white; border-color: #00b894; }
+        .option-btn.wrong { background: #ff7675; color: white; border-color: #ff7675; }
+
+        /* --- ESTILOS DA BATALHA --- */
+        .boss-container { text-align: center; position: relative; }
+        .boss-avatar { font-size: 6rem; margin: 10px; display: inline-block; animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .boss-hp-bar { width: 80%; margin: 0 auto 20px; height: 25px; background: #ddd; border-radius: 15px; overflow: hidden; border: 2px solid #aaa; }
+        .boss-hp-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ff7675, #d63031); transition: width 0.5s; }
+        
+        .attack-box {
+            background: #fff0f0;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--danger);
+            margin-top: 20px;
+        }
+        .battle-input-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .battle-input { padding: 12px; font-size: 1.1rem; border: 2px solid #ccc; border-radius: 5px; width: 60%; }
+        .battle-btn { padding: 12px 25px; background: var(--danger); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .battle-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Responsividade */
+        @media (max-width: 600px) {
+            .option-grid { grid-template-columns: 1fr; }
+            .battle-input-group { flex-direction: column; }
+            .battle-input { width: 100%; box-sizing: border-box; }
+            .study-tabs { flex-wrap: wrap; }
+            .tab-btn { flex: 1; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🎩 Alice no País do Conjuntivo</h1>
+    <p>Edição Avançada para o 6.º Ano</p>
+</header>
+
+<nav>
+    <button onclick="navTo('study')" class="active" id="nav-study">📚 Toca do Coelho</button>
+    <button onclick="navTo('practice')" id="nav-practice">🍄 Jardim do Treino</button>
+    <button onclick="navTo('battle')" id="nav-battle">🐲 Desafio Final</button>
+</nav>
+
+<main>
+    <!-- SECÇÃO 1: ESTUDO (COM SUB-ABAS) -->
+    <div id="study" class="section active">
+        <h2>A Toca do Coelho (Teoria)</h2>
+        <p>Seleciona o tempo verbal que queres estudar:</p>
+
+        <div class="study-tabs">
+            <button class="tab-btn active-tab" onclick="openTab('tab-presente')">Presente</button>
+            <button class="tab-btn" onclick="openTab('tab-imperfeito')">Imperfeito</button>
+            <button class="tab-btn" onclick="openTab('tab-futuro')">Futuro</button>
+        </div>
+
+        <!-- CONTEÚDO: PRESENTE -->
+        <div id="tab-presente" class="study-content active-content">
+            <h3>⏳ Presente do Conjuntivo</h3>
+            <span class="mnemonic">Dica: Usa a palavra "QUE"</span>
+            
+            <div class="info-box">
+                <strong>Quando se usa?</strong><br>
+                1. <strong>Dúvida:</strong> "Duvido que ele <em>venha</em>."<br>
+                2. <strong>Desejo:</strong> "Espero que <em>tenhas</em> sorte!"<br>
+                3. <strong>Ordens/Receitas:</strong> "Mexa bem." (Substitui o Imperativo na 3.ª pessoa ou na negativa).
+            </div>
+
+            <div class="warning-box">
+                ⚠️ <strong>Atenção à Acentuação!</strong><br>
+                Na 1.ª pessoa do plural (Nós), a palavra é grave (acento na penúltima sílaba).<br>
+                Diz-se <strong>Sejamos</strong> e não "Séjamos".<br>
+                Diz-se <strong>Estejamos</strong> e não "Estéjamos".
+            </div>
+
+            <table>
+                <tr><th>Pessoa</th><th>Cantar (-AR)</th><th>Comer (-ER)</th><th>Partir (-IR)</th></tr>
+                <tr><td>Eu</td><td>cante</td><td>coma</td><td>parta</td></tr>
+                <tr><td>Tu</td><td>cantes</td><td>comas</td><td>partas</td></tr>
+                <tr><td>Ele/Você</td><td>cante</td><td>coma</td><td>parta</td></tr>
+                <tr><td>Nós</td><td>cantemos</td><td>comamos</td><td>partamos</td></tr>
+                <tr><td>Eles/Vocês</td><td>cantem</td><td>comam</td><td>partam</td></tr>
+            </table>
+        </div>
+
+        <!-- CONTEÚDO: IMPERFEITO -->
+        <div id="tab-imperfeito" class="study-content">
+            <h3>🕰️ Pretérito Imperfeito do Conjuntivo</h3>
+            <span class="mnemonic">Dica: Usa a palavra "SE"</span>
+
+            <div class="info-box">
+                <strong>Quando se usa?</strong><br>
+                Para condições, hipóteses ou situações irreais.<br>
+                <em>"Se fosses pássaro, voarias..." (Daniel Faria)</em>
+            </div>
+
+            <div class="warning-box">
+                ⚠️ <strong>Regra de Ouro:</strong><br>
+                O "Nós" leva <strong>sempre</strong> acento esdrúxulo!<br>
+                Ex: Nós cant<strong>á</strong>ssemos, Nós fiz<strong>ê</strong>ssemos.
+                <br><br>
+                <strong>Dica Extra:</strong> Na negativa, a forma não muda.<br>
+                <em>"Se ele viesse"</em> vs <em>"Se ele não viesse"</em>.
+            </div>
+
+            <table>
+                <tr><th>Pessoa</th><th>Estar</th><th>Fazer</th><th>Ir/Ser</th></tr>
+                <tr><td>Eu</td><td>estivesse</td><td>fizesse</td><td>fosse</td></tr>
+                <tr><td>Tu</td><td>estivesses</td><td>fizesses</td><td>fosses</td></tr>
+                <tr><td>Ele</td><td>estivesse</td><td>fizesse</td><td>fosse</td></tr>
+                <tr><td>Nós</td><td>estiv<span class="highlight">é</span>ssemos</td><td>fiz<span class="highlight">ê</span>ssemos</td><td>f<span class="highlight">ô</span>ssemos</td></tr>
+                <tr><td>Eles</td><td>estivessem</td><td>fizessem</td><td>fossem</td></tr>
+            </table>
+        </div>
+
+        <!-- CONTEÚDO: FUTURO -->
+        <div id="tab-futuro" class="study-content">
+            <h3>🔮 Futuro do Conjuntivo</h3>
+            <span class="mnemonic">Dica: Usa a palavra "QUANDO" ou "SE"</span>
+
+            <div class="info-box">
+                <strong>Quando se usa?</strong><br>
+                Para ações eventuais no futuro.<br>
+                <em>"Quando tiveres um cão..."</em>
+            </div>
+
+            <div class="warning-box">
+                ⚠️ <strong>A Grande Armadilha: SER vs IR</strong><br>
+                No Futuro do Conjuntivo, estes verbos são iguais!<br>
+                Ex: <em>"Se tu fores..."</em> (Pode ser Ser ou Ir).<br><br>
+                <strong>Como descobrir?</strong> Troca pelo Presente do Indicativo:<br>
+                - "Se tu fores (vais) a Lisboa..." -> Verbo <strong>IR</strong>.<br>
+                - "Se tu fores (és) simpático..." -> Verbo <strong>SER</strong>.
+            </div>
+
+            <table>
+                <tr><th>Pessoa</th><th>Ter</th><th>Vir</th><th>Pôr</th></tr>
+                <tr><td>Eu</td><td>tiver</td><td>vier</td><td>puser</td></tr>
+                <tr><td>Tu</td><td>tiveres</td><td>vieres</td><td>puseres</td></tr>
+                <tr><td>Ele</td><td>tiver</td><td>vier</td><td>puser</td></tr>
+                <tr><td>Nós</td><td>tivermos</td><td>viermos</td><td>pusermos</td></tr>
+                <tr><td>Eles</td><td>tiverem</td><td>vierem</td><td>puserem</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECÇÃO 2: TREINO (3 FASES) -->
+    <div id="practice" class="section">
+        <h2>O Jardim do Treino</h2>
+        
+        <div class="level-indicator">
+            <div id="lvl-1" class="level-step active-level">Fase 1: Presente</div>
+            <div id="lvl-2" class="level-step locked">Fase 2: Imperfeito</div>
+            <div id="lvl-3" class="level-step locked">Fase 3: Futuro</div>
+        </div>
+
+        <p id="level-desc">Para avançar, precisas de acertar 10 perguntas nesta fase!</p>
+        
+        <div class="progress-bar-container">
+            <div id="train-progress" class="progress-fill"></div>
+        </div>
+        <p style="text-align: right; font-size: 0.8rem;">Progresso: <span id="score-text">0</span>/10</p>
+
+        <div id="train-area" class="question-card">
+            <!-- Perguntas inseridas via JS -->
+        </div>
+    </div>
+
+    <!-- SECÇÃO 3: BATALHA (BOSS VARIADO) -->
+    <div id="battle" class="section">
+        <h2>Desafio Final do Jaguadarte</h2>
+        <p>O Monstro está mais forte! Ele vai lançar 3 tipos de desafios diferentes.</p>
+
+        <div class="boss-container">
+            <div class="boss-hp-bar"><div id="boss-hp" class="boss-hp-fill"></div></div>
+            <div id="boss-emoji" class="boss-avatar">👺</div>
+            
+            <div class="attack-box">
+                <h3 id="boss-title">Ataque do Monstro!</h3>
+                <p id="boss-q-text" style="font-size: 1.2rem;">Prepara-te...</p>
+                
+                <div class="battle-input-group">
+                    <input type="text" id="battle-input" class="battle-input" placeholder="A tua resposta..." autocomplete="off">
+                    <button onclick="handleBattleAttack()" class="battle-btn" id="battle-btn">Contra-atacar!</button>
+                </div>
+                <p id="battle-feedback" style="min-height: 20px; font-weight: bold; margin-top: 10px;"></p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    Baseado no manual "Novo Livro Aberto" - 6.º Ano (Porto Editora).<br>
+    Criado com 🪄 para a aula de Português.
+</footer>
+
+<script>
+    /* --- LÓGICA DE NAVEGAÇÃO --- */
+    function navTo(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('nav-'+id).classList.add('active');
+    }
+
+    function openTab(tabId) {
+        document.querySelectorAll('.study-content').forEach(c => c.classList.remove('active-content'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
+        document.getElementById(tabId).classList.add('active-content');
+        event.target.classList.add('active-tab');
+    }
+
+    /* --- DADOS DO TREINO --- */
+    // Gerador de perguntas aleatórias para garantir variedade
+    const practiceData = {
+        presente: [
+            {q: "(Nós / Cantar) É preciso que nós ____ alto.", a: "cantemos", wrong: ["cantamos", "cantem"]},
+            {q: "(Tu / Mexer - Receita) É importante que tu ____ bem a massa.", a: "mexas", wrong: ["mexes", "mexa"]},
+            {q: "(Ele / Ser) Duvido que ele ____ capaz.", a: "seja", wrong: ["é", "for"]},
+            {q: "(Nós / Estar) Talvez nós ____ atrasados.", a: "estejamos", wrong: ["estamos", "esteja-mos"]},
+            {q: "(Vocês / Ler) Quero que vocês ____ o texto.", a: "leiam", wrong: ["lêem", "lerem"]},
+            {q: "(Eu / Fazer) O professor pede que eu ____ o TPC.", a: "faça", wrong: ["faço", "faze"]},
+            {q: "(Nós / Ir) É melhor que nós ____ embora.", a: "vamos", wrong: ["vão", "fomos"]},
+            {q: "(Tu / Ver) Espero que tu ____ o filme.", a: "vejas", wrong: ["vês", "veres"]},
+            {q: "(Ele / Pôr) Pede-lhe que ____ a mesa.", a: "ponha", wrong: ["põe", "pouse"]},
+            {q: "(Eles / Ter) Oxalá eles ____ sorte.", a: "tenham", wrong: ["têm", "tiverem"]}
+        ],
+        imperfeito: [
+            {q: "(Eu / Ser - Poema) Se eu ____ pássaro...", a: "fosse", wrong: ["fui", "era"]},
+            {q: "(Nós / Ter) Se nós ____ tempo, íamos.", a: "tivéssemos", wrong: ["tivessemos", "tinhamos"]},
+            {q: "(Eles / Vir) Gostava que eles ____ à festa.", a: "viessem", wrong: ["vinham", "virem"]},
+            {q: "(Tu / Poder) Se tu ____ ajudar, agradecia.", a: "pudesses", wrong: ["podias", "podesses"]},
+            {q: "(Nós / Cantar) Se nós ____, seria divertido.", a: "cantássemos", wrong: ["cantassemos", "cantamos"]},
+            {q: "(Ele / Saber) Se ele ____ a verdade...", a: "soubesse", wrong: ["sabia", "saiba"]},
+            {q: "(Vós / Querer) Se vós ____ entrar...", a: "quisésseis", wrong: ["querieis", "quisessem"]},
+            {q: "(Tu / Pôr) Se tu ____ o casaco, não tinhas frio.", a: "pusesses", wrong: ["punsesses", "punhas"]},
+            {q: "(Nós / Ir) Se nós ____ à praia...", a: "fôssemos", wrong: ["fossemos", "iamos"]},
+            {q: "(Eles / Dizer) Se eles ____ que não...", a: "dissessem", wrong: ["diziam", "digam"]}
+        ],
+        futuro: [
+            {q: "(Tu / Ter) Quando tu ____ o cão, avisa.", a: "tiveres", wrong: ["tens", "tivesses"]},
+            {q: "(Nós / Ser) Se nós ____ amigos, ajudamo-nos.", a: "formos", wrong: ["somos", "fomos"]},
+            {q: "(Eles / Vir) Se eles ____ amanhã, tudo bem.", a: "vierem", wrong: ["virem", "vêem"]},
+            {q: "(Eu / Pôr) Quando eu ____ a mesa, jantamos.", a: "puser", wrong: ["ponho", "pusesse"]},
+            {q: "(Tu / Ver) Se tu ____ o João, diz olá.", a: "vires", wrong: ["veres", "vês"]},
+            {q: "(Nós / Estar) Quando nós ____ prontos, saímos.", a: "estivermos", wrong: ["estamos", "estivessemos"]},
+            {q: "(Ele / Fazer) Se ele ____ o trabalho, passa.", a: "fizer", wrong: ["faça", "faz"]},
+            {q: "(Tu / Ir) Se tu ____ ao cinema, diverte-te.", a: "fores", wrong: ["vais", "foste"]},
+            {q: "(Eles / Ler) Quando eles ____ o livro, vão gostar.", a: "lerem", wrong: ["lêem", "lerão"]},
+            {q: "(Eu / Saber) Se eu ____ a resposta, digo.", a: "souber", wrong: ["saiba", "sei"]}
+        ]
+    };
+
+    /* --- LÓGICA DO TREINO --- */
+    let currentLevel = 1; // 1=Presente, 2=Imperfeito, 3=Futuro
+    let currentScore = 0;
+    const GOAL = 10;
+    let currentQuestionData = null;
+
+    function initPractice() {
+        generateQuestion();
+        updateUI();
+    }
+
+    function getLevelKey() {
+        if(currentLevel === 1) return 'presente';
+        if(currentLevel === 2) return 'imperfeito';
+        return 'futuro';
+    }
+
+    function generateQuestion() {
+        const key = getLevelKey();
+        const list = practiceData[key];
+        const randIndex = Math.floor(Math.random() * list.length);
+        currentQuestionData = list[randIndex];
+        
+        // Render
+        const area = document.getElementById('train-area');
+        
+        // Shuffle options
+        let opts = [currentQuestionData.a, ...currentQuestionData.wrong];
+        // Only take 3 options max if there are more wrong ones, shuffle logic
+        opts = opts.sort(() => Math.random() - 0.5);
+
+        let buttonsHTML = opts.map(opt => 
+            `<button class="option-btn" onclick="checkPractice('${opt}')">${opt}</button>`
+        ).join('');
+
+        area.innerHTML = `
+            <div class="question-text">${currentQuestionData.q}</div>
+            <div class="option-grid">${buttonsHTML}</div>
+            <p id="practice-msg" style="margin-top:15px; font-weight:bold; min-height:20px;"></p>
+        `;
+    }
+
+    function checkPractice(answer) {
+        const btns = document.querySelectorAll('.option-btn');
+        const msg = document.getElementById('practice-msg');
+        
+        btns.forEach(b => b.disabled = true); // Lock buttons
+
+        if (answer === currentQuestionData.a) {
+            // Correct
+            btns.forEach(b => { if(b.innerText === answer) b.classList.add('correct'); });
+            currentScore++;
+            msg.innerText = "✨ Correto! +1 Ponto";
+            msg.style.color = "green";
+        } else {
+            // Wrong
+            btns.forEach(b => { 
+                if(b.innerText === answer) b.classList.add('wrong');
+                if(b.innerText === currentQuestionData.a) b.classList.add('correct');
+            });
+            currentScore = Math.max(0, currentScore - 1); // Lose point? Or just don't gain. Let's reset combo logic later if needed.
+            msg.innerText = "❌ Ups! A resposta certa era: " + currentQuestionData.a;
+            msg.style.color = "red";
+        }
+
+        updateUI();
+
+        // Check level progression
+        if (currentScore >= GOAL) {
+            setTimeout(() => {
+                if (currentLevel < 3) {
+                    alert(`🎉 Parabéns! Completaste a Fase ${currentLevel}. A desbloquear próxima fase...`);
+                    currentLevel++;
+                    currentScore = 0;
+                    updateUI();
+                    generateQuestion();
+                } else {
+                    document.getElementById('train-area').innerHTML = `
+                        <h3>🎓 Curso Completo!</h3>
+                        <p>Dominaste todos os tempos! Estás pronto para o Monstro Final.</p>
+                        <button onclick="navTo('battle')" style="padding:15px; background:var(--danger); color:white; border:none; cursor:pointer; border-radius:5px;">Ir para a Batalha</button>
+                    `;
+                }
+            }, 1500);
+        } else {
+            setTimeout(generateQuestion, 1500);
+        }
+    }
+
+    function updateUI() {
+        // Update Progress Bar
+        const pct = (currentScore / GOAL) * 100;
+        document.getElementById('train-progress').style.width = pct + "%";
+        document.getElementById('score-text').innerText = currentScore;
+
+        // Update Tabs visual
+        document.querySelectorAll('.level-step').forEach((el, idx) => {
+            el.classList.remove('active-level', 'locked');
+            if (idx + 1 === currentLevel) el.classList.add('active-level');
+            else if (idx + 1 > currentLevel) el.classList.add('locked');
+            else { /* completed levels styling could go here */ }
+        });
+        
+        const names = ["Presente", "Imperfeito", "Futuro"];
+        document.getElementById('level-desc').innerText = `Fase ${currentLevel}: ${names[currentLevel-1]} - Acerta ${GOAL} para passar.`;
+    }
+
+
+    /* --- LÓGICA DA BATALHA (BOSS VARIADO) --- */
+    let bossHP = 100;
+    let currentAttackType = ""; 
+    let currentSolution = "";
+
+    const bossChallenges = [
+        // TIPO 1: TRANSFORMAÇÃO NEGATIVA (Imperativo -> Presente Conjuntivo)
+        { type: "negativa", prompt: "Ordem: 'Fala alto!'", hint: "Escreve a proibição (Não...)", answer: "não fales alto" },
+        { type: "negativa", prompt: "Ordem: 'Come a sopa!'", hint: "Escreve a proibição...", answer: "não comas a sopa" },
+        { type: "negativa", prompt: "Ordem: 'Sê simpático!'", hint: "Cuidado com o verbo ser...", answer: "não sejas simpático" },
+        
+        // TIPO 2: SER OU IR? (Futuro do Conjuntivo)
+        { type: "ser_ir", prompt: "Frase: 'Quando fores grande...'", hint: "É o verbo SER ou IR?", answer: "ser" },
+        { type: "ser_ir", prompt: "Frase: 'Se fores ao cinema...'", hint: "É o verbo SER ou IR?", answer: "ir" },
+        { type: "ser_ir", prompt: "Frase: 'Se formos rápidos...'", hint: "É o verbo SER ou IR?", answer: "ser" },
+        { type: "ser_ir", prompt: "Frase: 'Quando formos a Lisboa...'", hint: "É o verbo SER ou IR?", answer: "ir" },
+
+        // TIPO 3: LACUNAS DIFÍCEIS
+        { type: "fill", prompt: "Se nós ____ (ter) tempo... (Imperfeito)", hint: "Completa o verbo.", answer: "tivéssemos" },
+        { type: "fill", prompt: "Duvido que eles ____ (vir). (Presente)", hint: "Completa o verbo.", answer: "venham" },
+        { type: "fill", prompt: "Quando tu ____ (ver) o mar... (Futuro)", hint: "Completa o verbo.", answer: "vires" }
+    ];
+
+    function initBattle() {
+        pickBossAttack();
+    }
+
+    function pickBossAttack() {
+        if (bossHP <= 0) return;
+
+        // Limpar inputs
+        document.getElementById('battle-input').value = "";
+        document.getElementById('battle-feedback').innerText = "";
+        document.getElementById('battle-btn').disabled = false;
+        document.getElementById('battle-input').focus();
+
+        // Escolher desafio
+        const challenge = bossChallenges[Math.floor(Math.random() * bossChallenges.length)];
+        
+        currentAttackType = challenge.type;
+        currentSolution = challenge.answer;
+
+        // UI Update
+        document.getElementById('boss-title').innerText = getAttackTitle(challenge.type);
+        document.getElementById('boss-q-text').innerText = challenge.prompt + "\n(" + challenge.hint + ")";
+    }
+
+    function getAttackTitle(type) {
+        if (type === "negativa") return "🗣️ O Monstro dá uma Ordem!";
+        if (type === "ser_ir") return "👯 O Enigma dos Gémeos (Ser/Ir)!";
+        return "🧠 O Ataque da Gramática!";
+    }
+
+    function handleBattleAttack() {
+        let userAns = document.getElementById('battle-input').value.toLowerCase().trim();
+        // Remove pontuação final para facilitar
+        if (userAns.endsWith('.') || userAns.endsWith('!')) userAns = userAns.slice(0, -1);
+
+        const feedback = document.getElementById('battle-feedback');
+        const monster = document.getElementById('boss-emoji');
+
+        // Verificação flexível
+        let isCorrect = false;
+        
+        if (currentAttackType === "negativa") {
+            // Aceitar "Não fales" se a resposta for "Não fales alto" para ser simpático? 
+            // Não, vamos exigir rigor na frase completa ou na estrutura principal.
+            if (userAns === currentSolution || userAns === currentSolution.replace(" a sopa", "").replace(" simpático", "").replace(" alto", "")) {
+                isCorrect = true;
+            }
+        } else {
+            if (userAns === currentSolution) isCorrect = true;
+        }
+
+        if (isCorrect) {
+            // DANO
+            bossHP -= 20; // 5 hits to win
+            document.getElementById('boss-hp').style.width = bossHP + "%";
+            feedback.style.color = "green";
+            feedback.innerText = "⚔️ BOOM! Acertaste! O monstro perde vida.";
+            
+            if (bossHP <= 0) {
+                winBattle();
+            } else {
+                document.getElementById('battle-btn').disabled = true;
+                setTimeout(pickBossAttack, 1500);
+            }
+        } else {
+            // ERRO
+            monster.style.animation = "none";
+            monster.offsetHeight; /* trigger reflow */
+            monster.style.animation = "shake 0.5s"; // Assume shake keyframes exist
+            
+            feedback.style.color = "red";
+            feedback.innerText = "🛡️ O Monstro bloqueou! Resposta certa: " + currentSolution;
+            
+            document.getElementById('battle-btn').disabled = true;
+            setTimeout(() => {
+                monster.style.animation = "float 3s infinite ease-in-out";
+                pickBossAttack();
+            }, 2500);
+        }
+    }
+
+    function winBattle() {
+        document.getElementById('boss-emoji').innerText = "💀";
+        document.getElementById('boss-title').innerText = "VITÓRIA!";
+        document.getElementById('boss-q-text').innerText = "Salvaste o País do Conjuntivo! És um Mestre da Gramática.";
+        document.querySelector('.battle-input-group').style.display = "none";
+        document.getElementById('battle-feedback').innerText = "";
+    }
+
+    // Enter Key Support
+    document.getElementById('battle-input').addEventListener("keypress", function(event) {
+        if (event.key === "Enter") document.getElementById('battle-btn').click();
+    });
+
+    // STARTUP
+    initPractice();
+    initBattle();
+
+</script>
+
+</body>
+</html>
