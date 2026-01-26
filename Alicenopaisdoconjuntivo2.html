@@ -91,11 +91,21 @@
         h3 { color: var(--primary-dark); margin-top: 20px; }
 
         /* --- ESTILOS DA SECÇÃO DE ESTUDO (TABS) --- */
-        .study-tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-        .tab-btn { padding: 10px 20px; background: #eee; border: none; border-radius: 10px 10px 0 0; cursor: pointer; font-weight: bold; color: #666; }
+        .study-tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #eee; flex-wrap: wrap;}
+        .tab-btn { padding: 10px 20px; background: #eee; border: none; border-radius: 10px 10px 0 0; cursor: pointer; font-weight: bold; color: #666; flex-grow: 1; }
         .tab-btn.active-tab { background: var(--accent); color: var(--text); padding-bottom: 12px; }
         .study-content { display: none; }
         .study-content.active-content { display: block; animation: fadeIn 0.3s; }
+
+        /* Estilos das Sub-Abas dos Irregulares */
+        .irreg-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .irreg-btn { 
+            background: white; border: 1px solid var(--danger); color: var(--danger); 
+            padding: 8px 20px; border-radius: 15px; cursor: pointer; font-size: 0.9rem; font-weight: bold;
+        }
+        .irreg-btn.active-irreg { background: var(--danger); color: white; }
+        .irreg-content { display: none; }
+        .irreg-content.active-irreg-content { display: block; animation: fadeIn 0.3s; }
 
         .info-box { background: #f0fdf4; border-left: 4px solid var(--secondary); padding: 15px; margin: 15px 0; border-radius: 0 5px 5px 0; }
         .warning-box { background: #fff5f5; border-left: 4px solid var(--danger); padding: 15px; margin: 15px 0; border-radius: 0 5px 5px 0; }
@@ -105,6 +115,7 @@
         th, td { border: 1px solid #eee; padding: 10px; text-align: left; }
         th { background: #f9f9f9; color: var(--primary); }
         .highlight { color: var(--danger); font-weight: bold; text-decoration: underline; }
+        .verb-change-highlight { background-color: #ffeaa7; font-weight: bold; padding: 0 4px; border-radius: 3px; }
 
         /* --- ESTILOS DO TREINO --- */
         .level-indicator { display: flex; justify-content: space-between; margin-bottom: 20px; background: #eee; border-radius: 20px; padding: 5px; }
@@ -144,7 +155,6 @@
             position: relative; 
             width: 100%; 
             height: 400px; 
-            /* Novo fundo mais moderno: Céu gradiente */
             background: linear-gradient(to bottom, #81ecec, #dfe6e9); 
             border-radius: 10px; 
             overflow: hidden; 
@@ -159,7 +169,6 @@
             display: flex; justify-content: space-between; 
             pointer-events: none;
         }
-        /* HUD Style Moderno */
         .hud-panel {
             background: rgba(0,0,0,0.5);
             color: white;
@@ -227,6 +236,8 @@
             .study-tabs { flex-wrap: wrap; }
             #game-container { height: 350px; }
             #game-energy-bar { width: 80%; }
+            .irreg-tabs { gap: 5px; }
+            .irreg-btn { padding: 6px 12px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -248,65 +259,173 @@
     <!-- SECÇÃO 1: ESTUDO -->
     <div id="study" class="section active">
         <h2>A Toca do Coelho (Teoria)</h2>
-        <p>Seleciona o tempo verbal que queres estudar:</p>
+        <p>Seleciona o tempo verbal ou consulta os verbos irregulares:</p>
 
         <div class="study-tabs">
             <button class="tab-btn active-tab" onclick="openTab('tab-presente')">Presente</button>
             <button class="tab-btn" onclick="openTab('tab-imperfeito')">Imperfeito</button>
             <button class="tab-btn" onclick="openTab('tab-futuro')">Futuro</button>
+            <button class="tab-btn" onclick="openTab('tab-irregulares')" style="color: var(--danger);">⭐ Irregulares</button>
         </div>
 
+        <!-- PRESENTE -->
         <div id="tab-presente" class="study-content active-content">
             <h3>⏳ Presente do Conjuntivo</h3>
             <span class="mnemonic">Dica: Usa a palavra "QUE"</span>
+            
             <div class="info-box">
                 <strong>Quando se usa?</strong><br>
+                Este tempo exprime coisas que não são certas:<br>
                 1. <strong>Dúvida:</strong> "Duvido que ele <em>venha</em>."<br>
                 2. <strong>Desejo:</strong> "Espero que <em>tenhas</em> sorte!"<br>
-                3. <strong>Ordens/Receitas:</strong> "Mexa bem."
+                3. <strong>Ordem / Conselho (Imperativo):</strong> Em receitas ou para ser educado.<br>
+                <em>"Mexa bem os cogumelos."</em> (em vez de "Mexe")
             </div>
+
             <div class="warning-box">
-                ⚠️ <strong>Atenção à Acentuação!</strong><br>
+                ⚠️ <strong>Atenção à Magia das Vogais!</strong><br>
+                Verbos acabados em <strong>-AR</strong> mudam para <strong>E</strong>.<br>
+                Verbos acabados em <strong>-ER / -IR</strong> mudam para <strong>A</strong>.<br>
+                <br>
+                <strong>Atenção à Acentuação no "Nós":</strong><br>
                 Diz-se <strong>Sejamos</strong> e não "Séjamos".
             </div>
+
             <table>
                 <tr><th>Pessoa</th><th>Cantar (-AR)</th><th>Comer (-ER)</th><th>Partir (-IR)</th></tr>
-                <tr><td>Eu</td><td>cante</td><td>coma</td><td>parta</td></tr>
-                <tr><td>Tu</td><td>cantes</td><td>comas</td><td>partas</td></tr>
-                <tr><td>Nós</td><td>cantemos</td><td>comamos</td><td>partamos</td></tr>
-                <tr><td>Eles</td><td>cantem</td><td>comam</td><td>partam</td></tr>
+                <tr><td>Eu</td><td>cant<span class="verb-change-highlight">e</span></td><td>com<span class="verb-change-highlight">a</span></td><td>part<span class="verb-change-highlight">a</span></td></tr>
+                <tr><td>Tu</td><td>cant<span class="verb-change-highlight">es</span></td><td>com<span class="verb-change-highlight">as</span></td><td>part<span class="verb-change-highlight">as</span></td></tr>
+                <tr><td>Ele/Você</td><td>cant<span class="verb-change-highlight">e</span></td><td>com<span class="verb-change-highlight">a</span></td><td>part<span class="verb-change-highlight">a</span></td></tr>
+                <tr><td>Nós</td><td>cant<span class="verb-change-highlight">emos</span></td><td>com<span class="verb-change-highlight">amos</span></td><td>part<span class="verb-change-highlight">amos</span></td></tr>
+                <tr><td>Vós</td><td>cant<span class="verb-change-highlight">eis</span></td><td>com<span class="verb-change-highlight">ais</span></td><td>part<span class="verb-change-highlight">ais</span></td></tr>
+                <tr><td>Eles/Vocês</td><td>cant<span class="verb-change-highlight">em</span></td><td>com<span class="verb-change-highlight">am</span></td><td>part<span class="verb-change-highlight">am</span></td></tr>
             </table>
         </div>
 
+        <!-- IMPERFEITO -->
         <div id="tab-imperfeito" class="study-content">
             <h3>🕰️ Pretérito Imperfeito do Conjuntivo</h3>
             <span class="mnemonic">Dica: Usa a palavra "SE"</span>
+            
+            <div class="info-box">
+                <strong>O Tempo da Hipótese</strong><br>
+                Usa-se para falar de situações imaginárias ou condições.<br>
+                <em>"Se fosses pássaro, voarias..."</em><br>
+                <br>
+                <strong>Formação:</strong> Normalmente vem do Pretérito Perfeito ("Eles cantaram" -> Tira o "am" -> Canta + sse).
+            </div>
+
             <div class="warning-box">
                 ⚠️ <strong>Regra de Ouro:</strong><br>
-                O "Nós" leva <strong>sempre</strong> acento esdrúxulo! (Ex: fôssemos)
+                A marca deste tempo é o <strong>"SSE"</strong>.<br>
+                O "Nós" e o "Vós" levam <strong>sempre</strong> acento!<br>
+                Ex: Nós fô<strong>ss</strong>emos, Vós fô<strong>ss</strong>eis.
             </div>
+
             <table>
-                <tr><th>Pessoa</th><th>Estar</th><th>Fazer</th><th>Ir/Ser</th></tr>
-                <tr><td>Eu</td><td>estivesse</td><td>fizesse</td><td>fosse</td></tr>
-                <tr><td>Nós</td><td>estiv<span class="highlight">é</span>ssemos</td><td>fiz<span class="highlight">ê</span>ssemos</td><td>f<span class="highlight">ô</span>ssemos</td></tr>
-                <tr><td>Eles</td><td>estivessem</td><td>fizessem</td><td>fossem</td></tr>
+                <tr><th>Pessoa</th><th>Cantar (-AR)</th><th>Comer (-ER)</th><th>Partir (-IR)</th></tr>
+                <tr><td>Eu</td><td>cantasse</td><td>comesse</td><td>partisse</td></tr>
+                <tr><td>Tu</td><td>cantasses</td><td>comesses</td><td>partisses</td></tr>
+                <tr><td>Ele/Você</td><td>cantasse</td><td>comesse</td><td>partisse</td></tr>
+                <tr><td>Nós</td><td>cant<span class="highlight">á</span>ssemos</td><td>com<span class="highlight">ê</span>ssemos</td><td>part<span class="highlight">í</span>ssemos</td></tr>
+                <tr><td>Vós</td><td>cant<span class="highlight">á</span>sseis</td><td>com<span class="highlight">ê</span>sseis</td><td>part<span class="highlight">í</span>sseis</td></tr>
+                <tr><td>Eles/Vocês</td><td>cantassem</td><td>comessem</td><td>partissem</td></tr>
             </table>
         </div>
 
+        <!-- FUTURO -->
         <div id="tab-futuro" class="study-content">
             <h3>🔮 Futuro do Conjuntivo</h3>
             <span class="mnemonic">Dica: Usa a palavra "QUANDO"</span>
-            <div class="warning-box">
-                ⚠️ <strong>SER vs IR:</strong><br>
-                São iguais! "Se tu fores..."<br>
-                Troca pelo Presente do Indicativo para descobrir.
+
+            <div class="info-box">
+                <strong>Possibilidades Futuras</strong><br>
+                Usa-se para algo que ainda não aconteceu, mas pode vir a acontecer.<br>
+                <em>"Quando tiveres o cão, avisa."</em>
             </div>
+
+            <div class="warning-box">
+                ⚠️ <strong>A Armadilha dos Gémeos: SER vs IR</strong><br>
+                Neste tempo, estes dois verbos conjugam-se de forma <strong>igual</strong>!<br>
+                <em>"Se tu fores..."</em> pode ser do verbo Ser ou do verbo Ir.<br>
+                <br>
+                <strong>O Truque:</strong> Troca pelo Presente do Indicativo.<br>
+                - "Se tu fores (vais) a casa..." -> É o verbo <strong>IR</strong>.<br>
+                - "Se tu fores (és) meu amigo..." -> É o verbo <strong>SER</strong>.
+            </div>
+
             <table>
-                <tr><th>Pessoa</th><th>Ter</th><th>Vir</th><th>Pôr</th></tr>
-                <tr><td>Eu</td><td>tiver</td><td>vier</td><td>puser</td></tr>
-                <tr><td>Nós</td><td>tivermos</td><td>viermos</td><td>pusermos</td></tr>
-                <tr><td>Eles</td><td>tiverem</td><td>vierem</td><td>puserem</td></tr>
+                <tr><th>Pessoa</th><th>Cantar (-AR)</th><th>Comer (-ER)</th><th>Partir (-IR)</th></tr>
+                <tr><td>Eu</td><td>cantar</td><td>comer</td><td>partir</td></tr>
+                <tr><td>Tu</td><td>cantares</td><td>comeres</td><td>partires</td></tr>
+                <tr><td>Ele/Você</td><td>cantar</td><td>comer</td><td>partir</td></tr>
+                <tr><td>Nós</td><td>cantarmos</td><td>comermos</td><td>partirmos</td></tr>
+                <tr><td>Vós</td><td>cantardes</td><td>comerdes</td><td>partirdes</td></tr>
+                <tr><td>Eles/Vocês</td><td>cantarem</td><td>comerem</td><td>partirem</td></tr>
             </table>
+        </div>
+
+        <!-- IRREGULARES -->
+        <div id="tab-irregulares" class="study-content">
+            <h3>⭐ Os Verbos Traquinas (Irregulares)</h3>
+            <p>Estes verbos são fundamentais e mudam muito! Escolhe um tempo:</p>
+
+            <div class="irreg-tabs">
+                <button class="irreg-btn active-irreg" onclick="openIrregTab('irreg-presente', this)">Presente</button>
+                <button class="irreg-btn" onclick="openIrregTab('irreg-imperfeito', this)">Imperfeito</button>
+                <button class="irreg-btn" onclick="openIrregTab('irreg-futuro', this)">Futuro</button>
+            </div>
+
+            <!-- IRREGULARES: PRESENTE -->
+            <div id="irreg-presente" class="irreg-content active-irreg-content">
+                <h4>Presente do Conjuntivo (Irregulares)</h4>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <tr><th>Pessoa</th><th>SER</th><th>IR</th><th>TER</th><th>ESTAR</th><th>HAVER</th><th>PODER</th></tr>
+                        <tr><td>Eu</td><td>seja</td><td>vá</td><td>tenha</td><td>esteja</td><td>haja</td><td>possa</td></tr>
+                        <tr><td>Tu</td><td>sejas</td><td>vás</td><td>tenhas</td><td>estejas</td><td>hajas</td><td>possas</td></tr>
+                        <tr><td>Ele/Você</td><td>seja</td><td>vá</td><td>tenha</td><td>esteja</td><td>haja</td><td>possa</td></tr>
+                        <tr><td>Nós</td><td>sejamos</td><td>vamos</td><td>tenhamos</td><td>estejamos</td><td>hajamos</td><td>possamos</td></tr>
+                        <tr><td>Vós</td><td>sejais</td><td>vades</td><td>tenhais</td><td>estejais</td><td>hajais</td><td>possais</td></tr>
+                        <tr><td>Eles</td><td>sejam</td><td>vão</td><td>tenham</td><td>estejam</td><td>hajam</td><td>possam</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- IRREGULARES: IMPERFEITO -->
+            <div id="irreg-imperfeito" class="irreg-content">
+                <h4>Pretérito Imperfeito (Irregulares)</h4>
+                <div class="info-box">Aqui o SER e o IR são iguais! (vêm do "fui")</div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <tr><th>Pessoa</th><th>SER / IR</th><th>TER</th><th>ESTAR</th><th>HAVER</th><th>PODER</th></tr>
+                        <tr><td>Eu</td><td>fosse</td><td>tivesse</td><td>estivesse</td><td>houvesse</td><td>pudesse</td></tr>
+                        <tr><td>Tu</td><td>fosses</td><td>tivesses</td><td>estivesses</td><td>houvesses</td><td>pudesses</td></tr>
+                        <tr><td>Ele/Você</td><td>fosse</td><td>tivesse</td><td>estivesse</td><td>houvesse</td><td>pudesse</td></tr>
+                        <tr><td>Nós</td><td>f<span class="highlight">ô</span>ssemos</td><td>tiv<span class="highlight">é</span>ssemos</td><td>estiv<span class="highlight">é</span>ssemos</td><td>houv<span class="highlight">é</span>ssemos</td><td>pud<span class="highlight">é</span>ssemos</td></tr>
+                        <tr><td>Vós</td><td>f<span class="highlight">ô</span>sseis</td><td>tiv<span class="highlight">é</span>sseis</td><td>estiv<span class="highlight">é</span>sseis</td><td>houv<span class="highlight">é</span>sseis</td><td>pud<span class="highlight">é</span>sseis</td></tr>
+                        <tr><td>Eles</td><td>fossem</td><td>tivessem</td><td>estivessem</td><td>houvessem</td><td>pudessem</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- IRREGULARES: FUTURO -->
+            <div id="irreg-futuro" class="irreg-content">
+                <h4>Futuro do Conjuntivo (Irregulares)</h4>
+                <div class="warning-box">SER e IR continuam iguais aqui!</div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <tr><th>Pessoa</th><th>SER / IR</th><th>TER</th><th>ESTAR</th><th>HAVER</th><th>PODER</th></tr>
+                        <tr><td>Eu</td><td>for</td><td>tiver</td><td>estiver</td><td>houver</td><td>puder</td></tr>
+                        <tr><td>Tu</td><td>fores</td><td>tiveres</td><td>estiveres</td><td>houveres</td><td>puderes</td></tr>
+                        <tr><td>Ele/Você</td><td>for</td><td>tiver</td><td>estiver</td><td>houver</td><td>puder</td></tr>
+                        <tr><td>Nós</td><td>formos</td><td>tivermos</td><td>estivermos</td><td>houvermos</td><td>pudermos</td></tr>
+                        <tr><td>Vós</td><td>fordes</td><td>tiverdes</td><td>estiverdes</td><td>houverdes</td><td>puderdes</td></tr>
+                        <tr><td>Eles</td><td>forem</td><td>tiverem</td><td>estiverem</td><td>houverem</td><td>puderem</td></tr>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -424,6 +543,13 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
         document.getElementById(tabId).classList.add('active-content');
         event.target.classList.add('active-tab');
+    }
+
+    function openIrregTab(tabId, btn) {
+        document.querySelectorAll('.irreg-content').forEach(c => c.classList.remove('active-irreg-content'));
+        document.querySelectorAll('.irreg-btn').forEach(b => b.classList.remove('active-irreg'));
+        document.getElementById(tabId).classList.add('active-irreg-content');
+        btn.classList.add('active-irreg');
     }
 
     /* --- DADOS DAS PERGUNTAS (Treino e Jogo) --- */
