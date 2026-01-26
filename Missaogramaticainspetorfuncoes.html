@@ -1,480 +1,326 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Target, ShieldCheck, Award, ChevronRight, Brain, Settings, CheckCircle2, AlertCircle, Zap, Crosshair, Info, MessageSquare } from 'lucide-react';
-
-const App = () => {
-  const [activeTab, setActiveTab] = useState('study');
-  const [studySubTab, setStudySubTab] = useState('sujeito');
-  const [xp, setXp] = useState(0);
-  const [gameState, setGameState] = useState('menu'); 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [questions, setQuestions] = useState([]);
-  
-  // Estados para o mini-jogo de tiro
-  const [ammo, setAmmo] = useState(0);
-  const [miniGameQuestion, setMiniGameQuestion] = useState(null);
-  const [targets, setTargets] = useState([]);
-  const [popups, setPopups] = useState([]); // Sistema de pontos flutuantes
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isFiring, setIsFiring] = useState(false);
-  const gameAreaRef = useRef(null);
-
-  const studyData = {
-    sujeito: {
-      title: "O Sujeito",
-      description: "O sujeito é o constituinte da frase sobre o qual se faz uma afirmação ou que realiza a ação expressa pelo verbo.",
-      test: "Para identificar o sujeito, pergunta ao verbo: 'Quem?' ou 'O que é que?'.",
-      gadgetTip: "O sujeito pode ser substituído por pronomes pessoais: Ele, Ela, Eles, Elas, Nós...",
-      sections: [
-        {
-          name: "Sujeito Simples",
-          detail: "É constituído por apenas um núcleo (palavra principal).",
-          examples: ["O Luís telefonou à Rute.", "Ela comprou um livro.", "O meu irmão estuda muito."]
-        },
-        {
-          name: "Sujeito Composto",
-          detail: "É constituído por dois ou mais núcleos.",
-          examples: ["A Rita e o amigo estudaram.", "Eu e tu vamos ao cinema."]
-        }
-      ]
-    },
-    predicado: {
-      title: "O Predicado",
-      description: "O predicado é o constituinte da frase que indica o que se diz sobre o sujeito. É desempenhado pelo Grupo Verbal.",
-      test: "Se retirares o sujeito da frase, tudo o que sobra é o predicado.",
-      gadgetTip: "O núcleo do predicado é sempre um Verbo!",
-      sections: [
-        {
-          name: "Constituição",
-          detail: "O predicado pode ser formado apenas por um verbo ou por um verbo acompanhado de complementos.",
-          examples: ["O comboio partiu.", "O João comprou um gelado.", "A Maria ofereceu uma flor à mãe."]
-        }
-      ]
-    },
-    complementos: {
-      title: "Os Complementos",
-      description: "São elementos que completam o sentido do verbo dentro do predicado.",
-      gadgetTip: "Diferencia sempre o CD (O quê?) do CI (A quem?)!",
-      sections: [
-        {
-          name: "Complemento Direto (CD)",
-          detail: "Responde à pergunta 'O quê?' ou 'Quem?' feita ao verbo.",
-          test: "Pode ser substituído pelos pronomes: o, a, os, as.",
-          examples: ["A Vitória quebrou os pratos. (Quebrou o quê? -> os pratos)", "A Rita viu a Penny. (Viu quem? -> a Penny)"]
-        },
-        {
-          name: "Complemento Indireto (CI)",
-          detail: "Responde à pergunta 'A quem?' feita ao verbo. É quase sempre precedido da preposição 'a'.",
-          test: "Pode ser substituído pelos pronomes: lhe, lhes.",
-          examples: ["A Rita telefonou à amiga. (Telefonou a quem? -> à amiga)", "Entreguei o teste ao professor."]
-        }
-      ]
-    },
-    vocativo: {
-      title: "O Vocativo",
-      description: "O vocativo é o termo que serve para chamar, interpelar ou invocar a pessoa ou coisa a quem nos dirigimos.",
-      test: "Aparece quase sempre isolado por vírgulas e pode estar em qualquer parte da frase.",
-      gadgetTip: "Não confundas o Vocativo com o Sujeito! O Vocativo é um chamamento.",
-      sections: [
-        {
-          name: "Regras de Pontuação",
-          detail: "Deve ser sempre separado do resto da frase por vírgulas.",
-          examples: ["Artur, vem cá!", "Diz-me, Penny, a verdade.", "Boa tarde, Sr. Inspetor."]
-        }
-      ]
-    }
-  };
-
-  const trainingQuestionsPool = {
-    sujeito: [
-      { q: "Na frase 'As flores crescem', qual é o sujeito?", a: ["crescem", "As flores", "flores"], correct: 1 },
-      { q: "Identifica o Sujeito Composto:", a: ["O cão correu.", "Eu e o gato saltámos.", "Eles chegaram."], correct: 1 },
-      { q: "Qual o sujeito em 'O meu irmão estuda muito'?", a: ["O meu irmão", "estuda", "irmão"], correct: 0 }
-    ],
-    predicado: [
-      { q: "Identifica o predicado em 'O comboio partiu':", a: ["O comboio", "partiu", "comboio"], correct: 1 },
-      { q: "O núcleo do predicado é sempre:", a: ["Um nome", "Um adjetivo", "Um verbo"], correct: 2 }
-    ],
-    complementos: [
-      { q: "Pergunta para o CD:", a: ["A quem?", "O quê?", "Onde?"], correct: 1 },
-      { q: "Na frase 'Dei um livro ao João', o que é 'ao João'?", a: ["CD", "CI", "Sujeito"], correct: 1 }
-    ],
-    vocativo: [
-      { q: "Qual a função do vocativo?", a: ["Indicar a ação", "Chamar/Interpelar", "Substituir o nome"], correct: 1 },
-      { q: "Identifica o vocativo: 'Rute, telefona-me.'", a: ["Rute", "telefona-me", "telefona"], correct: 0 }
-    ]
-  };
-
-  const generateMiniGameQuestion = () => {
-    const categories = Object.keys(trainingQuestionsPool);
-    const cat = categories[Math.floor(Math.random() * categories.length)];
-    const q = trainingQuestionsPool[cat][Math.floor(Math.random() * trainingQuestionsPool[cat].length)];
-    setMiniGameQuestion(q);
-  };
-
-  const handleMiniGameAnswer = (idx) => {
-    if (idx === miniGameQuestion.correct) {
-      setAmmo(prev => prev + 5);
-      generateMiniGameQuestion();
-    } else {
-      generateMiniGameQuestion();
-    }
-  };
-
-  const spawnTarget = () => {
-    const side = Math.random() > 0.5 ? 'left' : 'right';
-    const newTarget = {
-      id: Math.random(),
-      x: side === 'left' ? -10 : 110,
-      y: 15 + Math.random() * 60,
-      speed: 0.4 + Math.random() * 0.7,
-      direction: side === 'left' ? 1 : -1,
-      type: Math.random() > 0.85 ? 'gold' : 'normal'
-    };
-    setTargets(prev => [...prev, newTarget]);
-  };
-
-  useEffect(() => {
-    if (activeTab !== 'fun') {
-      setTargets([]);
-      setPopups([]);
-      return;
-    }
-
-    const spawnInterval = setInterval(() => {
-      setTargets(current => {
-        if (current.length < 5) spawnTarget();
-        return current;
-      });
-    }, 1800);
-
-    const moveInterval = setInterval(() => {
-      setTargets(current => 
-        current
-          .map(t => ({ ...t, x: t.x + (t.speed * t.direction) }))
-          .filter(t => t.x > -20 && t.x < 120)
-      );
-      // Limpar popups antigos
-      setPopups(prev => prev.filter(p => p.life > 0).map(p => ({ ...p, life: p.life - 2, y: p.y - 0.5 })));
-    }, 16);
-
-    return () => {
-      clearInterval(spawnInterval);
-      clearInterval(moveInterval);
-    };
-  }, [activeTab]);
-
-  const handleGameAreaMouseMove = (e) => {
-    if (!gameAreaRef.current) return;
-    const rect = gameAreaRef.current.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
-  const fireWeapon = (e) => {
-    if (ammo <= 0) return;
-    setIsFiring(true);
-    setTimeout(() => setIsFiring(false), 80);
-    setAmmo(prev => prev - 1);
-    
-    const rect = gameAreaRef.current.getBoundingClientRect();
-    const clickXPercent = ((e.clientX - rect.left) / rect.width) * 100;
-    const clickYPercent = ((e.clientY - rect.top) / rect.height) * 100;
-
-    setTargets(prev => {
-      const hit = prev.find(t => 
-        Math.abs(t.x - clickXPercent) < 7 && 
-        Math.abs(t.y - clickYPercent) < 10
-      );
-      
-      if (hit) {
-        const points = hit.type === 'gold' ? 150 : 50;
-        setXp(v => v + points);
-        
-        // Adicionar popup de pontos
-        setPopups(p => [...p, { 
-          id: Math.random(), 
-          x: hit.x, 
-          y: hit.y, 
-          text: `+${points}`, 
-          life: 100,
-          color: hit.type === 'gold' ? 'text-yellow-400' : 'text-white'
-        }]);
-        
-        return prev.filter(t => t.id !== hit.id);
-      }
-      return prev;
-    });
-  };
-
-  const startTraining = (type) => {
-    setQuestions(trainingQuestionsPool[type]);
-    setScore(0);
-    setCurrentQuestionIndex(0);
-    setGameState('training');
-  };
-
-  const handleAnswer = (index) => {
-    const isCorrect = index === questions[currentQuestionIndex].correct;
-    const newScore = isCorrect ? score + 1 : score;
-    setScore(newScore);
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(c => c + 1);
-    } else {
-      setXp(prev => prev + (newScore * 20));
-      setGameState('menu');
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-800">
-      <header className="bg-slate-800 text-white p-4 shadow-lg border-b-4 border-yellow-500 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-yellow-500 p-2 rounded-xl text-slate-900 shadow-md">
-              <Settings className="animate-spin-slow" size={24} />
-            </div>
-            <h1 className="text-xl font-black uppercase italic leading-none">Gadget-Grammar</h1>
-          </div>
-          <div className="bg-slate-700 px-4 py-1.5 rounded-full border border-slate-500 flex items-center gap-2">
-            <Zap size={14} className="text-yellow-400 fill-yellow-400" />
-            <span className="text-yellow-400 font-mono font-bold text-sm">XP: {xp}</span>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto p-4 md:p-8">
-        <nav className="flex gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto no-scrollbar">
-          <button onClick={() => {setActiveTab('study'); setGameState('menu');}} className={`px-4 py-3 rounded-xl font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'study' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>
-            <BookOpen size={18} /> Estudo
-          </button>
-          <button onClick={() => {setActiveTab('train'); setGameState('menu');}} className={`px-4 py-3 rounded-xl font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'train' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>
-            <Target size={18} /> Treino
-          </button>
-          <button onClick={() => {setActiveTab('fun'); setGameState('menu'); generateMiniGameQuestion();}} className={`px-4 py-3 rounded-xl font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'fun' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>
-            <Crosshair size={18} /> Tiro aos Drones
-          </button>
-        </nav>
-
-        <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-xl border border-slate-200 min-h-[550px] relative overflow-hidden">
-          
-          {gameState === 'menu' && activeTab === 'study' && (
-            <div className="animate-in fade-in duration-500">
-               <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar">
-                {Object.keys(studyData).map(key => (
-                  <button key={key} onClick={() => setStudySubTab(key)} className={`px-6 py-2 rounded-full border-2 font-bold transition-all whitespace-nowrap ${studySubTab === key ? 'bg-yellow-500 border-yellow-600 text-slate-900' : 'bg-white border-slate-200 text-slate-400'}`}>
-                    {studyData[key].title}
-                  </button>
-                ))}
-              </div>
-
-              <div className="grid lg:grid-cols-3 gap-8 text-left">
-                <div className="lg:col-span-2 space-y-6">
-                  <div>
-                    <h2 className="text-4xl font-black text-slate-900 mb-2 uppercase italic leading-tight">{studyData[studySubTab].title}</h2>
-                    <p className="text-xl text-slate-600 font-medium leading-relaxed">{studyData[studySubTab].description}</p>
-                  </div>
-
-                  <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 flex items-start gap-4 shadow-sm">
-                    <div className="bg-blue-600 p-2 rounded-lg text-white">
-                      <Info size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-blue-900 uppercase text-xs tracking-widest mb-1">Como Identificar?</h4>
-                      <p className="text-blue-800 italic font-medium">"{studyData[studySubTab].test}"</p>
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {studyData[studySubTab].sections?.map((section, i) => (
-                      <div key={i} className="bg-slate-50 p-5 rounded-3xl border border-slate-200 hover:border-blue-300 transition-colors">
-                        <h5 className="font-black text-blue-600 text-sm uppercase mb-2 flex items-center gap-2">
-                          <CheckCircle2 size={16} /> {section.name}
-                        </h5>
-                        <p className="text-sm text-slate-600 mb-4 font-medium leading-snug">{section.detail}</p>
-                        <div className="space-y-1.5">
-                          {section.examples.map((ex, j) => (
-                            <div key={j} className="text-xs font-mono bg-white p-2 rounded-xl border border-slate-200 flex items-center gap-2 shadow-sm">
-                              <span className="text-blue-400">●</span> {ex}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="bg-slate-800 p-6 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden group">
-                    <div className="relative z-10">
-                      <h3 className="text-yellow-500 font-black mb-3 flex items-center gap-2 uppercase text-xs tracking-[0.2em]">
-                        <Brain size={18}/> Gadget Intel
-                      </h3>
-                      <p className="text-sm italic opacity-90 leading-relaxed font-medium">
-                        {studyData[studySubTab].gadgetTip}
-                      </p>
-                    </div>
-                    <Settings className="absolute -right-4 -bottom-4 text-white/5 group-hover:rotate-90 transition-transform duration-1000" size={120} />
-                  </div>
-                  <div className="bg-yellow-50 p-6 rounded-[2.5rem] border-2 border-yellow-200/50">
-                    <h4 className="font-black text-yellow-800 mb-4 text-xs uppercase tracking-widest flex items-center gap-2">
-                      <MessageSquare size={16} /> Fica Atento!
-                    </h4>
-                    <p className="text-xs text-yellow-900 leading-relaxed font-medium">
-                      Na gramática, a ordem das palavras pode mudar, mas as funções permanecem as mesmas. Confia sempre nas perguntas de teste!
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {gameState === 'menu' && activeTab === 'fun' && miniGameQuestion && (
-            <div className="animate-in zoom-in duration-500">
-              <div className="flex flex-col lg:flex-row gap-8">
-                <div className="lg:w-1/3 space-y-4">
-                  <div className="bg-indigo-50 p-6 rounded-[2.5rem] border-2 border-indigo-100 shadow-sm text-left">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Zap className="text-indigo-600 fill-indigo-600" size={20} />
-                      <h3 className="font-black text-indigo-900 uppercase italic leading-none">Recarregar Gadget</h3>
-                    </div>
-                    <div className="bg-white p-5 rounded-3xl mb-4 border border-indigo-100 shadow-sm">
-                      <p className="text-sm font-bold text-slate-800 mb-4">{miniGameQuestion.q}</p>
-                      <div className="space-y-2">
-                        {miniGameQuestion.a.map((opt, i) => (
-                          <button key={i} onClick={() => handleMiniGameAnswer(i)} className="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-400 hover:bg-indigo-50 transition-all text-xs font-bold text-slate-600 flex items-center gap-3">
-                            <span className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center text-[10px] font-black">{i+1}</span>
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between bg-indigo-600 p-5 rounded-3xl text-white shadow-lg">
-                      <div className="text-left">
-                        <span className="text-[10px] font-black uppercase tracking-widest block opacity-70">Carga Laser</span>
-                        <div className="flex gap-1.5 mt-2">
-                          {[...Array(ammo)].map((_, i) => (
-                            <div key={i} className="w-2.5 h-7 bg-yellow-400 rounded-sm border-r-2 border-yellow-600 shadow-inner"></div>
-                          ))}
-                          {ammo === 0 && <span className="text-[10px] font-black text-indigo-200 animate-pulse uppercase">Responde para Recarregar!</span>}
-                        </div>
-                      </div>
-                      <Target size={28} className={ammo > 0 ? 'text-yellow-400 animate-pulse' : 'opacity-20'} />
-                    </div>
-                  </div>
-                </div>
-
-                <div 
-                  ref={gameAreaRef}
-                  onMouseMove={handleGameAreaMouseMove}
-                  onClick={fireWeapon}
-                  className={`flex-1 h-[500px] bg-slate-950 rounded-[3rem] relative overflow-hidden border-8 border-slate-900 shadow-2xl cursor-none group transition-all duration-75 ${isFiring ? 'brightness-150 scale-[1.002]' : ''}`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/30 via-slate-900 to-black pointer-events-none"></div>
-                  <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: 'radial-gradient(circle, #fff 1.5px, transparent 1.5px)', backgroundSize: '60px 60px'}}></div>
-                  
-                  {/* POPUPS DE PONTOS */}
-                  {popups.map(p => (
-                    <div 
-                      key={p.id} 
-                      className={`absolute pointer-events-none font-black text-2xl italic ${p.color} z-[100] drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]`}
-                      style={{ left: `${p.x}%`, top: `${p.y}%`, opacity: p.life / 100, transform: 'translate(-50%, -50%)' }}
-                    >
-                      {p.text}
-                    </div>
-                  ))}
-
-                  {/* DRONES M.A.D. */}
-                  {targets.map(target => (
-                    <div
-                      key={target.id}
-                      style={{ 
-                        left: `${target.x}%`, 
-                        top: `${target.y}%`,
-                        transform: 'translate(-50%, -50%)'
-                      }}
-                      className="absolute w-20 h-20 pointer-events-none flex items-center justify-center z-20"
-                    >
-                      <div className={`relative w-14 h-14 rounded-full shadow-[0_0_30px_rgba(255,0,0,0.3)] border-4 ${target.type === 'gold' ? 'bg-yellow-500 border-yellow-200 shadow-yellow-500/40' : 'bg-red-600 border-red-900 shadow-red-600/40'} animate-bounce`}>
-                         <div className="absolute -top-1 -left-5 w-10 h-1.5 bg-slate-400 animate-spin opacity-80"></div>
-                         <div className="absolute -top-1 -right-5 w-10 h-1.5 bg-slate-400 animate-spin opacity-80"></div>
-                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-slate-950 rounded-full flex items-center justify-center border border-white/10">
-                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_12px_red]"></div>
-                         </div>
-                      </div>
-                      {target.type === 'gold' && <div className="absolute -top-10 text-[10px] font-black text-yellow-400 animate-pulse bg-black/60 px-2 py-0.5 rounded-full border border-yellow-500/50">ALVO CRÍTICO</div>}
-                    </div>
-                  ))}
-
-                  {/* MIRA LASER GADGET */}
-                  <div 
-                    className="absolute pointer-events-none z-50 transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-75"
-                    style={{ left: mousePos.x, top: mousePos.y }}
-                  >
-                     <div className="relative">
-                        <Crosshair size={64} className={`${ammo > 0 ? 'text-pink-500' : 'text-slate-700'} drop-shadow-[0_0_12px_rgba(236,72,153,0.7)]`} />
-                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${ammo > 0 ? 'bg-pink-300 shadow-[0_0_15px_pink]' : 'bg-slate-800'}`}></div>
-                        <div className="absolute top-1/2 left-[-1000px] w-[1000px] h-px bg-pink-500/10 pointer-events-none"></div>
-                        <div className="absolute top-1/2 right-[-1000px] w-[1000px] h-px bg-pink-500/10 pointer-events-none"></div>
-                        <div className="absolute left-1/2 top-[-1000px] w-px h-[1000px] bg-pink-500/10 pointer-events-none"></div>
-                        <div className="absolute left-1/2 bottom-[-1000px] w-px h-[1000px] bg-pink-500/10 pointer-events-none"></div>
-                     </div>
-                  </div>
-
-                  <div className="absolute bottom-6 left-10 right-10 flex justify-between items-end pointer-events-none">
-                    <div className="bg-black/60 backdrop-blur-md border border-white/10 px-5 py-2 rounded-2xl">
-                      <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Status Sistema</div>
-                      <div className="text-xs font-mono text-white tracking-widest">{ammo > 0 ? '>>> LASER_PRONTO' : '>>> SEM_CARGA'}</div>
-                    </div>
-                    <div className="text-white/5 font-black italic uppercase tracking-[0.3em] text-4xl mb-2">M.A.D. INTERCEPT</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {gameState === 'training' && (
-            <div className="max-w-xl mx-auto py-10 animate-in slide-in-from-bottom-8 text-left">
-              <div className="mb-10">
-                <span className="bg-blue-100 text-blue-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">Treino de Agente</span>
-                <h3 className="text-3xl font-black mt-6 text-slate-800 leading-tight">{questions[currentQuestionIndex].q}</h3>
-              </div>
-              <div className="grid gap-4">
-                {questions[currentQuestionIndex].a.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(i)} className="w-full p-6 bg-white rounded-3xl border-2 border-slate-100 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1 transition-all font-bold text-slate-700 text-left flex items-center gap-5">
-                    <span className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-sm text-slate-400 font-black">{i+1}</span>
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {gameState === 'menu' && activeTab === 'train' && (
-            <div className="grid sm:grid-cols-2 gap-6 animate-in fade-in duration-700">
-               {Object.keys(studyData).map(key => (
-                <button key={key} onClick={() => startTraining(key)} className="group p-10 border-2 border-slate-100 rounded-[3rem] hover:border-blue-500 hover:bg-blue-50 transition-all text-left relative overflow-hidden">
-                  <h3 className="font-black text-2xl mb-2 uppercase italic relative z-10">{studyData[key].title}</h3>
-                  <div className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10">Experiência: +200 XP</div>
-                  <Target className="absolute right-[-15px] bottom-[-15px] opacity-5 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500" size={140} />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      <footer className="text-center py-12 text-slate-400 text-[10px] font-black uppercase tracking-[0.5em]">
-        Agência Secreta de Inteligência Gramatical • 2026
-      </footer>
-
-      <style dangerouslySetInnerHTML={{ __html: `
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gadget-Grammar: Operação Total</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
         @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .animate-spin-slow { animation: spin-slow 15s linear infinite; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}} />
-    </div>
-  );
-};
+        @keyframes bounce-custom { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-bounce-custom { animation: bounce-custom 2s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div id="root"></div>
 
-export default App;
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const IconSettings = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        const IconZap = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>;
+        const IconTarget = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
+        const IconBrain = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9.5 2A5 5 0 0 1 12 7v5H7.5a5 5 0 0 1 0-10z"/><path d="M14.5 2A5 5 0 0 0 12 7v5h4.5a5 5 0 0 0 0-10z"/><path d="M8 13a4 4 0 1 0 4 4v-4H8z"/><path d="M16 13a4 4 0 1 1-4 4v-4h4z"/></svg>;
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('study');
+            const [studySubTab, setStudySubTab] = useState('sujeito');
+            const [xp, setXp] = useState(0);
+            const [gameState, setGameState] = useState('menu');
+            const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [questions, setQuestions] = useState([]);
+            const [ammo, setAmmo] = useState(0);
+            const [miniGameQuestion, setMiniGameQuestion] = useState(null);
+            const [targets, setTargets] = useState([]);
+            const [popups, setPopups] = useState([]);
+            const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+            const [isFiring, setIsFiring] = useState(false);
+            const gameAreaRef = useRef(null);
+
+            const studyData = {
+                sujeito: {
+                    title: "O Sujeito",
+                    description: "O constituinte sobre o qual se faz uma afirmação e que concorda com o verbo.",
+                    test: "Pergunta ao verbo: Quem é que...? ou O que é que...?",
+                    gadgetTip: "Para identificar o sujeito, localiza primeiro o verbo e pergunta: 'Quem é que realiza a ação?'. O sujeito pode ser uma pessoa, um objeto ou um grupo!",
+                    sections: [
+                        { name: "Sujeito Simples", detail: "Formado por apenas um núcleo (o nome principal).", examples: ["A Penny ajuda o Inspetor.", "O cérebro é brilhante."] },
+                        { name: "Sujeito Composto", detail: "Formado por dois ou mais núcleos.", examples: ["O Inspetor Gadget e a Penny investigam.", "Eu e o Cérebro saímos."] },
+                        { name: "Fica Atento!", detail: "O Sujeito Nulo não aparece na frase, mas o verbo diz-nos quem é pela sua terminação (desinência).", examples: ["Subentendido: (Nós) Estudámos.", "Indeterminado: Dizem que..."] }
+                    ]
+                },
+                predicado: {
+                    title: "O Predicado",
+                    description: "Tudo o que se diz sobre o sujeito. O verbo é sempre o seu núcleo.",
+                    test: "Depois de encontrares o sujeito, tudo o que resta na frase é o predicado.",
+                    gadgetTip: "Gadget Intel: Dentro do predicado podes encontrar o verbo sozinho ou acompanhado por Complementos (Direto e Indireto)!",
+                    sections: [
+                        { name: "Estrutura", detail: "Inicia-se sempre no verbo e contém toda a informação da ação.", examples: ["O Gadget voa pelos céus.", "Eles leram o livro (CD)."] },
+                        { name: "Dica", detail: "O predicado concorda em número e pessoa com o sujeito.", examples: ["A Penny corre. (Singular)", "As crianças correm. (Plural)"] }
+                    ]
+                },
+                cd: {
+                    title: "C. Direto (CD)",
+                    description: "Completa o sentido do verbo sem preposição.",
+                    test: "Pergunta ao verbo: 'O quê?' ou 'Quem?'.",
+                    gadgetTip: "Gadget Intel: Truque de Mestre! Podes substituir o Complemento Direto pelos pronomes: o, a, os, as.",
+                    sections: [
+                        { name: "Como encontrar?", detail: "Vem logo a seguir ao verbo e não precisa de 'pontes' (preposições).", examples: ["O Inspetor usa o chapéu (Usa-o).", "Vi a Penny no parque (Vi-a)."] }
+                    ]
+                },
+                ci: {
+                    title: "C. Indireto (CI)",
+                    description: "Completa o sentido do verbo, mas precisa da preposição 'a'.",
+                    test: "Pergunta ao verbo: 'A quem?'.",
+                    gadgetTip: "Gadget Intel: Truque de Mestre! Podes substituir o Complemento Indireto pelos pronomes: lhe, lhes.",
+                    sections: [
+                        { name: "Como encontrar?", detail: "Indica a quem se dirige a ação.", examples: ["Dei o gadget ao Pedro (Dei-lhe).", "Escrevi à Rita (Escrevi-lhe)."] }
+                    ]
+                },
+                vocativo: {
+                    title: "O Vocativo",
+                    description: "O termo que serve para chamar, invocar ou interpelar alguém.",
+                    test: "Vem sempre isolado por vírgulas.",
+                    gadgetTip: "Dica do Gadget: O vocativo nunca é o sujeito. É apenas o nome de quem estamos a chamar diretamente!",
+                    sections: [
+                        { name: "Posição", detail: "Pode aparecer no início, no meio ou no fim da frase.", examples: ["Artur, faz os trabalhos!", "Vem cá, Penny.", "Diz-me, Cérebro, a verdade."] }
+                    ]
+                }
+            };
+
+            const questionsPool = {
+                sujeito: [
+                    { q: "Na frase 'O Inspetor e a Penny investigam', qual o sujeito?", a: ["O Inspetor", "O Inspetor e a Penny", "investigam"], correct: 1 },
+                    { q: "Em '(Eu) Estudei muito', o sujeito é:", a: ["Simples", "Composto", "Nulo Subentendido"], correct: 2 }
+                ],
+                predicado: [
+                    { q: "Qual o predicado em 'O Cérebro ajudou o Inspetor'?", a: ["O Cérebro", "ajudou o Inspetor", "ajudou"], correct: 1 }
+                ],
+                cd: [
+                    { q: "Identifica o CD: 'Comi uma maçã.'", a: ["Comi", "uma maçã", "maçã"], correct: 1 },
+                    { q: "Substitui o CD: 'Vi os amigos.'", a: ["Vi-lhe", "Vi-os", "Vi-a"], correct: 1 }
+                ],
+                ci: [
+                    { q: "Qual o CI em 'Entreguei o teste à professora'?", a: ["o teste", "Entreguei", "à professora"], correct: 2 }
+                ],
+                vocativo: [
+                    { q: "Identifica o vocativo: 'Oh Penny, ajuda-me!'", a: ["Oh Penny", "ajuda-me", "ajuda"], correct: 0 }
+                ]
+            };
+
+            const generateMiniGameQuestion = () => {
+                const cats = Object.keys(questionsPool);
+                const cat = cats[Math.floor(Math.random() * cats.length)];
+                setMiniGameQuestion(questionsPool[cat][Math.floor(Math.random() * questionsPool[cat].length)]);
+            };
+
+            const handleMiniGameAnswer = (idx) => {
+                if (idx === miniGameQuestion.correct) setAmmo(a => a + 5);
+                generateMiniGameQuestion();
+            };
+
+            const startTraining = (type) => {
+                setQuestions(questionsPool[type]);
+                setScore(0);
+                setCurrentQuestionIndex(0);
+                setGameState('training');
+            };
+
+            const handleAnswer = (idx) => {
+                const isCorrect = idx === questions[currentQuestionIndex].correct;
+                const newScore = isCorrect ? score + 1 : score;
+                setScore(newScore);
+                if (currentQuestionIndex < questions.length - 1) {
+                    setCurrentQuestionIndex(c => c + 1);
+                } else {
+                    setXp(v => v + (newScore * 50));
+                    setGameState('menu');
+                }
+            };
+
+            useEffect(() => {
+                if (activeTab !== 'fun') { setTargets([]); return; }
+                const interval = setInterval(() => {
+                    setTargets(prev => {
+                        if (prev.length < 5) {
+                            const side = Math.random() > 0.5 ? 1 : -1;
+                            return [...prev, { id: Math.random(), x: side === 1 ? -10 : 110, y: 15 + Math.random() * 60, speed: 0.6 + Math.random() * 0.6, dir: side, type: Math.random() > 0.85 ? 'gold' : 'normal' }];
+                        }
+                        return prev;
+                    });
+                }, 1500);
+                const move = setInterval(() => {
+                    setTargets(prev => prev.map(t => ({ ...t, x: t.x + (t.speed * t.dir) })).filter(t => t.x > -20 && t.x < 120));
+                    setPopups(prev => prev.filter(p => p.life > 0).map(p => ({ ...p, life: p.life - 2, y: p.y - 0.5 })));
+                }, 16);
+                return () => { clearInterval(interval); clearInterval(move); };
+            }, [activeTab]);
+
+            const fire = (e) => {
+                if (ammo <= 0) return;
+                setAmmo(a => a - 1);
+                setIsFiring(true);
+                setTimeout(() => setIsFiring(false), 100);
+                const rect = gameAreaRef.current.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                setTargets(prev => {
+                    const hit = prev.find(t => Math.abs(t.x - x) < 8 && Math.abs(t.y - y) < 10);
+                    if (hit) {
+                        const pts = hit.type === 'gold' ? 150 : 50;
+                        setXp(v => v + pts);
+                        setPopups(p => [...p, { id: Math.random(), x: hit.x, y: hit.y, text: `+${pts}`, life: 100, gold: hit.type === 'gold' }]);
+                        return prev.filter(t => t.id !== hit.id);
+                    }
+                    return prev;
+                });
+            };
+
+            return (
+                <div className="min-h-screen">
+                    <header className="bg-slate-800 text-white p-4 border-b-4 border-yellow-500 sticky top-0 z-50 shadow-xl">
+                        <div className="max-w-5xl mx-auto flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-yellow-500 p-2 rounded-xl text-slate-900 animate-spin-slow shadow-lg"><IconSettings /></div>
+                                <h1 className="font-black italic uppercase text-lg tracking-tighter">Gadget-Grammar</h1>
+                            </div>
+                            <div className="bg-slate-700 px-4 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-inner">
+                                <div className="text-yellow-400"><IconZap /></div>
+                                <span className="font-black text-yellow-400 font-mono">XP: {xp}</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto p-4 md:p-8">
+                        <nav className="flex gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto no-scrollbar">
+                            <button onClick={() => {setActiveTab('study'); setGameState('menu');}} className={`px-6 py-3 rounded-xl font-bold flex-1 transition-all ${activeTab === 'study' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>ESTUDO</button>
+                            <button onClick={() => {setActiveTab('train'); setGameState('menu');}} className={`px-6 py-3 rounded-xl font-bold flex-1 transition-all ${activeTab === 'train' ? 'bg-green-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>TREINO</button>
+                            <button onClick={() => {setActiveTab('fun'); setGameState('menu'); generateMiniGameQuestion();}} className={`px-6 py-3 rounded-xl font-bold flex-1 transition-all ${activeTab === 'fun' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>DRONE ATTACK</button>
+                        </nav>
+
+                        <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-2xl border border-slate-200 min-h-[600px] relative">
+                            {activeTab === 'study' && (
+                                <div className="animate-in fade-in duration-500">
+                                    <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar">
+                                        {Object.keys(studyData).map(k => (
+                                            <button key={k} onClick={() => setStudySubTab(k)} className={`px-6 py-2 rounded-full border-2 font-black text-sm uppercase transition-all whitespace-nowrap ${studySubTab === k ? 'bg-yellow-500 border-yellow-600 text-slate-900' : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'}`}>{studyData[k].title}</button>
+                                        ))}
+                                    </div>
+                                    <div className="grid lg:grid-cols-3 gap-8">
+                                        <div className="lg:col-span-2 text-left space-y-6">
+                                            <div>
+                                                <h2 className="text-4xl font-black italic uppercase text-slate-900 mb-2">{studyData[studySubTab].title}</h2>
+                                                <p className="text-xl text-slate-600 font-medium leading-relaxed">{studyData[studySubTab].description}</p>
+                                            </div>
+                                            <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 italic font-black text-blue-800 text-lg">"{studyData[studySubTab].test}"</div>
+                                            <div className="grid sm:grid-cols-2 gap-4">
+                                                {studyData[studySubTab].sections.map((s, i) => (
+                                                    <div key={i} className="bg-slate-50 p-5 rounded-3xl border border-slate-200">
+                                                        <h4 className="font-black text-blue-600 uppercase text-xs mb-2">{s.name}</h4>
+                                                        <p className="text-xs text-slate-600 mb-4">{s.detail}</p>
+                                                        <div className="space-y-2">
+                                                            {s.examples.map((ex, j) => (
+                                                                <div key={j} className="bg-white p-2.5 rounded-xl border border-slate-200 text-[11px] font-mono shadow-sm">● {ex}</div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div className="bg-slate-800 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+                                                <div className="relative z-10">
+                                                    <h4 className="font-black text-yellow-500 uppercase text-[10px] tracking-widest mb-3 flex items-center gap-2"><IconBrain /> Gadget Intel</h4>
+                                                    <p className="text-sm italic opacity-90 leading-relaxed font-medium">{studyData[studySubTab].gadgetTip}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'train' && gameState === 'menu' && (
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
+                                    {Object.keys(studyData).map(k => (
+                                        <button key={k} onClick={() => startTraining(k)} className="group p-10 border-2 border-slate-100 rounded-[3rem] hover:border-green-500 hover:bg-green-50 transition-all text-left relative overflow-hidden">
+                                            <h3 className="font-black text-2xl mb-2 uppercase italic relative z-10">{studyData[k].title}</h3>
+                                            <div className="text-xs font-black text-slate-400 uppercase tracking-widest relative z-10">Missão: +250 XP</div>
+                                            <div className="absolute right-[-10px] bottom-[-10px] opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all"><IconTarget /></div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {gameState === 'training' && (
+                                <div className="max-w-xl mx-auto py-10 text-left">
+                                    <h3 className="text-2xl font-black mb-8">{questions[currentQuestionIndex].q}</h3>
+                                    <div className="grid gap-3">
+                                        {questions[currentQuestionIndex].a.map((opt, i) => (
+                                            <button key={i} onClick={() => handleAnswer(i)} className="w-full p-5 bg-white border-2 border-slate-100 rounded-2xl hover:border-green-500 hover:bg-green-50 transition-all text-left font-bold">{opt}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'fun' && miniGameQuestion && (
+                                <div className="flex flex-col lg:flex-row gap-8 animate-in zoom-in duration-500">
+                                    <div className="lg:w-1/3 text-left">
+                                        <div className="bg-indigo-50 p-6 rounded-[2.5rem] border border-indigo-100 shadow-sm">
+                                            <h3 className="font-black text-indigo-900 uppercase italic mb-4 flex items-center gap-2"><IconZap /> Recarga Laser</h3>
+                                            <div className="bg-white p-5 rounded-3xl mb-4 border border-indigo-100 shadow-sm">
+                                                <p className="text-sm font-black text-slate-800 mb-4">{miniGameQuestion.q}</p>
+                                                <div className="space-y-2">
+                                                    {miniGameQuestion.a.map((opt, i) => (
+                                                        <button key={i} onClick={() => handleMiniGameAnswer(i)} className="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-[11px] font-bold text-slate-600">
+                                                            {opt}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="bg-indigo-600 p-5 rounded-3xl text-white flex justify-between items-center shadow-lg">
+                                                <div className="text-[10px] font-black uppercase">Munição: {ammo}</div>
+                                                <div className={ammo > 0 ? 'animate-pulse text-yellow-400' : 'opacity-20'}><IconTarget /></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div 
+                                        ref={gameAreaRef} onClick={fire}
+                                        onMouseMove={(e) => { const r = gameAreaRef.current.getBoundingClientRect(); setMousePos({x: e.clientX-r.left, y: e.clientY-r.top}); }}
+                                        className={`flex-1 h-[500px] bg-slate-950 rounded-[3rem] relative overflow-hidden cursor-none border-8 border-slate-900 shadow-2xl transition-all duration-75 ${isFiring ? 'brightness-150' : ''}`}
+                                    >
+                                        {popups.map(p => (
+                                            <div key={p.id} className="absolute font-black text-2xl italic text-white z-50 pointer-events-none" style={{ left: `${p.x}%`, top: `${p.y}%`, opacity: p.life/100, transform: 'translate(-50%, -50%)' }}>{p.text}</div>
+                                        ))}
+                                        {targets.map(t => (
+                                            <div key={t.id} className="absolute animate-bounce-custom z-20" style={{ left: `${t.x}%`, top: `${t.y}%`, transform: 'translate(-50%, -50%)' }}>
+                                                <div className={`w-16 h-16 rounded-full border-4 ${t.type === 'gold' ? 'bg-yellow-500 border-yellow-200' : 'bg-red-600 border-red-900'}`}></div>
+                                            </div>
+                                        ))}
+                                        <div className="absolute pointer-events-none z-50 transition-all duration-75" style={{ left: mousePos.x, top: mousePos.y, transform: 'translate(-50%, -50%)' }}>
+                                            <div className={`relative ${ammo > 0 ? 'text-pink-500' : 'text-slate-700'}`}>
+                                                <IconTarget size={60} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
