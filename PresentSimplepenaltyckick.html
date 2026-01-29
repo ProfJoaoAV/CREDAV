@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benfica English Challenge - 6º Ano</title>
+    <style>
+        :root {
+            --benfica-red: #e10613;
+            --benfica-gold: #c39e5c;
+            --white: #ffffff;
+            --light-gray: #f8f8f8;
+            --dark-gray: #222;
+            --success: #28a745;
+            --info-blue: #0056b3;
+            --warning-bg: #fff3cd;
+            --sporting-green: #008057; /* Cor do adversário */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--benfica-red);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 5px solid var(--benfica-gold);
+        }
+
+        .header-logo {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--dark-gray);
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        nav button.active {
+            color: var(--benfica-red);
+            border-bottom: 4px solid var(--benfica-red);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .hidden { display: none; }
+
+        /* Estudo */
+        .sub-nav {
+            display: flex;
+            gap: 10px;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .sub-nav button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .sub-nav button.active-sub {
+            background: var(--benfica-red);
+            color: white;
+            border-color: var(--benfica-red);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.95rem;
+        }
+
+        th { background-color: var(--benfica-red); color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+
+        .grammar-tip {
+            background-color: var(--warning-bg);
+            border-left: 5px solid var(--benfica-gold);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .grammar-tip strong { color: #856404; }
+
+        /* Adverbs specific */
+        .adverb-scale {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .adverb-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .adverb-pct {
+            width: 60px;
+            font-weight: bold;
+            color: var(--benfica-red);
+        }
+
+        .adverb-bar-container {
+            flex-grow: 1;
+            background: #eee;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .adverb-bar { height: 100%; border-radius: 6px; }
+
+        .rule-box {
+            border: 2px dashed var(--benfica-gold);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            background: #fffdf8;
+        }
+
+        /* Vocabulario Cards & Categories */
+        .vocab-category-title {
+            color: var(--benfica-red);
+            border-bottom: 2px solid var(--benfica-gold);
+            padding-bottom: 5px;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .vocab-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(225, 6, 19, 0.15);
+            border-color: var(--benfica-red);
+        }
+
+        .vocab-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .vocab-word {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--benfica-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .vocab-example {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Treino e XP */
+        .practice-box {
+            background: #fff;
+            border: 2px solid #eee;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .xp-bar {
+            background: #eee;
+            border-radius: 10px;
+            height: 20px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .xp-progress {
+            background: var(--benfica-gold);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .btn-action {
+            background-color: var(--benfica-red);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-action:hover { background: #b3050f; }
+
+        /* Teste */
+        .test-section {
+            border-left: 6px solid var(--benfica-red);
+            padding-left: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .reading-text {
+            background: #fdf2f2;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--benfica-red);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        .question-group {
+            margin-bottom: 40px;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .question-group h4 {
+            color: var(--benfica-red);
+            border-bottom: 2px solid var(--benfica-red);
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .question-item { margin-bottom: 25px; }
+        .question-item p { font-weight: bold; margin-bottom: 10px; }
+
+        input[type="text"], select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            margin-top: 5px;
+            font-size: 1rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .radio-option {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .radio-option:hover { background: #f0f0f0; }
+        
+        .part-header {
+            background: var(--dark-gray);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        /* ------------------ GAME STYLES ------------------ */
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(180deg, #4CAF50 0%, #388E3C 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            perspective: 800px; /* 3D effect */
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+        }
+
+        /* Campo e Linhas */
+        .penalty-box {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) rotateX(40deg);
+            width: 60%;
+            height: 40%;
+            border: 4px solid rgba(255,255,255,0.8);
+            border-bottom: none;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .penalty-spot {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%) rotateX(40deg);
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        /* Baliza */
+        .goal-post {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%; /* Largura da baliza */
+            height: 120px;
+            border-top: 8px solid white;
+            border-left: 8px solid white;
+            border-right: 8px solid white;
+            z-index: 5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .goal-net {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 9px, rgba(200,200,200,0.3) 10px), repeating-linear-gradient(90deg, transparent, transparent 9px, rgba(200,200,200,0.3) 10px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* Guarda-Redes (Adversário) Melhorado */
+        .goalkeeper {
+            position: absolute;
+            top: 80px; /* Dentro da baliza */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 90px;
+            z-index: 6;
+            transition: all 0.6s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gk-head {
+            width: 25px;
+            height: 30px;
+            background: #ffccaa;
+            border-radius: 50%;
+            z-index: 2;
+            position: relative;
+            top: 5px;
+        }
+
+        .gk-body {
+            width: 40px;
+            height: 60px;
+            background-color: var(--sporting-green);
+            border-radius: 10px 10px 5px 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .gk-arm {
+            width: 12px;
+            height: 40px;
+            background-color: var(--sporting-green);
+            position: absolute;
+            top: 35px; /* Shoulder height */
+            border-radius: 5px;
+            transform-origin: top center;
+            transition: transform 0.6s ease-out;
+        }
+
+        .gk-arm.left { left: 0px; }
+        .gk-arm.right { right: 0px; }
+
+        .gk-glove {
+            width: 16px;
+            height: 16px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -5px;
+            left: -2px;
+        }
+
+        /* Jogador (Benfica - Pavlidis 10) */
+        .player {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 160px;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.4));
+        }
+
+        .player-jersey {
+            width: 90px;
+            height: 110px;
+            background: var(--benfica-red);
+            border-radius: 15px 15px 5px 5px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Arial Black', sans-serif;
+            flex-direction: column;
+        }
+
+        .jersey-name { font-size: 10px; margin-top: 5px; letter-spacing: 1px; }
+        .jersey-number { font-size: 40px; line-height: 1; margin: 0; }
+        .player-head { width: 50px; height: 55px; background: #e0ac69; border-radius: 50%; position: absolute; top: -45px; z-index: 21; background: linear-gradient(to bottom, #222 30%, #e0ac69 30%); }
+        
+        /* Bola */
+        .ball {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translate(-50%, 50%);
+            width: 30px;
+            height: 30px;
+            background: white;
+            background-image: radial-gradient(circle at 30% 30%, white, #ccc, #333);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            transition: all 0.1s; /* JS control */
+        }
+
+        /* Controles do Jogo */
+        .game-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 30;
+            width: 200px;
+            text-align: center;
+            display: none; /* Hidden initially, shown after question */
+        }
+
+        /* NEW: Question Overlay for Game */
+        #game-question-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            z-index: 40;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 3px solid var(--benfica-gold);
+            display: none;
+        }
+
+        #game-question-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--benfica-red);
+        }
+
+        .game-option-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .game-option-btn:hover {
+            background: #f0f0f0;
+            border-color: var(--benfica-red);
+        }
+
+        /* Controls UI */
+        .arrow-container {
+            width: 100%;
+            height: 40px;
+            margin-bottom: 10px;
+            position: relative;
+            background: #eee;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .arrow-indicator {
+            width: 4px;
+            height: 100%;
+            background: var(--dark-gray);
+            position: absolute;
+            left: 50%;
+            transform-origin: bottom center;
+            transition: none; /* Controlled by JS animation loop */
+        }
+
+        .power-container {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .power-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, yellow, red);
+        }
+
+        .game-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--benfica-red);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .game-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .game-score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 30;
+        }
+
+        /* Animações */
+        @keyframes kickBall {
+            0% { bottom: 20%; left: 50%; transform: translate(-50%, 50%) scale(1); }
+            100% { bottom: var(--target-y); left: var(--target-x); transform: translate(-50%, 0) scale(var(--target-scale, 0.6)); }
+        }
+
+        .ball-moving {
+            animation: kickBall 0.8s ease-out forwards;
+        }
+
+        /* GK Animation Classes */
+        .keeper-dive-left { transform: translateX(-150%) rotate(-75deg); bottom: 10px; }
+        .keeper-dive-left .gk-arm.left { transform: rotate(-45deg); }
+        .keeper-dive-left .gk-arm.right { transform: rotate(-120deg); }
+
+        .keeper-dive-right { transform: translateX(50%) rotate(75deg); bottom: 10px; }
+        .keeper-dive-right .gk-arm.left { transform: rotate(120deg); }
+        .keeper-dive-right .gk-arm.right { transform: rotate(45deg); }
+
+        .keeper-stay { transform: translateX(-50%); }
+        .keeper-stay .gk-arm { transform: rotate(0deg); }
+
+        .result-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px black;
+            z-index: 100;
+            display: none;
+        }
+
+        .goal-msg { color: #FFD700; display: block; animation: popIn 0.5s; }
+        .miss-msg { color: white; display: block; animation: popIn 0.5s; }
+
+        @keyframes popIn { from { transform: translate(-50%, -50%) scale(0); } to { transform: translate(-50%, -50%) scale(1); } }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-logo">🏟️</div>
+    <h1>BENFICA ENGLISH CHALLENGE</h1>
+    <p>Domina o Present Simple no Estádio da Luz!</p>
+</header>
+
+<nav id="main-nav">
+    <button onclick="changeSection('study')" id="btn-study" class="active">STUDY CENTER</button>
+    <button onclick="changeSection('adverbs')" id="btn-adverbs">ADVERBS</button>
+    <button onclick="changeSection('vocabulary')" id="btn-vocabulary">VOCABULARY</button>
+    <button onclick="changeSection('practice')" id="btn-practice">TRAINING (XP)</button>
+    <button onclick="changeSection('game')" id="btn-game">PENALTY KICKS</button>
+    <button onclick="changeSection('test')" id="btn-test">FINAL MATCH (TEST)</button>
+</nav>
+
+<div class="container">
+
+    <!-- SEÇÃO 1: ESTUDO (MANTIDA) -->
+    <section id="study">
+        <h2>Grammar Guide: Present Simple</h2>
+        <p>O Present Simple é usado para rotinas, factos e hábitos. No mundo do Benfica, usamos para falar dos treinos, jogos e costumes!</p>
+        
+        <div class="sub-nav">
+            <button onclick="tabStudy('aff')" id="sub-aff" class="active-sub">Affirmative</button>
+            <button onclick="tabStudy('neg')" id="sub-neg">Negative</button>
+            <button onclick="tabStudy('int')" id="sub-int">Interrogative</button>
+        </div>
+
+        <div id="display-study">
+            <!-- AFFIRMATIVE -->
+            <div id="content-aff">
+                <h3>Affirmative Form (+)</h3>
+                <p>A maioria dos verbos mantém a forma base, mas a <b>3ª Pessoa do Singular (He, She, It)</b> é especial!</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Subject</th>
+                            <th style="width: 40%">Rule</th>
+                            <th style="width: 30%">Benfica Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>I / You / We / They</td>
+                            <td><b>Verb</b> (Base Form)</td>
+                            <td>We <b>support</b> Benfica.</td>
+                        </tr>
+                        <tr>
+                            <td>He / She / It</td>
+                            <td><b>Verb + s / es / ies</b></td>
+                            <td>The coach <b>trains</b> the team.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="grammar-tip">
+                    <strong>🔥 Golden Rules for 3rd Person (He/She/It):</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><b>General Rule:</b> Add <b>-s</b> (e.g., play → plays, run → runs).</li>
+                        <li><b>Ending in -o, -ch, -sh, -ss, -x:</b> Add <b>-es</b> <br>
+                            <i>(Go → Goes, Watch → Watches, Wash → Washes)</i></li>
+                        <li><b>Consonant + y:</b> Cut the 'y' and add <b>-ies</b> <br>
+                            <i>(Fly → Flies, Carry → Carries, Study → Studies)</i></li>
+                        <li><b>Vowel + y:</b> Just add <b>-s</b> (Don't change the 'y'!) <br>
+                            <i>(Play → Plays, Buy → Buys)</i></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- NEGATIVE -->
+            <div id="content-neg" class="hidden">
+                <h3>Negative Form (-)</h3>
+                <p>Para negar, precisamos dos auxiliares <b>Do</b> ou <b>Does</b> + <b>NOT</b>.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Auxiliary (Short Form)</th>
+                            <th>Main Verb</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>I / You / We / They</td>
+                            <td><b>don't</b> (do not)</td>
+                            <td>Base Form</td>
+                            <td>Fans <b>don't sit</b> quietly.</td>
+                        </tr>
+                        <tr>
+                            <td>He / She / It</td>
+                            <td><b>doesn't</b> (does not)</td>
+                            <td>Base Form</td>
+                            <td>He <b>doesn't miss</b> a game.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="grammar-tip">
+                    <strong>⚠️ Warning!</strong><br>
+                    Na negativa, o verbo principal volta ao normal! Nunca coloques o 's' no verbo principal quando usares <b>doesn't</b>.<br>
+                    ❌ <i>Wrong:</i> She doesn't <s>plays</s> football.<br>
+                    ✅ <i>Right:</i> She doesn't <b>play</b> football.
+                </div>
+            </div>
+
+            <!-- INTERROGATIVE -->
+            <div id="content-int" class="hidden">
+                <h3>Interrogative Form (?)</h3>
+                <p>Os auxiliares <b>Do</b> ou <b>Does</b> saltam para o início da frase!</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Auxiliary</th>
+                            <th>Subject</th>
+                            <th>Verb</th>
+                            <th>Short Answer (Yes/No)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>Do</b></td>
+                            <td>you / they</td>
+                            <td>sing?</td>
+                            <td>Yes, I <b>do</b>. / No, I <b>don't</b>.</td>
+                        </tr>
+                        <tr>
+                            <td><b>Does</b></td>
+                            <td>he / she / the eagle</td>
+                            <td>fly?</td>
+                            <td>Yes, it <b>does</b>. / No, it <b>doesn't</b>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style="margin-top: 20px; color: var(--benfica-red);">Wh- Questions (Perguntas Abertas)</h4>
+                <p>Usamos palavras como <i>What, Where, When</i> antes do auxiliar.</p>
+                <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                    <p><b>Where</b> do they play? → They play at Estádio da Luz.</p>
+                    <p><b>When</b> does the match start? → It starts at 8 p.m.</p>
+                    <p><b>What</b> do you wear? → I wear a red scarf.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 2: ADVERBIOS (MANTIDA) -->
+    <section id="adverbs" class="hidden">
+        <h2>Adverbs of Frequency</h2>
+        <p>Os advérbios dizem-nos "quantas vezes" algo acontece. Vê a escala abaixo:</p>
+        
+        <div class="adverb-scale">
+            <div class="adverb-row">
+                <span class="adverb-pct">100%</span>
+                <div class="adverb-bar-container"><div class="adverb-bar" style="width: 100%; background: #e10613;"></div></div>
+                <strong style="width: 100px;">ALWAYS</strong>
+                <span style="font-size: 0.9rem; color: #666;">(Sempre)</span>
+            </div>
+            <div class="adverb-row">
+                <span class="adverb-pct">80%</span>
+                <div class="adverb-bar-container"><div class="adverb-bar" style="width: 80%; background: #ea454f;"></div></div>
+                <strong style="width: 100px;">USUALLY</strong>
+                <span style="font-size: 0.9rem; color: #666;">(Normalmente)</span>
+            </div>
+            <div class="adverb-row">
+                <span class="adverb-pct">60%</span>
+                <div class="adverb-bar-container"><div class="adverb-bar" style="width: 60%; background: #f17b81;"></div></div>
+                <strong style="width: 100px;">OFTEN</strong>
+                <span style="font-size: 0.9rem; color: #666;">(Muitas vezes)</span>
+            </div>
+            <div class="adverb-row">
+                <span class="adverb-pct">40%</span>
+                <div class="adverb-bar-container"><div class="adverb-bar" style="width: 40%; background: #f7b2b6;"></div></div>
+                <strong style="width: 100px;">SOMETIMES</strong>
+                <span style="font-size: 0.9rem; color: #666;">(Às vezes)</span>
+            </div>
+            <div class="adverb-row">
+                <span class="adverb-pct">0%</span>
+                <div class="adverb-bar-container"><div class="adverb-bar" style="width: 5%; background: #ccc;"></div></div>
+                <strong style="width: 100px;">NEVER</strong>
+                <span style="font-size: 0.9rem; color: #666;">(Nunca)</span>
+            </div>
+        </div>
+
+        <div class="rule-box">
+            <h3 style="margin-top: 0; color: var(--benfica-red);">📍 The Golden Position Rules</h3>
+            <p>Onde colocamos o advérbio na frase? Depende do verbo!</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid var(--benfica-gold);">
+                    <h4>1. Before Main Verbs</h4>
+                    <p style="font-size: 0.9rem;">Antes da maioria dos verbos (play, run, eat, watch).</p>
+                    <p><b>Subject + <span style="color: var(--benfica-red);">Adverb</span> + Verb</b></p>
+                    <hr style="border: 0; border-top: 1px solid #eee;">
+                    <p><i>We <span style="color: var(--benfica-red);">always</span> <u>sing</u> the anthem.</i></p>
+                    <p><i>Di María <span style="color: var(--benfica-red);">often</span> <u>scores</u> goals.</i></p>
+                </div>
+
+                <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid var(--benfica-gold);">
+                    <h4>2. After Verb TO BE</h4>
+                    <p style="font-size: 0.9rem;">Depois de am, is, are.</p>
+                    <p><b>Subject + TO BE + <span style="color: var(--benfica-red);">Adverb</span></b></p>
+                    <hr style="border: 0; border-top: 1px solid #eee;">
+                    <p><i>The stadium <u>is</u> <span style="color: var(--benfica-red);">always</span> full.</i></p>
+                    <p><i>They <u>are</u> <span style="color: var(--benfica-red);">never</span> tired.</i></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 3: VOCABULÁRIO (MANTIDA) -->
+    <section id="vocabulary" class="hidden">
+        <h2>Benfica & Routine Vocabulary</h2>
+        <p>Acompanha a rotina da Carolina num dia de jogo, organizada da manhã até à noite!</p>
+        
+        <!-- MORNING -->
+        <h3 class="vocab-category-title">🌅 Morning (Manhã)</h3>
+        <div class="vocab-grid">
+            <div class="vocab-card">
+                <span class="vocab-icon">⏰</span>
+                <span class="vocab-word">Wake up</span>
+                <div class="vocab-example">"Carolina <b>wakes up</b> at 9:00 a.m. on Saturdays."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🦷</span>
+                <span class="vocab-word">Brush teeth</span>
+                <div class="vocab-example">"She <b>brushes</b> her teeth immediately."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🍽️</span>
+                <span class="vocab-word">Eat in the canteen</span>
+                <div class="vocab-example">"During the week, she <b>eats</b> in the canteen."</div>
+            </div>
+        </div>
+
+        <!-- AFTERNOON -->
+        <h3 class="vocab-category-title">☀️ Afternoon (Match Time!)</h3>
+        <div class="vocab-grid">
+            <div class="vocab-card">
+                <span class="vocab-icon">👕</span>
+                <span class="vocab-word">Put on (jersey)</span>
+                <div class="vocab-example">"She <b>puts on</b> her red Benfica jersey."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🎒</span>
+                <span class="vocab-word">Carry a bag</span>
+                <div class="vocab-example">"She <b>carries</b> a bag with a red scarf."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🚌</span>
+                <span class="vocab-word">Catch the bus</span>
+                <div class="vocab-example">"Sometimes they <b>catch the bus</b> to the stadium."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🏃</span>
+                <span class="vocab-word">Go on foot</span>
+                <div class="vocab-example">"She never <b>goes on foot</b> because it is far."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🦅</span>
+                <span class="vocab-word">Watch the eagle</span>
+                <div class="vocab-example">"Fans <b>watch</b> the eagle Vitória fly."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🎵</span>
+                <span class="vocab-word">Sing the anthem</span>
+                <div class="vocab-example">"Everyone <b>sings</b> the anthem with passion."</div>
+            </div>
+        </div>
+
+        <!-- EVENING -->
+        <h3 class="vocab-category-title">🌙 Evening (Noite)</h3>
+        <div class="vocab-grid">
+            <div class="vocab-card">
+                <span class="vocab-icon">📝</span>
+                <span class="vocab-word">Do homework</span>
+                <div class="vocab-example">"On match days, she doesn't <b>do</b> homework."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">🎮</span>
+                <span class="vocab-word">Play video games</span>
+                <div class="vocab-example">"She doesn't <b>play</b> video games in the evening."</div>
+            </div>
+            <div class="vocab-card">
+                <span class="vocab-icon">📻</span>
+                <span class="vocab-word">Listen to news</span>
+                <div class="vocab-example">"She <b>listens</b> to the news about the game."</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 4: TREINO (MANTIDA) -->
+    <section id="practice" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Training Session</h2>
+            <div style="font-weight: bold; font-size: 1.2rem; color: var(--benfica-gold);">XP: <span id="xp-val">0</span> / 450</div>
+        </div>
+        <div class="xp-bar"><div class="xp-progress" id="xp-bar-fill"></div></div>
+        
+        <div class="practice-box" id="practice-area">
+            <h3 id="mode-title">Affirmative Training</h3>
+            <p id="practice-q">Loading...</p>
+            <input type="text" id="practice-input" placeholder="Tua resposta...">
+            <br><br>
+            <button class="btn-action" onclick="checkPractice()">SUBMIT ANSWER</button>
+            <p id="practice-feedback"></p>
+        </div>
+    </section>
+
+    <!-- SEÇÃO NOVA: PENALTY KICKS GAME (ATUALIZADA) -->
+    <section id="game" class="hidden">
+        <h2 style="text-align: center; color: var(--benfica-red);">PENALTY SHOOTOUT ⚽</h2>
+        <p style="text-align: center; margin-bottom: 20px;">Responde para desbloquear o remate!</p>
+        
+        <div id="game-area">
+            <div class="game-score">GOALS: <span id="game-goals">0</span> / <span id="game-shots">0</span></div>
+            
+            <div id="result-text" class="result-msg"></div>
+
+            <!-- Elements -->
+            <div class="goal-net"></div>
+            <div class="goal-post"></div>
+            
+            <!-- Guarda-Redes Melhorado -->
+            <div class="goalkeeper" id="gk">
+                <div class="gk-head"></div>
+                <div class="gk-body"></div>
+                <div class="gk-arm left"><div class="gk-glove"></div></div>
+                <div class="gk-arm right"><div class="gk-glove"></div></div>
+            </div>
+            
+            <div class="penalty-box"></div>
+            <div class="penalty-spot"></div>
+            
+            <div class="ball" id="ball"></div>
+            
+            <!-- Player: Pavlidis 10 -->
+            <div class="player">
+                <div class="player-head"></div>
+                <div class="player-jersey">
+                    <span class="jersey-name">PAVLIDIS</span>
+                    <span class="jersey-number">10</span>
+                </div>
+            </div>
+
+            <!-- QUESTION OVERLAY (NEW) -->
+            <div id="game-question-overlay">
+                <div id="game-question-text">Loading question...</div>
+                <div id="game-options-container">
+                    <!-- Buttons generated by JS -->
+                </div>
+            </div>
+
+            <!-- Controls Overlay (Hidden until correct answer) -->
+            <div class="game-controls" id="controls-ui">
+                <label>Direction</label>
+                <div class="arrow-container">
+                    <div class="arrow-indicator" id="arrow"></div>
+                </div>
+                
+                <label>Power</label>
+                <div class="power-container">
+                    <div class="power-fill" id="power-bar"></div>
+                </div>
+                
+                <button class="game-btn" id="btn-action" onclick="handleGameAction()">AIM (Click)</button>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #666; font-size: 0.9rem;">
+            Acerta na pergunta para poderes marcar o penálti!
+        </div>
+    </section>
+
+    <!-- SEÇÃO 5: TESTE (MANTIDA) -->
+    <section id="test" class="hidden">
+        <div id="test-intro" style="text-align: center; padding: 2rem;">
+            <h2>The Grand Final (Test)</h2>
+            <p>Este teste tem 2 partes. Conclui a leitura para desbloquear a gramática e o vocabulário!</p>
+            <button class="btn-action" onclick="startTest()">KICK OFF (START)</button>
+        </div>
+
+        <!-- PART 1: READING & INTERPRETATION -->
+        <div id="test-part1" class="hidden">
+            <div class="test-section">
+                <div class="part-header">1st HALF: Reading Comprehension</div>
+                
+                <div class="reading-text">
+                    <strong>A Red Match Day in Lisbon</strong><br><br>
+                    Carolina is a 12-year-old student from Lisbon and she is a dedicated Benfica fan. Every Saturday, when there is a match, her routine changes. <br><br>
+                    She usually <b>wakes up</b> at 9:00 a.m. and she <b>brushes her teeth</b> immediately. She <b>doesn’t eat</b> in the school canteen on Saturdays; she <b>prepares</b> a special lunch with her father at home. They <b>often</b> talk about the players and the tactics. <br><br>
+                    In the afternoon, Carolina <b>puts on</b> her red jersey. She <b>never goes</b> to the stadium on foot because it is too far. Her father <b>usually drives</b> her, but sometimes they <b>catch the bus</b> to enjoy the atmosphere with other supporters. Carolina <b>carries</b> a bag with a red scarf and her phone to take photos. <br><br>
+                    At the Estádio da Luz, she <b>watches</b> the eagle Vitória fly across the stadium and she <b>sings</b> the anthem with passion. She <b>enjoys</b> every minute! In the evening, she <b>doesn’t do</b> her homework or <b>play</b> video games. She <b>listens</b> to the news about the game and goes to bed very happy.
+                </div>
+
+                <!-- I. TRUE OR FALSE -->
+                <div class="question-group">
+                    <h4>I. True or False?</h4>
+                    <div class="question-item">
+                        <p>1. Carolina is thirteen years old.</p>
+                        <label class="radio-option"><input type="radio" name="tf1" value="F"> False</label>
+                        <label class="radio-option"><input type="radio" name="tf1" value="T"> True</label>
+                    </div>
+                    <div class="question-item">
+                        <p>2. She brushes her teeth as soon as she wakes up.</p>
+                        <label class="radio-option"><input type="radio" name="tf2" value="T"> True</label>
+                        <label class="radio-option"><input type="radio" name="tf2" value="F"> False</label>
+                    </div>
+                    <div class="question-item">
+                        <p>3. She eats lunch at school on Saturdays.</p>
+                        <label class="radio-option"><input type="radio" name="tf3" value="F"> False</label>
+                        <label class="radio-option"><input type="radio" name="tf3" value="T"> True</label>
+                    </div>
+                    <div class="question-item">
+                        <p>4. The stadium is near her house.</p>
+                        <label class="radio-option"><input type="radio" name="tf4" value="F"> False</label>
+                        <label class="radio-option"><input type="radio" name="tf4" value="T"> True</label>
+                    </div>
+                    <div class="question-item">
+                        <p>5. She sings the Benfica anthem at the stadium.</p>
+                        <label class="radio-option"><input type="radio" name="tf5" value="T"> True</label>
+                        <label class="radio-option"><input type="radio" name="tf5" value="F"> False</label>
+                    </div>
+                </div>
+
+                <!-- II. MULTIPLE CHOICE -->
+                <div class="question-group">
+                    <h4>II. Multiple Choice</h4>
+                    <div class="question-item">
+                        <p>1. Who does Carolina prepare lunch with?</p>
+                        <select id="mc1">
+                            <option value="">- Select -</option>
+                            <option value="A">With her mother.</option>
+                            <option value="B">With her father.</option>
+                            <option value="C">With her friends.</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>2. How does she usually go to the stadium?</p>
+                        <select id="mc2">
+                            <option value="">- Select -</option>
+                            <option value="A">Her father drives her.</option>
+                            <option value="B">She catches the train.</option>
+                            <option value="C">She goes on foot.</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>3. What is in Carolina's bag?</p>
+                        <select id="mc3">
+                            <option value="">- Select -</option>
+                            <option value="A">Her homework and books.</option>
+                            <option value="B">A red scarf and her phone.</option>
+                            <option value="C">Sandwiches and juice.</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>4. Complete: Carolina ________ video games on Saturdays.</p>
+                        <select id="mc4">
+                            <option value="">- Select -</option>
+                            <option value="A">plays</option>
+                            <option value="B">don't play</option>
+                            <option value="C">doesn't play</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>5. Which adverb describes how often she goes on foot?</p>
+                        <select id="mc5">
+                            <option value="">- Select -</option>
+                            <option value="A">Often</option>
+                            <option value="B">Never</option>
+                            <option value="C">Sometimes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- III. COMPLETE ANSWERS -->
+                <div class="question-group">
+                    <h4>III. Complete Answers</h4>
+                    <div class="question-item">
+                        <p>1. What is the name of the eagle at the stadium?</p>
+                        <input type="text" id="ca1" placeholder="The name of the eagle is...">
+                    </div>
+                    <div class="question-item">
+                        <p>2. Why does she sometimes catch the bus?</p>
+                        <input type="text" id="ca2" placeholder="Because she wants to...">
+                    </div>
+                    <div class="question-item">
+                        <p>3. What does Carolina do in the evening after the match?</p>
+                        <input type="text" id="ca3" placeholder="In the evening, she...">
+                    </div>
+                </div>
+
+                <button class="btn-action" onclick="finishTestPart1()">HALF-TIME (NEXT PART) ➡️</button>
+            </div>
+        </div>
+
+        <!-- PART 2: GRAMMAR & VOCABULARY -->
+        <div id="test-part2" class="hidden">
+            <div class="test-section">
+                <div class="part-header">2nd HALF: Grammar & Vocabulary</div>
+                <p>Ótimo trabalho na 1ª parte! Agora mostra o que sabes sobre gramática e vocabulário.</p>
+
+                <!-- IV. GRAMMAR TACTICS -->
+                <div class="question-group">
+                    <h4>IV. Grammar Tactics (Present Simple)</h4>
+                    <p style="margin-bottom: 20px;">Fill in the blanks with the correct form of the verb.</p>
+                    
+                    <div class="question-item">
+                        <p>1. The players ________ (train) every morning at Seixal.</p>
+                        <select id="gr1">
+                            <option value="">- Select -</option>
+                            <option value="A">train</option>
+                            <option value="B">trains</option>
+                            <option value="C">training</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>2. My brother ________ (not / like) Sporting CP.</p>
+                        <select id="gr2">
+                            <option value="">- Select -</option>
+                            <option value="A">don't like</option>
+                            <option value="B">doesn't like</option>
+                            <option value="C">not like</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>3. Di María ________ (score) fantastic goals.</p>
+                        <input type="text" id="gr3" placeholder="Write verb...">
+                    </div>
+                    <div class="question-item">
+                        <p>4. ________ (Do/Does) you have a Red Pass?</p>
+                        <select id="gr4">
+                            <option value="">- Select -</option>
+                            <option value="A">Do</option>
+                            <option value="B">Does</option>
+                        </select>
+                    </div>
+                     <div class="question-item">
+                        <p>5. My father ________ (watch) every game.</p>
+                        <select id="gr5">
+                            <option value="">- Select -</option>
+                            <option value="A">watch</option>
+                            <option value="B">watches</option>
+                            <option value="C">watching</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- V. ADVERB POSITION -->
+                <div class="question-group">
+                    <h4>V. Adverb Position</h4>
+                    <p style="margin-bottom: 20px;">Choose the correct sentence.</p>
+                    
+                    <div class="question-item">
+                        <p>1. Where is the adverb "always"?</p>
+                        <label class="radio-option"><input type="radio" name="adv1" value="A"> The stadium always is full.</label>
+                        <label class="radio-option"><input type="radio" name="adv1" value="B"> The stadium is always full.</label>
+                    </div>
+                    <div class="question-item">
+                        <p>2. Where is the adverb "never"?</p>
+                        <label class="radio-option"><input type="radio" name="adv2" value="A"> They never go on foot.</label>
+                        <label class="radio-option"><input type="radio" name="adv2" value="B"> They go never on foot.</label>
+                    </div>
+                    <div class="question-item">
+                        <p>3. Where is the adverb "often"?</p>
+                        <label class="radio-option"><input type="radio" name="adv3" value="A"> We often eat lunch.</label>
+                        <label class="radio-option"><input type="radio" name="adv3" value="B"> We eat often lunch.</label>
+                    </div>
+                    <div class="question-item">
+                        <p>4. Where is the adverb "usually"? (with verb to be)</p>
+                        <label class="radio-option"><input type="radio" name="adv4" value="A"> The player usually is fast.</label>
+                        <label class="radio-option"><input type="radio" name="adv4" value="B"> The player is usually fast.</label>
+                    </div>
+                    <div class="question-item">
+                        <p>5. Where is the adverb "sometimes"?</p>
+                        <label class="radio-option"><input type="radio" name="adv5" value="A"> I sometimes go to the stadium.</label>
+                        <label class="radio-option"><input type="radio" name="adv5" value="B"> I go sometimes to the stadium.</label>
+                    </div>
+                </div>
+
+                <!-- VI. VOCABULARY MATCH -->
+                <div class="question-group">
+                    <h4>VI. Vocabulary Challenge</h4>
+                    
+                    <div class="question-item">
+                        <p>1. I use water and toothpaste to ________ my teeth.</p>
+                        <select id="voc1">
+                            <option value="">- Select -</option>
+                            <option value="A">wash</option>
+                            <option value="B">brush</option>
+                            <option value="C">clean</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>2. Before the game, we ________ the anthem "Ser Benfiquista".</p>
+                        <input type="text" id="voc2" placeholder="Action...">
+                    </div>
+                    <div class="question-item">
+                        <p>3. Carolina ________ her bag to the stadium.</p>
+                        <select id="voc3">
+                            <option value="">- Select -</option>
+                            <option value="A">carries</option>
+                            <option value="B">wears</option>
+                            <option value="C">puts</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>4. We ________ the eagle fly.</p>
+                        <select id="voc4">
+                            <option value="">- Select -</option>
+                            <option value="A">watch</option>
+                            <option value="B">see</option>
+                            <option value="C">look</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>5. She ________ on her red jersey.</p>
+                        <select id="voc5">
+                            <option value="">- Select -</option>
+                            <option value="A">takes</option>
+                            <option value="B">puts</option>
+                            <option value="C">has</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-action" onclick="finishTestPart2()">FULL TIME (SUBMIT ALL) 🏆</button>
+            </div>
+        </div>
+
+        <!-- FINISH SCREEN -->
+        <div id="test-finish" class="hidden" style="text-align: center; padding: 3rem;">
+            <h1 style="color: var(--success);">🏟️ FULL TIME! 🏆</h1>
+            <p id="final-score-text" style="font-size: 1.5rem; margin-bottom: 10px;"></p>
+            <p id="final-breakdown" style="font-size: 1rem; color: #666;"></p>
+            <br>
+            <p>Concluíste o Benfica Challenge. Bom trabalho!</p>
+            <button class="btn-action" onclick="location.reload()">PLAY AGAIN</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // State
+    let currentXP = 0;
+    let practiceIndex = 0;
+    let currentPracticeMode = 'aff';
+    
+    // Test Scores
+    let scorePart1 = 0;
+    let scorePart2 = 0;
+
+    const practiceData = {
+        aff: [
+            { q: "She ____ (watch) the game.", a: "watches" },
+            { q: "He ____ (carry) a red scarf.", a: "carries" },
+            { q: "The eagle ____ (fly) high.", a: "flies" },
+            { q: "I ____ (like) football.", a: "like" },
+            { q: "Sarah ____ (study) English.", a: "studies" }
+        ],
+        neg: [
+            { q: "She ____ (not / like) Sporting.", a: "doesn't like" },
+            { q: "They ____ (not / go) on foot.", a: "don't go" },
+            { q: "He ____ (not / do) homework.", a: "doesn't do" }
+        ],
+        int: [
+            { q: "____ you like football?", a: "do" },
+            { q: "____ she watch the eagle?", a: "does" }
+        ],
+        adv: [
+            { q: "She ____ (usually / watch) the game.", a: "usually watches" },
+            { q: "They ____ (always / be) happy.", a: "are always" },
+            { q: "He ____ (never / miss) a goal.", a: "never misses" }
+        ],
+        voc: [
+            { q: "Action: ____ (Catch) the bus.", a: "catch" },
+            { q: "Action: ____ (Watch) the eagle.", a: "watch" },
+            { q: "Action: ____ (Sing) the anthem.", a: "sing" },
+            { q: "Morning: ____ (Brush) teeth.", a: "brush" }
+        ]
+    };
+
+    // GAME QUESTIONS (20 Distinct Items)
+    const gameQuestions = [
+        { q: "He ____ (play) football well.", options: ["play", "plays", "playing"], correct: 1 },
+        { q: "They ____ (not / go) to Sporting games.", options: ["doesn't go", "don't go", "not go"], correct: 1 },
+        { q: "____ (Do / Does) you like Benfica?", options: ["Does", "Is", "Do"], correct: 2 },
+        { q: "She ____ (watch) every match.", options: ["watch", "watches", "watching"], correct: 1 },
+        { q: "We ____ (be) always happy at Luz.", options: ["is", "am", "are"], correct: 2 },
+        { q: "The eagle Vitória ____ (fly).", options: ["flies", "flys", "fly"], correct: 0 },
+        { q: "I ____ (not / buy) a green scarf.", options: ["doesn't buy", "don't buy", "not buy"], correct: 1 },
+        { q: "____ (Do / Does) Di María score?", options: ["Do", "Are", "Does"], correct: 2 },
+        { q: "He usually ____ (arrive) early.", options: ["arrive", "arrives", "arriving"], correct: 1 },
+        { q: "The players ____ (train) at Seixal.", options: ["trains", "train", "training"], correct: 1 },
+        { q: "We never ____ (wear) green.", options: ["wears", "wear", "wearing"], correct: 1 },
+        { q: "She ____ (study) English.", options: ["study", "studies", "studys"], correct: 1 },
+        { q: "They ____ (catch) the bus.", options: ["catches", "catch", "catching"], correct: 1 },
+        { q: "It ____ (be) a fantastic goal!", options: ["are", "am", "is"], correct: 2 },
+        { q: "You ____ (carry) the flag.", options: ["carry", "carries", "carrying"], correct: 0 },
+        { q: "The fans ____ (sing) loud.", options: ["sings", "sing", "song"], correct: 1 },
+        { q: "He ____ (wash) his red jersey.", options: ["wash", "washs", "washes"], correct: 2 },
+        { q: "____ (Do / Does) they eat lunch?", options: ["Does", "Do", "Are"], correct: 1 },
+        { q: "We ____ (not / be) Sporting fans.", options: ["isn't", "aren't", "don't"], correct: 1 },
+        { q: "Otamendi ____ (stop) the ball.", options: ["stops", "stop", "stopping"], correct: 0 }
+    ];
+
+    // Game Variables
+    let gameStep = 0; // 0=Aim, 1=Power, 2=Result
+    let gameGoals = 0;
+    let gameShots = 0;
+    let arrowAngle = 0;
+    let arrowDir = 1;
+    let powerLevel = 0;
+    let powerDir = 1;
+    let gameInterval;
+    let currentQuestionObj = null;
+
+    // Navigation
+    function changeSection(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + id).classList.add('active');
+        if(id === 'practice') loadPractice();
+        if(id === 'game') initGame();
+    }
+
+    function tabStudy(id) {
+        document.getElementById('content-aff').classList.add('hidden');
+        document.getElementById('content-neg').classList.add('hidden');
+        document.getElementById('content-int').classList.add('hidden');
+        document.getElementById('content-' + id).classList.remove('hidden');
+        document.querySelectorAll('.sub-nav button').forEach(b => b.classList.remove('active-sub'));
+        document.getElementById('sub-' + id).classList.add('active-sub');
+    }
+
+    // Practice Logic (ATUALIZADA)
+    function loadPractice() {
+        let pool = practiceData[currentPracticeMode];
+        if (practiceIndex >= pool.length) {
+            if (currentPracticeMode === 'aff') { currentPracticeMode = 'neg'; practiceIndex = 0; }
+            else if (currentPracticeMode === 'neg') { currentPracticeMode = 'int'; practiceIndex = 0; }
+            else if (currentPracticeMode === 'int') { currentPracticeMode = 'adv'; practiceIndex = 0; }
+            else if (currentPracticeMode === 'adv') { currentPracticeMode = 'voc'; practiceIndex = 0; }
+            else {
+                document.getElementById('practice-area').innerHTML = "<h3>Training Complete! 🏆</h3>";
+                return;
+            }
+        }
+        
+        let modeLabels = { 
+            aff: 'Affirmative Training', 
+            neg: 'Negative Training', 
+            int: 'Interrogative Training',
+            adv: 'Adverbs Position',
+            voc: 'Vocabulary Training'
+        };
+        
+        pool = practiceData[currentPracticeMode];
+        
+        document.getElementById('mode-title').innerText = modeLabels[currentPracticeMode];
+        document.getElementById('practice-q').innerText = pool[practiceIndex].q;
+        document.getElementById('practice-input').value = "";
+    }
+
+    function checkPractice() {
+        let userAns = document.getElementById('practice-input').value.toLowerCase().trim();
+        if (userAns === practiceData[currentPracticeMode][practiceIndex].a) {
+            currentXP += 30;
+            practiceIndex++;
+            updateXP();
+            loadPractice();
+        } else {
+             document.getElementById('practice-input').style.borderColor = "red";
+             setTimeout(() => document.getElementById('practice-input').style.borderColor = "#ccc", 500);
+        }
+    }
+
+    function updateXP() {
+        let maxXP = 450; 
+        document.getElementById('xp-val').innerText = currentXP;
+        document.getElementById('xp-bar-fill').style.width = (currentXP / maxXP * 100) + "%";
+    }
+
+    // GAME LOGIC
+    function initGame() {
+        clearInterval(gameInterval);
+        showGameQuestion(); // Start with a question
+    }
+
+    function showGameQuestion() {
+        // Hide controls, show question overlay
+        document.getElementById('controls-ui').style.display = 'none';
+        document.getElementById('game-question-overlay').style.display = 'block';
+        document.getElementById('result-text').style.display = 'none';
+        
+        // Pick random question
+        const randIndex = Math.floor(Math.random() * gameQuestions.length);
+        currentQuestionObj = gameQuestions[randIndex];
+
+        document.getElementById('game-question-text').innerText = currentQuestionObj.q;
+        
+        const optsContainer = document.getElementById('game-options-container');
+        optsContainer.innerHTML = '';
+        
+        currentQuestionObj.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'game-option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkGameAnswer(index);
+            optsContainer.appendChild(btn);
+        });
+    }
+
+    function checkGameAnswer(selectedIndex) {
+        const overlay = document.getElementById('game-question-overlay');
+        
+        if (selectedIndex === currentQuestionObj.correct) {
+            // Correct! Unlock shot
+            overlay.style.display = 'none';
+            document.getElementById('controls-ui').style.display = 'block';
+            resetShot();
+        } else {
+            // Wrong! Miss turn
+            alert("Wrong answer! The goalkeeper guessed your move. Try again!");
+            showGameQuestion(); // New question
+        }
+    }
+
+    function resetShot() {
+        gameStep = 0;
+        arrowAngle = 0;
+        powerLevel = 0;
+        document.getElementById('btn-action').innerText = "LOCK DIRECTION";
+        document.getElementById('btn-action').disabled = false;
+        document.getElementById('result-text').style.display = 'none';
+        document.getElementById('result-text').className = 'result-msg'; // clear modifiers
+        
+        // Reset Visuals
+        const ball = document.getElementById('ball');
+        ball.classList.remove('ball-moving');
+        ball.style.bottom = "20%";
+        ball.style.left = "50%";
+        ball.style.transform = "translate(-50%, 50%) scale(1)";
+
+        const keeper = document.getElementById('gk');
+        keeper.className = 'goalkeeper'; // remove dive classes
+
+        startAimLoop();
+    }
+
+    function startAimLoop() {
+        clearInterval(gameInterval);
+        gameInterval = setInterval(() => {
+            arrowAngle += 3 * arrowDir;
+            if (arrowAngle > 45 || arrowAngle < -45) arrowDir *= -1;
+            document.getElementById('arrow').style.transform = `translateX(-50%) rotate(${arrowAngle}deg)`;
+        }, 20);
+    }
+
+    function startPowerLoop() {
+        clearInterval(gameInterval);
+        gameInterval = setInterval(() => {
+            powerLevel += 2 * powerDir;
+            if (powerLevel > 100 || powerLevel < 0) powerDir *= -1;
+            document.getElementById('power-bar').style.width = powerLevel + "%";
+        }, 15);
+    }
+
+    function handleGameAction() {
+        if (gameStep === 0) {
+            // Lock Direction
+            gameStep = 1;
+            document.getElementById('btn-action').innerText = "LOCK POWER";
+            startPowerLoop();
+        } else if (gameStep === 1) {
+            // Lock Power & Shoot
+            gameStep = 2;
+            clearInterval(gameInterval);
+            document.getElementById('btn-action').innerText = "SHOOTING...";
+            document.getElementById('btn-action').disabled = true;
+            shootBall();
+        }
+    }
+
+    function shootBall() {
+        gameShots++;
+        
+        // Logic
+        let shotDir = 1; // Center
+        // Adjusted logic: angles > 35 or < -35 are WIDE (outside posts)
+        if (arrowAngle < -15) shotDir = 0; // Left side
+        else if (arrowAngle > 15) shotDir = 2; // Right side
+
+        let keeperMove = Math.floor(Math.random() * 3); // 0, 1, 2
+        
+        // Visual Calculations
+        let targetX = 50 + (arrowAngle * 0.8);
+        let targetY = 80;
+        let scale = 0.6;
+
+        // PHYSICS ADJUSTMENTS
+        let outcome = "GOAL";
+
+        // 1. Weak Shot (stops short)
+        if (powerLevel < 30) {
+            targetY = 40; // Stops way before goal line
+            scale = 0.8;
+            outcome = "WEAK";
+        } 
+        // 2. Over the bar (goes high)
+        else if (powerLevel > 90) {
+            targetY = 120; // Goes above screen area of goal
+            scale = 0.5;
+            outcome = "OVER";
+        }
+        // 3. Wide (outside posts)
+        else if (arrowAngle > 35 || arrowAngle < -35) {
+            // Ball goes to targetX but it's visually outside the posts
+            outcome = "WIDE";
+        }
+        // 4. Saved
+        else if (shotDir === keeperMove) {
+            outcome = "SAVED";
+        }
+
+        // Set CSS Vars for Animation
+        const ball = document.getElementById('ball');
+        ball.style.setProperty('--target-x', targetX + "%");
+        ball.style.setProperty('--target-y', targetY + "%");
+        ball.style.setProperty('--target-scale', scale);
+        
+        // Keeper Animation
+        const keeper = document.getElementById('gk');
+        setTimeout(() => {
+            if(keeperMove === 0) keeper.classList.add('keeper-dive-left');
+            else if(keeperMove === 2) keeper.classList.add('keeper-dive-right');
+            else keeper.classList.add('keeper-stay');
+        }, 200);
+
+        // Ball Animation
+        ball.classList.add('ball-moving');
+
+        // Result Logic
+        setTimeout(() => {
+            let resultText = document.getElementById('result-text');
+            
+            // Text Feedback based on Outcome
+            if (outcome === "WEAK") {
+                resultText.innerText = "TOO WEAK! 🐢";
+                resultText.classList.add('miss-msg');
+            } else if (outcome === "OVER") {
+                resultText.innerText = "OVER THE BAR! 🚀";
+                resultText.classList.add('miss-msg');
+            } else if (outcome === "WIDE") {
+                resultText.innerText = "MISSED! WIDE! ❌";
+                resultText.classList.add('miss-msg');
+            } else if (outcome === "SAVED") {
+                resultText.innerText = "SAVED! 🧤";
+                resultText.classList.add('miss-msg');
+            } else {
+                resultText.innerText = "GOAAAL! ⚽";
+                resultText.classList.add('goal-msg');
+                gameGoals++;
+            }
+
+            resultText.style.display = 'block';
+            
+            // Update Scoreboard
+            document.getElementById('game-goals').innerText = gameGoals;
+            document.getElementById('game-shots').innerText = gameShots;
+
+            // Reset to Question Mode
+            setTimeout(() => {
+                showGameQuestion();
+            }, 2000);
+
+        }, 800); 
+    }
+
+
+    // Test Logic
+    function startTest() {
+        document.getElementById('test-intro').classList.add('hidden');
+        document.getElementById('test-part1').classList.remove('hidden');
+    }
+
+    function finishTestPart1() {
+        scorePart1 = 0;
+        
+        // Check TF (5 pts)
+        if(document.querySelector('input[name="tf1"]:checked')?.value === 'F') scorePart1++;
+        if(document.querySelector('input[name="tf2"]:checked')?.value === 'T') scorePart1++;
+        if(document.querySelector('input[name="tf3"]:checked')?.value === 'F') scorePart1++;
+        if(document.querySelector('input[name="tf4"]:checked')?.value === 'F') scorePart1++;
+        if(document.querySelector('input[name="tf5"]:checked')?.value === 'T') scorePart1++;
+
+        // Check MC (5 pts)
+        if(document.getElementById('mc1').value === 'B') scorePart1++;
+        if(document.getElementById('mc2').value === 'A') scorePart1++;
+        if(document.getElementById('mc3').value === 'B') scorePart1++;
+        if(document.getElementById('mc4').value === 'C') scorePart1++;
+        if(document.getElementById('mc5').value === 'B') scorePart1++;
+
+        // Check CA (3 pts)
+        const ca1 = document.getElementById('ca1').value.toLowerCase();
+        const ca2 = document.getElementById('ca2').value.toLowerCase();
+        const ca3 = document.getElementById('ca3').value.toLowerCase();
+
+        if(ca1.includes('vitoria') || ca1.includes('vitória')) scorePart1++;
+        if(ca2.includes('atmosphere') || ca2.includes('supporters') || ca2.includes('fans')) scorePart1++;
+        if(ca3.includes('listens') && ca3.includes('news')) scorePart1++;
+
+        // Transition
+        document.getElementById('test-part1').classList.add('hidden');
+        document.getElementById('test-part2').classList.remove('hidden');
+        window.scrollTo(0, 0); // Scroll to top
+    }
+
+    function finishTestPart2() {
+        scorePart2 = 0;
+
+        // Grammar (5 pts)
+        if(document.getElementById('gr1').value === 'A') scorePart2++;
+        if(document.getElementById('gr2').value === 'B') scorePart2++;
+        if(document.getElementById('gr3').value.toLowerCase().trim() === 'scores') scorePart2++;
+        if(document.getElementById('gr4').value === 'A') scorePart2++;
+        if(document.getElementById('gr5').value === 'B') scorePart2++;
+
+        // Adverbs (5 pts)
+        if(document.querySelector('input[name="adv1"]:checked')?.value === 'B') scorePart2++;
+        if(document.querySelector('input[name="adv2"]:checked')?.value === 'A') scorePart2++;
+        if(document.querySelector('input[name="adv3"]:checked')?.value === 'A') scorePart2++;
+        if(document.querySelector('input[name="adv4"]:checked')?.value === 'B') scorePart2++;
+        if(document.querySelector('input[name="adv5"]:checked')?.value === 'A') scorePart2++;
+
+        // Vocabulary (5 pts)
+        if(document.getElementById('voc1').value === 'B') scorePart2++;
+        if(document.getElementById('voc2').value.toLowerCase().trim() === 'sing') scorePart2++;
+        if(document.getElementById('voc3').value === 'A') scorePart2++;
+        if(document.getElementById('voc4').value === 'A') scorePart2++;
+        if(document.getElementById('voc5').value === 'B') scorePart2++;
+
+        let totalScore = scorePart1 + scorePart2;
+        let maxScore = 13 + 15; // 13 from Part 1, 15 from Part 2 (Total 28)
+
+        // Show Final Screen
+        document.getElementById('test-part2').classList.add('hidden');
+        document.getElementById('test-finish').classList.remove('hidden');
+        
+        document.getElementById('final-score-text').innerText = "Final Score: " + totalScore + " / " + maxScore;
+        document.getElementById('final-breakdown').innerText = `(Reading: ${scorePart1}/13 | Grammar & Vocab: ${scorePart2}/15)`;
+    }
+</script>
+
+</body>
+</html>
