@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School English Championship - 6º Ano</title>
+    <style>
+        :root {
+            --school-blue: #0056b3; /* Cor Principal */
+            --school-yellow: #ffc107; /* Destaques */
+            --white: #ffffff;
+            --light-gray: #f4f6f9;
+            --dark-gray: #343a40;
+            --success: #28a745;
+            --danger: #dc3545;
+            --board-green: #2d5a27;
+            --warning-bg: #fff3cd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--school-blue);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 5px solid var(--school-yellow);
+        }
+
+        .header-logo {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--dark-gray);
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        nav button.active {
+            color: var(--school-blue);
+            border-bottom: 4px solid var(--school-blue);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .hidden { display: none; }
+
+        /* Estudo */
+        .sub-nav {
+            display: flex;
+            gap: 10px;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .sub-nav button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .sub-nav button.active-sub {
+            background: var(--school-blue);
+            color: white;
+            border-color: var(--school-blue);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.95rem;
+        }
+
+        th { background-color: var(--school-blue); color: white; padding: 12px; text-align: left; }
+        td { padding: 10px 12px; border: 1px solid #eee; text-align: left; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #e2e6ea; }
+
+        .verb-table th { width: 33%; }
+
+        .grammar-tip {
+            background-color: var(--warning-bg);
+            border-left: 5px solid var(--school-yellow);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .grammar-tip strong { color: #856404; }
+
+        .rule-box {
+            border: 2px dashed var(--school-blue);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            background: #eef5ff;
+        }
+
+        /* Vocabulario Cards & Categories */
+        .vocab-category-title {
+            color: var(--school-blue);
+            border-bottom: 2px solid var(--school-yellow);
+            padding-bottom: 5px;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .vocab-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 86, 179, 0.15);
+            border-color: var(--school-blue);
+        }
+
+        .vocab-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .vocab-word {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--school-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .vocab-example {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Treino e XP */
+        .practice-box {
+            background: #fff;
+            border: 2px solid #eee;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .xp-bar {
+            background: #eee;
+            border-radius: 10px;
+            height: 20px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .xp-progress {
+            background: var(--school-yellow);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .btn-action {
+            background-color: var(--school-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-action:hover { background: #004494; }
+
+        /* Teste */
+        .test-section {
+            border-left: 6px solid var(--school-blue);
+            padding-left: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .reading-text {
+            background: #eef5ff;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--school-blue);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        .question-group {
+            margin-bottom: 40px;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .question-group h4 {
+            color: var(--school-blue);
+            border-bottom: 2px solid var(--school-blue);
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .question-item { margin-bottom: 25px; }
+        .question-item p { font-weight: bold; margin-bottom: 10px; }
+
+        input[type="text"], select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            margin-top: 5px;
+            font-size: 1rem;
+        }
+
+        .radio-option {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .radio-option:hover { background: #f0f0f0; }
+        
+        .part-header {
+            background: var(--dark-gray);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        /* ------------------ BASKETBALL GAME STYLES (ATUALIZADO) ------------------ */
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: repeating-linear-gradient(90deg, #d2a679 0px, #d2a679 40px, #c6935e 40px, #c6935e 80px);
+            border-radius: 12px;
+            overflow: hidden;
+            perspective: 800px;
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.5);
+            border: 5px solid #333;
+        }
+
+        .paint-area {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) rotateX(40deg);
+            width: 220px;
+            height: 280px;
+            border: 6px solid rgba(255,255,255,0.8);
+            border-top: none;
+            background: rgba(0, 86, 179, 0.3);
+        }
+
+        .free-throw-line {
+            position: absolute;
+            top: 280px;
+            left: 50%;
+            transform: translateX(-50%) rotateX(40deg);
+            width: 220px;
+            height: 6px;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .backboard {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 95px;
+            background: rgba(255,255,255,0.9);
+            border: 3px solid #333;
+            z-index: 5;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .backboard-square {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 45px;
+            border: 3px solid var(--danger);
+        }
+
+        .hoop {
+            position: absolute;
+            top: 120px; /* Alinhamento visual da argola */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            z-index: 6;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .net {
+            position: absolute;
+            top: 125px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: repeating-linear-gradient(45deg, transparent, transparent 4px, #eee 5px), repeating-linear-gradient(-45deg, transparent, transparent 4px, #eee 5px);
+            z-index: 5;
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%);
+            opacity: 0.8;
+        }
+
+        /* Bola de Basquete Melhorada */
+        .ball {
+            position: absolute;
+            bottom: 130px; /* Nas mãos */
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 45px;
+            height: 45px;
+            background-color: #ff7b00;
+            border-radius: 50%;
+            z-index: 25;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            /* Textura da bola */
+            background-image: 
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 10%),
+                linear-gradient(to right, transparent 48%, #222 48%, #222 52%, transparent 52%),
+                linear-gradient(to bottom, transparent 48%, #222 48%, #222 52%, transparent 52%),
+                radial-gradient(circle at 50% 50%, transparent 60%, #222 61%, #222 63%, transparent 64%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 120% 120%;
+            background-position: center;
+        }
+
+        /* Barreirense Player Styles */
+        .b-player {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 250px;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .b-head {
+            width: 50px;
+            height: 60px;
+            background: linear-gradient(to bottom, #222 20%, #e0ac69 20%);
+            border-radius: 50% 50% 40% 40%;
+            margin-bottom: -5px;
+            z-index: 22;
+        }
+        
+        .b-jersey {
+            width: 80px;
+            height: 100px;
+            /* Barreirense Stripes: Red and White */
+            background: repeating-linear-gradient(to right, #d32f2f, #d32f2f 20px, #ffffff 20px, #ffffff 40px);
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 21;
+            box-shadow: 0 5px 5px rgba(0,0,0,0.3);
+        }
+
+        .b-number {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 35px;
+            color: #d32f2f;
+            text-shadow: 1px 1px 0 #fff;
+            background: #fff;
+            padding: 0 5px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        .b-arms {
+            position: absolute;
+            top: 50px; /* Shoulder height */
+            width: 140px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 24; /* Behind ball but above body */
+        }
+
+        .b-arm {
+            width: 25px;
+            height: 90px;
+            background: #e0ac69; /* Skin */
+            border-radius: 20px;
+        }
+
+        .b-arm.left { transform: rotate(-140deg) translateY(-20px); }
+        .b-arm.right { transform: rotate(140deg) translateY(-20px); }
+
+        .game-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 30;
+            width: 200px;
+            text-align: center;
+            display: none;
+        }
+
+        #game-question-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.98);
+            padding: 25px;
+            border-radius: 15px;
+            width: 85%;
+            max-width: 450px;
+            text-align: center;
+            z-index: 40;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 3px solid var(--school-blue);
+            display: none;
+        }
+
+        #game-question-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--school-blue);
+        }
+
+        .game-option-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .game-option-btn:hover {
+            background: #eef5ff;
+            border-color: var(--school-blue);
+        }
+
+        .arrow-container { width: 100%; height: 40px; margin-bottom: 10px; position: relative; background: #eee; border-radius: 20px; overflow: hidden; }
+        .arrow-indicator { width: 4px; height: 100%; background: var(--dark-gray); position: absolute; left: 50%; transform-origin: bottom center; }
+        .power-container { width: 100%; height: 20px; background: #eee; border-radius: 10px; overflow: hidden; margin-bottom: 10px; border: 1px solid #ccc; }
+        .power-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ffc107, #dc3545); }
+        .game-btn { width: 100%; padding: 10px; background: var(--school-blue); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .game-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .game-score { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.8); color: var(--school-yellow); padding: 10px 20px; border-radius: 8px; font-size: 1.5rem; font-weight: bold; z-index: 30; font-family: 'Courier New', monospace; border: 2px solid white; }
+
+        @keyframes throwBall {
+            0% { bottom: 130px; left: 50%; transform: translate(-50%, 0) scale(1); }
+            50% { bottom: 350px; left: var(--mid-x); transform: translate(-50%, 0) scale(0.7); }
+            100% { bottom: var(--target-y); left: var(--target-x); transform: translate(-50%, 0) scale(var(--target-scale, 0.4)); }
+        }
+
+        @keyframes spinBall {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(720deg); }
+        }
+
+        .ball-thrown { 
+            animation: throwBall 1s ease-out forwards; 
+        }
+        
+        /* Spin needs to be on an inner wrapper or managed differently if using translate. 
+           Simplest way is adding a rotation to the existing transform in keyframes or using a wrapper. 
+           Let's rely on visual texture rotation. */
+        .ball-thrown {
+            animation: throwBall 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, spinBall 1s linear infinite;
+        }
+
+        .result-msg { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 5px black; z-index: 100; display: none; }
+        .goal-msg { color: #ffc107; display: block; animation: popIn 0.5s; }
+        .miss-msg { color: white; display: block; animation: popIn 0.5s; }
+        @keyframes popIn { from { transform: translate(-50%, -50%) scale(0); } to { transform: translate(-50%, -50%) scale(1); } }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-logo">🎓</div>
+    <h1>SCHOOL ENGLISH CHAMPIONSHIP</h1>
+    <p>Domina o Present Continuous e o Vocabulário Escolar!</p>
+</header>
+
+<nav id="main-nav">
+    <button onclick="changeSection('study')" id="btn-study" class="active">STUDY CENTER</button>
+    <button onclick="changeSection('grammar')" id="btn-grammar">ADVERBS (MANNER)</button>
+    <button onclick="changeSection('vocabulary')" id="btn-vocabulary">VOCABULARY</button>
+    <button onclick="changeSection('practice')" id="btn-practice">TRAINING (XP)</button>
+    <button onclick="changeSection('game')" id="btn-game">BASKETBALL GAME</button>
+    <button onclick="changeSection('test')" id="btn-test">FINAL EXAM (TEST)</button>
+</nav>
+
+<div class="container">
+
+    <!-- SEÇÃO 1: ESTUDO (PRESENT CONTINUOUS APROFUNDADO) -->
+    <section id="study">
+        <h2>Grammar Guide: Present Continuous</h2>
+        <p>Usamos o Present Continuous para falar de ações que estão a acontecer <b>neste momento</b> (NOW).</p>
+        
+        <div class="sub-nav">
+            <button onclick="tabStudy('aff')" id="sub-aff" class="active-sub">Affirmative</button>
+            <button onclick="tabStudy('neg')" id="sub-neg">Negative</button>
+            <button onclick="tabStudy('int')" id="sub-int">Interrogative</button>
+            <button onclick="tabStudy('spell')" id="sub-spell">Spelling Rules</button>
+        </div>
+
+        <div id="display-study">
+            <!-- Affirmative - Full Conjugation -->
+            <div id="content-aff">
+                <h3>Affirmative Form (+)</h3>
+                <p>Estrutura: <b>Subject + Verb TO BE + Verb-ING</b></p>
+                <table class="verb-table">
+                    <tr><th>Person</th><th>Full Form</th><th>Short Form</th></tr>
+                    <tr><td><b>I</b> (Singular)</td><td>I <b>am</b> reading</td><td>I<b>'m</b> reading</td></tr>
+                    <tr><td><b>You</b> (Singular)</td><td>You <b>are</b> reading</td><td>You<b>'re</b> reading</td></tr>
+                    <tr><td><b>He</b></td><td>He <b>is</b> reading</td><td>He<b>'s</b> reading</td></tr>
+                    <tr><td><b>She</b></td><td>She <b>is</b> reading</td><td>She<b>'s</b> reading</td></tr>
+                    <tr><td><b>It</b></td><td>It <b>is</b> reading</td><td>It<b>'s</b> reading</td></tr>
+                    <tr style="border-top: 2px solid #ccc;"><td><b>We</b> (Plural)</td><td>We <b>are</b> reading</td><td>We<b>'re</b> reading</td></tr>
+                    <tr><td><b>You</b> (Plural)</td><td>You <b>are</b> reading</td><td>You<b>'re</b> reading</td></tr>
+                    <tr><td><b>They</b></td><td>They <b>are</b> reading</td><td>They<b>'re</b> reading</td></tr>
+                </table>
+            </div>
+            
+            <!-- Negative - Full Conjugation -->
+            <div id="content-neg" class="hidden">
+                <h3>Negative Form (-)</h3>
+                <p>Estrutura: <b>Subject + Verb TO BE + NOT + Verb-ING</b></p>
+                <table class="verb-table">
+                    <tr><th>Person</th><th>Full Form</th><th>Short Form</th></tr>
+                    <tr><td><b>I</b></td><td>I <b>am not</b> playing</td><td>I<b>'m not</b> playing</td></tr>
+                    <tr><td><b>You</b></td><td>You <b>are not</b> playing</td><td>You <b>aren't</b> playing</td></tr>
+                    <tr><td><b>He</b></td><td>He <b>is not</b> playing</td><td>He <b>isn't</b> playing</td></tr>
+                    <tr><td><b>She</b></td><td>She <b>is not</b> playing</td><td>She <b>isn't</b> playing</td></tr>
+                    <tr><td><b>It</b></td><td>It <b>is not</b> playing</td><td>It <b>isn't</b> playing</td></tr>
+                    <tr style="border-top: 2px solid #ccc;"><td><b>We</b></td><td>We <b>are not</b> playing</td><td>We <b>aren't</b> playing</td></tr>
+                    <tr><td><b>You</b></td><td>You <b>are not</b> playing</td><td>You <b>aren't</b> playing</td></tr>
+                    <tr><td><b>They</b></td><td>They <b>are not</b> playing</td><td>They <b>aren't</b> playing</td></tr>
+                </table>
+            </div>
+
+            <!-- Interrogative - Full Conjugation -->
+            <div id="content-int" class="hidden">
+                <h3>Interrogative Form (?)</h3>
+                <p>Estrutura: <b>Verb TO BE + Subject + Verb-ING?</b></p>
+                <table class="verb-table">
+                    <tr><th>Verb To Be</th><th>Subject</th><th>Verb-ing</th><th>Short Answers</th></tr>
+                    <tr><td><b>Am</b></td><td>I</td><td>dreaming?</td><td>Yes, I am. / No, I'm not.</td></tr>
+                    <tr><td><b>Are</b></td><td>you</td><td>listening?</td><td>Yes, I am. / No, I'm not.</td></tr>
+                    <tr><td><b>Is</b></td><td>he</td><td>working?</td><td>Yes, he is. / No, he isn't.</td></tr>
+                    <tr><td><b>Is</b></td><td>she</td><td>singing?</td><td>Yes, she is. / No, she isn't.</td></tr>
+                    <tr><td><b>Is</b></td><td>it</td><td>raining?</td><td>Yes, it is. / No, it isn't.</td></tr>
+                    <tr style="border-top: 2px solid #ccc;"><td><b>Are</b></td><td>we</td><td>going?</td><td>Yes, we are. / No, we aren't.</td></tr>
+                    <tr><td><b>Are</b></td><td>you</td><td>reading?</td><td>Yes, we are. / No, we aren't.</td></tr>
+                    <tr><td><b>Are</b></td><td>they</td><td>talking?</td><td>Yes, they are. / No, they aren't.</td></tr>
+                </table>
+            </div>
+
+            <!-- Spelling Rules -->
+            <div id="content-spell" class="hidden">
+                <h3>Spelling Rules for -ING</h3>
+                <p>Na maioria dos verbos, apenas adicionamos <b>-ing</b>. Mas há exceções!</p>
+                <ul>
+                    <li><b>General Rule:</b> +ing<br>
+                        <i>play → playing, read → reading, study → studying</i>
+                    </li>
+                    <li><b>Verbs ending in -e:</b> Remove 'e' +ing<br>
+                        <i>writ<b>e</b> → writing, danc<b>e</b> → dancing, mak<b>e</b> → making</i>
+                    </li>
+                    <li><b>One syllable + CVC (Consoante-Vogal-Consoante):</b> Double last letter +ing<br>
+                        <i>r<b>un</b> → ru<b>nn</b>ing, s<b>it</b> → si<b>tt</b>ing, sw<b>im</b> → swi<b>mm</b>ing</i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 2: ADVERBS (APROFUNDADA) -->
+    <section id="grammar" class="hidden">
+        <h2>Adverbs of Manner</h2>
+        <p>Os advérbios de modo explicam <b>como</b> uma ação é feita. Normalmente são formados a partir do adjetivo + <b>ly</b>.</p>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="rule-box">
+                <h4>Regular Adverbs (+ly)</h4>
+                <ul>
+                    <li>Quick → <b>Quickly</b> (Rapidamente)</li>
+                    <li>Slow → <b>Slowly</b> (Lentamente)</li>
+                    <li>Loud → <b>Loudly</b> (Ruidosamente)</li>
+                    <li>Quiet → <b>Quietly</b> (Silenciosamente)</li>
+                    <li>Sad → <b>Sadly</b> (Tristemente)</li>
+                    <li>Bad → <b>Badly</b> (Mal)</li>
+                    <li>Careful → <b>Carefully</b> (Cuidadosamente)</li>
+                    <li>Clear → <b>Clearly</b> (Claramente)</li>
+                    <li>Polite → <b>Politely</b> (Educadamente)</li>
+                    <li>Sudden → <b>Suddenly</b> (De repente)</li>
+                </ul>
+            </div>
+            <div class="rule-box">
+                <h4>Spelling & Irregular</h4>
+                <p><b>Termina em -y (Muda para -ily):</b></p>
+                <ul>
+                    <li>Happy → <b>Happily</b></li>
+                    <li>Easy → <b>Easily</b></li>
+                    <li>Heavy → <b>Heavily</b></li>
+                    <li>Noisy → <b>Noisily</b></li>
+                </ul>
+                <p><b>Irregular (Memoriza!):</b></p>
+                <ul>
+                    <li>Good → <b>Well</b> (Bem)</li>
+                    <li>Fast → <b>Fast</b> (Rápido)</li>
+                    <li>Hard → <b>Hard</b> (Arduamente)</li>
+                    <li>Late → <b>Late</b> (Tarde)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 3: VOCABULÁRIO (APROFUNDADO) -->
+    <section id="vocabulary" class="hidden">
+        <h2>School Vocabulary - 6th Grade</h2>
+        
+        <!-- Subjects -->
+        <h3 class="vocab-category-title">📘 School Subjects</h3>
+        <div class="vocab-grid">
+            <div class="vocab-card"><span class="vocab-icon">🇬🇧</span><span class="vocab-word">English</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🇵🇹</span><span class="vocab-word">Portuguese</span></div>
+            <div class="vocab-card"><span class="vocab-icon">➗</span><span class="vocab-word">Maths</span></div>
+            <div class="vocab-card"><span class="vocab-icon">📜</span><span class="vocab-word">History</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🌍</span><span class="vocab-word">Geography</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🔬</span><span class="vocab-word">Natural Sciences</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🇫🇷</span><span class="vocab-word">French</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🎨</span><span class="vocab-word">Visual Arts (E.V.)</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🎵</span><span class="vocab-word">Music</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🏃</span><span class="vocab-word">Physical Education (P.E.)</span></div>
+            <div class="vocab-card"><span class="vocab-icon">💻</span><span class="vocab-word">I.C.T.</span></div>
+            <div class="vocab-card"><span class="vocab-icon">⛪</span><span class="vocab-word">Religious Education (E.M.R.C.)</span></div>
+        </div>
+
+        <!-- Places -->
+        <h3 class="vocab-category-title">🏫 Places in School</h3>
+        <div class="vocab-grid">
+            <div class="vocab-card"><span class="vocab-icon">👨‍🏫</span><span class="vocab-word">Classroom</span></div>
+            <div class="vocab-card"><span class="vocab-icon">📚</span><span class="vocab-word">Library</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🍽️</span><span class="vocab-word">Canteen</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🏀</span><span class="vocab-word">Gym</span></div>
+            <div class="vocab-card"><span class="vocab-icon">⚽</span><span class="vocab-word">Playground / Field</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🧪</span><span class="vocab-word">Science Lab</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🖥️</span><span class="vocab-word">Computer Room</span></div>
+            <div class="vocab-card"><span class="vocab-icon">☕</span><span class="vocab-word">Staffroom</span></div>
+            <div class="vocab-card"><span class="vocab-icon">👔</span><span class="vocab-word">Headmaster's Office</span></div>
+            <div class="vocab-card"><span class="vocab-icon">ℹ️</span><span class="vocab-word">Reception</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🚪</span><span class="vocab-word">Corridor</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🚽</span><span class="vocab-word">Toilets</span></div>
+        </div>
+
+        <!-- School Clubs -->
+        <h3 class="vocab-category-title">🤝 School Clubs (Extracurricular)</h3>
+        <div class="vocab-grid">
+            <div class="vocab-card"><span class="vocab-icon">♟️</span><span class="vocab-word">Chess Club</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🎭</span><span class="vocab-word">Drama Club</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🌳</span><span class="vocab-word">Eco-Club</span></div>
+            <div class="vocab-card"><span class="vocab-icon">📸</span><span class="vocab-word">Photography Club</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🏀</span><span class="vocab-word">Sports Club</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🤖</span><span class="vocab-word">Robotics Club</span></div>
+        </div>
+
+        <!-- Objects -->
+        <h3 class="vocab-category-title">🎒 School Objects</h3>
+        <div class="vocab-grid">
+            <div class="vocab-card"><span class="vocab-icon">✏️</span><span class="vocab-word">Pencil</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🖊️</span><span class="vocab-word">Pen</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🖍️</span><span class="vocab-word">Rubber / Eraser</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🔪</span><span class="vocab-word">Sharpener</span></div>
+            <div class="vocab-card"><span class="vocab-icon">📏</span><span class="vocab-word">Ruler</span></div>
+            <div class="vocab-card"><span class="vocab-icon">✂️</span><span class="vocab-word">Scissors</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🧴</span><span class="vocab-word">Glue</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🧮</span><span class="vocab-word">Calculator</span></div>
+            <div class="vocab-card"><span class="vocab-icon">📂</span><span class="vocab-word">Folder</span></div>
+            <div class="vocab-card"><span class="vocab-icon">📖</span><span class="vocab-word">Notebook</span></div>
+            <div class="vocab-card"><span class="vocab-icon">🎒</span><span class="vocab-word">Backpack</span></div>
+            <div class="vocab-card"><span class="vocab-icon">⬜</span><span class="vocab-word">Whiteboard</span></div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 4: TREINO (XP) -->
+    <section id="practice" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Training Session</h2>
+            <div style="font-weight: bold; font-size: 1.2rem; color: var(--school-yellow);">XP: <span id="xp-val">0</span> / 600</div>
+        </div>
+        <div class="xp-bar"><div class="xp-progress" id="xp-bar-fill"></div></div>
+        
+        <div class="practice-box" id="practice-area">
+            <h3 id="mode-title">Training</h3>
+            <p id="practice-q">Loading...</p>
+            <input type="text" id="practice-input" placeholder="Tua resposta...">
+            <br><br>
+            <button class="btn-action" onclick="checkPractice()">SUBMIT ANSWER</button>
+            <p id="practice-feedback"></p>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 5: BASKETBALL GAME -->
+    <section id="game" class="hidden">
+        <h2 style="text-align: center; color: var(--school-blue);">HOOP MASTER 🏀</h2>
+        <p style="text-align: center; margin-bottom: 20px;">Responde corretamente para ganhares um lançamento!</p>
+        
+        <div id="game-area">
+            <div class="game-score">PTS: <span id="game-goals">0</span></div>
+            <div id="result-text" class="result-msg"></div>
+
+            <!-- Scene -->
+            <div class="paint-area"></div>
+            <div class="free-throw-line"></div>
+            <div class="backboard"><div class="backboard-square"></div></div>
+            <div class="hoop"></div>
+            <div class="net"></div>
+            
+            <div class="ball" id="ball"></div>
+            
+            <!-- Barreirense Player -->
+            <div class="b-player">
+                <div class="b-head"></div>
+                <div class="b-jersey">
+                    <div class="b-number">8</div>
+                </div>
+                <div class="b-arms">
+                    <div class="b-arm left"></div>
+                    <div class="b-arm right"></div>
+                </div>
+            </div>
+
+            <!-- Question Overlay -->
+            <div id="game-question-overlay">
+                <div id="game-question-text">Loading...</div>
+                <div id="game-options-container"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="game-controls" id="controls-ui">
+                <label>Direction</label>
+                <div class="arrow-container"><div class="arrow-indicator" id="arrow"></div></div>
+                <label>Power</label>
+                <div class="power-container"><div class="power-fill" id="power-bar"></div></div>
+                <button class="game-btn" id="btn-action" onclick="handleGameAction()">SHOOT (Click)</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO 6: FINAL EXAM -->
+    <section id="test" class="hidden">
+        <div id="test-intro" style="text-align: center; padding: 2rem;">
+            <h2>Final Exam</h2>
+            <p>Este teste tem 25 perguntas! Boa sorte!</p>
+            <button class="btn-action" onclick="startTest()">START EXAM</button>
+        </div>
+
+        <!-- PART 1: READING -->
+        <div id="test-part1" class="hidden">
+            <div class="test-section">
+                <div class="part-header">PART 1: Reading Comprehension</div>
+                
+                <div class="reading-text">
+                    <strong>A Busy Day at Greenwood School</strong><br><br>
+                    It is 10:00 a.m. and the students <b>are studying</b> in their classrooms. In Room 5, the students <b>are having</b> a Maths lesson. They <b>are using</b> their calculators to solve problems. They are working <b>quietly</b>.<br><br>
+                    Outside, in the playground, Class 6B <b>is playing</b> football because they have P.E. The teacher <b>is shouting</b> <b>loudly</b> because the students are running very <b>fast</b>.<br><br>
+                    Sarah is in the library. She <b>is reading</b> a history book. She reads <b>well</b> and learns <b>easily</b>. She isn't talking because you must be quiet in the library. <br><br>
+                    In the Science Lab, Mr. Smith <b>is mixing</b> chemicals <b>carefully</b>. He <b>is showing</b> an experiment to the students. They are watching <b>happily</b>.
+                </div>
+
+                <!-- I. TRUE OR FALSE (5 Questions) -->
+                <div class="question-group">
+                    <h4>I. True or False?</h4>
+                    <div class="question-item">
+                        <p>1. The students in Room 5 are studying English.</p>
+                        <label class="radio-option"><input type="radio" name="tf1" value="F"> False</label>
+                        <label class="radio-option"><input type="radio" name="tf1" value="T"> True</label>
+                    </div>
+                    <div class="question-item">
+                        <p>2. Class 6B is playing basketball.</p>
+                        <label class="radio-option"><input type="radio" name="tf2" value="F"> False</label>
+                        <label class="radio-option"><input type="radio" name="tf2" value="T"> True</label>
+                    </div>
+                    <div class="question-item">
+                        <p>3. Sarah is talking in the library.</p>
+                        <label class="radio-option"><input type="radio" name="tf3" value="F"> False</label>
+                        <label class="radio-option"><input type="radio" name="tf3" value="T"> True</label>
+                    </div>
+                    <div class="question-item">
+                        <p>4. Mr. Smith is in the Science Lab.</p>
+                        <label class="radio-option"><input type="radio" name="tf4" value="T"> True</label>
+                        <label class="radio-option"><input type="radio" name="tf4" value="F"> False</label>
+                    </div>
+                    <div class="question-item">
+                        <p>5. The students in P.E. are running slowly.</p>
+                        <label class="radio-option"><input type="radio" name="tf5" value="F"> False</label>
+                        <label class="radio-option"><input type="radio" name="tf5" value="T"> True</label>
+                    </div>
+                </div>
+
+                <!-- II. MULTIPLE CHOICE (5 Questions) -->
+                <div class="question-group">
+                    <h4>II. Interpretation</h4>
+                    <div class="question-item">
+                        <p>1. What are students using in Maths?</p>
+                        <select id="mc1">
+                            <option value="">- Select -</option>
+                            <option value="A">Rulers</option>
+                            <option value="B">Calculators</option>
+                            <option value="C">Glue</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>2. How is the P.E. teacher shouting?</p>
+                        <select id="mc2">
+                            <option value="">- Select -</option>
+                            <option value="A">Quietly</option>
+                            <option value="B">Happily</option>
+                            <option value="C">Loudly</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>3. What is Sarah doing?</p>
+                        <select id="mc3">
+                            <option value="">- Select -</option>
+                            <option value="A">Reading</option>
+                            <option value="B">Writing</option>
+                            <option value="C">Sleeping</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>4. How does Sarah learn?</p>
+                        <select id="mc4">
+                            <option value="">- Select -</option>
+                            <option value="A">Hardly</option>
+                            <option value="B">Easily</option>
+                            <option value="C">Badly</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>5. How is Mr. Smith mixing chemicals?</p>
+                        <select id="mc5">
+                            <option value="">- Select -</option>
+                            <option value="A">Carefully</option>
+                            <option value="B">Quickly</option>
+                            <option value="C">Dangerously</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-action" onclick="finishTestPart1()">NEXT SECTION ➡️</button>
+            </div>
+        </div>
+
+        <!-- PART 2: GRAMMAR & VOCAB -->
+        <div id="test-part2" class="hidden">
+            <div class="test-section">
+                <div class="part-header">PART 2: Grammar & Vocab</div>
+
+                <!-- III. PRESENT CONTINUOUS (5 Questions) -->
+                <div class="question-group">
+                    <h4>III. Grammar: Present Continuous</h4>
+                    <div class="question-item">
+                        <p>1. Look! He ________ (run) very fast!</p>
+                        <input type="text" id="gr1" placeholder="is running">
+                    </div>
+                    <div class="question-item">
+                        <p>2. They ________ (not / listen) to the teacher.</p>
+                        <input type="text" id="gr2" placeholder="aren't listening">
+                    </div>
+                    <div class="question-item">
+                        <p>3. ________ (Are / Is) you doing homework?</p>
+                        <select id="gr3">
+                            <option value="">- Select -</option>
+                            <option value="A">Is</option>
+                            <option value="B">Are</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>4. She ________ (write) an email now.</p>
+                        <input type="text" id="gr4" placeholder="is writing">
+                    </div>
+                    <div class="question-item">
+                        <p>5. We ________ (sit) on the chair. (Double T!)</p>
+                        <input type="text" id="gr5" placeholder="are sitting">
+                    </div>
+                </div>
+
+                <!-- IV. ADVERBS OF MANNER (5 Questions) -->
+                <div class="question-group">
+                    <h4>IV. Adverbs of Manner</h4>
+                    <div class="question-item">
+                        <p>1. Quick → ________</p>
+                        <input type="text" id="adv1" placeholder="quickly">
+                    </div>
+                    <div class="question-item">
+                        <p>2. Good → ________ (Irregular!)</p>
+                        <input type="text" id="adv2" placeholder="well">
+                    </div>
+                    <div class="question-item">
+                        <p>3. Happy → ________ (Spelling!)</p>
+                        <input type="text" id="adv3" placeholder="happily">
+                    </div>
+                    <div class="question-item">
+                        <p>4. Fast → ________</p>
+                        <input type="text" id="adv4" placeholder="fast">
+                    </div>
+                    <div class="question-item">
+                        <p>5. Careful → ________</p>
+                        <input type="text" id="adv5" placeholder="carefully">
+                    </div>
+                </div>
+
+                <!-- V. VOCABULARY (5 Questions) -->
+                <div class="question-group">
+                    <h4>V. School Vocabulary</h4>
+                    <div class="question-item">
+                        <p>1. You use this to cut paper.</p>
+                        <select id="voc1">
+                            <option value="">- Select -</option>
+                            <option value="A">Scissors</option>
+                            <option value="B">Glue</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>2. You eat lunch here.</p>
+                        <select id="voc2">
+                            <option value="">- Select -</option>
+                            <option value="A">Library</option>
+                            <option value="B">Canteen</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>3. You calculate numbers with this.</p>
+                        <select id="voc3">
+                            <option value="">- Select -</option>
+                            <option value="A">Calculator</option>
+                            <option value="B">Ruler</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>4. You carry books in this.</p>
+                        <select id="voc4">
+                            <option value="">- Select -</option>
+                            <option value="A">Pencil Case</option>
+                            <option value="B">Backpack</option>
+                        </select>
+                    </div>
+                    <div class="question-item">
+                        <p>5. We do experiments here.</p>
+                        <select id="voc5">
+                            <option value="">- Select -</option>
+                            <option value="A">Science Lab</option>
+                            <option value="B">Staffroom</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-action" onclick="finishTestPart2()">FINISH EXAM 📝</button>
+            </div>
+        </div>
+
+        <!-- FINISH -->
+        <div id="test-finish" class="hidden" style="text-align: center; padding: 3rem;">
+            <h1 style="color: var(--success);">EXAM COMPLETE! 🎓</h1>
+            <p id="final-score-text" style="font-size: 1.5rem; margin-bottom: 10px;"></p>
+            <p id="final-breakdown" style="color: #666;"></p>
+            <button class="btn-action" onclick="location.reload()">TRY AGAIN</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // State
+    let currentXP = 0;
+    let practiceIndex = 0;
+    let currentPracticeMode = 'pres_cont'; 
+    let scorePart1 = 0;
+    let scorePart2 = 0;
+
+    const practiceData = {
+        pres_cont: [
+            { q: "She ____ (read) now.", a: "is reading" },
+            { q: "They ____ (play) football.", a: "are playing" },
+            { q: "I ____ (not / sleep).", a: "am not sleeping" },
+            { q: "He ____ (sit) down.", a: "is sitting" }
+        ],
+        adv: [
+            { q: "Adj: Slow → Adv: ____", a: "slowly" },
+            { q: "Adj: Good → Adv: ____", a: "well" },
+            { q: "Adj: Happy → Adv: ____", a: "happily" },
+            { q: "Adj: Fast → Adv: ____", a: "fast" }
+        ],
+        voc: [
+            { q: "Object: Use to cut ____.", a: "scissors" },
+            { q: "Place: Eat in the ____.", a: "canteen" },
+            { q: "Object: Write on the ____.", a: "whiteboard" }
+        ]
+    };
+
+    // GAME QUESTIONS (Present Continuous + Adverbs + Vocab)
+    const gameQuestions = [
+        { q: "She ____ (read) a book now.", options: ["is reading", "are reading", "reading"], correct: 0 },
+        { q: "They ____ (run) fast.", options: ["is running", "are running", "am running"], correct: 1 },
+        { q: "I ____ (not / sleep).", options: ["isn't sleeping", "aren't sleeping", "am not sleeping"], correct: 2 },
+        { q: "He runs ____ (quick).", options: ["quick", "quickly", "quicks"], correct: 1 },
+        { q: "She sings ____ (good).", options: ["good", "well", "goodly"], correct: 1 },
+        { q: "We use ____ for maths.", options: ["calculator", "glue", "pen"], correct: 0 },
+        { q: "We eat in the ____.", options: ["library", "canteen", "lab"], correct: 1 },
+        { q: "Look! It ____ (rain).", options: ["is raining", "are raining", "raining"], correct: 0 },
+        { q: "Be quiet! Baby ____ (sleep).", options: ["sleeps", "is sleeping", "are sleeping"], correct: 1 },
+        { q: "He works ____ (hard).", options: ["hardly", "hard", "hards"], correct: 1 },
+        { q: "Please listen ____ (careful).", options: ["carefully", "careful", "care"], correct: 0 },
+        { q: "Use ____ to stick paper.", options: ["scissors", "glue", "ruler"], correct: 1 },
+        { q: "____ (Are / Is) they coming?", options: ["Is", "Am", "Are"], correct: 2 },
+        { q: "She ____ (sit) on the chair.", options: ["is sitting", "is siting", "sitting"], correct: 0 },
+        { q: "Teachers stay in the ____.", options: ["staffroom", "gym", "corridor"], correct: 0 }
+    ];
+
+    // Navigation
+    function changeSection(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + id).classList.add('active');
+        if(id === 'practice') loadPractice();
+        if(id === 'game') initGame();
+    }
+
+    function tabStudy(id) {
+        document.getElementById('content-aff').classList.add('hidden');
+        document.getElementById('content-neg').classList.add('hidden');
+        document.getElementById('content-int').classList.add('hidden');
+        document.getElementById('content-spell').classList.add('hidden');
+        document.getElementById('content-' + id).classList.remove('hidden');
+        document.querySelectorAll('.sub-nav button').forEach(b => b.classList.remove('active-sub'));
+        document.getElementById('sub-' + id).classList.add('active-sub');
+    }
+
+    // Practice Logic
+    function loadPractice() {
+        let pool = practiceData[currentPracticeMode];
+        if (practiceIndex >= pool.length) {
+            if (currentPracticeMode === 'pres_cont') { currentPracticeMode = 'adv'; practiceIndex = 0; }
+            else if (currentPracticeMode === 'adv') { currentPracticeMode = 'voc'; practiceIndex = 0; }
+            else {
+                document.getElementById('practice-area').innerHTML = "<h3>Training Complete! 🏆</h3>";
+                return;
+            }
+        }
+        
+        let modeLabels = { pres_cont: 'Present Continuous', adv: 'Adverbs Training', voc: 'School Vocab' };
+        document.getElementById('mode-title').innerText = modeLabels[currentPracticeMode];
+        document.getElementById('practice-q').innerText = pool[practiceIndex].q;
+        document.getElementById('practice-input').value = "";
+    }
+
+    function checkPractice() {
+        let userAns = document.getElementById('practice-input').value.toLowerCase().trim();
+        if (userAns === practiceData[currentPracticeMode][practiceIndex].a) {
+            currentXP += 50; // More XP for harder topics
+            practiceIndex++;
+            updateXP();
+            loadPractice();
+        } else {
+             document.getElementById('practice-input').style.borderColor = "red";
+             setTimeout(() => document.getElementById('practice-input').style.borderColor = "#ccc", 500);
+        }
+    }
+
+    function updateXP() {
+        let maxXP = 600; 
+        document.getElementById('xp-val').innerText = currentXP;
+        document.getElementById('xp-bar-fill').style.width = (currentXP / maxXP * 100) + "%";
+    }
+
+    // --- GAME LOGIC (BASKETBALL) ---
+    let gameStep = 0; 
+    let gameGoals = 0;
+    let arrowAngle = 0;
+    let arrowDir = 1;
+    let powerLevel = 0;
+    let powerDir = 1;
+    let gameInterval;
+    let currentQuestionObj = null;
+
+    function initGame() {
+        clearInterval(gameInterval);
+        showGameQuestion(); 
+    }
+
+    function showGameQuestion() {
+        document.getElementById('controls-ui').style.display = 'none';
+        document.getElementById('game-question-overlay').style.display = 'block';
+        document.getElementById('result-text').style.display = 'none';
+        
+        const randIndex = Math.floor(Math.random() * gameQuestions.length);
+        currentQuestionObj = gameQuestions[randIndex];
+
+        document.getElementById('game-question-text').innerText = currentQuestionObj.q;
+        const optsContainer = document.getElementById('game-options-container');
+        optsContainer.innerHTML = '';
+        
+        currentQuestionObj.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'game-option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkGameAnswer(index);
+            optsContainer.appendChild(btn);
+        });
+    }
+
+    function checkGameAnswer(selectedIndex) {
+        if (selectedIndex === currentQuestionObj.correct) {
+            document.getElementById('game-question-overlay').style.display = 'none';
+            document.getElementById('controls-ui').style.display = 'block';
+            resetShot();
+        } else {
+            alert("Wrong! Defense blocked you. Try again!");
+            showGameQuestion();
+        }
+    }
+
+    function resetShot() {
+        gameStep = 0;
+        arrowAngle = 0;
+        powerLevel = 0;
+        document.getElementById('btn-action').innerText = "LOCK DIRECTION";
+        document.getElementById('btn-action').disabled = false;
+        document.getElementById('result-text').style.display = 'none';
+        document.getElementById('result-text').className = 'result-msg';
+        
+        const ball = document.getElementById('ball');
+        ball.classList.remove('ball-thrown');
+        ball.style.bottom = "130px"; // Adjusted to hands
+        ball.style.left = "50%";
+        ball.style.transform = "translate(-50%, 0) scale(1)";
+
+        startAimLoop();
+    }
+
+    function startAimLoop() {
+        clearInterval(gameInterval);
+        gameInterval = setInterval(() => {
+            arrowAngle += 3 * arrowDir;
+            if (arrowAngle > 45 || arrowAngle < -45) arrowDir *= -1;
+            document.getElementById('arrow').style.transform = `translateX(-50%) rotate(${arrowAngle}deg)`;
+        }, 20);
+    }
+
+    function startPowerLoop() {
+        clearInterval(gameInterval);
+        gameInterval = setInterval(() => {
+            powerLevel += 2 * powerDir;
+            if (powerLevel > 100 || powerLevel < 0) powerDir *= -1;
+            document.getElementById('power-bar').style.width = powerLevel + "%";
+        }, 15);
+    }
+
+    function handleGameAction() {
+        if (gameStep === 0) {
+            gameStep = 1;
+            document.getElementById('btn-action').innerText = "LOCK POWER";
+            startPowerLoop();
+        } else if (gameStep === 1) {
+            gameStep = 2;
+            clearInterval(gameInterval);
+            document.getElementById('btn-action').innerText = "SHOOTING...";
+            document.getElementById('btn-action').disabled = true;
+            shootBall();
+        }
+    }
+
+    function shootBall() {
+        let outcome = "GOAL";
+        let targetX = 50 + (arrowAngle * 0.5); 
+        let targetY = 120; // Hoop height
+        let targetScale = 0.4; 
+        
+        // CSS variable for the arc peak mid-point x
+        const midX = 50 + (arrowAngle * 0.25);
+        document.getElementById('ball').style.setProperty('--mid-x', midX + "%");
+
+        // Logic for success
+        if (powerLevel < 50) {
+            targetY = 200; targetScale = 0.7; outcome = "AIRBALL";
+        } else if (powerLevel > 90) {
+            targetY = 50; outcome = "BRICK";
+        } else if (arrowAngle < -10 || arrowAngle > 10) {
+            outcome = "WIDE";
+        }
+        
+        const ball = document.getElementById('ball');
+        ball.style.setProperty('--target-x', targetX + "%");
+        ball.style.setProperty('--target-y', "calc(100% - " + targetY + "px)");
+        ball.style.setProperty('--target-scale', targetScale);
+        
+        ball.classList.add('ball-thrown');
+
+        setTimeout(() => {
+            let resultText = document.getElementById('result-text');
+            if (outcome === "AIRBALL") { resultText.innerText = "AIRBALL! 💨"; resultText.classList.add('miss-msg'); } 
+            else if (outcome === "BRICK") { resultText.innerText = "TOO STRONG! 🧱"; resultText.classList.add('miss-msg'); } 
+            else if (outcome === "WIDE") { resultText.innerText = "MISSED! ❌"; resultText.classList.add('miss-msg'); } 
+            else { resultText.innerText = "SWISH! 🏀"; resultText.classList.add('goal-msg'); gameGoals += 2; }
+
+            resultText.style.display = 'block';
+            document.getElementById('game-goals').innerText = gameGoals;
+
+            setTimeout(() => showGameQuestion(), 2000);
+        }, 1000);
+    }
+
+    // --- TEST LOGIC ---
+    function startTest() {
+        document.getElementById('test-intro').classList.add('hidden');
+        document.getElementById('test-part1').classList.remove('hidden');
+    }
+
+    function finishTestPart1() {
+        scorePart1 = 0;
+        // TF
+        if(document.querySelector('input[name="tf1"]:checked')?.value === 'F') scorePart1++;
+        if(document.querySelector('input[name="tf2"]:checked')?.value === 'F') scorePart1++;
+        if(document.querySelector('input[name="tf3"]:checked')?.value === 'F') scorePart1++;
+        if(document.querySelector('input[name="tf4"]:checked')?.value === 'T') scorePart1++;
+        if(document.querySelector('input[name="tf5"]:checked')?.value === 'F') scorePart1++;
+        // MC
+        if(document.getElementById('mc1').value === 'B') scorePart1++;
+        if(document.getElementById('mc2').value === 'C') scorePart1++;
+        if(document.getElementById('mc3').value === 'A') scorePart1++;
+        if(document.getElementById('mc4').value === 'B') scorePart1++;
+        if(document.getElementById('mc5').value === 'A') scorePart1++;
+
+        document.getElementById('test-part1').classList.add('hidden');
+        document.getElementById('test-part2').classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function finishTestPart2() {
+        scorePart2 = 0;
+        // Grammar
+        if(document.getElementById('gr1').value.toLowerCase().trim() === 'is running') scorePart2++;
+        if(document.getElementById('gr2').value.toLowerCase().trim() === "aren't listening") scorePart2++;
+        if(document.getElementById('gr3').value === 'B') scorePart2++;
+        if(document.getElementById('gr4').value.toLowerCase().trim() === 'is writing') scorePart2++;
+        if(document.getElementById('gr5').value.toLowerCase().trim() === 'are sitting') scorePart2++;
+        // Adverbs
+        if(document.getElementById('adv1').value.toLowerCase().trim() === 'quickly') scorePart2++;
+        if(document.getElementById('adv2').value.toLowerCase().trim() === 'well') scorePart2++;
+        if(document.getElementById('adv3').value.toLowerCase().trim() === 'happily') scorePart2++;
+        if(document.getElementById('adv4').value.toLowerCase().trim() === 'fast') scorePart2++;
+        if(document.getElementById('adv5').value.toLowerCase().trim() === 'carefully') scorePart2++;
+        // Vocab
+        if(document.getElementById('voc1').value === 'A') scorePart2++;
+        if(document.getElementById('voc2').value === 'B') scorePart2++;
+        if(document.getElementById('voc3').value === 'A') scorePart2++;
+        if(document.getElementById('voc4').value === 'B') scorePart2++;
+        if(document.getElementById('voc5').value === 'A') scorePart2++;
+
+        let total = scorePart1 + scorePart2;
+        document.getElementById('test-part2').classList.add('hidden');
+        document.getElementById('test-finish').classList.remove('hidden');
+        document.getElementById('final-score-text').innerText = "Final Score: " + total + " / 25";
+        document.getElementById('final-breakdown').innerText = `(Part 1: ${scorePart1}/10 | Part 2: ${scorePart2}/15)`;
+    }
+</script>
+
+</body>
+</html>
