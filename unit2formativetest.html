@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formative Test: The Useless Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .section-hidden { display: none; }
+        .input-field { border-bottom: 2px solid #3b82f6; outline: none; padding: 2px 5px; background: transparent; }
+        .card { border-radius: 12px; transition: all 0.3s ease; }
+        .question-label { font-weight: 600; color: #475569; display: block; margin-bottom: 0.5rem; }
+        select { cursor: pointer; }
+        
+        #confirmModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .correct { color: #10b981; font-weight: bold; }
+        .incorrect { color: #ef4444; text-decoration: line-through; }
+        .expected { color: #3b82f6; font-style: italic; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-10">
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full mx-4 text-center">
+            <div class="text-amber-500 text-5xl mb-4">⚠️</div>
+            <h3 class="text-xl font-bold mb-2">Finalizar Teste?</h3>
+            <p class="text-slate-600 mb-6">Tens a certeza que queres submeter as tuas respostas agora?</p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="closeModal()" class="px-6 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 font-medium transition">Cancelar</button>
+                <button onclick="submitFinal()" class="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 font-medium transition">Sim, Submeter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white py-8 px-4 text-center shadow-lg mb-8">
+        <h1 class="text-3xl font-bold">English Formative Test</h1>
+        <p class="text-indigo-100 mt-2 italic">Theme: The Useless Academy (Superpowers that do nothing!)</p>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4">
+
+        <!-- Section 1: Reading -->
+        <section id="section1" class="bg-white p-6 rounded-xl shadow-md card border-t-4 border-indigo-500">
+            <h2 class="text-xl font-bold mb-4 flex items-center text-indigo-700">
+                <span class="bg-indigo-500 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-2 text-sm">1</span>
+                Reading Comprehension
+            </h2>
+            
+            <div class="bg-slate-100 p-6 rounded-lg mb-8 leading-relaxed italic text-slate-700 border-l-4 border-indigo-300">
+                <p class="mb-3"><strong>Intro:</strong> Welcome to the Academy of Useless Powers. Here, students learn to control powers that are absolutely pointless.</p>
+                <p><strong>Jax:</strong> Hi, I'm Jax. I can change the color of my socks with my mind. Welcome to our special school!</p>
+                <p><strong>Nova:</strong> Thanks! I'm Nova. I'm from the Moon Base. My power is that I can smell if it's going to rain... exactly 1 second before it happens.</p>
+                <p><strong>Jax:</strong> Cool! Here is the <strong>library</strong>. It’s silent and full of books about "Invisible Toast". Next is the <strong>Levitation Gym</strong>, but we can only levitate 2 centimeters.</p>
+                <p><strong>Nova:</strong> Is there a <strong>canteen</strong>? I'm hungry.</p>
+                <p><strong>Jax:</strong> Yes! The food is legendary. In the canteen, the soup is always purple. Look outside! There is the <strong>Gardening Club</strong> where students grow flowers that scream when they are thirsty.</p>
+                <p><strong>Nova:</strong> Wow. Can I use my phone to take a photo?</p>
+                <p><strong>Jax:</strong> No, Nova. You <strong>must</strong> keep your phone in your <strong>locker</strong> at the entrance. Phones are not allowed in the Useless History class!</p>
+            </div>
+
+            <div class="space-y-8">
+                <!-- Part A: Matching -->
+                <div>
+                    <h3 class="font-bold text-lg mb-4 text-slate-700 italic underline">A. Match the sentences according to the information from the text.</h3>
+                    <div class="space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-indigo-600">1.</span> <span>At this school,</span>
+                                <select id="m1" class="ml-auto bg-white border border-slate-300 rounded px-1 py-1 text-sm outline-none">
+                                    <option value="">--</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option>
+                                </select>
+                            </div>
+                            <div class="text-xs text-slate-500 italic">a) ... you learn useless things.</div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-indigo-600">2.</span> <span>Nova's home,</span>
+                                <select id="m2" class="ml-auto bg-white border border-slate-300 rounded px-1 py-1 text-sm outline-none">
+                                    <option value="">--</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option>
+                                </select>
+                            </div>
+                            <div class="text-xs text-slate-500 italic">b) ... is for keeping your things.</div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-indigo-600">3.</span> <span>In the library,</span>
+                                <select id="m3" class="ml-auto bg-white border border-slate-300 rounded px-1 py-1 text-sm outline-none">
+                                    <option value="">--</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option>
+                                </select>
+                            </div>
+                            <div class="text-xs text-slate-500 italic">c) ... is the Moon Base.</div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-indigo-600">4.</span> <span>The locker,</span>
+                                <select id="m4" class="ml-auto bg-white border border-slate-300 rounded px-1 py-1 text-sm outline-none">
+                                    <option value="">--</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option>
+                                </select>
+                            </div>
+                            <div class="text-xs text-slate-500 italic">d) ... scream for water.</div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-indigo-600">5.</span> <span>The flowers,</span>
+                                <select id="m5" class="ml-auto bg-white border border-slate-300 rounded px-1 py-1 text-sm outline-none">
+                                    <option value="">--</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option>
+                                </select>
+                            </div>
+                            <div class="text-xs text-slate-500 italic">e) ... it's possible to read about invisible toast.</div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-indigo-600">6.</span> <span>In the canteen,</span>
+                                <select id="m6" class="ml-auto bg-white border border-slate-300 rounded px-1 py-1 text-sm outline-none">
+                                    <option value="">--</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option>
+                                </select>
+                            </div>
+                            <div class="text-xs text-slate-500 italic">f) ... the soup is purple.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part B: Short Answer -->
+                <div>
+                    <h3 class="font-bold text-lg mb-4 text-slate-700 italic underline">B. Answer the following questions about the text.</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="question-label">1. Where is Nova from?</label>
+                            <input type="text" id="ans1" class="w-full border-b-2 border-slate-300 p-2 outline-none focus:border-indigo-500 bg-indigo-50/30" placeholder="Write a full sentence...">
+                        </div>
+                        <div>
+                            <label class="question-label">2. Is there a gym in this school? Describe it.</label>
+                            <input type="text" id="ans2" class="w-full border-b-2 border-slate-300 p-2 outline-none focus:border-indigo-500 bg-indigo-50/30" placeholder="Write a full sentence...">
+                        </div>
+                        <div>
+                            <label class="question-label">3. What is Jax's favourite power?</label>
+                            <input type="text" id="ans3" class="w-full border-b-2 border-slate-300 p-2 outline-none focus:border-indigo-500 bg-indigo-50/30" placeholder="Write a full sentence...">
+                        </div>
+                        <div>
+                            <label class="question-label">4. Where must you keep your phone?</label>
+                            <input type="text" id="ans4" class="w-full border-b-2 border-slate-300 p-2 outline-none focus:border-indigo-500 bg-indigo-50/30" placeholder="Write a full sentence...">
+                        </div>
+                        <div>
+                            <label class="question-label">5. What is the food like in the canteen?</label>
+                            <input type="text" id="ans5" class="w-full border-b-2 border-slate-300 p-2 outline-none focus:border-indigo-500 bg-indigo-50/30" placeholder="Write a full sentence...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 flex justify-end">
+                <button onclick="goToSection(2)" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition font-semibold shadow-md">Seguinte &rarr;</button>
+            </div>
+        </section>
+
+        <!-- Section 2: Grammar -->
+        <section id="section2" class="section-hidden bg-white p-6 rounded-xl shadow-md card border-t-4 border-emerald-500">
+            <h2 class="text-xl font-bold mb-6 flex items-center text-emerald-700">
+                <span class="bg-emerald-500 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-2 text-sm">2</span>
+                Grammar Mastery
+            </h2>
+
+            <div class="space-y-12">
+                <!-- Verb To Be -->
+                <div>
+                    <h3 class="font-bold text-lg mb-4 italic underline">A. Complete with the verb "to be" (am/is/are):</h3>
+                    <div class="space-y-4 bg-emerald-50 p-4 rounded-lg">
+                        <p>1. I <input type="text" id="g1" class="input-field w-20 text-center"> a new student at the Academy.</p>
+                        <p>2. Jax and Nova <input type="text" id="g2" class="input-field w-20 text-center"> best friends.</p>
+                        <p>3. The soup in the canteen <input type="text" id="g3" class="input-field w-20 text-center"> always purple.</p>
+                        <p>4. <input type="text" id="g4" class="input-field w-20 text-center"> you ready for the Levitation class?</p>
+                        <p>5. It <input type="text" id="g5" class="input-field w-20 text-center"> (not) a normal school.</p>
+                    </div>
+                </div>
+
+                <!-- Present Continuous -->
+                <div>
+                    <h3 class="font-bold text-lg mb-4 italic underline">B. Present Continuous (be + verb-ing):</h3>
+                    <div class="space-y-4 bg-slate-50 p-4 rounded-lg">
+                        <p>1. Look! The flowers <input type="text" id="pc1" class="input-field w-32"> (scream) for water.</p>
+                        <p>2. Nova <input type="text" id="pc2" class="input-field w-32"> (not / use) her phone right now.</p>
+                        <p>3. <input type="text" id="pc3_a" class="input-field w-16"> Jax <input type="text" id="pc3_b" class="input-field w-24"> (change) his socks?</p>
+                        <p>4. We <input type="text" id="pc4" class="input-field w-32"> (levitate) in the gym at the moment.</p>
+                        <p>5. My teacher <input type="text" id="pc5" class="input-field w-32"> (teach) Useless History today.</p>
+                    </div>
+                </div>
+
+                <!-- Adverbs -->
+                <div>
+                    <h3 class="font-bold text-lg mb-4 italic underline">C. Adverbs: Form the adverb from the adjective:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-emerald-50/50 p-4 rounded-lg">
+                        <div class="flex items-center gap-2"><span>1. Quick &rarr;</span> <input type="text" id="adv1" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>2. Happy &rarr;</span> <input type="text" id="adv2" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>3. Slow &rarr;</span> <input type="text" id="adv3" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>4. Bad &rarr;</span> <input type="text" id="adv4" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>5. Careful &rarr;</span> <input type="text" id="adv5" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>6. Easy &rarr;</span> <input type="text" id="adv6" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>7. Good &rarr;</span> <input type="text" id="adv7" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>8. Angry &rarr;</span> <input type="text" id="adv8" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>9. Quiet &rarr;</span> <input type="text" id="adv9" class="input-field w-28"></div>
+                        <div class="flex items-center gap-2"><span>10. Fast &rarr;</span> <input type="text" id="adv10" class="input-field w-28"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 flex justify-between">
+                <button onclick="goToSection(1)" class="bg-slate-500 text-white px-8 py-3 rounded-lg hover:bg-slate-600 transition font-semibold shadow-md">&larr; Anterior</button>
+                <button onclick="goToSection(3)" class="bg-emerald-600 text-white px-8 py-3 rounded-lg hover:bg-emerald-700 transition font-semibold shadow-md">Seguinte &rarr;</button>
+            </div>
+        </section>
+
+        <!-- Section 3: Vocabulary & Writing -->
+        <section id="section3" class="section-hidden bg-white p-6 rounded-xl shadow-md card border-t-4 border-amber-500">
+            <h2 class="text-xl font-bold mb-6 flex items-center text-amber-700">
+                <span class="bg-amber-500 text-white w-8 h-8 rounded-full inline-flex items-center justify-center mr-2 text-sm">3</span>
+                Vocabulary & Writing
+            </h2>
+
+            <div class="mb-10">
+                <h3 class="font-bold text-lg mb-4 text-slate-500 text-sm uppercase">A. School Subjects: Identify the class based on the icon.</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">🔭</span>
+                        <input type="text" id="v_subj1" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Subject">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">🎹</span>
+                        <input type="text" id="v_subj2" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Subject">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">🧪</span>
+                        <input type="text" id="v_subj3" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Subject">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">📐</span>
+                        <input type="text" id="v_subj4" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Subject">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">🏺</span>
+                        <input type="text" id="v_subj5" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Subject">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h3 class="font-bold text-lg mb-4 text-slate-500 text-sm uppercase">B. School Rooms: Where are they?</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">📚</span>
+                        <input type="text" id="v_room1" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Room">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">🍲</span>
+                        <input type="text" id="v_room2" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Room">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">🏀</span>
+                        <input type="text" id="v_room3" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Room">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">🏢</span>
+                        <input type="text" id="v_room4" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Room">
+                    </div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-100">
+                        <span class="text-3xl mb-1">⌨️</span>
+                        <input type="text" id="v_room5" class="w-full text-center text-xs border-b outline-none bg-transparent border-amber-300" placeholder="Room">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-lg mb-4 text-slate-500 text-sm uppercase">C. Composition: My Academy</h3>
+                <textarea id="writing" rows="6" class="w-full p-4 border-2 border-slate-200 rounded-xl outline-none focus:border-amber-500 bg-amber-50/20" placeholder="Describe your school, rules and powers..."></textarea>
+            </div>
+
+            <div class="mt-10 flex flex-col gap-4">
+                <button onclick="goToSection(2)" class="bg-slate-500 text-white px-8 py-3 rounded-lg hover:bg-slate-600 transition font-semibold shadow-md self-start">&larr; Anterior</button>
+                <button onclick="openConfirmModal()" class="bg-amber-600 text-white px-10 py-4 rounded-lg hover:bg-amber-700 font-bold w-full transition shadow-xl uppercase tracking-wider">Finalizar e Submeter</button>
+            </div>
+        </section>
+
+        <!-- Final Message & Feedback -->
+        <section id="finalMessage" class="section-hidden bg-white p-8 rounded-xl shadow-2xl border-2 border-indigo-500">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-6">🏆</div>
+                <h2 class="text-4xl font-black text-indigo-600 mb-2">Relatório do Teste</h2>
+                <p class="text-slate-600">Confere abaixo a tua pontuação e a correção detalhada.</p>
+            </div>
+
+            <div id="resultsContent" class="space-y-6">
+                <!-- Score Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 text-center">
+                        <span class="block text-sm text-indigo-400 font-bold uppercase">Reading</span>
+                        <span id="score1" class="text-2xl font-black text-indigo-700">0/0</span>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100 text-center">
+                        <span class="block text-sm text-emerald-400 font-bold uppercase">Grammar</span>
+                        <span id="score2" class="text-2xl font-black text-emerald-700">0/0</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg border border-amber-100 text-center">
+                        <span class="block text-sm text-amber-400 font-bold uppercase">Vocabulary</span>
+                        <span id="score3" class="text-2xl font-black text-amber-700">0/0</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 text-white p-6 rounded-xl text-center mb-8">
+                    <h3 class="text-lg font-bold opacity-75">Pontuação Total</h3>
+                    <div id="totalScore" class="text-5xl font-black mt-2">0%</div>
+                </div>
+
+                <!-- Correction Detail -->
+                <div class="border-t pt-6">
+                    <h3 class="font-bold text-xl mb-6 text-slate-700">Correção das Respostas:</h3>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="font-bold text-indigo-600 uppercase text-xs mb-3 tracking-widest">Section 1: Reading (Matching)</h4>
+                            <div id="correctionReadingA" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-indigo-600 uppercase text-xs mb-3 tracking-widest">Section 1: Reading (Open Questions)</h4>
+                            <div id="correctionReadingB" class="space-y-3"></div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-emerald-600 uppercase text-xs mb-3 tracking-widest">Section 2: Grammar & Adverbs</h4>
+                            <div id="correctionGrammar" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-amber-600 uppercase text-xs mb-3 tracking-widest">Section 3: Vocabulary</h4>
+                            <div id="correctionVocab" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button onclick="location.reload()" class="bg-slate-100 text-slate-600 px-6 py-2 rounded-lg hover:bg-slate-200 transition">Reiniciar Teste</button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const solutions = {
+            matching: { m1: 'a', m2: 'c', m3: 'e', m4: 'b', m5: 'd', m6: 'f' },
+            readingB: {
+                ans1: "Nova is from the Moon Base.",
+                ans2: "Yes, there is a Levitation Gym, but they can only levitate 2 centimeters.",
+                ans3: "Jax's favourite power is changing the color of his socks with his mind.",
+                ans4: "You must keep your phone in your locker at the entrance.",
+                ans5: "The food is legendary and the soup is always purple."
+            },
+            grammarA: { g1: 'am', g2: 'are', g3: 'is', g4: 'are', g5: 'is' },
+            grammarB: { pc1: 'are screaming', pc2: 'is not using', pc3_a: 'is', pc3_b: 'changing', pc4: 'are levitating', pc5: 'is teaching' },
+            adverbs: { adv1: 'quickly', adv2: 'happily', adv3: 'slowly', adv4: 'badly', adv5: 'carefully', adv6: 'easily', adv7: 'well', adv8: 'angrily', adv9: 'quietly', adv10: 'fast' },
+            subjects: { v_subj1: 'science', v_subj2: 'music', v_subj3: 'chemistry', v_subj4: 'maths', v_subj5: 'history' },
+            rooms: { v_room1: 'library', v_room2: 'canteen', v_room3: 'gym', v_room4: 'office', v_room5: 'it lab' }
+        };
+
+        function goToSection(sectionNumber) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('section-hidden'));
+            document.getElementById('section' + sectionNumber).classList.remove('section-hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function openConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        function checkAnswer(id, correctVal) {
+            const el = document.getElementById(id);
+            const userVal = el ? el.value.trim().toLowerCase() : "";
+            const isCorrect = userVal === correctVal.toLowerCase();
+            return {
+                isCorrect,
+                userVal: userVal || "(empty)",
+                correctVal
+            };
+        }
+
+        function submitFinal() {
+            closeModal();
+            
+            let ptsReading = 0, totalReading = 6;
+            let ptsGrammar = 0, totalGrammar = 21; 
+            let ptsVocab = 0, totalVocab = 10;
+            
+            const htmlReadingA = [];
+            const htmlReadingB = [];
+            const htmlGrammar = [];
+            const htmlVocab = [];
+
+            // 1. Reading Matching
+            Object.entries(solutions.matching).forEach(([id, val]) => {
+                const res = checkAnswer(id, val);
+                if (res.isCorrect) ptsReading++;
+                htmlReadingA.push(createFeedbackItem(`Q${id.replace('m','')}`, res));
+            });
+
+            // 2. Reading Open (Visual only)
+            Object.entries(solutions.readingB).forEach(([id, val]) => {
+                const userVal = document.getElementById(id).value;
+                htmlReadingB.push(`
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm">
+                        <p class="font-bold text-slate-500 mb-1">Q${id.replace('ans','')}:</p>
+                        <p class="mb-1 text-slate-700"><strong>Sua resposta:</strong> ${userVal || "<em>Sem resposta</em>"}</p>
+                        <p class="expected"><strong>Sugestão:</strong> ${val}</p>
+                    </div>
+                `);
+            });
+
+            // 3. Grammar
+            [solutions.grammarA, solutions.grammarB, solutions.adverbs].forEach(group => {
+                Object.entries(group).forEach(([id, val]) => {
+                    const res = checkAnswer(id, val);
+                    if (res.isCorrect) ptsGrammar++;
+                    htmlGrammar.push(createFeedbackItem(id, res));
+                });
+            });
+
+            // 4. Vocab
+            [solutions.subjects, solutions.rooms].forEach(group => {
+                Object.entries(group).forEach(([id, val]) => {
+                    const res = checkAnswer(id, val);
+                    if (res.isCorrect) ptsVocab++;
+                    htmlVocab.push(createFeedbackItem(id, res));
+                });
+            });
+
+            // UI Update
+            document.getElementById('score1').innerText = `${ptsReading}/${totalReading}`;
+            document.getElementById('score2').innerText = `${ptsGrammar}/${totalGrammar}`;
+            document.getElementById('score3').innerText = `${ptsVocab}/${totalVocab}`;
+
+            const totalSum = ptsReading + ptsGrammar + ptsVocab;
+            const totalMax = totalReading + totalGrammar + totalVocab;
+            const percent = Math.round((totalSum / totalMax) * 100);
+            
+            document.getElementById('totalScore').innerText = `${percent}%`;
+            
+            document.getElementById('correctionReadingA').innerHTML = htmlReadingA.join('');
+            document.getElementById('correctionReadingB').innerHTML = htmlReadingB.join('');
+            document.getElementById('correctionGrammar').innerHTML = htmlGrammar.join('');
+            document.getElementById('correctionVocab').innerHTML = htmlVocab.join('');
+
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('section-hidden'));
+            document.getElementById('finalMessage').classList.remove('section-hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function createFeedbackItem(label, res) {
+            return `
+                <div class="p-3 rounded-lg text-sm ${res.isCorrect ? 'bg-emerald-50 border border-emerald-100' : 'bg-red-50 border border-red-100'}">
+                    <p class="font-bold text-slate-600">${label.toUpperCase()}</p>
+                    <p class="mt-1">
+                        <span class="${res.isCorrect ? 'correct' : 'incorrect'}">${res.userVal}</span>
+                        ${!res.isCorrect ? `<span class="ml-2 correct">→ ${res.correctVal}</span>` : ''}
+                    </p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
