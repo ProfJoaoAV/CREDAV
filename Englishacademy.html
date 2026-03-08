@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Academy — The Force of Knowledge</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #FFE81F;
+  --blue: #4FC3F7;
+  --red: #FF4444;
+  --dark: #0a0a0f;
+  --panel: #0d1117;
+  --panel2: #111827;
+  --border: #1e3a5f;
+  --text: #c9d1d9;
+  --green: #39d353;
+  --glow-gold: 0 0 10px #FFE81F88, 0 0 20px #FFE81F44;
+  --glow-blue: 0 0 10px #4FC3F788, 0 0 20px #4FC3F744;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* STARS BACKGROUND */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:
+  radial-gradient(1px 1px at 10% 15%,#fff,transparent),
+  radial-gradient(1px 1px at 25% 40%,#fff9,transparent),
+  radial-gradient(1px 1px at 50% 5%,#fff,transparent),
+  radial-gradient(1px 1px at 70% 20%,#fff9,transparent),
+  radial-gradient(1px 1px at 85% 60%,#fff,transparent),
+  radial-gradient(1px 1px at 15% 70%,#fff9,transparent),
+  radial-gradient(1px 1px at 40% 85%,#fff,transparent),
+  radial-gradient(1px 1px at 60% 55%,#fff9,transparent),
+  radial-gradient(1px 1px at 90% 35%,#fff,transparent),
+  radial-gradient(1px 1px at 5% 50%,#fff,transparent),
+  radial-gradient(1px 1px at 35% 25%,#fff9,transparent),
+  radial-gradient(1px 1px at 75% 75%,#fff,transparent),
+  radial-gradient(1px 1px at 55% 90%,#fff9,transparent),
+  radial-gradient(1px 1px at 20% 95%,#fff,transparent),
+  radial-gradient(1px 1px at 95% 10%,#fff9,transparent);
+  pointer-events:none;z-index:0;}
+
+/* HEADER */
+header{position:relative;text-align:center;padding:30px 20px 20px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#000510 0%,transparent 100%);z-index:10;}
+.logo-title{font-family:'Orbitron',monospace;font-size:clamp(20px,4vw,42px);font-weight:900;color:var(--gold);text-shadow:var(--glow-gold);letter-spacing:4px;text-transform:uppercase;}
+.logo-sub{font-family:'Orbitron',monospace;font-size:clamp(10px,1.5vw,14px);color:var(--blue);letter-spacing:8px;margin-top:6px;text-transform:uppercase;}
+.crawl-line{width:200px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:12px auto 0;}
+
+/* NAV */
+nav{display:flex;justify-content:center;gap:4px;padding:16px 20px;background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+.nav-btn{font-family:'Orbitron',monospace;font-size:11px;padding:10px 20px;border:1px solid var(--border);background:transparent;color:#888;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .3s;border-radius:2px;position:relative;overflow:hidden;}
+.nav-btn::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--gold);transition:width .3s;}
+.nav-btn:hover{color:var(--gold);border-color:var(--gold);}
+.nav-btn:hover::after{width:80%;}
+.nav-btn.active{color:var(--gold);border-color:var(--gold);background:#1a1500;box-shadow:var(--glow-gold);}
+.nav-btn.active::after{width:80%;}
+.nav-btn.game-btn.active{color:var(--red);border-color:var(--red);background:#1a0000;box-shadow:0 0 10px #FF444488;}
+.nav-btn.game-btn{color:#cc3333;}
+.nav-btn.game-btn:hover{color:var(--red);border-color:var(--red);}
+
+/* SECTIONS */
+.section{display:none;padding:30px 20px;max-width:1000px;margin:0 auto;position:relative;z-index:10;}
+.section.active{display:block;}
+
+/* STUDY SECTION */
+.section-title{font-family:'Orbitron',monospace;font-size:22px;color:var(--gold);margin-bottom:24px;text-shadow:var(--glow-gold);display:flex;align-items:center;gap:12px;}
+.section-title::before{content:'';display:inline-block;width:4px;height:30px;background:var(--gold);box-shadow:var(--glow-gold);}
+.sub-tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;}
+.sub-tab{font-family:'Orbitron',monospace;font-size:10px;padding:10px 18px;border:1px solid transparent;border-bottom:none;background:transparent;color:#666;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .3s;border-radius:3px 3px 0 0;}
+.sub-tab.active{color:var(--blue);border-color:var(--border);background:var(--panel2);box-shadow:var(--glow-blue);}
+.sub-tab:hover{color:var(--blue);}
+.sub-content{display:none;}
+.sub-content.active{display:block;}
+.content-tabs{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap;}
+.content-tab{font-size:11px;padding:7px 14px;border:1px solid var(--border);background:transparent;color:#666;cursor:pointer;transition:all .3s;border-radius:2px;letter-spacing:1px;}
+.content-tab.active{color:var(--blue);border-color:var(--blue);background:#0a1a2a;}
+.content-tab:hover{color:var(--blue);}
+.topic-panel{display:none;animation:fadeIn .3s ease;}
+.topic-panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.card{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--blue),var(--gold));}
+.card h3{font-family:'Orbitron',monospace;font-size:13px;color:var(--blue);margin-bottom:12px;letter-spacing:2px;}
+.card p{line-height:1.8;font-size:14px;margin-bottom:8px;}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:12px;}
+.vocab-item{background:#0a0f1a;border:1px solid #1e3a5f;border-radius:4px;padding:12px;text-align:center;transition:all .3s;cursor:default;}
+.vocab-item:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:var(--glow-blue);}
+.vocab-en{font-size:15px;color:var(--gold);font-weight:600;margin-bottom:4px;}
+.vocab-pt{font-size:12px;color:#888;}
+.example{background:#060d15;border-left:3px solid var(--blue);padding:12px 16px;margin:10px 0;border-radius:0 4px 4px 0;font-style:italic;font-size:13px;}
+.example strong{color:var(--gold);font-style:normal;}
+.grammar-box{background:#060d15;border:1px solid var(--border);border-radius:4px;padding:16px;margin:12px 0;}
+.grammar-box .formula{font-family:monospace;color:var(--blue);font-size:14px;padding:8px 12px;background:#0a1a2a;border-radius:3px;margin:8px 0;display:inline-block;}
+table.gram-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+table.gram-table th{background:#0d1b2a;color:var(--blue);padding:8px 12px;text-align:left;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;border:1px solid var(--border);}
+table.gram-table td{padding:8px 12px;border:1px solid var(--border);color:var(--text);}
+table.gram-table tr:nth-child(even) td{background:#0a0f1a;}
+.highlight{color:var(--gold);font-weight:600;}
+.tag{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:1px;margin-right:4px;font-family:'Orbitron',monospace;}
+.tag-pos{background:#0a2a10;border:1px solid #39d353;color:#39d353;}
+.tag-neg{background:#2a0a0a;border:1px solid var(--red);color:var(--red);}
+.tag-int{background:#0a1a2a;border:1px solid var(--blue);color:var(--blue);}
+
+/* PRACTICE */
+.practice-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:20px;}
+.practice-card h3{font-family:'Orbitron',monospace;font-size:12px;color:var(--gold);margin-bottom:16px;letter-spacing:2px;}
+.practice-q{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.practice-q:last-child{border-bottom:none;margin-bottom:0;}
+.practice-q p{margin-bottom:10px;font-size:14px;}
+.answer-input{background:#060d15;border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:4px;width:100%;font-family:'Exo 2',sans-serif;font-size:14px;transition:border .3s;}
+.answer-input:focus{outline:none;border-color:var(--blue);box-shadow:var(--glow-blue);}
+.check-btn{font-family:'Orbitron',monospace;font-size:11px;padding:10px 24px;background:transparent;border:1px solid var(--blue);color:var(--blue);cursor:pointer;letter-spacing:2px;text-transform:uppercase;border-radius:3px;margin-top:16px;transition:all .3s;}
+.check-btn:hover{background:#0a1a2a;box-shadow:var(--glow-blue);}
+.feedback{margin-top:12px;padding:10px 14px;border-radius:4px;font-size:13px;display:none;}
+.feedback.correct{background:#0a2a10;border:1px solid #39d353;color:#39d353;}
+.feedback.wrong{background:#2a0a0a;border:1px solid var(--red);color:var(--red);}
+.answer-reveal{color:var(--gold);}
+.score-bar{background:#0a0f1a;border:1px solid var(--border);border-radius:20px;height:8px;margin:8px 0;overflow:hidden;}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--gold));border-radius:20px;transition:width .5s;}
+
+/* TEST */
+.test-header{text-align:center;margin-bottom:30px;padding:20px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;position:relative;overflow:hidden;}
+.test-header::after{content:'THE FORCE TEST';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',monospace;font-size:80px;color:#ffffff05;white-space:nowrap;pointer-events:none;}
+.test-header h2{font-family:'Orbitron',monospace;color:var(--gold);font-size:20px;text-shadow:var(--glow-gold);}
+.test-header p{color:#666;font-size:13px;margin-top:6px;}
+.test-section{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:20px;}
+.test-section-label{font-family:'Orbitron',monospace;font-size:11px;color:var(--blue);letter-spacing:3px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.test-section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.test-section h3{font-size:15px;color:var(--gold);margin-bottom:16px;font-weight:600;}
+.test-q{margin-bottom:14px;}
+.test-q label{display:block;font-size:13px;margin-bottom:6px;color:#aaa;}
+.test-input{background:#060d15;border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:3px;font-family:'Exo 2',sans-serif;font-size:14px;transition:all .3s;}
+.test-input:focus{outline:none;border-color:var(--blue);}
+.test-input.wide{width:80%;}
+.test-textarea{width:100%;min-height:160px;background:#060d15;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:4px;font-family:'Exo 2',sans-serif;font-size:14px;resize:vertical;}
+.test-textarea:focus{outline:none;border-color:var(--blue);}
+.submit-test-btn{font-family:'Orbitron',monospace;font-size:13px;padding:14px 40px;background:linear-gradient(135deg,#1a1000,#2a2000);border:1px solid var(--gold);color:var(--gold);cursor:pointer;letter-spacing:3px;text-transform:uppercase;border-radius:4px;margin-top:10px;transition:all .3s;display:block;margin:20px auto 0;}
+.submit-test-btn:hover{background:linear-gradient(135deg,#2a2000,#3a3000);box-shadow:var(--glow-gold);}
+.test-result{display:none;text-align:center;padding:30px;background:var(--panel2);border:1px solid var(--gold);border-radius:8px;margin-top:20px;}
+.test-result h2{font-family:'Orbitron',monospace;color:var(--gold);font-size:28px;text-shadow:var(--glow-gold);}
+.big-score{font-family:'Orbitron',monospace;font-size:72px;color:var(--gold);text-shadow:var(--glow-gold);line-height:1;}
+.result-msg{font-size:16px;color:var(--blue);margin-top:12px;}
+.matching-options{display:flex;gap:20px;flex-wrap:wrap;}
+.match-col{flex:1;min-width:200px;}
+.match-item{background:#060d15;border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-bottom:6px;font-size:13px;}
+select.test-select{background:#060d15;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:3px;font-family:'Exo 2',sans-serif;font-size:13px;}
+select.test-select:focus{outline:none;border-color:var(--blue);}
+
+/* GAME */
+#game-section{padding:0;max-width:100%;}
+#game-section.active{display:block;}
+#gameCanvas{display:block;width:100%;cursor:crosshair;}
+#game-ui{position:relative;z-index:10;}
+#ammo-display{position:absolute;bottom:20px;left:20px;font-family:'Orbitron',monospace;color:var(--red);font-size:14px;pointer-events:none;}
+#score-display{position:absolute;top:20px;right:20px;font-family:'Orbitron',monospace;color:var(--gold);font-size:16px;pointer-events:none;}
+#question-overlay{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.95);border:2px solid var(--gold);border-radius:8px;padding:24px;max-width:500px;width:90%;z-index:200;box-shadow:var(--glow-gold);}
+#question-overlay h3{font-family:'Orbitron',monospace;color:var(--gold);font-size:13px;margin-bottom:14px;letter-spacing:2px;}
+#question-text{font-size:16px;margin-bottom:16px;color:var(--text);}
+#answer-options{display:flex;flex-direction:column;gap:8px;}
+.answer-opt{background:#0a1a2a;border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:4px;cursor:pointer;font-size:14px;text-align:left;transition:all .2s;font-family:'Exo 2',sans-serif;}
+.answer-opt:hover{border-color:var(--blue);background:#0d2035;color:#fff;}
+#game-start-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:300;}
+#game-start-screen.hidden{display:none;}
+.start-box{text-align:center;padding:40px;border:2px solid var(--gold);border-radius:8px;background:#050a0f;max-width:400px;}
+.start-box h2{font-family:'Orbitron',monospace;color:var(--gold);font-size:22px;text-shadow:var(--glow-gold);margin-bottom:12px;}
+.start-box p{color:#888;margin-bottom:20px;font-size:13px;line-height:1.8;}
+.start-btn{font-family:'Orbitron',monospace;font-size:14px;padding:14px 32px;background:transparent;border:2px solid var(--gold);color:var(--gold);cursor:pointer;letter-spacing:3px;text-transform:uppercase;border-radius:4px;transition:all .3s;display:block;margin:8px auto;}
+.start-btn:hover{background:#1a1000;box-shadow:var(--glow-gold);}
+.start-btn.red{border-color:var(--red);color:var(--red);}
+.start-btn.red:hover{background:#1a0000;box-shadow:0 0 10px #FF444488;}
+#game-over-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.9);z-index:300;}
+#game-over-screen.show{display:flex;}
+.game-over-box{text-align:center;padding:40px;}
+.game-over-box h2{font-family:'Orbitron',monospace;font-size:36px;color:var(--red);text-shadow:0 0 20px #FF444888;margin-bottom:8px;}
+.game-over-box .final-score{font-family:'Orbitron',monospace;font-size:48px;color:var(--gold);text-shadow:var(--glow-gold);}
+#lives-display{position:absolute;top:20px;left:20px;font-family:'Orbitron',monospace;color:var(--red);font-size:14px;letter-spacing:2px;}
+.game-wrapper{position:relative;width:100%;background:#000;}
+canvas{background:#000;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:#0a0a0f;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--blue);}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+.vocab-grid{grid-template-columns:repeat(2,1fr);}
+.nav-btn{padding:8px 12px;font-size:9px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-title">⚡ English Academy</div>
+  <div class="logo-sub">The Force of Knowledge</div>
+  <div class="crawl-line"></div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showSection('study')">📚 Study</button>
+  <button class="nav-btn" onclick="showSection('practice')">🎯 Practice</button>
+  <button class="nav-btn" onclick="showSection('test')">📝 Test</button>
+  <button class="nav-btn game-btn" onclick="showSection('game')">🔫 Duck Hunt</button>
+</nav>
+
+<!-- ===== STUDY ===== -->
+<div id="study" class="section active">
+  <div class="section-title">Study Mode</div>
+
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSubTab('vocab')">🗣 Vocabulary</button>
+    <button class="sub-tab" onclick="showSubTab('grammar')">⚙ Grammar</button>
+  </div>
+
+  <!-- VOCABULARY -->
+  <div id="vocab" class="sub-content active">
+    <div class="content-tabs">
+      <button class="content-tab active" onclick="showTopic('school-subjects')">📖 School Subjects</button>
+      <button class="content-tab" onclick="showTopic('school-places')">🏫 School Places</button>
+      <button class="content-tab" onclick="showTopic('clubs')">🎨 School Clubs</button>
+    </div>
+
+    <!-- SCHOOL SUBJECTS -->
+    <div id="school-subjects" class="topic-panel active">
+      <div class="card">
+        <h3>📖 School Subjects — Disciplinas</h3>
+        <p>The subjects you study at school:</p>
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="vocab-en">Art</div><div class="vocab-pt">Educação Visual / Arte</div></div>
+          <div class="vocab-item"><div class="vocab-en">Citizenship</div><div class="vocab-pt">Cidadania</div></div>
+          <div class="vocab-item"><div class="vocab-en">English</div><div class="vocab-pt">Inglês</div></div>
+          <div class="vocab-item"><div class="vocab-en">Geography</div><div class="vocab-pt">Geografia</div></div>
+          <div class="vocab-item"><div class="vocab-en">History</div><div class="vocab-pt">História</div></div>
+          <div class="vocab-item"><div class="vocab-en">ICT</div><div class="vocab-pt">TIC</div></div>
+          <div class="vocab-item"><div class="vocab-en">Maths</div><div class="vocab-pt">Matemática</div></div>
+          <div class="vocab-item"><div class="vocab-en">Music</div><div class="vocab-pt">Música</div></div>
+          <div class="vocab-item"><div class="vocab-en">PE (Physical Education)</div><div class="vocab-pt">Educação Física</div></div>
+          <div class="vocab-item"><div class="vocab-en">Science</div><div class="vocab-pt">Ciências</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>💡 Usage Examples</h3>
+        <div class="example">I love <strong>Maths</strong> but <strong>History</strong> is my favourite subject.</div>
+        <div class="example">We have <strong>ICT</strong> in the computer room on Mondays.</div>
+        <div class="example">In <strong>PE</strong> we run, jump and play sports.</div>
+        <div class="example">We do experiments in <strong>Science</strong> class.</div>
+        <div class="example">In <strong>Art</strong> we draw and paint.</div>
+      </div>
+    </div>
+
+    <!-- SCHOOL PLACES -->
+    <div id="school-places" class="topic-panel">
+      <div class="card">
+        <h3>🏫 School Places — Locais na Escola</h3>
+        <p>Places you can find in a school:</p>
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="vocab-en">Art Room</div><div class="vocab-pt">Sala de EV/Artes</div></div>
+          <div class="vocab-item"><div class="vocab-en">Auditorium</div><div class="vocab-pt">Auditório</div></div>
+          <div class="vocab-item"><div class="vocab-en">Canteen</div><div class="vocab-pt">Cantina</div></div>
+          <div class="vocab-item"><div class="vocab-en">Classroom</div><div class="vocab-pt">Sala de Aula</div></div>
+          <div class="vocab-item"><div class="vocab-en">Computer Room</div><div class="vocab-pt">Sala de Computadores</div></div>
+          <div class="vocab-item"><div class="vocab-en">Gym</div><div class="vocab-pt">Ginásio</div></div>
+          <div class="vocab-item"><div class="vocab-en">Headmaster's Office</div><div class="vocab-pt">Gabinete do/a Diretor/a</div></div>
+          <div class="vocab-item"><div class="vocab-en">Lab</div><div class="vocab-pt">Laboratório</div></div>
+          <div class="vocab-item"><div class="vocab-en">Library</div><div class="vocab-pt">Biblioteca</div></div>
+          <div class="vocab-item"><div class="vocab-en">Lockers</div><div class="vocab-pt">Cacifos</div></div>
+          <div class="vocab-item"><div class="vocab-en">Music Room</div><div class="vocab-pt">Sala de Música</div></div>
+          <div class="vocab-item"><div class="vocab-en">Playground</div><div class="vocab-pt">Recreio</div></div>
+          <div class="vocab-item"><div class="vocab-en">Stationer's</div><div class="vocab-pt">Papelaria</div></div>
+          <div class="vocab-item"><div class="vocab-en">Staff Room</div><div class="vocab-pt">Sala dos Professores</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>💡 Usage Examples</h3>
+        <div class="example">We <strong>eat lunch</strong> in the <strong>canteen</strong>.</div>
+        <div class="example">We <strong>study silently</strong> in the <strong>library</strong>.</div>
+        <div class="example">We <strong>do experiments</strong> in the <strong>lab</strong>.</div>
+        <div class="example">We <strong>play</strong> in the <strong>playground</strong>.</div>
+        <div class="example">We have ICT lessons in the <strong>computer room</strong>.</div>
+        <div class="example">We <strong>draw and paint</strong> in the <strong>art room</strong>.</div>
+        <div class="example">We have music lessons in the <strong>music room</strong>.</div>
+        <div class="example">Teachers relax in the <strong>staff room</strong>.</div>
+      </div>
+    </div>
+
+    <!-- CLUBS -->
+    <div id="clubs" class="topic-panel">
+      <div class="card">
+        <h3>🎨 School Clubs — Clubes Escolares</h3>
+        <div class="vocab-grid">
+          <div class="vocab-item"><div class="vocab-en">Art Club</div><div class="vocab-pt">Clube de Arte</div></div>
+          <div class="vocab-item"><div class="vocab-en">Book Club</div><div class="vocab-pt">Clube do Livro</div></div>
+          <div class="vocab-item"><div class="vocab-en">Chess Club</div><div class="vocab-pt">Clube de Xadrez</div></div>
+          <div class="vocab-item"><div class="vocab-en">Drama Club</div><div class="vocab-pt">Clube de Teatro</div></div>
+          <div class="vocab-item"><div class="vocab-en">Photography Club</div><div class="vocab-pt">Clube de Fotografia</div></div>
+          <div class="vocab-item"><div class="vocab-en">Science Club</div><div class="vocab-pt">Clube de Ciências</div></div>
+          <div class="vocab-item"><div class="vocab-en">Singing Club</div><div class="vocab-pt">Clube de Canto</div></div>
+          <div class="vocab-item"><div class="vocab-en">Volunteering Club</div><div class="vocab-pt">Clube de Voluntariado</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📖 Club Descriptions</h3>
+        <div class="example"><strong>Art Club</strong> — Students can express themselves by doing drawing and painting.</div>
+        <div class="example"><strong>Drama Club</strong> — Students can act, sing and perform on stage.</div>
+        <div class="example"><strong>Science Club</strong> — Members can do experiments and explore the mysteries of the universe.</div>
+        <div class="example"><strong>Book Club</strong> — Students read books and discuss them together.</div>
+        <div class="example"><strong>Photography Club</strong> — Students learn how to take great photos.</div>
+        <div class="example"><strong>Volunteering Club</strong> — Students help the community and do good deeds.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAMMAR -->
+  <div id="grammar" class="sub-content">
+    <div class="content-tabs">
+      <button class="content-tab active" onclick="showGramTopic('pc-intro')">Present Continuous</button>
+      <button class="content-tab" onclick="showGramTopic('pc-forms')">All Forms</button>
+      <button class="content-tab" onclick="showGramTopic('pc-short')">Short Answers</button>
+      <button class="content-tab" onclick="showGramTopic('pc-spelling')">Spelling Rules</button>
+    </div>
+
+    <div id="pc-intro" class="topic-panel active">
+      <div class="card">
+        <h3>⚡ What is the Present Continuous?</h3>
+        <p>We use the <span class="highlight">Present Continuous</span> to talk about:</p>
+        <p>✅ Things happening <span class="highlight">right now</span> (at this moment)</p>
+        <p>✅ Things happening <span class="highlight">around now</span> (these days)</p>
+        <p>✅ <span class="highlight">Future plans</span> already decided</p>
+        <div class="grammar-box">
+          <div>Common signal words:</div>
+          <div style="margin-top:8px">
+            <span class="tag tag-pos">now</span>
+            <span class="tag tag-pos">right now</span>
+            <span class="tag tag-pos">at the moment</span>
+            <span class="tag tag-pos">today</span>
+            <span class="tag tag-pos">Look!</span>
+            <span class="tag tag-pos">Listen!</span>
+          </div>
+        </div>
+        <div class="example">Look! He <strong>is running</strong> to school right now.</div>
+        <div class="example">I <strong>am eating</strong> lunch at the canteen with my friends.</div>
+        <div class="example"><strong>Are</strong> you <strong>dancing</strong> later today?</div>
+      </div>
+    </div>
+
+    <div id="pc-forms" class="topic-panel">
+      <div class="card">
+        <h3>🔷 Affirmative Form</h3>
+        <div class="grammar-box">
+          <div class="formula">Subject + am/is/are + verb-ing</div>
+        </div>
+        <table class="gram-table">
+          <tr><th>Subject</th><th>Auxiliary</th><th>Example</th></tr>
+          <tr><td>I</td><td class="highlight">am</td><td>I <strong>am playing</strong> guitar.</td></tr>
+          <tr><td>He / She / It</td><td class="highlight">is</td><td>She <strong>is painting</strong> a portrait.</td></tr>
+          <tr><td>You / We / They</td><td class="highlight">are</td><td>They <strong>are studying</strong> now.</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>🔴 Negative Form</h3>
+        <div class="grammar-box">
+          <div class="formula">Subject + am/is/are + not + verb-ing</div>
+        </div>
+        <div class="example">They <strong>are not playing</strong> football. / They <strong>aren't playing</strong> football.</div>
+        <div class="example">I <strong>am not doing</strong> my homework. / I <strong>'m not doing</strong> my homework.</div>
+        <div class="example">She <strong>is not watching</strong> TV. / She <strong>isn't watching</strong> TV.</div>
+      </div>
+      <div class="card">
+        <h3>❓ Interrogative Form</h3>
+        <div class="grammar-box">
+          <div class="formula">Am/Is/Are + subject + verb-ing?</div>
+        </div>
+        <div class="example"><strong>Are</strong> you <strong>writing</strong> for the school newspaper?</div>
+        <div class="example"><strong>Is</strong> Sam <strong>playing</strong> guitar at the moment?</div>
+        <div class="example"><strong>Are</strong> they <strong>painting</strong> their portraits now?</div>
+      </div>
+    </div>
+
+    <div id="pc-short" class="topic-panel">
+      <div class="card">
+        <h3>💬 Short Answers</h3>
+        <p>To answer Yes/No questions in the Present Continuous, use short answers:</p>
+        <div class="grammar-box">
+          <div class="formula">Yes, + subject + am/is/are.</div>
+          <div class="formula">No, + subject + am/is/are + not.</div>
+        </div>
+        <table class="gram-table">
+          <tr><th>Question</th><th>Yes</th><th>No</th></tr>
+          <tr><td>Am I...?</td><td>Yes, you <strong>are</strong>.</td><td>No, you <strong>aren't</strong>.</td></tr>
+          <tr><td>Is he/she/it...?</td><td>Yes, he/she/it <strong>is</strong>.</td><td>No, he/she/it <strong>isn't</strong>.</td></tr>
+          <tr><td>Are you...?</td><td>Yes, I <strong>am</strong>.</td><td>No, I <strong>'m not</strong>.</td></tr>
+          <tr><td>Are they/we...?</td><td>Yes, they/we <strong>are</strong>.</td><td>No, they/we <strong>aren't</strong>.</td></tr>
+        </table>
+        <div style="margin-top:12px">
+          <div class="example">Is she listening to music? → <strong>No, she isn't.</strong></div>
+          <div class="example">Are they playing football? → <strong>Yes, they are.</strong></div>
+          <div class="example">Is he playing the piano? → <strong>No, he isn't.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pc-spelling" class="topic-panel">
+      <div class="card">
+        <h3>✏️ Spelling Rules for -ing</h3>
+        <table class="gram-table">
+          <tr><th>Rule</th><th>Base Verb</th><th>-ing form</th></tr>
+          <tr><td>Most verbs: just add -ing</td><td>play, eat, walk</td><td>play<strong>ing</strong>, eat<strong>ing</strong>, walk<strong>ing</strong></td></tr>
+          <tr><td>Verb ends in -e: remove -e, add -ing</td><td>danc<strong>e</strong>, tak<strong>e</strong>, writ<strong>e</strong></td><td><strong>dancing</strong>, <strong>taking</strong>, <strong>writing</strong></td></tr>
+          <tr><td>Short verb ends in consonant-vowel-consonant: double last letter</td><td>run, sit, swim</td><td>run<strong>ning</strong>, sit<strong>ting</strong>, swim<strong>ming</strong></td></tr>
+          <tr><td>Verb ends in -ie: change to -y + ing</td><td>l<strong>ie</strong>, d<strong>ie</strong></td><td><strong>lying</strong>, <strong>dying</strong></td></tr>
+        </table>
+        <div style="margin-top:16px">
+          <p style="color:var(--gold);margin-bottom:8px;font-size:13px;">⚡ From the test:</p>
+          <div class="example">run → <strong>running</strong> (double n)</div>
+          <div class="example">dance → <strong>dancing</strong> (remove e)</div>
+          <div class="example">take → <strong>taking</strong> (remove e)</div>
+          <div class="example">write → <strong>writing</strong> (remove e)</div>
+          <div class="example">play → <strong>playing</strong> (just add -ing)</div>
+          <div class="example">cook → <strong>cooking</strong> (just add -ing)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PRACTICE ===== -->
+<div id="practice" class="section">
+  <div class="section-title">Practice Mode</div>
+  <div id="practice-container"></div>
+  <button class="check-btn" onclick="checkPractice()" style="margin:0 auto;display:block;">⚡ CHECK ANSWERS</button>
+  <div id="practice-feedback" class="feedback" style="margin-top:16px;"></div>
+</div>
+
+<!-- ===== TEST ===== -->
+<div id="test" class="section">
+  <div class="section-title">Evaluation Test</div>
+  <div class="test-header">
+    <div style="font-family:'Orbitron',monospace;font-size:10px;color:#555;letter-spacing:4px;margin-bottom:8px;">STARFLEET ACADEMY — ENGLISH DIVISION</div>
+    <h2>⚡ THE FORCE TEST ⚡</h2>
+    <p>Answer all questions. May the Force be with you.</p>
+  </div>
+
+  <!-- READING -->
+  <div class="test-section">
+    <div class="test-section-label">📖 Reading Comprehension</div>
+    <h3>Read the text and answer the questions.</h3>
+    <div class="card" style="margin-bottom:20px;font-size:13px;line-height:2;">
+      <h3>WELCOME TO STARFIELD SCHOOL CLUBS!</h3>
+      <p>Are you looking for a fun way to spend your free time after school? At Starfield School, we offer a variety of clubs where students can discover new interests and make new friends.</p>
+      <p>In the <strong>drama club</strong>, students can express their creativity by acting, singing, and performing on stage. It doesn't matter if you are shy — everyone is welcome!</p>
+      <p>In the <strong>science club</strong>, members can do exciting experiments, build robots, and explore the mysteries of the universe. Both beginners and advanced students can join.</p>
+      <p>In the <strong>garden club</strong>, students can grow vegetables and flowers. They can also take part in activities to make the school garden more beautiful and sustainable.</p>
+      <p>There are so many clubs to choose from that it is almost impossible <em>not</em> to find one you love. Join a club today!</p>
+    </div>
+
+    <div class="test-q">
+      <label><strong>1a)</strong> What can students do in the drama club? (2 things)</label>
+      <input class="test-input wide" id="t1a" placeholder="They can...">
+    </div>
+    <div class="test-q">
+      <label><strong>1b)</strong> In the science club, a ________ or an ________ can participate.</label>
+      <input class="test-input" id="t1b1" placeholder="word 1" style="width:35%;margin-right:8px;">
+      <input class="test-input" id="t1b2" placeholder="word 2" style="width:35%;">
+    </div>
+    <div class="test-q">
+      <label><strong>1c)</strong> In the garden club students can grow ________________________.</label>
+      <input class="test-input wide" id="t1c" placeholder="">
+    </div>
+    <div class="test-q">
+      <label><strong>1d)</strong> What can students do to help the school garden?</label>
+      <input class="test-input wide" id="t1d" placeholder="">
+    </div>
+    <div class="test-q">
+      <label><strong>2a)</strong> Is it easy for students to find a club they like?</label>
+      <input class="test-input wide" id="t2a" placeholder="Yes/No + complete answer">
+    </div>
+    <div class="test-q">
+      <label><strong>2b)</strong> What can students do in the science club? (2 things)</label>
+      <input class="test-input wide" id="t2b" placeholder="They can...">
+    </div>
+    <div class="test-q">
+      <label><strong>2c)</strong> Who can join the science club?</label>
+      <input class="test-input wide" id="t2c" placeholder="">
+    </div>
+    <div class="test-q">
+      <label><strong>2d)</strong> What is the main goal of Starfield School clubs?</label>
+      <input class="test-input wide" id="t2d" placeholder="">
+    </div>
+  </div>
+
+  <!-- VOCABULARY -->
+  <div class="test-section">
+    <div class="test-section-label">📚 Vocabulary</div>
+    <h3>1. Write the name of the school place for each description.</h3>
+    <div class="test-q">
+      <label><strong>a)</strong> We do experiments there. → <input class="test-input" id="v1a" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>b)</strong> We play football there. → <input class="test-input" id="v1b" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>c)</strong> We have ICT lessons there. → <input class="test-input" id="v1c" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>d)</strong> We have lunch there. → <input class="test-input" id="v1d" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>e)</strong> We read books and study silently there. → <input class="test-input" id="v1e" style="width:200px"></label>
+    </div>
+    <h3 style="margin-top:20px">2. Match the school place (A-E) with its description (1-5).</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+      <div>
+        <div class="match-item">A. Gym</div>
+        <div class="match-item">B. Art Room</div>
+        <div class="match-item">C. Auditorium</div>
+        <div class="match-item">D. Secretary's Office</div>
+        <div class="match-item">E. Sports Field</div>
+      </div>
+      <div>
+        <div class="test-q"><label>1. We do PE there. → <select class="test-select" id="m1"><option>-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label></div>
+        <div class="test-q"><label>2. We draw and paint there. → <select class="test-select" id="m2"><option>-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label></div>
+        <div class="test-q"><label>3. We watch school plays there. → <select class="test-select" id="m3"><option>-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label></div>
+        <div class="test-q"><label>4. We enroll in school there. → <select class="test-select" id="m4"><option>-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label></div>
+        <div class="test-q"><label>5. We play rugby there. → <select class="test-select" id="m5"><option>-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAMMAR -->
+  <div class="test-section">
+    <div class="test-section-label">⚙ Grammar — Present Continuous</div>
+    <h3>3. Complete the sentences using the interrogative form of the Present Continuous.</h3>
+    <div class="test-q">
+      <label><strong>a)</strong> <input class="test-input" id="g3a" style="width:50%" placeholder="(read) he a book now?"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>b)</strong> <input class="test-input" id="g3b" style="width:50%" placeholder="(sing) they in the choir today?"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>c)</strong> <input class="test-input" id="g3c" style="width:50%" placeholder="(bake) she a cake at the moment?"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>d)</strong> <input class="test-input" id="g3d" style="width:50%" placeholder="(run) we in the race right now?"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>e)</strong> <input class="test-input" id="g3e" style="width:50%" placeholder="(swim) you in the pool?"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>f)</strong> <input class="test-input" id="g3f" style="width:50%" placeholder="(take) he notes in class?"></label>
+    </div>
+
+    <h3 style="margin-top:20px">4. Complete with the Present Continuous.</h3>
+    <div class="test-q">
+      <label><strong>a)</strong> Look! The cat <input class="test-input" id="g4a" style="width:150px" placeholder="(sit)"> on the table!</label>
+    </div>
+    <div class="test-q">
+      <label><strong>b)</strong> We <input class="test-input" id="g4b" style="width:150px" placeholder="(not, study)"> maths today.</label>
+    </div>
+    <div class="test-q">
+      <label><strong>c)</strong> She <input class="test-input" id="g4c" style="width:150px" placeholder="(write)"> a letter to her friend.</label>
+    </div>
+    <div class="test-q">
+      <label><strong>d)</strong> I <input class="test-input" id="g4d" style="width:150px" placeholder="(not, eat)"> breakfast at the moment.</label>
+    </div>
+    <div class="test-q">
+      <label><strong>e)</strong> They <input class="test-input" id="g4e" style="width:150px" placeholder="(dance)"> at the party right now.</label>
+    </div>
+
+    <h3 style="margin-top:20px">5. Write short answers.</h3>
+    <div class="test-q">
+      <label><strong>a)</strong> Is she reading a book? (✓) → <input class="test-input" id="g5a" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>b)</strong> Are they swimming? (✗) → <input class="test-input" id="g5b" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>c)</strong> Is he running? (✓) → <input class="test-input" id="g5c" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>d)</strong> Are you watching TV? (✗) → <input class="test-input" id="g5d" style="width:200px"></label>
+    </div>
+    <div class="test-q">
+      <label><strong>e)</strong> Are we eating? (✓) → <input class="test-input" id="g5e" style="width:200px"></label>
+    </div>
+  </div>
+
+  <button class="submit-test-btn" onclick="submitTest()">⚡ SUBMIT TEST ⚡</button>
+  <div id="test-result" class="test-result">
+    <div style="font-family:'Orbitron',monospace;font-size:11px;color:#555;letter-spacing:4px;margin-bottom:12px;">YOUR FORCE LEVEL</div>
+    <div class="big-score" id="result-score">--</div>
+    <div style="font-size:13px;color:#666;margin:4px 0;">/ <span id="result-total">--</span> points</div>
+    <div class="result-msg" id="result-msg"></div>
+    <div id="result-detail" style="margin-top:20px;text-align:left;font-size:13px;"></div>
+    <button class="check-btn" onclick="resetTest()" style="margin:20px auto 0;display:block;">↩ TRY AGAIN</button>
+  </div>
+</div>
+
+<!-- ===== GAME ===== -->
+<div id="game" class="section" style="padding:0;max-width:100%;">
+  <div class="game-wrapper">
+    <canvas id="gameCanvas"></canvas>
+    <div id="lives-display">❤ <span id="lives-val">3</span></div>
+    <div id="score-display">⚡ <span id="score-val">0</span></div>
+    <div id="ammo-display">🔴 <span id="ammo-val">5</span> shots</div>
+    <div id="question-overlay">
+      <h3>🔋 RECHARGE YOUR BLASTER</h3>
+      <div id="question-text"></div>
+      <div id="answer-options"></div>
+    </div>
+    <div id="game-start-screen">
+      <div class="start-box">
+        <h2>⚡ DUCK HUNT ⚡</h2>
+        <p style="color:var(--gold);font-size:15px;margin-bottom:8px;">English Edition</p>
+        <p><strong>Left Click</strong> → Shoot TIE Fighters<br>
+        <strong>Right Click</strong> → Answer question to get +3 shots<br>
+        Don't let the enemies reach you!<br>
+        Answer correctly to keep playing!</p>
+        <button class="start-btn" onclick="startGame()">▶ START MISSION</button>
+        <button class="start-btn red" onclick="showSection('study')">← STUDY FIRST</button>
+      </div>
+    </div>
+    <div id="game-over-screen">
+      <div class="game-over-box">
+        <h2>GAME OVER</h2>
+        <div class="final-score" id="final-score">0</div>
+        <div style="color:#666;font-family:'Orbitron',monospace;font-size:12px;margin:8px 0 20px;">POINTS</div>
+        <button class="start-btn" onclick="restartGame()">↩ TRY AGAIN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== NAVIGATION =====
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(b=>{if(b.getAttribute('onclick').includes(id))b.classList.add('active');});
+  if(id==='practice') buildPractice();
+  if(id==='game'){initGame();}
+}
+function showSubTab(id){
+  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sub-content').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+function showTopic(id){
+  document.querySelectorAll('#school-subjects,#school-places,#clubs').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#vocab .content-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+function showGramTopic(id){
+  document.querySelectorAll('#pc-intro,#pc-forms,#pc-short,#pc-spelling').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#grammar .content-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== PRACTICE =====
+const practiceData = [
+  {type:'fill',q:'Is Sam ________ (play) guitar at the moment?',a:'playing'},
+  {type:'fill',q:'Are they ________ (paint) their portraits now?',a:'painting'},
+  {type:'fill',q:'I am ________ (not do) my homework right now.',a:"not doing / 'm not doing"},
+  {type:'fill',q:'We ________ (watch) a film right now.',a:'are watching'},
+  {type:'fill',q:'She ________ (take) notes in her notebook.',a:'is taking'},
+  {type:'fill',q:'________ you ________ (study) for the exam now?',a:'Are ... studying'},
+  {type:'fill',q:'They ________ (not play) football at the playground.',a:"aren't playing / are not playing"},
+  {type:'fill',q:'Is he ________ (run) to school? → Yes, he ________.',a:'running ... is'},
+  {type:'match',q:'We eat lunch there. →',a:'canteen'},
+  {type:'match',q:'We do experiments there. →',a:'lab / laboratory'},
+  {type:'match',q:'We study silently there. →',a:'library'},
+  {type:'match',q:'We play in the ________. →',a:'playground'},
+  {type:'match',q:'We have ICT lessons in the ________. →',a:'computer room'},
+  {type:'match',q:'We draw and paint in the ________. →',a:'art room'},
+  {type:'match',q:'"Matemática" in English →',a:'maths'},
+  {type:'match',q:'"Educação Física" in English →',a:'PE / physical education'},
+  {type:'match',q:'"TIC" in English →',a:'ICT'},
+  {type:'match',q:'"Biblioteca" in English →',a:'library'},
+  {type:'match',q:'"Clube de teatro" in English →',a:'drama club'},
+  {type:'match',q:'"Clube de xadrez" in English →',a:'chess club'},
+];
+function buildPractice(){
+  const c = document.getElementById('practice-container');
+  if(c.children.length>0)return;
+  let html='';
+  practiceData.forEach((q,i)=>{
+    html+=`<div class="practice-card"><h3>QUESTION ${i+1}</h3><div class="practice-q"><p>${q.q}</p><input class="answer-input" id="pq${i}" placeholder="Your answer..."><div id="pf${i}" class="feedback"></div></div></div>`;
+  });
+  c.innerHTML=html;
+}
+function checkPractice(){
+  let score=0;
+  practiceData.forEach((q,i)=>{
+    const inp=document.getElementById(`pq${i}`);
+    const fb=document.getElementById(`pf${i}`);
+    const val=inp.value.trim().toLowerCase();
+    const ans=q.a.toLowerCase();
+    const alts=ans.split(' / ');
+    const correct=alts.some(a=>val===a||val.includes(a.replace(/\.\.\./g,'').trim()));
+    fb.style.display='block';
+    if(correct){score++;fb.className='feedback correct';fb.innerHTML='✅ Correct!';}
+    else{fb.className='feedback wrong';fb.innerHTML=`❌ Not quite. Answer: <span class="answer-reveal">${q.a}</span>`;}
+  });
+  const pf=document.getElementById('practice-feedback');
+  const pct=Math.round(score/practiceData.length*100);
+  pf.style.display='block';
+  pf.className=pct>=70?'feedback correct':'feedback wrong';
+  pf.innerHTML=`Score: ${score}/${practiceData.length} (${pct}%) ${pct>=70?'⚡ The Force is strong with you!':'Keep practising, young Padawan!'}`;
+}
+
+// ===== TEST =====
+const testAnswers = {
+  t1a:"acting / singing / performing (any two)",t1b1:"beginner",t1b2:"advanced student / expert",
+  t1c:"vegetables and flowers",t1d:"make the garden more beautiful and sustainable",
+  t2a:"Yes, it is easy. / Yes, because there are so many clubs to choose from.",
+  t2b:"do experiments / build robots / explore the universe",
+  t2c:"both beginners and advanced students",t2d:"discover new interests and make new friends",
+  v1a:"laboratory",v1b:"playground / sports field",v1c:"computer room",v1d:"canteen",v1e:"library",
+  m1:"A",m2:"B",m3:"C",m4:"D",m5:"E",
+  g3a:"Is he reading a book now?",g3b:"Are they singing in the choir today?",
+  g3c:"Is she baking a cake at the moment?",g3d:"Are we running in the race right now?",
+  g3e:"Are you swimming in the pool?",g3f:"Is he taking notes in class?",
+  g4a:"is sitting",g4b:"aren't studying / are not studying",g4c:"is writing",
+  g4d:"'m not eating / am not eating",g4e:"are dancing",
+  g5a:"Yes, she is.",g5b:"No, they aren't. / No, they are not.",
+  g5c:"Yes, he is.",g5d:"No, I'm not. / No, I am not.",g5e:"Yes, we are."
+};
+function submitTest(){
+  let score=0,total=0,detail='<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+  const check=(id,pts=1)=>{
+    total+=pts;
+    const el=document.getElementById(id);
+    if(!el)return;
+    const val=el.value.trim().toLowerCase();
+    const ans=testAnswers[id].toLowerCase();
+    const alts=ans.split(' / ');
+    const keyWords=alts[0].split(' ').filter(w=>w.length>3);
+    const correct=alts.some(a=>val.includes(a))||keyWords.every(w=>val.includes(w));
+    const pts2=correct?pts:0;
+    score+=pts2;
+    detail+=`<tr><td style="padding:4px 8px;border:1px solid #1e3a5f;color:${correct?'#39d353':'#FF4444'}">${correct?'✅':'❌'} ${id}</td><td style="padding:4px 8px;border:1px solid #1e3a5f;color:#888">${el.value||'(blank)'}</td><td style="padding:4px 8px;border:1px solid #1e3a5f;color:#4FC3F7">${testAnswers[id]}</td></tr>`;
+  };
+  const checkSelect=(id,pts=1)=>{
+    total+=pts;
+    const el=document.getElementById(id);
+    const correct=el&&el.value===testAnswers[id];
+    score+=correct?pts:0;
+    detail+=`<tr><td style="padding:4px 8px;border:1px solid #1e3a5f;color:${correct?'#39d353':'#FF4444'}">${correct?'✅':'❌'} ${id}</td><td style="padding:4px 8px;border:1px solid #1e3a5f;color:#888">${el?el.value:'(blank)'}</td><td style="padding:4px 8px;border:1px solid #1e3a5f;color:#4FC3F7">${testAnswers[id]}</td></tr>`;
+  };
+  ['t1a','t1b1','t1b2','t1c','t1d','t2a','t2b','t2c','t2d'].forEach(id=>check(id));
+  ['v1a','v1b','v1c','v1d','v1e'].forEach(id=>check(id));
+  ['m1','m2','m3','m4','m5'].forEach(id=>checkSelect(id));
+  ['g3a','g3b','g3c','g3d','g3e','g3f','g4a','g4b','g4c','g4d','g4e','g5a','g5b','g5c','g5d','g5e'].forEach(id=>check(id));
+  detail+='</table>';
+  const pct=Math.round(score/total*100);
+  const msgs=['Young Padawan, the Force training has just begun!','The Force is awakening in you!','You have the makings of a Jedi!','⚡ The Force is strong with this one!','Master level achieved! Yoda would be proud!'];
+  const msgIdx=Math.min(4,Math.floor(pct/20));
+  document.getElementById('result-score').textContent=pct+'%';
+  document.getElementById('result-total').textContent=`${score}/${total}`;
+  document.getElementById('result-msg').textContent=msgs[msgIdx];
+  document.getElementById('result-detail').innerHTML=detail;
+  document.getElementById('test-result').style.display='block';
+  document.getElementById('test-result').scrollIntoView({behavior:'smooth'});
+}
+function resetTest(){
+  document.querySelectorAll('.test-input,.test-textarea').forEach(i=>i.value='');
+  document.querySelectorAll('.test-select').forEach(s=>s.selectedIndex=0);
+  document.getElementById('test-result').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===== GAME =====
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+let gameRunning=false,gameInitialized=false;
+let score=0,lives=3,ammo=5;
+let enemies=[],bullets=[],explosions=[],stars=[];
+let lastEnemySpawn=0,spawnInterval=2000;
+let questionOpen=false;
+let animFrame;
+
+const questions=[
+  {q:"Complete: She ___ playing guitar.",opts:["is","are","am","be"],a:0},
+  {q:"Are they running? → short answer (YES)",opts:["Yes, they are.","Yes, they is.","Yes, we are.","No, they aren't."],a:0},
+  {q:"Write -ing form of: dance",opts:["dancing","danceing","danccing","danced"],a:0},
+  {q:"Complete: ___ you studying now?",opts:["Are","Is","Am","Be"],a:0},
+  {q:"Complete: They ___ not playing football.",opts:["are","is","am","does"],a:0},
+  {q:"We eat lunch in the ___.",opts:["canteen","library","lab","gym"],a:0},
+  {q:"Write -ing form of: run",opts:["running","runing","runned","runs"],a:0},
+  {q:"Is he dancing? → short answer (NO)",opts:["No, he isn't.","No, he aren't.","No, he amn't.","Yes, he is."],a:0},
+  {q:"Complete: I ___ eating lunch.",opts:["am","is","are","be"],a:0},
+  {q:"We study silently in the ___.",opts:["library","canteen","lab","playground"],a:0},
+  {q:"Write -ing form of: write",opts:["writing","writeing","writting","writes"],a:0},
+  {q:"Complete: We ___ (not watch) a film.",opts:["aren't watching","isn't watching","am not watching","not watching"],a:0},
+  {q:"Are they dancing? → short answer (YES)",opts:["Yes, they are.","Yes, they is.","Yes, they am.","No, they aren't."],a:0},
+  {q:"We do experiments in the ___.",opts:["lab","canteen","playground","staff room"],a:0},
+  {q:"___ she taking notes now?",opts:["Is","Are","Am","Does"],a:0},
+  {q:"'Matemática' in English is ___.",opts:["Maths","History","Science","Music"],a:0},
+  {q:"'Educação Física' in English is ___.",opts:["PE","ICT","Art","Citizenship"],a:0},
+  {q:"'TIC' in English is ___.",opts:["ICT","PE","Maths","Geography"],a:0},
+  {q:"'Biblioteca' in English is ___.",opts:["Library","Canteen","Lab","Gym"],a:0},
+  {q:"'Sala dos professores' is ___.",opts:["Staff Room","Art Room","Music Room","Headmaster's Office"],a:0},
+  {q:"'Recreio' in English is ___.",opts:["Playground","Canteen","Lockers","Gym"],a:0},
+  {q:"'Clube de teatro' in English is ___.",opts:["Drama Club","Book Club","Singing Club","Chess Club"],a:0},
+  {q:"'Clube de xadrez' in English is ___.",opts:["Chess Club","Book Club","Drama Club","Science Club"],a:0},
+  {q:"Write -ing form of: take",opts:["taking","takeing","takking","takes"],a:0},
+  {q:"Complete: ___ he studying right now?",opts:["Is","Are","Am","Does"],a:0},
+  {q:"We draw and paint in the ___.",opts:["art room","music room","lab","library"],a:0},
+  {q:"'Cacifos' in English is ___.",opts:["Lockers","Stationer's","Staff Room","Auditorium"],a:0},
+  {q:"We have music lessons in the ___.",opts:["music room","art room","computer room","gym"],a:0},
+  {q:"Complete: You ___ (not, study) now.",opts:["aren't studying","isn't studying","am not studying","not studying"],a:0},
+  {q:"'Cidadania' in English is ___.",opts:["Citizenship","History","Geography","Science"],a:0},
+];
+let shuffledQ=[...questions];
+
+function resizeCanvas(){
+  const wrapper=canvas.parentElement;
+  canvas.width=wrapper.offsetWidth;
+  canvas.height=Math.min(500,window.innerHeight*0.7);
+}
+function initStars(){
+  stars=[];
+  for(let i=0;i<120;i++){
+    stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+0.5,speed:Math.random()*0.3+0.1});
+  }
+}
+function initGame(){
+  if(gameInitialized)return;
+  gameInitialized=true;
+  resizeCanvas();
+  initStars();
+  window.addEventListener('resize',()=>{resizeCanvas();initStars();});
+  canvas.addEventListener('contextmenu',e=>{e.preventDefault();if(gameRunning&&!questionOpen)openQuestion();});
+  canvas.addEventListener('click',e=>{if(gameRunning&&!questionOpen)shoot(e);});
+}
+function startGame(){
+  document.getElementById('game-start-screen').classList.add('hidden');
+  gameRunning=true;score=0;lives=3;ammo=5;enemies=[];bullets=[];explosions=[];
+  spawnInterval=2000;lastEnemySpawn=0;
+  updateHUD();
+  gameLoop(0);
+}
+function restartGame(){
+  document.getElementById('game-over-screen').classList.remove('show');
+  enemies=[];bullets=[];explosions=[];
+  startGame();
+}
+function gameLoop(ts){
+  if(!gameRunning)return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawBackground();
+  drawGround();
+  updateAndDrawEnemies(ts);
+  updateAndDrawBullets();
+  drawExplosions();
+  animFrame=requestAnimationFrame(gameLoop);
+}
+function drawBackground(){
+  const grad=ctx.createLinearGradient(0,0,0,canvas.height);
+  grad.addColorStop(0,'#000510');
+  grad.addColorStop(1,'#0a0a1a');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    s.x-=s.speed;
+    if(s.x<0)s.x=canvas.width;
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${0.4+Math.random()*0.3})`;
+    ctx.fill();
+  });
+}
+function drawGround(){
+  ctx.fillStyle='#0d1117';
+  ctx.fillRect(0,canvas.height-50,canvas.width,50);
+  ctx.strokeStyle='#FFE81F44';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,canvas.height-50);ctx.lineTo(canvas.width,canvas.height-50);ctx.stroke();
+  // Player ship
+  const px=60,py=canvas.height-25;
+  ctx.save();
+  ctx.fillStyle='#4FC3F7';
+  ctx.shadowColor='#4FC3F7';ctx.shadowBlur=12;
+  ctx.beginPath();
+  ctx.moveTo(px+30,py);ctx.lineTo(px,py+12);ctx.lineTo(px+5,py);ctx.lineTo(px,py-12);ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle='#FFE81F';ctx.shadowColor='#FFE81F';ctx.shadowBlur=8;
+  ctx.beginPath();ctx.arc(px+18,py,5,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function spawnEnemy(ts){
+  if(ts-lastEnemySpawn<spawnInterval)return;
+  lastEnemySpawn=ts;
+  spawnInterval=Math.max(800,spawnInterval-50);
+  const y=Math.random()*(canvas.height-120)+40;
+  enemies.push({x:canvas.width+40,y,w:40,h:30,speed:1.5+Math.random()*1.5,hp:1,anim:0});
+}
+function drawTIEFighter(x,y,w,h,anim){
+  ctx.save();
+  ctx.shadowColor='#FF4444';ctx.shadowBlur=8+Math.sin(anim)*3;
+  // Wings
+  ctx.fillStyle='#333';ctx.strokeStyle='#FF6666';ctx.lineWidth=1;
+  ctx.fillRect(x-w/2-10,y-h/2,10,h);ctx.strokeRect(x-w/2-10,y-h/2,10,h);
+  ctx.fillRect(x+w/2,y-h/2,10,h);ctx.strokeRect(x+w/2,y-h/2,10,h);
+  // Body
+  ctx.fillStyle='#444';ctx.strokeStyle='#FF4444';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(x,y,h/2.2,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // Cockpit
+  ctx.fillStyle='#FF4444';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.arc(x,y,h/5,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function updateAndDrawEnemies(ts){
+  spawnEnemy(ts);
+  enemies=enemies.filter(e=>{
+    e.x-=e.speed;
+    e.anim+=0.05;
+    if(e.x<50){
+      lives--;updateHUD();
+      if(lives<=0){endGame();return false;}
+      return false;
+    }
+    drawTIEFighter(e.x,e.y,e.w,e.h,e.anim);
+    return true;
+  });
+}
+function shoot(e){
+  if(ammo<=0){openQuestion();return;}
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  ammo--;updateHUD();
+  // Check hit
+  let hit=false;
+  enemies=enemies.filter(en=>{
+    const dx=en.x-mx,dy=en.y-my;
+    if(Math.sqrt(dx*dx+dy*dy)<en.w/1.5){
+      hit=true;score+=10;updateHUD();
+      explosions.push({x:en.x,y:en.y,r:0,max:35,alpha:1});
+      return false;
+    }
+    return true;
+  });
+  // Laser beam
+  bullets.push({x:80,y:canvas.height-25,tx:mx,ty:my,age:0});
+  if(ammo<=0){setTimeout(()=>{if(gameRunning&&!questionOpen)openQuestion();},300);}
+}
+function updateAndDrawBullets(){
+  bullets=bullets.filter(b=>{
+    b.age++;
+    const prog=Math.min(1,b.age/8);
+    const cx=80+(b.tx-80)*prog,cy=(canvas.height-25)+(b.ty-(canvas.height-25))*prog;
+    ctx.save();
+    ctx.strokeStyle='#FFE81F';ctx.lineWidth=3;ctx.shadowColor='#FFE81F';ctx.shadowBlur=10;
+    ctx.beginPath();ctx.moveTo(80,canvas.height-25);ctx.lineTo(cx,cy);ctx.stroke();
+    ctx.restore();
+    return b.age<12;
+  });
+}
+function drawExplosions(){
+  explosions=explosions.filter(ex=>{
+    ex.r+=3;ex.alpha-=0.06;
+    ctx.save();
+    ctx.globalAlpha=ex.alpha;
+    const g=ctx.createRadialGradient(ex.x,ex.y,0,ex.x,ex.y,ex.r);
+    g.addColorStop(0,'#FFE81F');g.addColorStop(0.5,'#FF6600');g.addColorStop(1,'rgba(255,0,0,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(ex.x,ex.y,ex.r,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+    return ex.alpha>0;
+  });
+}
+function updateHUD(){
+  document.getElementById('lives-val').textContent='❤'.repeat(lives);
+  document.getElementById('score-val').textContent=score;
+  document.getElementById('ammo-val').textContent=ammo;
+}
+let currentQIdx=0;
+function openQuestion(){
+  if(questionOpen)return;
+  questionOpen=true;
+  const q=questions[Math.floor(Math.random()*questions.length)];
+  document.getElementById('question-text').textContent=q.q;
+  const opts=document.getElementById('answer-options');
+  opts.innerHTML='';
+  // Shuffle options with correct answer tracking
+  const indexed=q.opts.map((o,i)=>({text:o,correct:i===q.a}));
+  indexed.sort(()=>Math.random()-0.5);
+  indexed.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='answer-opt';
+    btn.textContent=opt.text;
+    btn.onclick=()=>answerQuestion(opt.correct);
+    opts.appendChild(btn);
+  });
+  document.getElementById('question-overlay').style.display='block';
+}
+function answerQuestion(correct){
+  document.getElementById('question-overlay').style.display='none';
+  questionOpen=false;
+  if(correct){ammo+=3;score+=5;}
+  else{lives=Math.max(0,lives-1);}
+  updateHUD();
+  if(lives<=0)endGame();
+}
+function endGame(){
+  gameRunning=false;
+  cancelAnimationFrame(animFrame);
+  document.getElementById('final-score').textContent=score;
+  document.getElementById('game-over-screen').classList.add('show');
+}
+</script>
+</body>
+</html>
