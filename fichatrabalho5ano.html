@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Português 5.º Ano — Gramática</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #FFD700;
+  --gold2: #FFA500;
+  --blue: #4FC3F7;
+  --blue2: #0288D1;
+  --red: #FF4444;
+  --green: #00FF88;
+  --dark: #050A13;
+  --dark2: #0D1B2A;
+  --dark3: #112240;
+  --panel: rgba(4,20,40,0.85);
+  --border: rgba(79,195,247,0.3);
+  --text: #C8E6F7;
+  --font-main: 'Exo 2', sans-serif;
+  --font-title: 'Orbitron', monospace;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+  background:#050A13;
+  color:var(--text);
+  font-family:var(--font-main);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ===== STARFIELD ===== */
+#starfield{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+
+/* ===== LAYOUT ===== */
+.app-wrapper{position:relative;z-index:1;}
+
+/* ===== HEADER ===== */
+header{
+  background:linear-gradient(180deg,rgba(5,10,19,0.98)0%,rgba(5,10,19,0.7)100%);
+  border-bottom:1px solid var(--border);
+  padding:0 2rem;
+  position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(10px);
+}
+.header-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.8rem 0;
+}
+.logo{
+  font-family:var(--font-title);
+  font-size:1.1rem;font-weight:900;
+  background:linear-gradient(90deg,var(--gold),var(--gold2),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:2px;
+  text-shadow:none;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.logo .saber{font-size:1.6rem;}
+
+nav{display:flex;gap:0.3rem;}
+.nav-btn{
+  background:transparent;
+  border:1px solid transparent;
+  color:var(--text);
+  font-family:var(--font-main);font-weight:600;font-size:0.85rem;
+  padding:0.5rem 1.1rem;
+  border-radius:4px;
+  cursor:pointer;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  transition:all 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.nav-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--blue2),var(--blue));
+  opacity:0;transition:opacity 0.2s;
+}
+.nav-btn:hover::before{opacity:0.15;}
+.nav-btn.active{
+  border-color:var(--gold);
+  color:var(--gold);
+  box-shadow:0 0 12px rgba(255,215,0,0.3);
+}
+.nav-btn span{position:relative;z-index:1;}
+
+/* ===== SECTIONS ===== */
+.section{display:none;min-height:calc(100vh - 60px);padding:2rem;}
+.section.active{display:block;}
+.section-inner{max-width:1100px;margin:0 auto;}
+
+/* ===== PAGE TITLES ===== */
+.page-title{
+  font-family:var(--font-title);
+  font-size:2rem;font-weight:900;
+  text-align:center;
+  margin-bottom:0.4rem;
+  background:linear-gradient(90deg,var(--gold),#fff,var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:3px;
+}
+.page-subtitle{
+  text-align:center;color:var(--blue);
+  font-size:0.9rem;letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:2.5rem;
+  opacity:0.7;
+}
+
+/* ===== STUDY SECTION ===== */
+.study-tabs{
+  display:flex;gap:0.5rem;margin-bottom:1.5rem;
+  border-bottom:1px solid var(--border);
+  padding-bottom:0;
+}
+.study-tab-btn{
+  background:transparent;
+  border:1px solid var(--border);
+  border-bottom:none;
+  color:var(--text);
+  font-family:var(--font-main);font-weight:600;font-size:0.9rem;
+  padding:0.7rem 1.5rem;
+  border-radius:6px 6px 0 0;
+  cursor:pointer;
+  transition:all 0.2s;
+  letter-spacing:1px;
+}
+.study-tab-btn.active{
+  background:var(--dark3);
+  border-color:var(--blue);
+  color:var(--blue);
+}
+.study-tab-content{display:none;}
+.study-tab-content.active{display:block;}
+
+/* Sub-tabs */
+.subtabs{
+  display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.5rem;
+}
+.subtab-btn{
+  background:rgba(13,27,42,0.8);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:var(--font-main);font-size:0.8rem;font-weight:600;
+  padding:0.45rem 1rem;
+  border-radius:20px;
+  cursor:pointer;
+  transition:all 0.2s;
+  letter-spacing:0.5px;
+}
+.subtab-btn.active{
+  background:var(--blue2);
+  border-color:var(--blue);
+  color:#fff;
+  box-shadow:0 0 10px rgba(2,136,209,0.4);
+}
+.subtab-content{display:none;}
+.subtab-content.active{display:block;}
+
+/* Study Cards */
+.study-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:1.8rem;
+  margin-bottom:1rem;
+  position:relative;
+  overflow:hidden;
+}
+.study-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue2),var(--blue),var(--gold));
+}
+.study-card h3{
+  font-family:var(--font-title);
+  font-size:1rem;font-weight:700;
+  color:var(--gold);
+  letter-spacing:2px;margin-bottom:1rem;
+}
+.study-card p{
+  line-height:1.7;font-size:0.95rem;margin-bottom:0.8rem;color:var(--text);
+}
+.study-card .def-box{
+  background:rgba(2,136,209,0.12);
+  border:1px solid rgba(2,136,209,0.3);
+  border-left:3px solid var(--blue);
+  padding:0.8rem 1rem;
+  border-radius:0 8px 8px 0;
+  margin:0.8rem 0;
+  font-style:italic;
+  color:#9ecfeb;
+}
+.example-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:0.6rem;margin-top:0.8rem;
+}
+.example-chip{
+  background:rgba(255,215,0,0.08);
+  border:1px solid rgba(255,215,0,0.25);
+  padding:0.5rem 0.8rem;
+  border-radius:8px;
+  font-family:var(--font-mono);
+  font-size:0.85rem;
+  color:var(--gold);
+}
+.example-chip span{color:#aaa;font-size:0.75rem;display:block;}
+
+.info-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:0.8rem;margin-top:1rem;
+}
+.info-card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:1rem;
+}
+.info-card h4{color:var(--blue);font-size:0.85rem;margin-bottom:0.4rem;font-weight:700;}
+.info-card p{font-size:0.85rem;color:#aac;}
+
+.sintax-diagram{
+  display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;
+  margin:1rem 0;padding:1rem;
+  background:rgba(0,0,0,0.3);border-radius:8px;
+  font-family:var(--font-mono);font-size:0.9rem;
+}
+.sintax-block{
+  padding:0.4rem 0.8rem;border-radius:6px;
+  font-weight:600;
+}
+.sb-subject{background:rgba(0,255,136,0.2);border:1px solid var(--green);color:var(--green);}
+.sb-verb{background:rgba(79,195,247,0.2);border:1px solid var(--blue);color:var(--blue);}
+.sb-cd{background:rgba(255,165,0,0.2);border:1px solid var(--gold2);color:var(--gold2);}
+.sb-ci{background:rgba(255,100,100,0.2);border:1px solid #ff8888;color:#ff8888;}
+.sb-voc{background:rgba(200,100,255,0.2);border:1px solid #cc66ff;color:#cc66ff;}
+.sb-arrow{color:#666;font-size:1.2rem;}
+
+/* ===== TRAINING SECTION ===== */
+.training-container{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;
+}
+@media(max-width:768px){.training-container{grid-template-columns:1fr;}}
+.training-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:1.5rem;
+}
+.training-card h3{
+  font-family:var(--font-title);font-size:0.85rem;
+  color:var(--gold);letter-spacing:2px;margin-bottom:1rem;
+}
+.q-sentence{
+  background:rgba(2,136,209,0.1);
+  border:1px solid rgba(79,195,247,0.3);
+  padding:0.8rem 1rem;border-radius:8px;
+  font-size:0.95rem;margin-bottom:1rem;line-height:1.6;
+}
+.q-sentence .highlight{
+  background:rgba(255,215,0,0.2);
+  border-bottom:2px solid var(--gold);
+  padding:0 2px;cursor:pointer;
+  border-radius:2px;
+  font-weight:600;color:var(--gold);
+}
+.options-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;
+}
+.opt-btn{
+  background:rgba(13,27,42,0.9);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:var(--font-main);font-size:0.85rem;
+  padding:0.6rem 0.8rem;border-radius:8px;
+  cursor:pointer;transition:all 0.2s;text-align:left;
+}
+.opt-btn:hover{border-color:var(--blue);background:rgba(2,136,209,0.15);}
+.opt-btn.correct{border-color:var(--green);background:rgba(0,255,136,0.15);color:var(--green);}
+.opt-btn.wrong{border-color:var(--red);background:rgba(255,68,68,0.15);color:var(--red);}
+.feedback{
+  margin-top:0.8rem;padding:0.6rem 0.8rem;border-radius:6px;
+  font-size:0.85rem;font-weight:600;
+  display:none;
+}
+.feedback.show{display:block;}
+.feedback.ok{background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green);}
+.feedback.nok{background:rgba(255,68,68,0.1);border:1px solid var(--red);color:var(--red);}
+.next-btn{
+  margin-top:0.8rem;
+  background:linear-gradient(90deg,var(--blue2),var(--blue));
+  border:none;color:#fff;
+  font-family:var(--font-title);font-size:0.75rem;letter-spacing:2px;
+  padding:0.6rem 1.2rem;border-radius:6px;cursor:pointer;
+  display:none;transition:all 0.2s;
+}
+.next-btn.show{display:inline-block;}
+.next-btn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(79,195,247,0.4);}
+
+.progress-bar-wrap{
+  height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-bottom:1rem;
+}
+.progress-bar-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--blue2),var(--green));
+  transition:width 0.4s;
+}
+.score-display{
+  font-family:var(--font-title);font-size:0.8rem;color:var(--gold);
+  text-align:right;margin-bottom:0.5rem;letter-spacing:1px;
+}
+
+/* ===== TEST SECTION (STAR WARS) ===== */
+#section-test{
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,215,0,0.05)0%,transparent 60%);
+}
+.test-intro{
+  text-align:center;padding:2rem 0;
+}
+.test-intro .crawl-text{
+  font-family:var(--font-title);font-size:0.85rem;
+  color:var(--gold);letter-spacing:2px;line-height:2;
+  text-transform:uppercase;opacity:0.7;
+  margin-bottom:2rem;
+}
+.start-test-btn{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border:none;color:#000;
+  font-family:var(--font-title);font-size:1rem;font-weight:700;
+  letter-spacing:3px;padding:1rem 3rem;
+  border-radius:4px;cursor:pointer;
+  box-shadow:0 0 30px rgba(255,215,0,0.4),0 0 60px rgba(255,165,0,0.2);
+  transition:all 0.3s;text-transform:uppercase;
+}
+.start-test-btn:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 50px rgba(255,215,0,0.6),0 0 100px rgba(255,165,0,0.3);
+}
+
+/* Test panels */
+.test-panel{
+  background:linear-gradient(135deg,rgba(5,10,19,0.97),rgba(17,34,64,0.97));
+  border:1px solid rgba(255,215,0,0.3);
+  border-radius:12px;
+  padding:2rem;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 40px rgba(255,215,0,0.05),inset 0 0 60px rgba(0,0,0,0.5);
+}
+.test-panel::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.test-panel::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent);
+}
+
+.test-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.5rem;padding-bottom:1rem;
+  border-bottom:1px solid rgba(255,215,0,0.2);
+}
+.test-progress{
+  font-family:var(--font-mono);font-size:0.85rem;color:var(--gold);
+}
+.test-score{
+  font-family:var(--font-title);font-size:0.9rem;
+  color:var(--gold);letter-spacing:2px;
+}
+.test-lives{font-size:1.2rem;letter-spacing:3px;}
+
+.test-section-title{
+  font-family:var(--font-title);font-size:0.75rem;
+  color:var(--gold2);letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:0.6rem;opacity:0.7;
+}
+.test-question{
+  font-size:1rem;line-height:1.6;margin-bottom:1.2rem;
+  color:#e0f0ff;
+}
+.test-sentence{
+  background:rgba(255,215,0,0.06);
+  border:1px solid rgba(255,215,0,0.2);
+  border-left:3px solid var(--gold);
+  padding:0.8rem 1.2rem;border-radius:0 8px 8px 0;
+  font-family:var(--font-mono);font-size:0.95rem;
+  color:var(--gold);margin-bottom:1.2rem;
+  font-style:italic;
+}
+
+.test-options{
+  display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;
+  margin-bottom:1rem;
+}
+.test-opt{
+  background:rgba(5,10,19,0.8);
+  border:1px solid rgba(79,195,247,0.25);
+  color:var(--text);
+  font-family:var(--font-main);font-size:0.9rem;
+  padding:0.8rem 1rem;border-radius:8px;
+  cursor:pointer;transition:all 0.25s;text-align:left;
+}
+.test-opt:hover{
+  border-color:var(--gold);
+  background:rgba(255,215,0,0.08);
+  color:var(--gold);
+  transform:translateX(3px);
+}
+.test-opt.correct{
+  border-color:var(--green);background:rgba(0,255,136,0.12);color:var(--green);
+  animation:correctFlash 0.4s;
+}
+.test-opt.wrong{
+  border-color:var(--red);background:rgba(255,68,68,0.12);color:var(--red);
+  animation:wrongFlash 0.4s;
+}
+@keyframes correctFlash{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes wrongFlash{0%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}100%{transform:translateX(0)}}
+
+.test-input{
+  background:rgba(5,10,19,0.8);
+  border:1px solid rgba(79,195,247,0.3);
+  color:var(--text);
+  font-family:var(--font-mono);font-size:0.9rem;
+  padding:0.7rem 1rem;border-radius:8px;
+  width:100%;outline:none;
+  transition:border-color 0.2s;
+}
+.test-input:focus{border-color:var(--gold);}
+.test-input.correct{border-color:var(--green);background:rgba(0,255,136,0.08);}
+.test-input.wrong{border-color:var(--red);background:rgba(255,68,68,0.08);}
+
+.test-next-btn{
+  background:linear-gradient(90deg,rgba(255,215,0,0.2),rgba(255,165,0,0.2));
+  border:1px solid var(--gold);
+  color:var(--gold);
+  font-family:var(--font-title);font-size:0.75rem;letter-spacing:2px;
+  padding:0.7rem 1.5rem;border-radius:6px;cursor:pointer;
+  transition:all 0.2s;margin-top:0.8rem;
+  display:none;
+}
+.test-next-btn.show{display:inline-block;}
+.test-next-btn:hover{background:rgba(255,215,0,0.3);box-shadow:0 0 20px rgba(255,215,0,0.3);}
+
+.table-test{
+  width:100%;border-collapse:collapse;margin:0.8rem 0;
+}
+.table-test th{
+  background:rgba(255,215,0,0.15);
+  color:var(--gold);font-family:var(--font-title);font-size:0.7rem;
+  letter-spacing:1px;padding:0.6rem 0.8rem;
+  border:1px solid rgba(255,215,0,0.2);
+}
+.table-test td{
+  padding:0.5rem 0.8rem;
+  border:1px solid rgba(79,195,247,0.15);
+  color:var(--text);font-size:0.85rem;
+}
+.table-test td input{
+  background:transparent;border:none;border-bottom:1px solid rgba(79,195,247,0.4);
+  color:var(--gold);font-family:var(--font-mono);font-size:0.85rem;
+  outline:none;width:100%;padding:2px 4px;
+}
+.table-test td input:focus{border-bottom-color:var(--gold);}
+.table-test td input.correct{border-bottom-color:var(--green);color:var(--green);}
+.table-test td input.wrong{border-bottom-color:var(--red);color:var(--red);}
+.table-test tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+
+/* Test Results */
+.test-results{
+  text-align:center;padding:2rem;
+}
+.results-score{
+  font-family:var(--font-title);font-size:3rem;font-weight:900;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin:1rem 0;
+}
+.results-msg{font-size:1.1rem;color:var(--blue);margin-bottom:1.5rem;}
+.medal{font-size:3rem;margin:1rem 0;animation:spin 3s linear infinite;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+/* ===== GAME SECTION ===== */
+#section-game{padding:0;overflow:hidden;}
+#game-canvas{
+  display:block;
+  background:#000;
+}
+.game-ui{
+  position:fixed;top:70px;left:0;right:0;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:0.6rem 1.5rem;
+  pointer-events:none;z-index:50;
+}
+.game-stat{
+  font-family:var(--font-title);font-size:0.8rem;
+  color:var(--gold);letter-spacing:1px;
+  background:rgba(5,10,19,0.8);
+  border:1px solid rgba(255,215,0,0.3);
+  padding:0.4rem 1rem;border-radius:4px;
+  backdrop-filter:blur(5px);
+}
+.game-ammo{color:var(--blue);}
+
+/* Question modal */
+.q-modal{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  background:rgba(5,10,19,0.97);
+  border:2px solid var(--gold);
+  border-radius:12px;padding:1.5rem 2rem;
+  width:min(600px,90vw);
+  z-index:200;
+  box-shadow:0 0 40px rgba(255,215,0,0.3);
+  display:none;
+}
+.q-modal.show{display:block;animation:modalIn 0.3s;}
+@keyframes modalIn{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+.q-modal h3{
+  font-family:var(--font-title);font-size:0.85rem;color:var(--gold);
+  letter-spacing:2px;margin-bottom:0.8rem;
+}
+.q-modal .modal-sentence{
+  font-family:var(--font-mono);font-size:0.9rem;color:#9ecfeb;
+  background:rgba(2,136,209,0.1);border:1px solid var(--border);
+  padding:0.6rem 0.8rem;border-radius:6px;margin-bottom:0.8rem;
+  font-style:italic;
+}
+.modal-opts{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;}
+.modal-opt{
+  background:rgba(13,27,42,0.9);
+  border:1px solid var(--border);
+  color:var(--text);font-family:var(--font-main);font-size:0.85rem;
+  padding:0.5rem 0.7rem;border-radius:6px;cursor:pointer;
+  pointer-events:all;transition:all 0.15s;text-align:left;
+}
+.modal-opt:hover{border-color:var(--blue);background:rgba(2,136,209,0.15);}
+.modal-opt.correct{border-color:var(--green);background:rgba(0,255,136,0.15);color:var(--green);}
+.modal-opt.wrong{border-color:var(--red);background:rgba(255,68,68,0.15);color:var(--red);}
+
+.game-hint{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:0.75rem;color:rgba(255,255,255,0.4);
+  text-align:center;pointer-events:none;z-index:50;letter-spacing:1px;
+}
+
+/* ===== UTILS ===== */
+.glow-gold{text-shadow:0 0 20px rgba(255,215,0,0.5);}
+.glow-blue{text-shadow:0 0 20px rgba(79,195,247,0.5);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:#050A13;}
+::-webkit-scrollbar-thumb{background:rgba(79,195,247,0.3);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(79,195,247,0.5);}
+
+/* Section fade-in */
+.section.active{animation:fadeIn 0.4s;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- Starfield -->
+<canvas id="starfield"></canvas>
+
+<div class="app-wrapper">
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="saber">⚔️</span>
+      PORTUGUÊS <span style="color:var(--blue)">5.º ANO</span>
+    </div>
+    <nav>
+      <button class="nav-btn active" onclick="showSection('study')" id="btn-study"><span>📚 Estudo</span></button>
+      <button class="nav-btn" onclick="showSection('training')" id="btn-training"><span>🎯 Treino</span></button>
+      <button class="nav-btn" onclick="showSection('test')" id="btn-test"><span>📝 Teste</span></button>
+      <button class="nav-btn" onclick="showSection('game')" id="btn-game"><span>🎮 Jogo</span></button>
+    </nav>
+  </div>
+</header>
+
+<!-- ================================================================ -->
+<!-- SECTION: STUDY -->
+<!-- ================================================================ -->
+<section id="section-study" class="section active">
+<div class="section-inner">
+  <h1 class="page-title glow-gold">Academia JEDI</h1>
+  <p class="page-subtitle">Domina a Gramática — A Força da Língua Portuguesa</p>
+
+  <div class="study-tabs">
+    <button class="study-tab-btn active" onclick="showStudyTab('classes')">🔤 Classes de Palavras</button>
+    <button class="study-tab-btn" onclick="showStudyTab('sintax')">🔗 Funções Sintáticas</button>
+  </div>
+
+  <!-- CLASSES DE PALAVRAS -->
+  <div id="study-classes" class="study-tab-content active">
+    <div class="subtabs">
+      <button class="subtab-btn active" onclick="showSubtab('classes','nome')">Nome</button>
+      <button class="subtab-btn" onclick="showSubtab('classes','det')">Determinante</button>
+      <button class="subtab-btn" onclick="showSubtab('classes','pron')">Pronome</button>
+      <button class="subtab-btn" onclick="showSubtab('classes','verb')">Verbo</button>
+      <button class="subtab-btn" onclick="showSubtab('classes','adv')">Advérbio</button>
+      <button class="subtab-btn" onclick="showSubtab('classes','adj')">Adjetivo</button>
+    </div>
+
+    <!-- NOME -->
+    <div id="classes-nome" class="subtab-content active">
+      <div class="study-card">
+        <h3>⚡ NOME</h3>
+        <p>Palavra que designa <strong>seres</strong>, <strong>objetos</strong>, <strong>lugares</strong>, <strong>sentimentos</strong> ou <strong>ideias</strong>.</p>
+        <div class="def-box">O nome é o núcleo do grupo nominal. Pode ser substituído por um pronome.</div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Nome Comum</h4><p>Designa qualquer ser da mesma espécie. Ex: <em>gato, escola, cidade</em></p></div>
+          <div class="info-card"><h4>Nome Próprio</h4><p>Designa um ser específico, escreve-se com maiúscula. Ex: <em>Lisboa, Ana, Portugal</em></p></div>
+          <div class="info-card"><h4>Nome Coletivo</h4><p>No singular designa um conjunto. Ex: <em>cardume, alcateia, floresta</em></p></div>
+          <div class="info-card"><h4>Género</h4><p>Masculino ou feminino. Ex: <em>o menino / a menina</em></p></div>
+          <div class="info-card"><h4>Número</h4><p>Singular ou plural. Ex: <em>flor / flores</em></p></div>
+          <div class="info-card"><h4>Grau</h4><p>Normal, aumentativo, diminutivo. Ex: <em>casa / casarão / casinha</em></p></div>
+        </div>
+        <p style="margin-top:1rem;">Exemplos no contexto:</p>
+        <div class="example-grid">
+          <div class="example-chip">gato<span>nome comum, masc., sing.</span></div>
+          <div class="example-chip">Lisboa<span>nome próprio, masc., sing.</span></div>
+          <div class="example-chip">cardume<span>nome coletivo, masc., sing.</span></div>
+          <div class="example-chip">estrelas<span>nome comum, fem., plural</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETERMINANTE -->
+    <div id="classes-det" class="subtab-content">
+      <div class="study-card">
+        <h3>🔷 DETERMINANTE</h3>
+        <p>Palavra que <strong>acompanha o nome</strong> e indica se ele é conhecido (definido) ou desconhecido (indefinido), a quem pertence, etc.</p>
+        <div class="def-box">O determinante concorda em género e número com o nome que acompanha.</div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Artigo Definido</h4><p>o, a, os, as — refere algo conhecido. Ex: <em>o livro</em></p></div>
+          <div class="info-card"><h4>Artigo Indefinido</h4><p>um, uma, uns, umas — algo desconhecido. Ex: <em>uma caneta</em></p></div>
+          <div class="info-card"><h4>Demonstrativo</h4><p>este, esse, aquele (e formas flexionadas). Ex: <em>este cão</em></p></div>
+          <div class="info-card"><h4>Possessivo</h4><p>meu, teu, seu, nosso, vosso. Ex: <em>o meu caderno</em></p></div>
+          <div class="info-card"><h4>Indefinido</h4><p>algum, nenhum, todo, muito. Ex: <em>algum aluno</em></p></div>
+          <div class="info-card"><h4>Interrogativo</h4><p>que, qual, quanto. Ex: <em>que livro?</em></p></div>
+        </div>
+        <div class="example-grid">
+          <div class="example-chip">o gato<span>artigo definido</span></div>
+          <div class="example-chip">uma flor<span>artigo indefinido</span></div>
+          <div class="example-chip">este livro<span>demonstrativo</span></div>
+          <div class="example-chip">o meu pai<span>possessivo</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRONOME -->
+    <div id="classes-pron" class="subtab-content">
+      <div class="study-card">
+        <h3>🔄 PRONOME</h3>
+        <p>Palavra que <strong>substitui o nome</strong>, evitando repetições. Pode referir-se a pessoas, seres ou objetos já mencionados.</p>
+        <div class="def-box">Diferença chave: o determinante acompanha o nome; o pronome substitui o nome.</div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Pronome Pessoal</h4><p>eu, tu, ele, ela, nós, vós, eles, elas — e formas átonas: me, te, o, a, lhe, nos, vos…</p></div>
+          <div class="info-card"><h4>Pronome Demonstrativo</h4><p>este, esse, aquele, isto, isso, aquilo</p></div>
+          <div class="info-card"><h4>Pronome Possessivo</h4><p>o meu, o teu, o seu, o nosso, o vosso</p></div>
+          <div class="info-card"><h4>Pronome Indefinido</h4><p>alguém, ninguém, tudo, nada, algo</p></div>
+        </div>
+        <p style="margin-top:1rem;"><strong>Exemplo prático:</strong></p>
+        <div class="def-box">«A Maria comprou um livro. <span style="color:var(--blue)">Ela</span> leu-<span style="color:var(--blue)">o</span> todo em dois dias.» — <em>ela</em> substitui <em>a Maria</em>; <em>o</em> substitui <em>o livro</em></div>
+        <div class="example-grid">
+          <div class="example-chip">eu, tu, ele<span>pronomes pessoais sujeito</span></div>
+          <div class="example-chip">me, te, o, lhe<span>pronomes pessoais objeto</span></div>
+          <div class="example-chip">isso, aquilo<span>pronomes demonstrativos</span></div>
+          <div class="example-chip">ninguém, tudo<span>pronomes indefinidos</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERBO -->
+    <div id="classes-verb" class="subtab-content">
+      <div class="study-card">
+        <h3>⚡ VERBO</h3>
+        <p>Palavra que indica uma <strong>ação</strong>, <strong>estado</strong> ou <strong>processo</strong>. É o núcleo do predicado.</p>
+        <div class="def-box">O verbo conjuga-se em pessoa, número, tempo e modo.</div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Verbos de Ação</h4><p>correr, comer, brincar, saltar</p></div>
+          <div class="info-card"><h4>Verbos de Estado</h4><p>ser, estar, parecer, ficar, continuar</p></div>
+          <div class="info-card"><h4>Verbos de Processo</h4><p>crescer, nascer, envelhecer</p></div>
+          <div class="info-card"><h4>Tempos Verbais</h4><p>Presente, Pretérito Imperfeito, Pretérito Perfeito, Futuro</p></div>
+        </div>
+        <p style="margin-top:1rem;"><strong>Conjugação — «falar» Pretérito Perfeito:</strong></p>
+        <div class="example-grid">
+          <div class="example-chip">eu falei<span>1.ª pessoa, singular</span></div>
+          <div class="example-chip">tu falaste<span>2.ª pessoa, singular</span></div>
+          <div class="example-chip">ele falou<span>3.ª pessoa, singular</span></div>
+          <div class="example-chip">nós falámos<span>1.ª pessoa, plural</span></div>
+          <div class="example-chip">vós falastes<span>2.ª pessoa, plural</span></div>
+          <div class="example-chip">eles falaram<span>3.ª pessoa, plural</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADVÉRBIO -->
+    <div id="classes-adv" class="subtab-content">
+      <div class="study-card">
+        <h3>🌀 ADVÉRBIO</h3>
+        <p>Palavra invariável que <strong>modifica</strong> um verbo, um adjetivo ou outro advérbio, expressando circunstâncias.</p>
+        <div class="def-box">O advérbio NÃO varia em género nem número — é sempre igual!</div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Modo</h4><p>rapidamente, bem, mal, depressa, devagar</p></div>
+          <div class="info-card"><h4>Tempo</h4><p>ontem, hoje, amanhã, sempre, nunca, já, depois</p></div>
+          <div class="info-card"><h4>Lugar</h4><p>aqui, ali, lá, cá, dentro, fora, perto, longe</p></div>
+          <div class="info-card"><h4>Negação/Afirmação</h4><p>não, sim, certamente, talvez</p></div>
+          <div class="info-card"><h4>Quantidade</h4><p>muito, pouco, bastante, mais, menos, tão</p></div>
+          <div class="info-card"><h4>Interrogativo</h4><p>onde, quando, como, por quê</p></div>
+        </div>
+        <p style="margin-top:1rem;"><strong>Atenção à diferença:</strong></p>
+        <div class="def-box">«Ela é <strong>rápida</strong>» (adjetivo — modifica o nome) vs «Ela corre <strong>rapidamente</strong>» (advérbio — modifica o verbo)</div>
+      </div>
+    </div>
+
+    <!-- ADJETIVO -->
+    <div id="classes-adj" class="subtab-content">
+      <div class="study-card">
+        <h3>🎨 ADJETIVO</h3>
+        <p>Palavra que <strong>caracteriza o nome</strong>, expressando uma qualidade, estado ou relação.</p>
+        <div class="def-box">O adjetivo concorda em género e número com o nome que qualifica.</div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Grau Normal</h4><p>A casa é <em>bonita</em>.</p></div>
+          <div class="info-card"><h4>Comparativo de Superioridade</h4><p>mais bonita do que / mais bonita que</p></div>
+          <div class="info-card"><h4>Comparativo de Inferioridade</h4><p>menos bonita do que</p></div>
+          <div class="info-card"><h4>Comparativo de Igualdade</h4><p>tão bonita como / tão bonita quanto</p></div>
+          <div class="info-card"><h4>Superlativo Relativo</h4><p>a mais bonita (de todas)</p></div>
+          <div class="info-card"><h4>Superlativo Absoluto</h4><p>boníssima / muito bonita</p></div>
+        </div>
+        <div class="example-grid">
+          <div class="example-chip">bonito / bonita<span>variação em género</span></div>
+          <div class="example-chip">alto / altos<span>variação em número</span></div>
+          <div class="example-chip">altíssimo<span>superlativo absoluto</span></div>
+          <div class="example-chip">mais alto que<span>comparativo superioridade</span></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /study-classes -->
+
+  <!-- FUNÇÕES SINTÁTICAS -->
+  <div id="study-sintax" class="study-tab-content">
+    <div class="subtabs">
+      <button class="subtab-btn active" onclick="showSubtab('sintax','sujeito')">Sujeito</button>
+      <button class="subtab-btn" onclick="showSubtab('sintax','predicado')">Predicado</button>
+      <button class="subtab-btn" onclick="showSubtab('sintax','cd')">C. Direto</button>
+      <button class="subtab-btn" onclick="showSubtab('sintax','ci')">C. Indireto</button>
+      <button class="subtab-btn" onclick="showSubtab('sintax','vocativo')">Vocativo</button>
+      <button class="subtab-btn" onclick="showSubtab('sintax','analise')">Análise Completa</button>
+    </div>
+
+    <!-- SUJEITO -->
+    <div id="sintax-sujeito" class="subtab-content active">
+      <div class="study-card">
+        <h3>👤 SUJEITO</h3>
+        <p>O sujeito é o <strong>ser sobre o qual se diz algo</strong> na frase. É o elemento que realiza ou é afetado pela ação do verbo.</p>
+        <div class="def-box">Para encontrar o sujeito, pergunta: «Quem é que…?» ou «O que é que…?» antes do verbo.</div>
+        <div class="sintax-diagram">
+          <span class="sintax-block sb-subject">A Ana</span>
+          <span class="sb-arrow">→</span>
+          <span class="sintax-block sb-verb">correu</span>
+          <span style="color:#666;font-size:0.8rem;margin-left:0.5rem;">← Quem correu? A Ana = SUJEITO</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Sujeito Simples</h4><p>Tem apenas um núcleo. Ex: <em>O Pedro chegou tarde.</em></p></div>
+          <div class="info-card"><h4>Sujeito Composto</h4><p>Tem dois ou mais núcleos. Ex: <em>O Pedro e a Maria chegaram tarde.</em></p></div>
+          <div class="info-card"><h4>Sujeito Nulo/Omitido</h4><p>Não aparece na frase mas identifica-se pela conjugação. Ex: <em>Chegou tarde.</em> (ele/ela)</p></div>
+          <div class="info-card"><h4>Sujeito Indeterminado</h4><p>Não se pode identificar. Ex: <em>Dizem que vai chover.</em></p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREDICADO -->
+    <div id="sintax-predicado" class="subtab-content">
+      <div class="study-card">
+        <h3>🔧 PREDICADO</h3>
+        <p>O predicado é tudo o que se diz sobre o sujeito. <strong>Tem sempre um verbo</strong> (núcleo do predicado).</p>
+        <div class="def-box">Na frase «O professor explicou a matéria», o predicado é «explicou a matéria».</div>
+        <div class="sintax-diagram">
+          <span class="sintax-block sb-subject">O professor</span>
+          <span class="sb-arrow">|</span>
+          <span class="sintax-block sb-verb">explicou</span>
+          <span class="sintax-block sb-cd">a matéria</span>
+          <br/>
+          <span style="color:#666;font-size:0.8rem;width:100%;">← sujeito →  ←———————— predicado ————————→</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Verbo (núcleo)</h4><p>É sempre o núcleo do predicado. Sem verbo não há predicado.</p></div>
+          <div class="info-card"><h4>Complementos</h4><p>O predicado pode incluir complemento direto, indireto e outros.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CD -->
+    <div id="sintax-cd" class="subtab-content">
+      <div class="study-card">
+        <h3>🎯 COMPLEMENTO DIRETO</h3>
+        <p>O complemento direto é o elemento do predicado que <strong>completa o verbo diretamente</strong>, sem preposição obrigatória.</p>
+        <div class="def-box">Para encontrar o CD, pergunta: «Quem?» ou «O quê?» depois do verbo. Pode ser substituído por o, a, os, as.</div>
+        <div class="sintax-diagram">
+          <span class="sintax-block sb-subject">A Maria</span>
+          <span class="sintax-block sb-verb">comeu</span>
+          <span class="sintax-block sb-cd">o bolo</span>
+          <span style="color:#666;font-size:0.8rem;margin-left:0.5rem;">← A Maria comeu o quê? o bolo = CD</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Sem preposição</h4><p>Liga-se diretamente ao verbo. «Comprou <em>um livro</em>.»</p></div>
+          <div class="info-card"><h4>Substituível</h4><p>Pode ser substituído por <em>o, a, os, as</em>. «Comprou-<em>o</em>.»</p></div>
+          <div class="info-card"><h4>Verbos transitivos diretos</h4><p>comprar, comer, ver, ler, escrever, amar…</p></div>
+          <div class="info-card"><h4>Atenção!</h4><p>Nem todos os verbos têm CD. «Ela dorme.» — sem CD.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CI -->
+    <div id="sintax-ci" class="subtab-content">
+      <div class="study-card">
+        <h3>📮 COMPLEMENTO INDIRETO</h3>
+        <p>O complemento indireto é o elemento do predicado que indica o <strong>destinatário ou beneficiário</strong> da ação, introduzido por preposição (geralmente <em>a</em> ou <em>para</em>).</p>
+        <div class="def-box">Para encontrar o CI, pergunta: «A quem?» ou «Para quem?» depois do verbo. Pode ser substituído por lhe, lhes.</div>
+        <div class="sintax-diagram">
+          <span class="sintax-block sb-subject">O pai</span>
+          <span class="sintax-block sb-verb">deu</span>
+          <span class="sintax-block sb-cd">um presente</span>
+          <span class="sintax-block sb-ci">à filha</span>
+          <br/>
+          <span style="color:#666;font-size:0.8rem;width:100%;">O pai deu o quê? = CD «um presente» | Deu a quem? = CI «à filha»</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-card"><h4>Com preposição</h4><p>Introduzido por <em>a, para</em>. «Enviou a mensagem <em>ao professor</em>.»</p></div>
+          <div class="info-card"><h4>Substituível</h4><p>Pode ser substituído por <em>lhe/lhes</em>. «Enviou-<em>lhe</em> a mensagem.»</p></div>
+          <div class="info-card"><h4>Verbos transitivos indiretos</h4><p>dar, oferecer, enviar, mostrar, dizer…</p></div>
+          <div class="info-card"><h4>CD vs CI</h4><p>CD: sem preposição / O quê? | CI: com preposição / A quem?</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOCATIVO -->
+    <div id="sintax-vocativo" class="subtab-content">
+      <div class="study-card">
+        <h3>📢 VOCATIVO</h3>
+        <p>O vocativo é um elemento que serve para <strong>chamar, invocar ou interpelar</strong> alguém. É isolado por vírgulas e está sempre separado do resto da frase.</p>
+        <div class="def-box">O vocativo não tem função sintática dentro da frase — é um elemento independente.</div>
+        <div class="sintax-diagram">
+          <span class="sintax-block sb-voc">Maria,</span>
+          <span class="sintax-block sb-subject">tu</span>
+          <span class="sintax-block sb-verb">estudaste</span>
+          <span class="sintax-block sb-cd">a matéria</span>
+          <span style="color:#666;font-size:0.8rem;margin-left:0.5rem;">← vocativo isolado</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-card"><h4>No início</h4><p>«<em>Ana</em>, vem cá!» — vírgula depois</p></div>
+          <div class="info-card"><h4>No meio</h4><p>«Vem cá, <em>Ana</em>, por favor!» — vírgulas antes e depois</p></div>
+          <div class="info-card"><h4>No fim</h4><p>«Vem cá, <em>Ana</em>.» — vírgula antes</p></div>
+          <div class="info-card"><h4>Função</h4><p>Chamar alguém, dar uma ordem ou interpelar diretamente.</p></div>
+        </div>
+        <div class="example-grid">
+          <div class="example-chip">Luís, espera!<span>vocativo no início</span></div>
+          <div class="example-chip">Faz isso, João.<span>vocativo no fim</span></div>
+          <div class="example-chip">Professora, tenho dúvidas.<span>vocativo + frase</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANÁLISE COMPLETA -->
+    <div id="sintax-analise" class="subtab-content">
+      <div class="study-card">
+        <h3>🗺️ ANÁLISE SINTÁTICA COMPLETA</h3>
+        <p>Vejamos como analisar completamente a frase: <em>«O professor entregou os testes aos alunos.»</em></p>
+        <div class="sintax-diagram" style="flex-direction:column;align-items:flex-start;gap:0.8rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span class="sintax-block sb-subject">O professor</span>
+            <span class="sintax-block sb-verb">entregou</span>
+            <span class="sintax-block sb-cd">os testes</span>
+            <span class="sintax-block sb-ci">aos alunos</span>
+          </div>
+          <div style="font-size:0.85rem;color:#aaa;display:grid;gap:0.4rem;width:100%;">
+            <span>🟢 <strong style="color:var(--green)">Sujeito</strong>: «O professor» — Quem entregou? → Nome próprio como núcleo</span>
+            <span>🔵 <strong style="color:var(--blue)">Verbo</strong>: «entregou» — núcleo do predicado, P.P. Indicativo, 3.ª p. sing.</span>
+            <span>🟡 <strong style="color:var(--gold2)">C. Direto</strong>: «os testes» — entregou o quê? → sem preposição</span>
+            <span>🔴 <strong style="color:#ff8888)">C. Indireto</strong>: «aos alunos» — entregou a quem? → com preposição «a»</span>
+          </div>
+        </div>
+        <p style="margin-top:1rem;"><strong>Mais exemplos de análise:</strong></p>
+        <div class="def-box">«<span style="color:var(--green)">A avó</span> <span style="color:var(--blue)">ofereceu</span> <span style="color:var(--gold2)">um bolo</span> <span style="color:#ff8888">ao neto</span>.»<br/>Sujeito: A avó | Verbo: ofereceu | CD: um bolo | CI: ao neto</div>
+        <div class="def-box">«<span style="color:#cc66ff">João</span>, <span style="color:var(--green)">a tua mãe</span> <span style="color:var(--blue)">disse</span> <span style="color:var(--gold2)">a verdade</span> <span style="color:#ff8888">aos professores</span>.»<br/>Vocativo: João | Sujeito: a tua mãe | Verbo: disse | CD: a verdade | CI: aos professores</div>
+      </div>
+    </div>
+
+  </div><!-- /study-sintax -->
+</div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION: TRAINING -->
+<!-- ================================================================ -->
+<section id="section-training" class="section">
+<div class="section-inner">
+  <h1 class="page-title glow-blue">CAMPO DE TREINO</h1>
+  <p class="page-subtitle">Pratica antes da batalha — Missões de Treino</p>
+  <div id="training-area"></div>
+</div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION: TEST -->
+<!-- ================================================================ -->
+<section id="section-test" class="section">
+<div class="section-inner">
+  <div id="test-intro" class="test-intro">
+    <div style="font-size:4rem;margin-bottom:1rem;">⚔️</div>
+    <h1 class="page-title glow-gold">TESTE FINAL</h1>
+    <p class="crawl-text">Uma longa jornada pelo caminho da gramática...<br>Chegou o momento da verdade.<br>Que a Força te guie, jovem Padawan.</p>
+    <button class="start-test-btn" onclick="startTest()">▶ INICIAR TESTE</button>
+  </div>
+  <div id="test-area" style="display:none;"></div>
+  <div id="test-results" style="display:none;" class="test-results"></div>
+</div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION: GAME -->
+<!-- ================================================================ -->
+<section id="section-game" class="section">
+  <canvas id="game-canvas"></canvas>
+  <div class="game-ui" id="game-ui" style="display:none;">
+    <div class="game-stat" id="stat-score">★ 0</div>
+    <div class="game-stat" id="stat-lives">❤️❤️❤️</div>
+    <div class="game-stat game-ammo" id="stat-ammo">🔵 Munições: 5</div>
+  </div>
+  <div class="q-modal" id="q-modal"></div>
+  <div class="game-hint" id="game-hint">Clique para iniciar o jogo</div>
+</section>
+
+</div><!-- /app-wrapper -->
+
+<script>// ===================================================
+// STARFIELD
+// ===================================================
+(function(){
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  function initStars(){
+    stars = [];
+    for(let i=0;i<220;i++){
+      stars.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*1.8+0.2,
+        speed:Math.random()*0.3+0.05,
+        alpha:Math.random()*0.8+0.2,
+        twinkle:Math.random()*Math.PI*2
+      });
+    }
+  }
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const now=Date.now()*0.001;
+    stars.forEach(s=>{
+      s.twinkle+=0.02;
+      const a=s.alpha*(0.7+0.3*Math.sin(s.twinkle));
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,230,255,${a})`;
+      ctx.fill();
+      s.y+=s.speed;
+      if(s.y>canvas.height){s.y=-2;s.x=Math.random()*canvas.width;}
+    });
+    requestAnimationFrame(animate);
+  }
+  window.addEventListener('resize',()=>{resize();initStars();});
+  resize();initStars();animate();
+})();
+
+// ===================================================
+// NAVIGATION
+// ===================================================
+function showSection(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  document.getElementById('btn-'+name).classList.add('active');
+  if(name==='training') initTraining();
+  if(name==='game') initGame();
+}
+
+function showStudyTab(name){
+  document.querySelectorAll('.study-tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', b.textContent.includes(name==='classes'?'Classes':'Sintáticas'));
+  });
+  document.querySelectorAll('.study-tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('study-'+name).classList.add('active');
+}
+// fix showStudyTab
+function showStudyTab(name){
+  document.querySelectorAll('.study-tab-btn').forEach(b=>{
+    b.classList.remove('active');
+    if((name==='classes'&&b.textContent.includes('Classes'))||(name==='sintax'&&b.textContent.includes('Sint'))){
+      b.classList.add('active');
+    }
+  });
+  document.querySelectorAll('.study-tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('study-'+name).classList.add('active');
+}
+
+function showSubtab(group, name){
+  const container = document.getElementById('study-'+group);
+  container.querySelectorAll('.subtab-btn').forEach(b=>{
+    b.classList.remove('active');
+    if(b.onclick.toString().includes(`'${name}'`)||b.getAttribute('onclick').includes(`'${name}'`)){
+      b.classList.add('active');
+    }
+  });
+  container.querySelectorAll('.subtab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(group+'-'+name).classList.add('active');
+}
+
+// ===================================================
+// TRAINING DATA
+// ===================================================
+const trainingQuestions = [
+  // ── CLASSES DE PALAVRAS ──────────────────────────────
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «O gato dorme no sofá», qual é a classe da palavra «dorme»?',
+    sentence:'O gato dorme no sofá.',
+    opts:['Nome','Verbo','Advérbio','Adjetivo'], answer:1,
+    explain:'«Dorme» é um verbo — indica um estado. Está conjugado na 3.ª pessoa do singular do Presente do Indicativo.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «A menina bonita sorriu», qual é a classe da palavra «bonita»?',
+    sentence:'A menina bonita sorriu.',
+    opts:['Nome','Verbo','Advérbio','Adjetivo'], answer:3,
+    explain:'«Bonita» é um adjetivo porque caracteriza o nome «menina». Concorda em género (feminino) e número (singular).'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «Ela correu rapidamente», qual é a classe de «rapidamente»?',
+    sentence:'Ela correu rapidamente.',
+    opts:['Adjetivo','Determinante','Advérbio','Pronome'], answer:2,
+    explain:'«Rapidamente» é um advérbio de modo. Modifica o verbo «correu» e é invariável — não muda com género/número.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «O meu cão é grande», qual é a classe de «meu»?',
+    sentence:'O meu cão é grande.',
+    opts:['Pronome pessoal','Determinante possessivo','Adjetivo','Nome'], answer:1,
+    explain:'«Meu» é um determinante possessivo — acompanha o nome «cão» e indica posse.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «Ele leu o livro», qual é a classe de «Ele»?',
+    sentence:'Ele leu o livro.',
+    opts:['Nome','Determinante','Pronome pessoal','Verbo'], answer:2,
+    explain:'«Ele» é um pronome pessoal — substitui o nome de uma pessoa (3.ª pessoa do singular).'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Qual das palavras seguintes é um NOME COLETIVO?',
+    sentence:'Escolhe o nome coletivo.',
+    opts:['escola','cardume','correr','bonito'], answer:1,
+    explain:'«Cardume» é um nome coletivo — no singular designa um conjunto de peixes.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «Nunca chego tarde», a palavra «Nunca» é um advérbio de…',
+    sentence:'Nunca chego tarde.',
+    opts:['Modo','Lugar','Tempo / Negação','Quantidade'], answer:2,
+    explain:'«Nunca» é um advérbio de negação/tempo. Modifica o verbo «chego» e indica que a ação não acontece em nenhum momento.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «Aquela casa é muito antiga», qual é a classe de «Aquela»?',
+    sentence:'Aquela casa é muito antiga.',
+    opts:['Pronome demonstrativo','Determinante demonstrativo','Adjetivo','Advérbio'], answer:1,
+    explain:'«Aquela» é um determinante demonstrativo porque acompanha o nome «casa» e indica distância.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «O João comprou-o ontem», qual é a classe de «o» (após o hífen)?',
+    sentence:'O João comprou-o ontem.',
+    opts:['Artigo definido','Determinante possessivo','Pronome pessoal','Adjetivo'], answer:2,
+    explain:'«-o» é um pronome pessoal (forma átona). Substitui o nome do objeto comprado — é diferente do artigo «o» que acompanha um nome.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «O Pedro é altíssimo», «altíssimo» está no grau…',
+    sentence:'O Pedro é altíssimo.',
+    opts:['Normal','Comparativo de superioridade','Superlativo absoluto sintético','Superlativo relativo'], answer:2,
+    explain:'«Altíssimo» é o superlativo absoluto sintético do adjetivo «alto» — formado com o sufixo -íssimo, sem comparação explícita.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Qual das seguintes palavras é um VERBO no infinitivo?',
+    sentence:'Identifica o verbo.',
+    opts:['corrida','corredora','correr','corretamente'], answer:2,
+    explain:'«Correr» é um verbo no infinitivo — forma base do verbo que não está conjugada.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «Nós estudámos muito», o verbo «estudámos» está em que pessoa e número?',
+    sentence:'Nós estudámos muito.',
+    opts:['1.ª pessoa singular','2.ª pessoa plural','1.ª pessoa plural','3.ª pessoa plural'], answer:2,
+    explain:'«Estudámos» corresponde a «nós» — 1.ª pessoa do plural do Pretérito Perfeito do Indicativo.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «Um pássaro voou lá fora», «Um» é um…',
+    sentence:'Um pássaro voou lá fora.',
+    opts:['Artigo definido','Artigo indefinido','Pronome','Numeral'], answer:1,
+    explain:'«Um» é um artigo indefinido — apresenta «pássaro» como algo não específico, desconhecido pelo leitor.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Qual das palavras seguintes é um advérbio de LUGAR?',
+    sentence:'Identifica o advérbio de lugar.',
+    opts:['ontem','muito','aqui','rapidamente'], answer:2,
+    explain:'«Aqui» é um advérbio de lugar — indica o local onde algo acontece. «Ontem» = tempo, «muito» = quantidade, «rapidamente» = modo.'
+  },
+  {
+    type:'mc', category:'Classes de Palavras',
+    q:'Na frase «A nossa turma ganhou o concurso», «nossa» é um…',
+    sentence:'A nossa turma ganhou o concurso.',
+    opts:['Pronome pessoal','Determinante possessivo','Adjetivo qualificativo','Artigo definido'], answer:1,
+    explain:'«Nossa» é um determinante possessivo — acompanha «turma» e indica que pertence a nós (1.ª pessoa do plural).'
+  },
+
+  // ── FUNÇÕES SINTÁTICAS ───────────────────────────────
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «A Sofia comprou um livro», qual é o sujeito?',
+    sentence:'A Sofia comprou um livro.',
+    opts:['comprou um livro','A Sofia','um livro','comprou'], answer:1,
+    explain:'«A Sofia» é o sujeito. Pergunta: Quem comprou? → A Sofia.'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «O Pedro deu um presente à mãe», qual é o Complemento Direto?',
+    sentence:'O Pedro deu um presente à mãe.',
+    opts:['O Pedro','deu','um presente','à mãe'], answer:2,
+    explain:'«Um presente» é o CD. Pergunta: O Pedro deu o quê? → um presente. Não tem preposição obrigatória.'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «O Pedro deu um presente à mãe», qual é o Complemento Indireto?',
+    sentence:'O Pedro deu um presente à mãe.',
+    opts:['O Pedro','deu','um presente','à mãe'], answer:3,
+    explain:'«À mãe» é o CI. Pergunta: Deu a quem? → à mãe. Introduzido pela preposição «a».'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «João, fica quieto!», qual é a função de «João»?',
+    sentence:'João, fica quieto!',
+    opts:['Sujeito','Predicado','Vocativo','Complemento Direto'], answer:2,
+    explain:'«João» é um vocativo — serve para chamar ou interpelar alguém. Está separado por vírgula e é independente da frase.'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Qual destas frases tem Complemento Indireto?',
+    sentence:'Escolhe a frase com Complemento Indireto.',
+    opts:['O gato dorme.','A Maria sorriu.','A avó enviou uma carta ao neto.','O vento sopra forte.'], answer:2,
+    explain:'«A avó enviou uma carta ao neto» tem CI: «ao neto» (enviou a quem?). As outras não têm CI.'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «Os alunos fizeram o teste», qual é o predicado?',
+    sentence:'Os alunos fizeram o teste.',
+    opts:['Os alunos','fizeram o teste','o teste','fizeram'], answer:1,
+    explain:'«Fizeram o teste» é o predicado — tudo o que se diz sobre o sujeito «os alunos».'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «A professora explicou a matéria aos alunos», o CD é…',
+    sentence:'A professora explicou a matéria aos alunos.',
+    opts:['A professora','a matéria','aos alunos','explicou'], answer:1,
+    explain:'«A matéria» é o CD — pergunta: explicou o quê? → a matéria. Sem preposição obrigatória.'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «Ana, empresta-me o teu lápis», o vocativo é…',
+    sentence:'Ana, empresta-me o teu lápis.',
+    opts:['o teu lápis','empresta-me','Ana','me'], answer:2,
+    explain:'«Ana» é o vocativo — interpela diretamente a pessoa. Está separado por vírgula no início da frase.'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «Chegou cedo», o sujeito é…',
+    sentence:'Chegou cedo.',
+    opts:['cedo','Chegou','Sujeito nulo (ele/ela)','Não tem sujeito'], answer:2,
+    explain:'É um sujeito nulo (ou subentendido) — não aparece na frase mas identifica-se pela conjugação do verbo: «chegou» = ele/ela, 3.ª pessoa singular.'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «O Rui mostrou o desenho à turma», qual é o CI?',
+    sentence:'O Rui mostrou o desenho à turma.',
+    opts:['O Rui','o desenho','mostrou','à turma'], answer:3,
+    explain:'«À turma» é o CI — pergunta: mostrou a quem? → à turma. Introduzido pela preposição «a».'
+  },
+  {
+    type:'mc', category:'Funções Sintáticas',
+    q:'Na frase «O vento sopra forte», qual é o sujeito?',
+    sentence:'O vento sopra forte.',
+    opts:['sopra forte','forte','O vento','sopra'], answer:2,
+    explain:'«O vento» é o sujeito — pergunta: Quem sopra? → O vento.'
+  },
+];
+
+// ===================================================
+// TRAINING ENGINE
+// ===================================================
+let trainingState = { questions:[], idx:0, score:0, answered:false };
+
+function initTraining(){
+  const area = document.getElementById('training-area');
+  // Shuffle
+  const qs = [...trainingQuestions].sort(()=>Math.random()-0.5);
+  trainingState = { questions:qs, idx:0, score:0, answered:false };
+  renderTraining();
+}
+
+function renderTraining(){
+  const area = document.getElementById('training-area');
+  const state = trainingState;
+  const total = state.questions.length;
+  const pct = (state.idx/total)*100;
+
+  let html = `
+    <div class="score-display">⭐ ${state.score} / ${total}</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <div class="training-container" id="training-cards"></div>
+  `;
+  area.innerHTML = html;
+
+  // render up to 2 questions at a time
+  const cards = document.getElementById('training-cards');
+  const q = state.questions[state.idx];
+  if(!q){
+    cards.innerHTML = `<div class="training-card" style="grid-column:1/-1;text-align:center;padding:3rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🎉</div>
+      <h3 style="color:var(--gold);font-size:1.2rem;margin-bottom:1rem;">TREINO CONCLUÍDO!</h3>
+      <p style="color:var(--blue);font-size:1.1rem;">Resultado: ${state.score} / ${total} respostas certas</p>
+      <button class="next-btn show" onclick="initTraining()" style="margin-top:1.5rem;">↺ REPETIR TREINO</button>
+    </div>`;
+    return;
+  }
+  cards.innerHTML = renderTrainingCard(q, state.idx, total);
+}
+
+function renderTrainingCard(q, idx, total){
+  const cat = q.category;
+  const catColor = cat.includes('Classes') ? 'var(--blue)' : 'var(--gold)';
+  let optsHtml = q.opts.map((o,i)=>`
+    <button class="opt-btn" id="opt-${idx}-${i}" onclick="answerTraining(${idx},${i})">
+      ${String.fromCharCode(65+i)}. ${o}
+    </button>`).join('');
+
+  return `<div class="training-card" style="grid-column:1/-1;">
+    <div style="font-size:0.75rem;color:${catColor};letter-spacing:2px;margin-bottom:0.5rem;font-family:var(--font-title);">${cat.toUpperCase()} · Questão ${idx+1}/${total}</div>
+    <p style="margin-bottom:0.8rem;font-size:0.95rem;">${q.q}</p>
+    ${q.sentence?`<div class="q-sentence">${q.sentence}</div>`:''}
+    <div class="options-grid">${optsHtml}</div>
+    <div class="feedback" id="feedback-${idx}"></div>
+    <button class="next-btn" id="next-${idx}" onclick="nextTraining()">PRÓXIMA →</button>
+  </div>`;
+}
+
+function answerTraining(idx, chosen){
+  if(trainingState.answered) return;
+  trainingState.answered = true;
+  const q = trainingState.questions[idx];
+  const correct = q.answer === chosen;
+  if(correct) trainingState.score++;
+
+  q.opts.forEach((o,i)=>{
+    const btn = document.getElementById(`opt-${idx}-${i}`);
+    if(btn){
+      btn.disabled = true;
+      if(i===q.answer) btn.classList.add('correct');
+      else if(i===chosen && !correct) btn.classList.add('wrong');
+    }
+  });
+  const fb = document.getElementById(`feedback-${idx}`);
+  if(fb){
+    fb.className = 'feedback show ' + (correct?'ok':'nok');
+    fb.innerHTML = correct ? `✅ Correto! ${q.explain}` : `❌ Errado. ${q.explain}`;
+  }
+  const nb = document.getElementById(`next-${idx}`);
+  if(nb) nb.classList.add('show');
+}
+
+function nextTraining(){
+  trainingState.idx++;
+  trainingState.answered = false;
+  renderTraining();
+}
+
+// ===================================================
+// TEST DATA
+// ===================================================
+const testQuestions = [
+  // Part I - Classes
+  {
+    part:'PARTE I — CLASSES DE PALAVRAS',
+    type:'table-classify',
+    q:'Identifica a classe gramatical das palavras em destaque na frase:',
+    sentence:'"O João caminha lentamente pela rua estreita."',
+    words:['lentamente','estreita','caminha','João','pela'],
+    correctClass:['Advérbio de modo','Adjetivo','Verbo','Nome próprio','Preposição + artigo'],
+    points:10
+  },
+  {
+    part:'PARTE I — CLASSES DE PALAVRAS',
+    type:'mc',
+    q:'Qual das opções seguintes é um DETERMINANTE POSSESSIVO?',
+    opts:['ela','aquele','nosso','rapidamente'],
+    answer:2,
+    points:5,
+    explain:'"nosso" é um determinante possessivo. Indica posse e acompanha o nome.'
+  },
+  {
+    part:'PARTE I — CLASSES DE PALAVRAS',
+    type:'mc',
+    q:'Na frase "Ela sorriu alegremente", a palavra "alegremente" é:',
+    opts:['Adjetivo','Advérbio de modo','Nome','Verbo'],
+    answer:1,
+    points:5,
+    explain:'"alegremente" é advérbio de modo. Modifica o verbo "sorriu" e é invariável.'
+  },
+  {
+    part:'PARTE I — CLASSES DE PALAVRAS',
+    type:'mc',
+    q:'Na frase "O meu irmão comprou este livro", quantos determinantes existem?',
+    opts:['1','2','3','4'],
+    answer:2,
+    points:5,
+    explain:'Há 3 determinantes: "O" (artigo definido), "meu" (possessivo) e "este" (demonstrativo).'
+  },
+  {
+    part:'PARTE I — CLASSES DE PALAVRAS',
+    type:'mc',
+    q:'Qual é o grau do adjetivo na frase "Este é o livro mais interessante da biblioteca"?',
+    opts:['Normal','Comparativo de igualdade','Superlativo relativo de superioridade','Superlativo absoluto'],
+    answer:2,
+    points:5,
+    explain:'"o mais interessante (de todos)" é superlativo relativo de superioridade.'
+  },
+  // Part II - Funções Sintáticas
+  {
+    part:'PARTE II — FUNÇÕES SINTÁTICAS',
+    type:'table-syntax',
+    q:'Analisa a frase, identificando as funções sintáticas:',
+    sentence:'"A professora mostrou os resultados aos alunos."',
+    fields:['Sujeito','Verbo','Complemento Direto','Complemento Indireto'],
+    correct:['A professora','mostrou','os resultados','aos alunos'],
+    points:20
+  },
+  {
+    part:'PARTE II — FUNÇÕES SINTÁTICAS',
+    type:'mc',
+    q:'Na frase "O cão mordeu o carteiro", qual é o Complemento Direto?',
+    sentence:'"O cão mordeu o carteiro."',
+    opts:['O cão','mordeu','o carteiro','não tem CD'],
+    answer:2,
+    points:5,
+    explain:'"o carteiro" é o CD. Pergunta: O cão mordeu o quê / quem? → o carteiro. Sem preposição.'
+  },
+  {
+    part:'PARTE II — FUNÇÕES SINTÁTICAS',
+    type:'mc',
+    q:'Na frase "Luísa, vai buscar o casaco!", qual é o vocativo?',
+    sentence:'"Luísa, vai buscar o casaco!"',
+    opts:['vai buscar','Luísa','o casaco','vai'],
+    answer:1,
+    points:5,
+    explain:'"Luísa" é o vocativo. Serve para interpelar diretamente a pessoa. Está separado por vírgula.'
+  },
+  {
+    part:'PARTE II — FUNÇÕES SINTÁTICAS',
+    type:'mc',
+    q:'Qual das frases seguintes tem Complemento Indireto?',
+    opts:['O Pedro corre no parque.','A mãe deu flores à avó.','O João come muito.','A tarde está quente.'],
+    answer:1,
+    points:5,
+    explain:'"A mãe deu flores à avó" tem CI: "à avó" (deu a quem?). As outras não têm CI.'
+  },
+  {
+    part:'PARTE II — FUNÇÕES SINTÁTICAS',
+    type:'mc',
+    q:'Na frase "A equipa ganhou o jogo", qual é o sujeito?',
+    sentence:'"A equipa ganhou o jogo."',
+    opts:['ganhou','o jogo','A equipa','ganhou o jogo'],
+    answer:2,
+    points:5,
+    explain:'"A equipa" é o sujeito. Quem ganhou? → A equipa.'
+  },
+];
+
+// ===================================================
+// TEST ENGINE
+// ===================================================
+let testState = { idx:0, score:0, maxScore:0, answers:[] };
+
+function startTest(){
+  document.getElementById('test-intro').style.display='none';
+  document.getElementById('test-area').style.display='block';
+  testState = { idx:0, score:0, maxScore:testQuestions.reduce((s,q)=>s+q.points,0), answers:[], answered:false };
+  renderTestQuestion();
+}
+
+function renderTestQuestion(){
+  const area = document.getElementById('test-area');
+  const q = testQuestions[testState.idx];
+  if(!q){ showTestResults(); return; }
+
+  const total = testQuestions.length;
+  const pct = Math.round((testState.idx/total)*100);
+
+  let bodyHtml = '';
+  if(q.type==='mc'){
+    bodyHtml = `
+      ${q.sentence?`<div class="test-sentence">${q.sentence}</div>`:''}
+      <div class="test-options">
+        ${q.opts.map((o,i)=>`<button class="test-opt" id="topt-${i}" onclick="answerTest(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+      </div>
+    `;
+  } else if(q.type==='table-classify'){
+    bodyHtml = `
+      <div class="test-sentence">${q.sentence}</div>
+      <table class="table-test">
+        <tr><th>Palavra</th><th>Classe Gramatical</th></tr>
+        ${q.words.map((w,i)=>`<tr><td style="color:var(--gold);font-family:var(--font-mono);">${w}</td><td><input class="table-test-input" data-idx="${i}" placeholder="escreve aqui..." /></td></tr>`).join('')}
+      </table>
+    `;
+  } else if(q.type==='table-syntax'){
+    bodyHtml = `
+      <div class="test-sentence">${q.sentence}</div>
+      <table class="table-test">
+        <tr><th>Função Sintática</th><th>Grupo de Palavras</th></tr>
+        ${q.fields.map((f,i)=>`<tr><td style="color:var(--gold2);">${f}</td><td><input class="table-test-input" data-idx="${i}" placeholder="escreve aqui..." /></td></tr>`).join('')}
+      </table>
+    `;
+  }
+
+  const prevPart = testState.idx>0 ? testQuestions[testState.idx-1].part : null;
+  const partHeader = q.part !== prevPart ? `<div class="test-section-title">${q.part}</div>` : '';
+
+  area.innerHTML = `
+    <div class="test-panel">
+      <div class="test-header">
+        <div class="test-progress">⚡ ${testState.idx+1} / ${total}</div>
+        <div style="flex:1;margin:0 1rem;">
+          <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;">
+            <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:2px;transition:width 0.4s;"></div>
+          </div>
+        </div>
+        <div class="test-score">★ ${testState.score} pts</div>
+      </div>
+      ${partHeader}
+      <p class="test-question">${q.q}</p>
+      ${bodyHtml}
+      <div id="test-feedback" style="margin-top:0.8rem;"></div>
+      <button class="test-next-btn" id="test-next" onclick="nextTestQ()">PRÓXIMA QUESTÃO →</button>
+    </div>
+  `;
+  testState.answered = false;
+
+  // For table types, add submit button
+  if(q.type!=='mc'){
+    const panel = area.querySelector('.test-panel');
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'test-next-btn show';
+    submitBtn.style.marginTop='0.8rem';
+    submitBtn.textContent = 'VERIFICAR RESPOSTAS ✓';
+    submitBtn.onclick = ()=>checkTableAnswer();
+    panel.insertBefore(submitBtn, panel.querySelector('#test-feedback'));
+  }
+}
+
+function answerTest(chosen){
+  if(testState.answered) return;
+  testState.answered = true;
+  const q = testQuestions[testState.idx];
+  const correct = q.answer === chosen;
+  if(correct) testState.score += q.points;
+
+  q.opts.forEach((o,i)=>{
+    const btn = document.getElementById(`topt-${i}`);
+    if(btn){
+      btn.disabled=true;
+      if(i===q.answer) btn.classList.add('correct');
+      else if(i===chosen && !correct) btn.classList.add('wrong');
+    }
+  });
+
+  const fb = document.getElementById('test-feedback');
+  fb.innerHTML = correct
+    ? `<div style="color:var(--green);font-size:0.9rem;padding:0.6rem;background:rgba(0,255,136,0.08);border:1px solid var(--green);border-radius:6px;">✅ +${q.points} pontos! ${q.explain||''}</div>`
+    : `<div style="color:var(--red);font-size:0.9rem;padding:0.6rem;background:rgba(255,68,68,0.08);border:1px solid var(--red);border-radius:6px;">❌ Resposta incorreta. ${q.explain||''}</div>`;
+  document.getElementById('test-next').classList.add('show');
+}
+
+function checkTableAnswer(){
+  if(testState.answered) return;
+  testState.answered = true;
+  const q = testQuestions[testState.idx];
+  const inputs = document.querySelectorAll('.table-test-input');
+  let correct = 0;
+  inputs.forEach((inp,i)=>{
+    const expected = (q.correct||q.correctClass)[i].toLowerCase().trim();
+    const given = inp.value.toLowerCase().trim();
+    const isOk = given && (expected.includes(given) || given.includes(expected.split(' ')[0]));
+    inp.classList.add(isOk?'correct':'wrong');
+    inp.disabled = true;
+    if(isOk) correct++;
+    else {
+      // show correct
+      const td = inp.parentElement;
+      td.insertAdjacentHTML('beforeend',`<span style="color:var(--green);font-size:0.75rem;display:block;margin-top:2px;">✓ ${(q.correct||q.correctClass)[i]}</span>`);
+    }
+  });
+  const pts = Math.round((correct/inputs.length)*q.points);
+  testState.score += pts;
+  const fb = document.getElementById('test-feedback');
+  fb.innerHTML = `<div style="color:var(--gold);font-size:0.9rem;padding:0.6rem;background:rgba(255,215,0,0.08);border:1px solid var(--gold);border-radius:6px;">
+    Acertaste ${correct}/${inputs.length} → +${pts} pontos
+  </div>`;
+  document.getElementById('test-next').classList.add('show');
+}
+
+function nextTestQ(){
+  testState.idx++;
+  renderTestQuestion();
+}
+
+function showTestResults(){
+  document.getElementById('test-area').style.display='none';
+  const res = document.getElementById('test-results');
+  res.style.display='block';
+  const max = testState.maxScore;
+  const score = testState.score;
+  const pct = Math.round((score/max)*100);
+  let medal='🌟', msg='', grade='';
+  if(pct>=90){medal='🏆';msg='EXCELENTE! A Força está forte em ti, Mestre Jedi!';grade='Muito Bom';}
+  else if(pct>=70){medal='⭐';msg='MUITO BOM! Continua a treinar, jovem Padawan!';grade='Bom';}
+  else if(pct>=50){medal='🌙';msg='SUFICIENTE. A Força precisa de mais treino...';grade='Suficiente';}
+  else{medal='💫';msg='Volta à Academia Jedi e estuda mais!';grade='Insuficiente';}
+
+  res.innerHTML = `
+    <div class="test-panel">
+      <div class="medal">${medal}</div>
+      <h2 class="page-title glow-gold">TESTE CONCLUÍDO</h2>
+      <div class="results-score">${score} / ${max}</div>
+      <div style="font-size:1.3rem;color:var(--gold);font-family:var(--font-title);margin:0.5rem 0;">${grade}</div>
+      <p class="results-msg">${msg}</p>
+      <div style="margin:1.5rem 0;display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:400px;margin-left:auto;margin-right:auto;">
+        <div style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);border-radius:8px;padding:1rem;">
+          <div style="font-family:var(--font-title);font-size:0.7rem;color:var(--gold);letter-spacing:1px;">PERCENTAGEM</div>
+          <div style="font-size:2rem;font-weight:bold;color:var(--gold);">${pct}%</div>
+        </div>
+        <div style="background:rgba(79,195,247,0.08);border:1px solid rgba(79,195,247,0.3);border-radius:8px;padding:1rem;">
+          <div style="font-family:var(--font-title);font-size:0.7rem;color:var(--blue);letter-spacing:1px;">QUESTÕES</div>
+          <div style="font-size:2rem;font-weight:bold;color:var(--blue);">${testQuestions.length}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button class="start-test-btn" onclick="retakeTest()" style="font-size:0.8rem;padding:0.8rem 2rem;">↺ REFAZER TESTE</button>
+        <button class="start-test-btn" onclick="showSection('study')" style="font-size:0.8rem;padding:0.8rem 2rem;background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;">📚 ESTUDAR MAIS</button>
+      </div>
+    </div>
+  `;
+}
+
+function retakeTest(){
+  document.getElementById('test-results').style.display='none';
+  document.getElementById('test-intro').style.display='block';
+}
+</script>
+<script>// ===================================================
+// DUCK HUNT STAR WARS GAME
+// ===================================================
+
+let gameInitialized = false;
+let gameRunning = false;
+
+function initGame(){
+  if(gameInitialized) return;
+  gameInitialized = true;
+
+  const canvas = document.getElementById('game-canvas');
+  const hint = document.getElementById('game-hint');
+  const gameUI = document.getElementById('game-ui');
+  const qModal = document.getElementById('q-modal');
+
+  // Resize canvas to fill section
+  function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 60;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = (window.innerHeight - 60) + 'px';
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const ctx = canvas.getContext('2d');
+
+  // ---- GAME STATE ----
+  const G = {
+    running: false,
+    started: false,
+    score: 0,
+    lives: 3,
+    ammo: 5,
+    maxAmmo: 12,
+    wave: 1,
+    mouseX: 0,
+    mouseY: 0,
+    shots: [],         // { x, y, t }
+    explosions: [],    // { x, y, t, r, color }
+    targets: [],       // TIE fighters / stormtroopers
+    stars: [],
+    nebula: [],
+    particles: [],
+    lastSpawn: 0,
+    spawnInterval: 2500,
+    questionOpen: false,
+    crosshairAngle: 0,
+    bgScroll: 0,
+  };
+
+  // ---- QUESTIONS ----
+  const gameQuestions = [
+    { q:'Qual é a classe de «bonito»?', sentence:'"O gato é bonito."', opts:['Nome','Verbo','Adjetivo','Advérbio'], answer:2 },
+    { q:'Qual é a função de «o livro» na frase?', sentence:'"A Ana leu o livro."', opts:['Sujeito','Verbo','C. Direto','C. Indireto'], answer:2 },
+    { q:'«Rapidamente» é um...', sentence:'"Ela correu rapidamente."', opts:['Adjetivo','Advérbio','Pronome','Nome'], answer:1 },
+    { q:'Qual é o SUJEITO?', sentence:'"O professor explicou a matéria."', opts:['O professor','explicou','a matéria','O professor explicou'], answer:0 },
+    { q:'«Lhe» é um...', sentence:'"Deu-lhe o livro."', opts:['Determinante','Nome','Pronome','Verbo'], answer:2 },
+    { q:'Na frase, qual é o C. Indireto?', sentence:'"O pai enviou uma carta ao filho."', opts:['O pai','uma carta','ao filho','enviou'], answer:2 },
+    { q:'«Este» na frase é um...', sentence:'"Este livro é meu."', opts:['Pronome','Determinante','Advérbio','Nome'], answer:1 },
+    { q:'Qual é o VOCATIVO?', sentence:'"Pedro, vem jantar!"', opts:['vem jantar','jantar','Pedro','vem'], answer:2 },
+    { q:'«Meu» na frase é um...', sentence:'"O meu cão é simpático."', opts:['Pronome possessivo','Det. possessivo','Adjetivo','Nome'], answer:1 },
+    { q:'Qual é a função de «aos alunos»?', sentence:'"A professora deu os testes aos alunos."', opts:['Sujeito','C. Direto','C. Indireto','Vocativo'], answer:2 },
+  ];
+  let qIdx = 0;
+
+  // ---- STARFIELD ----
+  for(let i=0;i<180;i++){
+    G.stars.push({
+      x: Math.random()*2000,
+      y: Math.random()*1000,
+      r: Math.random()*1.5+0.2,
+      speed: Math.random()*0.8+0.2,
+      alpha: Math.random()*0.7+0.3
+    });
+  }
+  // Nebula patches
+  for(let i=0;i<8;i++){
+    G.nebula.push({
+      x: Math.random()*2000,
+      y: Math.random()*600,
+      r: Math.random()*200+80,
+      color: [`rgba(30,50,120,`, `rgba(60,10,80,`, `rgba(10,60,80,`][Math.floor(Math.random()*3)],
+      alpha: Math.random()*0.12+0.04
+    });
+  }
+
+  // ---- TARGET CLASS ----
+  class Target {
+    constructor(){
+      this.reset();
+      this.alive = true;
+      this.hit = false;
+      this.hitTimer = 0;
+      this.type = Math.random()<0.6 ? 'tie' : (Math.random()<0.5?'stormtrooper':'probe');
+    }
+    reset(){
+      const w = canvas.width, h = canvas.height;
+      // spawn from edges
+      const side = Math.floor(Math.random()*2);
+      if(side===0){ this.x=-80; this.y=Math.random()*(h-100)+50; this.vx=1.5+Math.random()*2; this.vy=(Math.random()-0.5)*1.5; }
+      else{ this.x=w+80; this.y=Math.random()*(h-100)+50; this.vx=-(1.5+Math.random()*2); this.vy=(Math.random()-0.5)*1.5; }
+      this.speed = 1;
+      this.bobOffset = Math.random()*Math.PI*2;
+      this.bobAmp = 0.3 + Math.random()*0.5;
+      this.scale = 0.7 + Math.random()*0.6;
+      this.angle = Math.atan2(this.vy, this.vx);
+    }
+    update(dt){
+      if(this.hit){ this.hitTimer+=dt; return; }
+      this.x += this.vx * this.speed;
+      this.y += this.vy * this.speed + Math.sin(Date.now()*0.002+this.bobOffset)*this.bobAmp;
+      this.angle = Math.atan2(this.vy, this.vx);
+    }
+    outOfBounds(){
+      return this.x < -200 || this.x > canvas.width+200 || this.y < -200 || this.y > canvas.height+200;
+    }
+    getRadius(){ return 30*this.scale; }
+    draw(ctx){
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.scale(this.scale, this.scale);
+      if(this.hit){
+        // exploding
+        ctx.globalAlpha = Math.max(0, 1 - this.hitTimer/400);
+        ctx.scale(1 + this.hitTimer/200, 1 + this.hitTimer/200);
+      }
+      if(this.type==='tie') drawTIE(ctx);
+      else if(this.type==='stormtrooper') drawStormtrooper(ctx);
+      else drawProbe(ctx);
+      ctx.restore();
+    }
+  }
+
+  function drawTIE(ctx){
+    // Body
+    ctx.beginPath();
+    ctx.arc(0,0,14,0,Math.PI*2);
+    ctx.fillStyle='#334466';
+    ctx.fill();
+    ctx.strokeStyle='#4488cc';
+    ctx.lineWidth=2;
+    ctx.stroke();
+    // Cockpit porthole
+    ctx.beginPath();
+    ctx.arc(0,0,8,0,Math.PI*2);
+    ctx.fillStyle='rgba(100,200,255,0.3)';
+    ctx.fill();
+    ctx.strokeStyle='#88ccff';
+    ctx.lineWidth=1;
+    ctx.stroke();
+    // Wings
+    function wing(side){
+      ctx.save();
+      ctx.scale(side,1);
+      // Strut
+      ctx.beginPath();
+      ctx.moveTo(14,0);ctx.lineTo(28,0);
+      ctx.strokeStyle='#556688';ctx.lineWidth=3;ctx.stroke();
+      // Wing panel
+      ctx.beginPath();
+      ctx.moveTo(26,-22);ctx.lineTo(34,-18);ctx.lineTo(34,18);ctx.lineTo(26,22);ctx.closePath();
+      ctx.fillStyle='rgba(30,50,100,0.9)';ctx.fill();
+      ctx.strokeStyle='#4488cc';ctx.lineWidth=1.5;ctx.stroke();
+      // Wing grid lines
+      ctx.strokeStyle='rgba(80,140,200,0.5)';ctx.lineWidth=0.8;
+      for(let i=-3;i<=3;i++){ctx.beginPath();ctx.moveTo(26,i*6);ctx.lineTo(34,i*6);ctx.stroke();}
+      ctx.beginPath();ctx.moveTo(30,-22);ctx.lineTo(30,22);ctx.stroke();
+      ctx.restore();
+    }
+    wing(1);wing(-1);
+    // Engine glow
+    ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);
+    ctx.fillStyle='rgba(100,180,255,0.6)';ctx.fill();
+  }
+
+  function drawStormtrooper(ctx){
+    // Helmet
+    ctx.beginPath();
+    ctx.ellipse(0,-6,14,16,0,0,Math.PI*2);
+    ctx.fillStyle='#ddeeff';ctx.fill();
+    ctx.strokeStyle='#88aabb';ctx.lineWidth=1.5;ctx.stroke();
+    // Visor
+    ctx.beginPath();
+    ctx.ellipse(0,-4,10,6,0,0,Math.PI*2);
+    ctx.fillStyle='rgba(20,60,100,0.8)';ctx.fill();
+    ctx.strokeStyle='#336699';ctx.lineWidth=1;ctx.stroke();
+    // Eyes
+    ctx.fillStyle='rgba(150,220,255,0.9)';
+    ctx.fillRect(-7,-7,5,3);
+    ctx.fillRect(2,-7,5,3);
+    // Body
+    ctx.beginPath();
+    ctx.roundRect(-12,10,24,18,3);
+    ctx.fillStyle='#cddde8';ctx.fill();
+    ctx.strokeStyle='#88aabb';ctx.lineWidth=1;ctx.stroke();
+    // Chest details
+    ctx.fillStyle='rgba(20,60,100,0.5)';
+    ctx.fillRect(-8,13,6,5);ctx.fillRect(2,13,6,5);
+  }
+
+  function drawProbe(ctx){
+    // Main sphere
+    ctx.beginPath();ctx.arc(0,0,16,0,Math.PI*2);
+    ctx.fillStyle='#223344';ctx.fill();
+    ctx.strokeStyle='#3366aa';ctx.lineWidth=2;ctx.stroke();
+    // Eye lens
+    ctx.beginPath();ctx.arc(0,-3,9,0,Math.PI*2);
+    ctx.fillStyle='rgba(200,30,30,0.8)';ctx.fill();
+    ctx.strokeStyle='#ff4444';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.beginPath();ctx.arc(-2,-5,4,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,80,80,0.5)';ctx.fill();
+    // Tendrils
+    ctx.strokeStyle='#334466';ctx.lineWidth=2;
+    for(let i=0;i<6;i++){
+      const a = (i/6)*Math.PI*2;
+      ctx.beginPath();ctx.moveTo(Math.cos(a)*16,Math.sin(a)*16);
+      ctx.lineTo(Math.cos(a)*28,Math.sin(a)*28);ctx.stroke();
+      ctx.beginPath();ctx.arc(Math.cos(a)*28,Math.sin(a)*28,3,0,Math.PI*2);
+      ctx.fillStyle='#3366aa';ctx.fill();
+    }
+  }
+
+  // ---- DRAW BACKGROUND ----
+  function drawBackground(){
+    const w=canvas.width, h=canvas.height;
+    // Space gradient
+    const grd = ctx.createLinearGradient(0,0,0,h);
+    grd.addColorStop(0,'#020508');
+    grd.addColorStop(0.5,'#050A13');
+    grd.addColorStop(1,'#030810');
+    ctx.fillStyle=grd;ctx.fillRect(0,0,w,h);
+
+    // Nebula
+    G.nebula.forEach(n=>{
+      const x = ((n.x - G.bgScroll*0.1)%( w+400)+w+400)%(w+400)-200;
+      const grd2=ctx.createRadialGradient(x,n.y,0,x,n.y,n.r);
+      grd2.addColorStop(0,n.color+'0.15)');
+      grd2.addColorStop(1,n.color+'0)');
+      ctx.fillStyle=grd2;
+      ctx.beginPath();ctx.arc(x,n.y,n.r,0,Math.PI*2);ctx.fill();
+    });
+
+    // Stars
+    G.stars.forEach(s=>{
+      const x = ((s.x - G.bgScroll*s.speed*0.2)%(w+100)+w+100)%(w+100);
+      ctx.globalAlpha = s.alpha*(0.7+0.3*Math.sin(Date.now()*0.001+s.x));
+      ctx.beginPath();ctx.arc(x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='#ffffff';ctx.fill();
+    });
+    ctx.globalAlpha=1;
+
+    // Ground / horizon line (Death Star surface feel)
+    const groundH = h - 80;
+    const grd3=ctx.createLinearGradient(0,groundH,0,h);
+    grd3.addColorStop(0,'rgba(20,30,50,0)');
+    grd3.addColorStop(1,'rgba(5,15,30,0.9)');
+    ctx.fillStyle=grd3;ctx.fillRect(0,groundH,w,h-groundH);
+
+    // Grid lines (Death Star floor)
+    ctx.strokeStyle='rgba(60,100,160,0.15)';ctx.lineWidth=1;
+    for(let gx=0;gx<w;gx+=60){
+      ctx.beginPath();
+      ctx.moveTo(gx,groundH);
+      ctx.lineTo(w/2+(gx-w/2)*3, h+100);
+      ctx.stroke();
+    }
+    for(let gy=groundH;gy<h;gy+=20){
+      ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();
+    }
+  }
+
+  // ---- DRAW CROSSHAIR ----
+  function drawCrosshair(){
+    const x=G.mouseX, y=G.mouseY;
+    G.crosshairAngle += 0.02;
+    const r = 28, inner=8;
+
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(G.crosshairAngle);
+
+    // Outer ring
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,60,60,0.8)';ctx.lineWidth=1.5;ctx.stroke();
+
+    // Inner dot
+    ctx.beginPath();ctx.arc(0,0,3,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,60,60,0.9)';ctx.fill();
+
+    // Cross hairs (4 segments)
+    for(let i=0;i<4;i++){
+      ctx.save();ctx.rotate(i*Math.PI/2);
+      ctx.beginPath();ctx.moveTo(inner,0);ctx.lineTo(r-4,0);
+      ctx.strokeStyle='rgba(255,100,100,0.9)';ctx.lineWidth=1.5;ctx.stroke();
+      // tick
+      ctx.beginPath();ctx.moveTo(r-4,-4);ctx.lineTo(r-4,4);
+      ctx.strokeStyle='rgba(255,150,150,0.7)';ctx.lineWidth=1;ctx.stroke();
+      ctx.restore();
+    }
+
+    // Corner ticks (diagonal)
+    for(let i=0;i<4;i++){
+      ctx.save();ctx.rotate(i*Math.PI/2+Math.PI/4);
+      ctx.beginPath();ctx.moveTo(r-8,-3);ctx.lineTo(r-8,3);
+      ctx.strokeStyle='rgba(255,200,200,0.5)';ctx.lineWidth=1;ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.restore();
+  }
+
+  // ---- DRAW SHOTS ----
+  function drawShots(){
+    G.shots.forEach(s=>{
+      const age = Date.now()-s.t;
+      if(age>300) return;
+      const alpha = 1-age/300;
+      ctx.save();
+      ctx.globalAlpha=alpha;
+      // Laser bolt
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,6*alpha,0,Math.PI*2);
+      const grd=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,12);
+      grd.addColorStop(0,'rgba(255,80,80,1)');
+      grd.addColorStop(0.4,'rgba(255,150,50,0.8)');
+      grd.addColorStop(1,'rgba(255,100,0,0)');
+      ctx.fillStyle=grd;ctx.fill();
+      ctx.restore();
+    });
+    G.shots = G.shots.filter(s=>Date.now()-s.t<300);
+  }
+
+  // ---- DRAW EXPLOSIONS ----
+  function drawExplosions(){
+    G.explosions.forEach((e,i)=>{
+      const age=Date.now()-e.t;
+      if(age>700){G.explosions.splice(i,1);return;}
+      const p=age/700;
+      ctx.save();
+      ctx.globalAlpha=1-p;
+      // Outer ring
+      ctx.beginPath();ctx.arc(e.x,e.y,e.r*p*2,0,Math.PI*2);
+      ctx.strokeStyle=e.color||'rgba(255,150,50,0.8)';ctx.lineWidth=3*(1-p);ctx.stroke();
+      // Inner
+      ctx.beginPath();ctx.arc(e.x,e.y,e.r*p*1.2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,100,50,${0.4*(1-p)})`;ctx.fill();
+      // Sparks
+      for(let sp=0;sp<8;sp++){
+        const a=(sp/8)*Math.PI*2;
+        const dist=e.r*p*2.5;
+        const sx=e.x+Math.cos(a)*dist, sy=e.y+Math.sin(a)*dist;
+        ctx.beginPath();ctx.arc(sx,sy,2*(1-p),0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,220,80,${0.8*(1-p)})`;ctx.fill();
+      }
+      ctx.restore();
+    });
+  }
+
+  // ---- DRAW HUD ----
+  function drawHUD(){
+    const w=canvas.width;
+    // Ammo bar
+    const ammoX=20, ammoY=canvas.height-50;
+    ctx.font='bold 13px "Orbitron", monospace';
+    ctx.fillStyle='rgba(79,195,247,0.7)';
+    ctx.fillText('MUNIÇÃO',ammoX,ammoY-10);
+    for(let i=0;i<G.maxAmmo;i++){
+      const filled = i<G.ammo;
+      ctx.beginPath();
+      ctx.rect(ammoX+i*18,ammoY,14,12);
+      ctx.fillStyle=filled?'rgba(79,195,247,0.8)':'rgba(79,195,247,0.15)';
+      ctx.fill();
+      ctx.strokeStyle=filled?'rgba(79,195,247,0.9)':'rgba(79,195,247,0.3)';
+      ctx.lineWidth=1;ctx.stroke();
+    }
+    // Lives
+    const livesStr = '❤️'.repeat(Math.max(0,G.lives)) + '🖤'.repeat(Math.max(0,3-G.lives));
+    ctx.font='20px serif';
+    ctx.fillText(livesStr, w-160, canvas.height-30);
+    // Score
+    ctx.font='bold 18px "Orbitron", monospace';
+    ctx.fillStyle='rgba(255,215,0,0.9)';
+    ctx.textAlign='center';
+    ctx.fillText('★ '+G.score, w/2, canvas.height-30);
+    ctx.textAlign='left';
+    // Right click hint
+    if(G.ammo<3&&!G.questionOpen){
+      ctx.save();
+      ctx.font='bold 14px "Orbitron", monospace';
+      ctx.fillStyle='rgba(255,200,50,0.8)';
+      ctx.textAlign='center';
+      ctx.fillText('BOTÃO DIREITO → QUESTÃO = +3 MUNIÇÕES', w/2, 40);
+      ctx.restore();
+    }
+    // Wave
+    ctx.font='12px "Orbitron", monospace';
+    ctx.fillStyle='rgba(255,255,255,0.4)';
+    ctx.textAlign='right';
+    ctx.fillText('ONDA '+G.wave, w-20, 30);
+    ctx.textAlign='left';
+  }
+
+  // ---- DRAW GAME OVER ----
+  function drawGameOver(){
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,0.7)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font='bold 48px "Orbitron", monospace';
+    ctx.fillStyle='#FF4444';
+    ctx.textAlign='center';
+    ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2-40);
+    ctx.font='24px "Orbitron", monospace';
+    ctx.fillStyle='#FFD700';
+    ctx.fillText('Pontuação: '+G.score, canvas.width/2, canvas.height/2+20);
+    ctx.font='16px "Exo 2", sans-serif';
+    ctx.fillStyle='rgba(200,220,255,0.7)';
+    ctx.fillText('Clique para jogar de novo', canvas.width/2, canvas.height/2+70);
+    ctx.restore();
+    gameRunning = false;
+  }
+
+  // ---- SPAWN TARGET ----
+  function spawnTarget(){
+    G.targets.push(new Target());
+  }
+
+  // ---- HIT TEST ----
+  function checkHit(mx,my){
+    for(let i=G.targets.length-1;i>=0;i--){
+      const t=G.targets[i];
+      if(t.hit||!t.alive) continue;
+      const dx=t.x-mx, dy=t.y-my;
+      if(Math.sqrt(dx*dx+dy*dy)<t.getRadius()){
+        t.hit=true;
+        t.alive=false;
+        G.score+=10*(G.wave);
+        G.explosions.push({x:t.x,y:t.y,r:40,t:Date.now(),color:'rgba(255,150,50,1)'});
+        // score popup
+        spawnParticle(t.x,t.y,'+'+(10*G.wave));
+        setTimeout(()=>{ G.targets.splice(G.targets.indexOf(t),1); },400);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ---- PARTICLES (score popups) ----
+  function spawnParticle(x,y,text){
+    G.particles.push({x,y,text,t:Date.now(),vy:-1.5});
+  }
+  function drawParticles(){
+    G.particles.forEach((p,i)=>{
+      const age=Date.now()-p.t;
+      if(age>1000){G.particles.splice(i,1);return;}
+      const alpha=1-age/1000;
+      p.y+=p.vy;
+      ctx.save();
+      ctx.globalAlpha=alpha;
+      ctx.font='bold 20px "Orbitron", monospace';
+      ctx.fillStyle='#FFD700';
+      ctx.textAlign='center';
+      ctx.fillText(p.text,p.x,p.y);
+      ctx.restore();
+    });
+  }
+
+  // ---- QUESTION MODAL ----
+  function showQuestion(){
+    if(G.questionOpen) return;
+    G.questionOpen=true;
+    const q = gameQuestions[qIdx % gameQuestions.length];
+    qIdx++;
+    qModal.className='q-modal show';
+    qModal.innerHTML=`
+      <h3>🔵 QUESTÃO — Responde para ganhar munições!</h3>
+      <div class="modal-sentence">${q.sentence}</div>
+      <p style="margin-bottom:0.8rem;font-size:0.9rem;color:#c8e6f7;">${q.q}</p>
+      <div class="modal-opts">
+        ${q.opts.map((o,i)=>`<button class="modal-opt" onclick="gameAnswer(${i},${q.answer})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+      </div>
+      <p style="font-size:0.75rem;color:rgba(200,230,255,0.4);margin-top:0.8rem;">Resposta certa = +3 munições | Errada = +1 munição</p>
+    `;
+  }
+  window.gameAnswer = function(chosen, correct){
+    if(!G.questionOpen) return;
+    const btns = qModal.querySelectorAll('.modal-opt');
+    btns.forEach((b,i)=>{
+      b.disabled=true;
+      if(i===correct) b.classList.add('correct');
+      else if(i===chosen&&chosen!==correct) b.classList.add('wrong');
+    });
+    const gained = chosen===correct ? 3 : 1;
+    G.ammo = Math.min(G.maxAmmo, G.ammo+gained);
+    setTimeout(()=>{
+      qModal.className='q-modal';
+      qModal.innerHTML='';
+      G.questionOpen=false;
+    }, 1200);
+  };
+
+  // ---- MAIN LOOP ----
+  let lastTime=0;
+  function gameLoop(ts){
+    const dt = ts-lastTime; lastTime=ts;
+    if(!gameRunning) return;
+
+    drawBackground();
+
+    // Scroll background slowly
+    G.bgScroll += 0.5;
+
+    // Spawn
+    if(Date.now()-G.lastSpawn > G.spawnInterval && G.targets.length<6){
+      spawnTarget();
+      G.lastSpawn=Date.now();
+      G.spawnInterval = Math.max(800, G.spawnInterval-30);
+      // Wave
+      G.wave = Math.floor(G.score/100)+1;
+    }
+
+    // Update & draw targets
+    G.targets.forEach(t=>t.update(dt));
+    // Remove out-of-bounds (miss)
+    for(let i=G.targets.length-1;i>=0;i--){
+      if(G.targets[i].outOfBounds()&&!G.targets[i].hit){
+        G.targets.splice(i,1);
+        G.lives--;
+        if(G.lives<=0){ drawGameOver(); return; }
+      }
+    }
+    G.targets.forEach(t=>t.draw(ctx));
+
+    drawExplosions();
+    drawShots();
+    drawParticles();
+    drawHUD();
+    drawCrosshair();
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  // ---- INPUT ----
+  canvas.addEventListener('mousemove',e=>{
+    const rect=canvas.getBoundingClientRect();
+    G.mouseX=e.clientX-rect.left;
+    G.mouseY=e.clientY-rect.top;
+  });
+
+  canvas.addEventListener('click',e=>{
+    if(!G.started){ startGamePlay(); return; }
+    if(!gameRunning) { resetGame(); return; }
+    if(G.questionOpen) return;
+    if(G.ammo<=0){
+      hint.textContent='Sem munições! Botão direito para responder a uma questão.';
+      return;
+    }
+    G.ammo--;
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    G.shots.push({x:mx,y:my,t:Date.now()});
+    checkHit(mx,my);
+  });
+
+  canvas.addEventListener('contextmenu',e=>{
+    e.preventDefault();
+    if(!G.started||!gameRunning) return;
+    showQuestion();
+  });
+
+  // Cursor
+  canvas.style.cursor='none';
+
+  // Draw start screen
+  function drawStartScreen(){
+    drawBackground();
+    const w=canvas.width, h=canvas.height;
+    ctx.save();
+    ctx.font='bold 42px "Orbitron", monospace';
+    const grd=ctx.createLinearGradient(w/2-200,0,w/2+200,0);
+    grd.addColorStop(0,'#FFD700');grd.addColorStop(0.5,'#FFF');grd.addColorStop(1,'#FFD700');
+    ctx.fillStyle=grd;
+    ctx.textAlign='center';
+    ctx.fillText('CAÇA IMPERIAL', w/2, h/2-80);
+    ctx.font='18px "Exo 2", sans-serif';
+    ctx.fillStyle='rgba(200,220,255,0.8)';
+    ctx.fillText('Derrota os TIE Fighters e Stormtroopers!', w/2, h/2-30);
+    ctx.font='14px "Exo 2", sans-serif';
+    ctx.fillStyle='rgba(150,200,255,0.7)';
+    ctx.fillText('🖱️ Clique Esquerdo — DISPARAR', w/2, h/2+20);
+    ctx.fillText('🖱️ Clique Direito — QUESTÃO (+munições)', w/2, h/2+50);
+    ctx.font='bold 20px "Orbitron", monospace';
+    ctx.fillStyle='#FFD700';
+    ctx.fillText('[ CLIQUE PARA COMEÇAR ]', w/2, h/2+110);
+    ctx.restore();
+    requestAnimationFrame(drawStartScreen);
+  }
+
+  function startGamePlay(){
+    G.started=true;
+    gameRunning=true;
+    hint.textContent='🖱️ ESQUERDO: Disparar  |  🖱️ DIREITO: Responder questão (ganha munições)';
+    lastTime=performance.now();
+    requestAnimationFrame(gameLoop);
+  }
+
+  function resetGame(){
+    G.score=0; G.lives=3; G.ammo=5; G.wave=1;
+    G.targets=[]; G.shots=[]; G.explosions=[]; G.particles=[];
+    G.lastSpawn=0; G.spawnInterval=2500; G.questionOpen=false;
+    gameRunning=true;
+    G.started=true;
+    lastTime=performance.now();
+    requestAnimationFrame(gameLoop);
+  }
+
+  requestAnimationFrame(drawStartScreen);
+}
+</script>
+</body>
+</html>
