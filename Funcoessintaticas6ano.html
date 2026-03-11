@@ -1,0 +1,3030 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ulisses & as Funções Sintáticas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ocean-deep: #0a1628;
+  --ocean-mid: #0d2545;
+  --ocean-blue: #1a4a8a;
+  --ocean-light: #2d7dd2;
+  --gold: #f0c040;
+  --gold-dark: #c8960a;
+  --amber: #ff9f1c;
+  --copper: #b87333;
+  --sand: #f4e4b0;
+  --sea-foam: #7ececa;
+  --hero-red: #c0392b;
+  --archer-green: #27ae60;
+  --hp-red: #e74c3c;
+  --arrow-cyan: #00bcd4;
+  --white: #f8f4e8;
+  --text-dim: #a0b4cc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: var(--ocean-deep);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== ANIMATED OCEAN BACKGROUND ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(26,74,138,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(46,125,210,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(10,22,40,0.9) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--dur, 3s) ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* ===== NAV ===== */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,22,40,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(240,192,64,0.3);
+  padding: 0 20px;
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav-inner::-webkit-scrollbar { display: none; }
+
+.nav-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--gold);
+  white-space: nowrap;
+  padding: 16px 16px 16px 0;
+  border-right: 1px solid rgba(240,192,64,0.3);
+  margin-right: 8px;
+  letter-spacing: 1px;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 16px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.nav-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: var(--gold);
+  transition: width 0.3s;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  color: var(--gold);
+}
+
+.nav-btn.active::after, .nav-btn:hover::after {
+  width: 70%;
+}
+
+/* ===== SECTIONS ===== */
+.section {
+  display: none;
+  min-height: calc(100vh - 57px);
+  position: relative;
+  z-index: 1;
+}
+
+.section.active { display: block; }
+
+/* ===== HERO ===== */
+#hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  min-height: calc(100vh - 57px);
+  position: relative;
+  z-index: 1;
+}
+
+.hero-ship {
+  font-size: 6rem;
+  animation: float 4s ease-in-out infinite;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 0 30px rgba(240,192,64,0.4));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 40px rgba(240,192,64,0.5), 0 4px 20px rgba(0,0,0,0.5);
+  letter-spacing: 2px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.hero-subtitle {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  color: var(--sea-foam);
+  font-style: italic;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.hero-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.hero-card {
+  background: rgba(13,37,69,0.8);
+  border: 1px solid rgba(240,192,64,0.25);
+  border-radius: 16px;
+  padding: 28px 20px;
+  cursor: pointer;
+  transition: all 0.4s;
+  backdrop-filter: blur(10px);
+}
+
+.hero-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--gold);
+  box-shadow: 0 20px 60px rgba(240,192,64,0.2);
+  background: rgba(26,74,138,0.5);
+}
+
+.hero-card-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.hero-card-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.hero-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+/* ===== STUDY SECTION ===== */
+#study { padding: 40px 20px; }
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.section-subtitle {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.study-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.func-card {
+  background: rgba(13,37,69,0.85);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s;
+  backdrop-filter: blur(10px);
+}
+
+.func-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(240,192,64,0.5);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.func-card-header {
+  padding: 20px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.func-icon {
+  font-size: 2rem;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.func-card-header h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  color: var(--gold);
+}
+
+.func-tag {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-top: 4px;
+  display: inline-block;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.func-card-body {
+  padding: 18px 24px 20px;
+}
+
+.func-definition {
+  font-family: 'Crimson Text', serif;
+  font-size: 1rem;
+  color: #c8d8ec;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.func-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.func-features li {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.func-features li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-size: 0.7rem;
+  top: 1px;
+}
+
+.func-example {
+  background: rgba(240,192,64,0.08);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 10px 10px 0;
+  padding: 10px 14px;
+  font-family: 'Crimson Text', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--sand);
+}
+
+.func-example .highlight {
+  background: rgba(240,192,64,0.25);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* Colors per function */
+.color-sujeito { background: rgba(45,125,210,0.2); }
+.tag-sujeito { background: rgba(45,125,210,0.3); color: #7dc8ff; }
+.color-vocativo { background: rgba(155,89,182,0.2); }
+.tag-vocativo { background: rgba(155,89,182,0.3); color: #d7a8f0; }
+.color-predicado { background: rgba(39,174,96,0.2); }
+.tag-predicado { background: rgba(39,174,96,0.3); color: #7ddd9f; }
+.color-cd { background: rgba(230,126,34,0.2); }
+.tag-cd { background: rgba(230,126,34,0.3); color: #f5b06e; }
+.color-ci { background: rgba(231,76,60,0.2); }
+.tag-ci { background: rgba(231,76,60,0.3); color: #f5938c; }
+.color-co { background: rgba(241,196,15,0.2); }
+.tag-co { background: rgba(241,196,15,0.3); color: #f5de6e; }
+.color-cap { background: rgba(52,152,219,0.2); }
+.tag-cap { background: rgba(52,152,219,0.3); color: #8dc8f5; }
+.color-ps { background: rgba(26,188,156,0.2); }
+.tag-ps { background: rgba(26,188,156,0.3); color: #7de8d2; }
+.color-mod { background: rgba(149,165,166,0.2); }
+.tag-mod { background: rgba(149,165,166,0.3); color: #c8d8da; }
+
+/* ===== TRAINING SECTION ===== */
+#training { padding: 40px 20px; }
+
+.training-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.progress-bar-wrap {
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  height: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ocean-light), var(--gold));
+  border-radius: 20px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+.question-card {
+  background: rgba(13,37,69,0.9);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 24px;
+  padding: 36px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(15px);
+}
+
+.question-num {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.question-text {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.3rem;
+  color: var(--white);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.question-sentence {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--sea-foam);
+  background: rgba(126,206,202,0.08);
+  border-left: 3px solid var(--sea-foam);
+  padding: 12px 18px;
+  border-radius: 0 12px 12px 0;
+  margin-bottom: 28px;
+}
+
+.question-sentence .underline {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.option-btn {
+  background: rgba(26,74,138,0.3);
+  border: 1px solid rgba(45,125,210,0.3);
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: var(--white);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.option-btn:hover:not(:disabled) {
+  background: rgba(45,125,210,0.4);
+  border-color: var(--ocean-light);
+  transform: translateX(4px);
+}
+
+.option-btn.correct {
+  background: rgba(39,174,96,0.3);
+  border-color: var(--archer-green);
+  color: #7ddd9f;
+}
+
+.option-btn.wrong {
+  background: rgba(192,57,43,0.3);
+  border-color: var(--hero-red);
+  color: #f5938c;
+}
+
+.feedback-box {
+  margin-top: 20px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  font-family: 'Crimson Text', serif;
+  font-size: 1rem;
+  display: none;
+}
+
+.feedback-box.correct {
+  background: rgba(39,174,96,0.15);
+  border: 1px solid rgba(39,174,96,0.4);
+  color: #7ddd9f;
+  display: block;
+}
+
+.feedback-box.wrong {
+  background: rgba(192,57,43,0.15);
+  border: 1px solid rgba(192,57,43,0.4);
+  color: #f5938c;
+  display: block;
+}
+
+.next-btn, .primary-btn {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  border: none;
+  border-radius: 14px;
+  padding: 14px 32px;
+  color: var(--ocean-deep);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 20px;
+  letter-spacing: 0.5px;
+}
+
+.next-btn:hover, .primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(240,192,64,0.4);
+}
+
+.score-display {
+  text-align: center;
+  padding: 40px;
+  background: rgba(13,37,69,0.9);
+  border-radius: 24px;
+  border: 1px solid rgba(240,192,64,0.3);
+}
+
+.score-number {
+  font-family: 'Cinzel', serif;
+  font-size: 5rem;
+  color: var(--gold);
+  font-weight: 900;
+  line-height: 1;
+  margin: 20px 0;
+  text-shadow: 0 0 40px rgba(240,192,64,0.5);
+}
+
+.score-label {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.2rem;
+  color: var(--text-dim);
+}
+
+/* ===== TEST SECTION ===== */
+#test { padding: 40px 20px; }
+
+.test-container { max-width: 800px; margin: 0 auto; }
+
+.test-timer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(13,37,69,0.8);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 14px;
+  padding: 12px 20px;
+  margin-bottom: 24px;
+}
+
+.timer-display {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+
+.timer-display.urgent { color: var(--hp-red); animation: pulse 0.5s ease-in-out infinite; }
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.test-score-live {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* ===== GAME SECTION ===== */
+#game { padding: 20px; }
+
+.game-container { max-width: 1000px; margin: 0 auto; }
+
+/* Character Select */
+.char-select {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin: 30px 0;
+  flex-wrap: wrap;
+}
+
+.char-card {
+  background: rgba(13,37,69,0.85);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 24px;
+  padding: 32px 28px;
+  cursor: pointer;
+  transition: all 0.4s;
+  text-align: center;
+  width: 220px;
+  backdrop-filter: blur(15px);
+}
+
+.char-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.char-card.warrior:hover, .char-card.warrior.selected {
+  border-color: var(--hero-red);
+  box-shadow: 0 0 40px rgba(192,57,43,0.4);
+}
+
+.char-card.archer:hover, .char-card.archer.selected {
+  border-color: var(--archer-green);
+  box-shadow: 0 0 40px rgba(39,174,96,0.4);
+}
+
+.char-emoji { font-size: 4rem; margin-bottom: 14px; }
+.char-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.char-card.warrior .char-name { color: #ff6b6b; }
+.char-card.archer .char-name { color: #6bff9e; }
+
+.char-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.stat-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-label { width: 60px; text-align: right; }
+
+.stat-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s;
+}
+
+/* Game HUD */
+.game-hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  background: rgba(10,22,40,0.95);
+  border: 1px solid rgba(240,192,64,0.25);
+  border-radius: 16px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+}
+
+.hud-stat { display: flex; flex-direction: column; gap: 4px; }
+
+.hud-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+}
+
+.hud-bar-wrap {
+  height: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.hud-bar-hp {
+  height: 100%;
+  background: linear-gradient(90deg, #c0392b, #e74c3c);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.hud-bar-arrow {
+  height: 100%;
+  background: linear-gradient(90deg, #0097a7, #00bcd4);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.hud-center {
+  text-align: center;
+}
+
+.hud-level {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  color: var(--gold);
+}
+
+.hud-score-game {
+  font-size: 1.5rem;
+  font-family: 'Cinzel', serif;
+  color: var(--white);
+}
+
+.hud-right { text-align: right; }
+.hud-right .hud-bar-wrap { margin-left: auto; }
+
+/* GAME CANVAS AREA */
+.game-canvas-wrap {
+  position: relative;
+  background: rgba(5,15,30,0.95);
+  border: 1px solid rgba(45,125,210,0.3);
+  border-radius: 16px;
+  overflow: hidden;
+  height: 380px;
+  margin-bottom: 16px;
+}
+
+canvas#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Game Question overlay */
+.game-question-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10,22,40,0.97);
+  border-top: 2px solid rgba(240,192,64,0.4);
+  padding: 16px 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.game-question-overlay.visible {
+  transform: translateY(0);
+}
+
+.game-q-type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.game-q-type.hp-type { color: var(--hp-red); }
+.game-q-type.arrow-type { color: var(--arrow-cyan); }
+
+.game-q-text {
+  font-family: 'Crimson Text', serif;
+  font-size: 1.1rem;
+  color: var(--white);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.game-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.game-opt-btn {
+  background: rgba(26,74,138,0.4);
+  border: 1px solid rgba(45,125,210,0.4);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--white);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.game-opt-btn:hover:not(:disabled) {
+  background: rgba(45,125,210,0.5);
+  border-color: var(--ocean-light);
+}
+
+.game-opt-btn.correct {
+  background: rgba(39,174,96,0.4);
+  border-color: var(--archer-green);
+}
+
+.game-opt-btn.wrong {
+  background: rgba(192,57,43,0.4);
+  border-color: var(--hero-red);
+}
+
+.game-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  text-shadow: 0 0 30px rgba(240,192,64,0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.game-message.show {
+  opacity: 1;
+  animation: messageFloat 1.5s ease-out forwards;
+}
+
+@keyframes messageFloat {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+  50% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+}
+
+.game-over-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,22,40,0.97);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 20;
+}
+
+.game-over-screen.active { display: flex; }
+
+.game-over-title {
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.game-over-score {
+  font-family: 'Cinzel', serif;
+  font-size: 4rem;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+/* ===== UTILITIES ===== */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid rgba(240,192,64,0.4);
+  border-radius: 14px;
+  padding: 14px 28px;
+  color: var(--gold);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.secondary-btn:hover {
+  background: rgba(240,192,64,0.1);
+  border-color: var(--gold);
+}
+
+.hidden { display: none !important; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .options-grid { grid-template-columns: 1fr; }
+  .game-options { grid-template-columns: 1fr 1fr; }
+  .char-select { flex-direction: column; align-items: center; }
+  .study-grid { grid-template-columns: 1fr; }
+  .game-hud { grid-template-columns: 1fr 1fr; }
+  .hud-center { grid-column: span 2; order: -1; }
+}
+
+/* Enemy health bar */
+.enemy-hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.enemy-name-hud {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  color: #ff6b6b;
+  min-width: 80px;
+  text-align: right;
+}
+
+.enemy-bar-wrap {
+  width: 200px;
+  height: 10px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.enemy-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b0000, #c0392b);
+  border-radius: 5px;
+  transition: width 0.4s;
+}
+
+.enemy-hp-text {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  min-width: 50px;
+}
+
+/* ===== SCROLL BAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--ocean-deep); }
+::-webkit-scrollbar-thumb { background: var(--ocean-blue); border-radius: 3px; }
+
+</style>
+</head>
+<body>
+
+<!-- Stars background -->
+<div class="stars" id="starsContainer"></div>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">⚓ Ulisses</div>
+    <button class="nav-btn active" onclick="showSection('hero')">Início</button>
+    <button class="nav-btn" onclick="showSection('study')">📖 Estudo</button>
+    <button class="nav-btn" onclick="showSection('training')">✏️ Treino</button>
+    <button class="nav-btn" onclick="showSection('test')">📋 Teste</button>
+    <button class="nav-btn" onclick="showSection('game')">⚔️ Jogo</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="section active">
+  <div class="hero-ship">⛵</div>
+  <h1 class="hero-title">Funções Sintáticas</h1>
+  <p class="hero-subtitle">A Odisseia da Gramática • 6.º Ano</p>
+  <div class="hero-cards">
+    <div class="hero-card" onclick="showSection('study')">
+      <div class="hero-card-icon">📖</div>
+      <div class="hero-card-title">Estudo</div>
+      <div class="hero-card-desc">Aprende todas as funções sintáticas com exemplos e dicas</div>
+    </div>
+    <div class="hero-card" onclick="showSection('training')">
+      <div class="hero-card-icon">✏️</div>
+      <div class="hero-card-title">Treino</div>
+      <div class="hero-card-desc">30 perguntas para praticar ao teu ritmo com feedback</div>
+    </div>
+    <div class="hero-card" onclick="showSection('test')">
+      <div class="hero-card-icon">📋</div>
+      <div class="hero-card-title">Teste Final</div>
+      <div class="hero-card-desc">Avaliação cronometrada com nota final</div>
+    </div>
+    <div class="hero-card" onclick="showSection('game')">
+      <div class="hero-card-icon">⚔️</div>
+      <div class="hero-card-title">Aventura</div>
+      <div class="hero-card-desc">Joga como Guerreiro ou Arqueiro — responde para atacar!</div>
+    </div>
+  </div>
+</section>
+
+<!-- STUDY -->
+<section id="study" class="section">
+  <div class="section-header">
+    <h2 class="section-title">⚓ Funções Sintáticas</h2>
+    <p class="section-subtitle">Estuda cada função antes de partir em aventura</p>
+  </div>
+  <div class="study-grid" id="studyGrid"></div>
+</section>
+
+<!-- TRAINING -->
+<section id="training" class="section">
+  <div class="section-header">
+    <h2 class="section-title">✏️ Zona de Treino</h2>
+    <p class="section-subtitle">30 perguntas para dominar as funções sintáticas</p>
+  </div>
+  <div class="training-container" id="trainingContainer">
+    <div id="trainingQuiz"></div>
+  </div>
+</section>
+
+<!-- TEST -->
+<section id="test" class="section">
+  <div class="section-header">
+    <h2 class="section-title">📋 Teste Final</h2>
+    <p class="section-subtitle">20 questões • 10 minutos • Avaliação rigorosa</p>
+  </div>
+  <div class="test-container" id="testContainer">
+    <div id="testQuiz"></div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game" class="section">
+  <div class="section-header">
+    <h2 class="section-title">⚔️ A Aventura de Ulisses</h2>
+    <p class="section-subtitle">Move com WASD · Ataca com ESPAÇO · Responde para ganhar poderes!</p>
+  </div>
+  <div class="game-container" id="gameContainer">
+
+    <!-- CHARACTER SELECT -->
+    <div id="gameCharSelect">
+      <p style="text-align:center;color:var(--text-dim);margin-bottom:20px;font-family:'Crimson Text',serif;font-size:1.1rem;font-style:italic;">
+        "Escolhe o teu herói e parte para a batalha sintática!"
+      </p>
+      <div class="char-select">
+        <div class="char-card warrior" onclick="selectChar('warrior')">
+          <div class="char-emoji">🗡️</div>
+          <div class="char-name">Guerreiro</div>
+          <p style="font-size:0.82rem;color:var(--text-dim);margin-top:8px;line-height:1.5">
+            Ataque corpo-a-corpo poderoso.<br>
+            Responde certo → <strong style="color:#ff6b6b">+Vida</strong><br>
+            Erras → <strong style="color:#f5938c">−Vida</strong>
+          </p>
+          <div class="char-stats" style="margin-top:14px">
+            <div class="stat-bar"><span class="stat-label">❤️ Vida</span><div class="stat-track"><div class="stat-fill" style="width:100%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div></div>
+            <div class="stat-bar"><span class="stat-label">⚡ Poder</span><div class="stat-track"><div class="stat-fill" style="width:85%;background:linear-gradient(90deg,#e67e22,#f39c12)"></div></div></div>
+            <div class="stat-bar"><span class="stat-label">🏹 Setas</span><div class="stat-track"><div class="stat-fill" style="width:30%;background:linear-gradient(90deg,#0097a7,#00bcd4)"></div></div></div>
+          </div>
+        </div>
+        <div class="char-card archer" onclick="selectChar('archer')">
+          <div class="char-emoji">🏹</div>
+          <div class="char-name">Arqueiro</div>
+          <p style="font-size:0.82rem;color:var(--text-dim);margin-top:8px;line-height:1.5">
+            Ataque à distância preciso.<br>
+            Responde certo → <strong style="color:#6bff9e">+Setas</strong><br>
+            Erras → <strong style="color:#f5938c">−Vida</strong>
+          </p>
+          <div class="char-stats" style="margin-top:14px">
+            <div class="stat-bar"><span class="stat-label">❤️ Vida</span><div class="stat-track"><div class="stat-fill" style="width:65%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div></div>
+            <div class="stat-bar"><span class="stat-label">⚡ Poder</span><div class="stat-track"><div class="stat-fill" style="width:55%;background:linear-gradient(90deg,#e67e22,#f39c12)"></div></div></div>
+            <div class="stat-bar"><span class="stat-label">🏹 Setas</span><div class="stat-track"><div class="stat-fill" style="width:100%;background:linear-gradient(90deg,#0097a7,#00bcd4)"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:0.78rem;color:var(--text-dim);margin-top:16px">
+        🎮 <strong>WASD</strong> ou <strong>← ↑ → ↓</strong> para mover &nbsp;|&nbsp; <strong>ESPAÇO</strong> para atacar &nbsp;|&nbsp; Responde às perguntas para ganhar poderes!
+      </p>
+    </div>
+
+    <!-- GAME ARENA -->
+    <div id="gameArena" class="hidden">
+      <!-- TOP HUD -->
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-bottom:8px;background:rgba(5,12,25,0.95);border:1px solid rgba(240,192,64,0.2);border-radius:14px;padding:10px 16px">
+        <!-- HP -->
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+            <span>❤️ Vida</span><span id="hpText">100/100</span>
+          </div>
+          <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden">
+            <div id="hpBar" style="height:100%;width:100%;background:linear-gradient(90deg,#8b0000,#e74c3c);border-radius:5px;transition:width 0.3s"></div>
+          </div>
+        </div>
+        <!-- Center info -->
+        <div style="text-align:center;padding:0 12px">
+          <div id="levelText" style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold)">Nível 1</div>
+          <div id="gameScore" style="font-family:'Cinzel',serif;font-size:1.6rem;color:white;line-height:1">0</div>
+          <div style="font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">pontos</div>
+        </div>
+        <!-- Arrows -->
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+            <span>🏹 Setas</span><span id="arrowText">10/10</span>
+          </div>
+          <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden">
+            <div id="arrowBar" style="height:100%;width:100%;background:linear-gradient(90deg,#0097a7,#00bcd4);border-radius:5px;transition:width 0.3s"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CANVAS WRAPPER -->
+      <div style="position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(240,192,64,0.25)">
+        <canvas id="gameCanvas" style="display:block;width:100%;image-rendering:pixelated"></canvas>
+
+        <!-- Floating damage/score texts -->
+        <div id="floatTexts" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
+
+        <!-- GAME OVER -->
+        <div id="gameOverScreen" style="display:none;position:absolute;inset:0;background:rgba(5,10,20,0.97);flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:30">
+          <div style="font-size:3.5rem;margin-bottom:10px" id="gameOverEmoji">💀</div>
+          <div id="gameOverTitle" style="font-family:'Cinzel',serif;font-size:2rem;color:var(--gold);margin-bottom:8px">Caíste em Batalha!</div>
+          <div id="gameOverScore" style="font-family:'Cinzel',serif;font-size:3.5rem;color:white;line-height:1">0</div>
+          <div style="font-family:'Crimson Text',serif;color:var(--text-dim);margin-bottom:28px;font-size:1rem">pontos conquistados</div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <button class="primary-btn" onclick="restartGame()">⚔️ Recomeçar</button>
+            <button class="secondary-btn" onclick="showSection('study')">📖 Estudar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUESTION PANEL -->
+      <div id="gameQPanel" style="display:none;margin-top:10px;background:rgba(5,12,25,0.98);border:2px solid rgba(240,192,64,0.35);border-radius:16px;padding:18px 20px;backdrop-filter:blur(20px)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div id="gameQBadge" style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:4px 12px;border-radius:20px">⚡ GANHAR VIDA</div>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+          <div id="gameQTimer" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold)">8</div>
+        </div>
+        <div id="gameQText" style="font-family:'Crimson Text',serif;font-size:1.05rem;color:var(--white);line-height:1.5;margin-bottom:14px"></div>
+        <div id="gameQOptions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+      </div>
+
+      <!-- Controls hint -->
+      <div style="display:flex;gap:16px;justify-content:center;margin-top:10px;flex-wrap:wrap">
+        <span style="font-size:0.72rem;color:var(--text-dim)">🎮 <strong style="color:var(--gold)">WASD/Setas</strong> mover</span>
+        <span style="font-size:0.72rem;color:var(--text-dim)">⚔️ <strong style="color:var(--gold)">ESPAÇO</strong> atacar</span>
+        <span style="font-size:0.72rem;color:var(--text-dim)">💡 Responde às perguntas para recuperar!</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ===== STARS =====
+(function() {
+  const c = document.getElementById('starsContainer');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`;
+    c.appendChild(s);
+  }
+})();
+
+// ===== DATA =====
+const FUNCOES = [
+  {
+    id: 'sujeito', name: 'Sujeito', icon: '👤', colorClass: 'color-sujeito', tagClass: 'tag-sujeito', tag: 'Grupo Nominal',
+    definition: 'O sujeito é o ser sobre o qual se diz alguma coisa. É a função sintática sobre quem recai a ação ou estado expresso pelo verbo.',
+    features: [
+      'Normalmente é um grupo nominal',
+      'Aparece à esquerda do verbo (mas pode surgir depois)',
+      'Identificado com Quem / O que + verbo?',
+      'Substituído por: ele / ela / eles / elas',
+      'Sujeito simples: um único grupo nominal',
+      'Sujeito composto: mais do que um grupo nominal'
+    ],
+    example: '<span class="highlight">Os alunos</span> sentaram-se. / Chegaram <span class="highlight">os alunos</span>.'
+  },
+  {
+    id: 'vocativo', name: 'Vocativo', icon: '📢', colorClass: 'color-vocativo', tagClass: 'tag-vocativo', tag: 'Chamamento',
+    definition: 'O vocativo é a palavra ou expressão que indica o interlocutor a quem nos dirigimos diretamente. Serve para chamar alguém.',
+    features: [
+      'Não é obrigatório (há frases sem vocativo)',
+      'Pode surgir no início, meio ou fim da frase',
+      'Pode vir acompanhado da interjeição Ó',
+      'Na escrita, é separado por vírgulas'
+    ],
+    example: '<span class="highlight">Joana e André</span>, sentem-se! / Sentem-se, ó <span class="highlight">Joana e André</span>!'
+  },
+  {
+    id: 'predicado', name: 'Predicado', icon: '⚡', colorClass: 'color-predicado', tagClass: 'tag-predicado', tag: 'Grupo Verbal',
+    definition: 'O predicado é aquilo que se diz sobre o sujeito. É uma função sintática desempenhada pelo grupo verbal.',
+    features: [
+      'Pode ser constituído apenas pelo verbo',
+      'Pode ser constituído pelo verbo + complementos',
+      'Verbo em tempo simples ou composto',
+      'Inclui todos os complementos do verbo'
+    ],
+    example: 'Os alunos <span class="highlight">chegaram</span>. / A diretora <span class="highlight">falou aos alunos</span>.'
+  },
+  {
+    id: 'cd', name: 'Complemento Direto', icon: '🎯', colorClass: 'color-cd', tagClass: 'tag-cd', tag: 'Exigido pelo verbo',
+    definition: 'O complemento direto é uma função sintática exigida pelo verbo. Se o retirarmos, o sentido do verbo fica incompleto.',
+    features: [
+      'Faz parte do predicado',
+      'Em geral, é um grupo nominal',
+      'Identificado com verbo + o quê? / quem?',
+      'Substituído pelo pronome: o / a / os / as',
+      'Pode ser substituído por: me, te, se, nos, vos'
+    ],
+    example: 'O aluno ocupou <span class="highlight">o seu lugar</span>. → Ocupou o quê? → o seu lugar'
+  },
+  {
+    id: 'ci', name: 'Complemento Indireto', icon: '🔄', colorClass: 'color-ci', tagClass: 'tag-ci', tag: 'Preposição a/para',
+    definition: 'O complemento indireto é uma função sintática exigida pelo verbo. O seu sentido fica incompleto sem ele.',
+    features: [
+      'Faz parte do predicado',
+      'Identificado com verbo + a quem?',
+      'Substituído por: lhe / lhes',
+      'Pode ser substituído por: me, te, nos, vos'
+    ],
+    example: 'Os alunos obedeceram <span class="highlight">à diretora</span>. → Obedeceram a quem? → à diretora'
+  },
+  {
+    id: 'co', name: 'Complemento Oblíquo', icon: '📍', colorClass: 'color-co', tagClass: 'tag-co', tag: 'Grupo preposicional',
+    definition: 'O complemento oblíquo faz parte do predicado, é exigido pelo verbo, mas não pode ser substituído por o/a/os/as nem por lhe/lhes.',
+    features: [
+      'Faz parte do predicado',
+      'É exigido pelo verbo',
+      'Não se substitui por o/a/lhe',
+      'Constituído por grupo preposicional ou adverbial'
+    ],
+    example: 'Eu vivo <span class="highlight">na Guarda</span>. / A Sandra gosta <span class="highlight">de uvas</span>.'
+  },
+  {
+    id: 'cap', name: 'Compl. Agente da Passiva', icon: '🔁', colorClass: 'color-cap', tagClass: 'tag-cap', tag: 'Frase passiva',
+    definition: 'O complemento agente da passiva surge apenas em frases passivas e identifica quem pratica a ação.',
+    features: [
+      'Faz parte do predicado',
+      'Surge apenas em frases passivas',
+      'Iniciado pela preposição por (pelo/pela/pelos/pelas)',
+      'Constituído por um grupo preposicional'
+    ],
+    example: 'O cachecol foi levado <span class="highlight">pelo vento</span>. / ...agarrado <span class="highlight">pela Alice</span>.'
+  },
+  {
+    id: 'ps', name: 'Predicativo do Sujeito', icon: '✨', colorClass: 'color-ps', tagClass: 'tag-ps', tag: 'Verbo copulativo',
+    definition: 'O predicativo do sujeito ocorre à direita de um verbo copulativo e atribui uma característica ao sujeito ou localiza-o.',
+    features: [
+      'Faz parte do predicado',
+      'É exigido pelo verbo (não pode ser retirado)',
+      'Ocorre à direita de verbos copulativos',
+      'Verbos copulativos: ser, estar, parecer, ficar, continuar...'
+    ],
+    example: 'O João parece <span class="highlight">muito feliz</span>. / O João está <span class="highlight">ali</span>.'
+  },
+  {
+    id: 'mod', name: 'Modificador do Grupo Verbal', icon: '🌊', colorClass: 'color-mod', tagClass: 'tag-mod', tag: 'Opcional',
+    definition: 'O modificador do grupo verbal faz parte do predicado, mas não é exigido pelo verbo — a frase faz sentido sem ele.',
+    features: [
+      'Faz parte do predicado',
+      'Não é exigido pelo verbo (frase faz sentido sem ele)',
+      'Pode ocorrer em diferentes posições na frase',
+      'Introduz informações de lugar, tempo, modo...'
+    ],
+    example: 'A turma conviveu <span class="highlight">no parque</span>. / Todos conviveram <span class="highlight">animadamente</span>.'
+  }
+];
+
+// ===== ALL QUESTIONS POOL =====
+// REGRA: a pergunta NUNCA nomeia a função que é a resposta.
+// As frases com sublinhado pedem "qual a função de X?" — as opções incluem várias funções plausíveis.
+// As perguntas teóricas testam conceitos sem revelar a resposta no enunciado.
+const ALL_QUESTIONS = [
+
+  // ── SUJEITO ──
+  {
+    q: 'Qual a função sintática de "os marinheiros" nesta frase?',
+    s: '<span class="underline">Os marinheiros</span> partiram ao amanhecer.',
+    ans: 'Sujeito',
+    opts: ['Sujeito','Complemento Direto','Predicativo do Sujeito','Vocativo'],
+    exp: '"Os marinheiros" é o ser sobre o qual se diz algo — responde a "Quem partiu?" → sujeito.'
+  },
+  {
+    q: 'Qual a função sintática de "o vento" nesta frase?',
+    s: 'De repente, <span class="underline">o vento</span> derrubou as velas.',
+    ans: 'Sujeito',
+    opts: ['Sujeito','Complemento Oblíquo','Modificador','Complemento Direto'],
+    exp: '"O vento" responde a "Quem derrubou as velas?" — é o sujeito.'
+  },
+  {
+    q: 'Que pergunta fazes ao verbo para descobrir o sujeito?',
+    s: '',
+    ans: 'Quem / O que + verbo?',
+    opts: ['Verbo + o quê?','Verbo + a quem?','Quem / O que + verbo?','Verbo + onde?'],
+    exp: 'Para encontrar o sujeito perguntamos "Quem?" ou "O que?" antes do verbo.'
+  },
+  {
+    q: 'A frase "A Ulisses e a Penélope reencontraram-se" tem que tipo de sujeito?',
+    s: '',
+    ans: 'Sujeito composto',
+    opts: ['Sujeito simples','Sujeito composto','Sem sujeito','Vocativo'],
+    exp: 'Há dois grupos nominais: "Ulisses" e "Penélope" — sujeito composto.'
+  },
+  {
+    q: 'Por que pronome podes substituir o sujeito para o confirmar?',
+    s: 'As sereias encantavam os navegadores.',
+    ans: 'Elas',
+    opts: ['Elas','Lhes','As','Se'],
+    exp: '"As sereias" → substitui-se por "Elas" → confirma que é sujeito.'
+  },
+  {
+    q: 'Qual a função sintática de "o Ciclope" nesta frase?',
+    s: 'Na gruta escura, <span class="underline">o Ciclope</span> dormia profundamente.',
+    ans: 'Sujeito',
+    opts: ['Sujeito','Complemento Oblíquo','Predicativo do Sujeito','Modificador'],
+    exp: '"O Ciclope" responde a "Quem dormia?" — é o sujeito.'
+  },
+
+  // ── VOCATIVO ──
+  {
+    q: 'Qual a função sintática de "Telémaco" nesta frase?',
+    s: 'Senta-te, <span class="underline">Telémaco</span>, e ouve-me.',
+    ans: 'Vocativo',
+    opts: ['Sujeito','Vocativo','Complemento Direto','Modificador'],
+    exp: '"Telémaco" é a pessoa a quem nos dirigimos diretamente — vocativo, separado por vírgulas.'
+  },
+  {
+    q: 'Qual a função sintática de "ó Penélope" nesta frase?',
+    s: 'Espera por mim, <span class="underline">ó Penélope</span>!',
+    ans: 'Vocativo',
+    opts: ['Sujeito','Predicativo do Sujeito','Vocativo','Complemento Indireto'],
+    exp: '"Ó Penélope" é quem estamos a chamar — vocativo acompanhado da interjeição "ó".'
+  },
+  {
+    q: 'O que separa OBRIGATORIAMENTE o vocativo do resto da frase, na escrita?',
+    s: '',
+    ans: 'Vírgulas',
+    opts: ['Dois pontos','Travessão','Vírgulas','Ponto e vírgula'],
+    exp: 'Na escrita, o vocativo é sempre separado por vírgulas.'
+  },
+  {
+    q: 'Qual destas frases tem um vocativo?',
+    s: '',
+    ans: 'Ulisses, volta para casa!',
+    opts: ['Ulisses partiu para a guerra.','Ulisses, volta para casa!','Ulisses era corajoso.','Vi Ulisses no porto.'],
+    exp: '"Ulisses, volta para casa!" — "Ulisses" está separado por vírgula e é a pessoa chamada.'
+  },
+
+  // ── PREDICADO ──
+  {
+    q: 'Qual a função sintática de "navegou pelos mares" nesta frase?',
+    s: 'Ulisses <span class="underline">navegou pelos mares</span> durante dez anos.',
+    ans: 'Predicado',
+    opts: ['Sujeito','Predicado','Complemento Direto','Modificador'],
+    exp: '"Navegou pelos mares" é o que se diz sobre Ulisses — é o predicado (grupo verbal).'
+  },
+  {
+    q: 'O predicado é sempre desempenhado por um…',
+    s: '',
+    ans: 'Grupo verbal',
+    opts: ['Grupo nominal','Grupo verbal','Grupo adjetival','Grupo preposicional'],
+    exp: 'O predicado é sempre desempenhado pelo grupo verbal.'
+  },
+  {
+    q: 'Qual a função sintática de "tinham chegado" nesta frase?',
+    s: 'Os nautas <span class="underline">tinham chegado</span> exaustos.',
+    ans: 'Predicado',
+    opts: ['Sujeito','Modificador','Predicado','Complemento Direto'],
+    exp: '"Tinham chegado" (verbo em tempo composto) é o predicado — o que se diz sobre os nautas.'
+  },
+
+  // ── COMPLEMENTO DIRETO ──
+  {
+    q: 'Qual a função sintática de "o mapa" nesta frase?',
+    s: 'Ulisses guardou <span class="underline">o mapa</span>.',
+    ans: 'Complemento Direto',
+    opts: ['Sujeito','Complemento Direto','Complemento Indireto','Predicativo do Sujeito'],
+    exp: '"O mapa" responde a "Guardou o quê?" e substitui-se por "o" → complemento direto.'
+  },
+  {
+    q: 'Qual a função sintática de "as sereias" nesta frase?',
+    s: 'Os marinheiros ouviram <span class="underline">as sereias</span>.',
+    ans: 'Complemento Direto',
+    opts: ['Sujeito','Complemento Direto','Complemento Oblíquo','Modificador'],
+    exp: '"As sereias" responde a "Ouviram quem?" e substitui-se por "as" → complemento direto.'
+  },
+  {
+    q: 'Como podes confirmar que uma expressão é complemento direto?',
+    s: '',
+    ans: 'Substituindo-a por o / a / os / as',
+    opts: ['Substituindo-a por lhe / lhes','Substituindo-a por o / a / os / as','Retirando-a sem alterar o sentido','Substituindo-a por ele / ela'],
+    exp: 'O complemento direto substitui-se pelos pronomes o, a, os, as.'
+  },
+  {
+    q: 'Qual a função sintática de "a mensagem" nesta frase?',
+    s: 'Hermes entregou <span class="underline">a mensagem</span> aos deuses.',
+    ans: 'Complemento Direto',
+    opts: ['Complemento Direto','Complemento Indireto','Sujeito','Complemento Oblíquo'],
+    exp: '"A mensagem" responde a "Entregou o quê?" → complemento direto (substitui-se por "a").'
+  },
+  {
+    q: '"O rei leu o pergaminho." Como se reescreve substituindo o complemento direto?',
+    s: '',
+    ans: 'O rei leu-o.',
+    opts: ['O rei leu-lhe.','O rei leu-o.','O rei leu-se.','O rei leu-nos.'],
+    exp: '"O pergaminho" é complemento direto → substitui-se por "o" → "leu-o".'
+  },
+
+  // ── COMPLEMENTO INDIRETO ──
+  {
+    q: 'Qual a função sintática de "aos deuses" nesta frase?',
+    s: 'Ulisses pediu ajuda <span class="underline">aos deuses</span>.',
+    ans: 'Complemento Indireto',
+    opts: ['Complemento Direto','Complemento Indireto','Complemento Oblíquo','Modificador'],
+    exp: '"Aos deuses" responde a "Pediu a quem?" e substitui-se por "lhes" → complemento indireto.'
+  },
+  {
+    q: 'Como podes confirmar que uma expressão é complemento indireto?',
+    s: '',
+    ans: 'Substituindo-a por lhe / lhes',
+    opts: ['Substituindo-a por o / a / os / as','Substituindo-a por lhe / lhes','Retirando-a sem perda de sentido','Usando a pergunta Quem + verbo?'],
+    exp: 'O complemento indireto substitui-se pelos pronomes lhe / lhes.'
+  },
+  {
+    q: 'Qual a função sintática de "à deusa Atena" nesta frase?',
+    s: 'O herói agradeceu <span class="underline">à deusa Atena</span>.',
+    ans: 'Complemento Indireto',
+    opts: ['Complemento Direto','Predicativo do Sujeito','Complemento Indireto','Sujeito'],
+    exp: '"À deusa Atena" responde a "Agradeceu a quem?" → complemento indireto (substitui-se por "lhe").'
+  },
+  {
+    q: '"A mãe contou a história aos filhos." Como se reescreve substituindo o complemento indireto?',
+    s: '',
+    ans: 'A mãe contou-lhes a história.',
+    opts: ['A mãe contou-a aos filhos.','A mãe contou-lhes a história.','A mãe contou-os a história.','A mãe contou-se a história.'],
+    exp: '"Aos filhos" é complemento indireto → substitui-se por "lhes".'
+  },
+
+  // ── COMPLEMENTO OBLÍQUO ──
+  {
+    q: 'Qual a função sintática de "de Ítaca" nesta frase?',
+    s: 'Ulisses saudava <span class="underline">de Ítaca</span>. (no sentido: sentia saudades de Ítaca)',
+    ans: 'Complemento Oblíquo',
+    opts: ['Complemento Direto','Complemento Indireto','Complemento Oblíquo','Modificador'],
+    exp: '"De Ítaca" é exigido pelo verbo e não se substitui por o/a nem por lhe → complemento oblíquo.'
+  },
+  {
+    q: 'Qual a função sintática de "com a tempestade" nesta frase?',
+    s: 'Os marinheiros depararam-se <span class="underline">com a tempestade</span>.',
+    ans: 'Complemento Oblíquo',
+    opts: ['Complemento Direto','Complemento Oblíquo','Modificador','Predicativo do Sujeito'],
+    exp: '"Com a tempestade" é exigida pelo verbo "deparar-se com" e não é substituível por o/a nem lhe.'
+  },
+  {
+    q: 'Qual a DIFERENÇA entre complemento oblíquo e complemento direto?',
+    s: '',
+    ans: 'O oblíquo não se substitui por o / a / os / as',
+    opts: ['O oblíquo não faz parte do predicado','O oblíquo não se substitui por o / a / os / as','O oblíquo é sempre facultativo','O oblíquo antecede sempre o verbo'],
+    exp: 'O complemento direto substitui-se por o/a/os/as; o oblíquo não — essa é a diferença principal.'
+  },
+  {
+    q: 'Qual a função sintática de "de aventuras" nesta frase?',
+    s: 'A Penélope precisava <span class="underline">de aventuras</span>? Não — esperava.',
+    ans: 'Complemento Oblíquo',
+    opts: ['Complemento Direto','Modificador','Complemento Oblíquo','Complemento Indireto'],
+    exp: '"De aventuras" é exigida por "precisar de" e não é substituível por o/a nem lhe → oblíquo.'
+  },
+
+  // ── COMPLEMENTO AGENTE DA PASSIVA ──
+  {
+    q: 'Qual a função sintática de "pelos deuses" nesta frase?',
+    s: 'Ulisses foi protegido <span class="underline">pelos deuses</span>.',
+    ans: 'Compl. Agente da Passiva',
+    opts: ['Complemento Oblíquo','Modificador','Compl. Agente da Passiva','Complemento Indireto'],
+    exp: 'A frase está na voz passiva; "pelos deuses" indica quem pratica a ação → complemento agente da passiva.'
+  },
+  {
+    q: 'Qual a função sintática de "pela tempestade" nesta frase?',
+    s: 'A embarcação foi destruída <span class="underline">pela tempestade</span>.',
+    ans: 'Compl. Agente da Passiva',
+    opts: ['Complemento Direto','Complemento Oblíquo','Compl. Agente da Passiva','Modificador'],
+    exp: 'Frase passiva + introduzido por "pela" → complemento agente da passiva.'
+  },
+  {
+    q: 'O complemento agente da passiva é introduzido pela preposição…',
+    s: '',
+    ans: 'por (pelo / pela / pelos / pelas)',
+    opts: ['a (ao / à)','de (do / da)','em (no / na)','por (pelo / pela / pelos / pelas)'],
+    exp: 'O complemento agente da passiva começa sempre com a preposição "por" (contraída com o artigo: pelo, pela...).'
+  },
+  {
+    q: 'Em que tipo de frase existe sempre complemento agente da passiva?',
+    s: '',
+    ans: 'Frase passiva',
+    opts: ['Frase ativa','Frase passiva','Frase interrogativa','Frase exclamativa'],
+    exp: 'O complemento agente da passiva só existe em frases passivas — identifica quem pratica a ação.'
+  },
+
+  // ── PREDICATIVO DO SUJEITO ──
+  {
+    q: 'Qual a função sintática de "muito corajoso" nesta frase?',
+    s: 'Ulisses era <span class="underline">muito corajoso</span>.',
+    ans: 'Predicativo do Sujeito',
+    opts: ['Complemento Direto','Modificador','Predicativo do Sujeito','Complemento Oblíquo'],
+    exp: '"Muito corajoso" está à direita do verbo copulativo "era" e atribui uma característica ao sujeito.'
+  },
+  {
+    q: 'Qual a função sintática de "em Ítaca" nesta frase?',
+    s: 'Ulisses estava <span class="underline">em Ítaca</span>.',
+    ans: 'Predicativo do Sujeito',
+    opts: ['Modificador','Complemento Oblíquo','Predicativo do Sujeito','Complemento Direto'],
+    exp: '"Em Ítaca" localiza o sujeito e está à direita do copulativo "estar" — predicativo do sujeito.'
+  },
+  {
+    q: 'Com que tipo de verbo ocorre o predicativo do sujeito?',
+    s: '',
+    ans: 'Verbo copulativo',
+    opts: ['Verbo transitivo direto','Verbo copulativo','Verbo intransitivo','Verbo auxiliar'],
+    exp: 'O predicativo do sujeito ocorre à direita de verbos copulativos: ser, estar, parecer, ficar, continuar...'
+  },
+  {
+    q: 'Qual destes verbos é copulativo?',
+    s: '',
+    ans: 'Ficar',
+    opts: ['Comer','Correr','Ficar','Escrever'],
+    exp: '"Ficar" é copulativo (como ser, estar, parecer, continuar, andar...). Os outros são verbos de ação.'
+  },
+  {
+    q: 'Qual a função sintática de "cansada" nesta frase?',
+    s: 'Penélope ficou <span class="underline">cansada</span> de esperar.',
+    ans: 'Predicativo do Sujeito',
+    opts: ['Modificador','Complemento Direto','Predicativo do Sujeito','Sujeito'],
+    exp: '"Cansada" está à direita de "ficar" (verbo copulativo) e caracteriza o sujeito "Penélope".'
+  },
+
+  // ── MODIFICADOR DO GRUPO VERBAL ──
+  {
+    q: 'Qual a função sintática de "rapidamente" nesta frase?',
+    s: 'Os marinheiros remaram <span class="underline">rapidamente</span>.',
+    ans: 'Modificador',
+    opts: ['Complemento Oblíquo','Predicativo do Sujeito','Modificador','Complemento Direto'],
+    exp: '"Rapidamente" é facultativo — retirando-o, "Os marinheiros remaram" continua a fazer sentido.'
+  },
+  {
+    q: 'Qual a função sintática de "de manhã" nesta frase?',
+    s: 'Ulisses partiu <span class="underline">de manhã</span>.',
+    ans: 'Modificador',
+    opts: ['Complemento Oblíquo','Modificador','Complemento Indireto','Predicativo do Sujeito'],
+    exp: '"De manhã" não é exigido pelo verbo "partir" — é facultativo, logo modificador do grupo verbal.'
+  },
+  {
+    q: 'Como distingues o modificador do complemento oblíquo?',
+    s: '',
+    ans: 'O modificador pode ser retirado sem perder sentido; o oblíquo não',
+    opts: ['O modificador substitui-se por lhe; o oblíquo não','O modificador pode ser retirado sem perder sentido; o oblíquo não','O modificador precede sempre o verbo','O modificador é sempre um advérbio'],
+    exp: 'O modificador é FACULTATIVO — a frase faz sentido sem ele. O complemento oblíquo é exigido pelo verbo.'
+  },
+  {
+    q: 'Qual a função sintática de "no porto" nesta frase?',
+    s: 'Os navios atracaram <span class="underline">no porto</span>.',
+    ans: 'Complemento Oblíquo',
+    opts: ['Modificador','Complemento Oblíquo','Predicativo do Sujeito','Complemento Direto'],
+    exp: '"No porto" é exigido pelo verbo "atracar em" — sem ele, a frase perde sentido → complemento oblíquo.'
+  },
+  {
+    q: 'Qual a função sintática de "durante a noite" nesta frase?',
+    s: 'A tripulação dormiu <span class="underline">durante a noite</span>.',
+    ans: 'Modificador',
+    opts: ['Complemento Oblíquo','Complemento Direto','Modificador','Predicativo do Sujeito'],
+    exp: '"Durante a noite" não é exigido — "A tripulação dormiu" já faz sentido → modificador.'
+  },
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// ===== NAVIGATION =====
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const map = { hero: 0, study: 1, training: 2, test: 3, game: 4 };
+  if (map[id] !== undefined) navBtns[map[id]].classList.add('active');
+
+  if (id === 'study') renderStudy();
+  if (id === 'training') initTraining();
+  if (id === 'test') initTest();
+  if (id === 'game') initGame();
+  window.scrollTo(0, 0);
+}
+
+// ===== STUDY =====
+function renderStudy() {
+  const grid = document.getElementById('studyGrid');
+  if (grid.children.length > 0) return;
+  FUNCOES.forEach(f => {
+    grid.innerHTML += `
+    <div class="func-card">
+      <div class="func-card-header">
+        <div class="func-icon ${f.colorClass}">${f.icon}</div>
+        <div>
+          <h3>${f.name}</h3>
+          <span class="func-tag ${f.tagClass}">${f.tag}</span>
+        </div>
+      </div>
+      <div class="func-card-body">
+        <p class="func-definition">${f.definition}</p>
+        <ul class="func-features">${f.features.map(x=>`<li>${x}</li>`).join('')}</ul>
+        <div class="func-example">${f.example}</div>
+      </div>
+    </div>`;
+  });
+}
+
+// ===== TRAINING =====
+let trainingState = { questions: [], current: 0, score: 0, answered: false };
+
+function initTraining() {
+  trainingState.questions = shuffle(ALL_QUESTIONS).slice(0, 30);
+  trainingState.current = 0;
+  trainingState.score = 0;
+  trainingState.answered = false;
+  renderTrainingQuestion();
+}
+
+function renderTrainingQuestion() {
+  const c = trainingState;
+  if (c.current >= c.questions.length) {
+    showTrainingScore();
+    return;
+  }
+  const q = c.questions[c.current];
+  const pct = (c.current / c.questions.length * 100).toFixed(0);
+  document.getElementById('trainingContainer').innerHTML = `
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <div class="progress-text">${c.current + 1} / ${c.questions.length} • Pontos: ${c.score}</div>
+    <div class="question-card">
+      <div class="question-num">Pergunta ${c.current + 1}</div>
+      <div class="question-text">${q.q}</div>
+      ${q.s ? `<div class="question-sentence">${q.s}</div>` : ''}
+      <div class="options-grid">
+        ${shuffle(q.opts).map(o => `<button class="option-btn" onclick="answerTraining('${escQ(o)}','${escQ(q.ans)}','${escQ(q.exp)}')">${o}</button>`).join('')}
+      </div>
+      <div class="feedback-box" id="feedbackBox"></div>
+      <button class="next-btn hidden" id="nextTrainingBtn" onclick="nextTrainingQ()">Próxima →</button>
+    </div>`;
+}
+
+function escQ(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function answerTraining(chosen, correct, exp) {
+  if (trainingState.answered) return;
+  trainingState.answered = true;
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === correct) b.classList.add('correct');
+    if (b.textContent.trim() === chosen && chosen !== correct) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('feedbackBox');
+  const isCorrect = chosen === correct;
+  if (isCorrect) { trainingState.score++; fb.className = 'feedback-box correct'; fb.innerHTML = `✅ Correto! ${exp}`; }
+  else { fb.className = 'feedback-box wrong'; fb.innerHTML = `❌ Errado. A resposta certa era: <strong>${correct}</strong>. ${exp}`; }
+  document.getElementById('nextTrainingBtn').classList.remove('hidden');
+  trainingState.answered = false;
+}
+
+function nextTrainingQ() {
+  trainingState.current++;
+  trainingState.answered = false;
+  renderTrainingQuestion();
+}
+
+function showTrainingScore() {
+  const pct = Math.round(trainingState.score / trainingState.questions.length * 100);
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '⚓' : '🌊';
+  const msg = pct >= 80 ? 'Excelente! Estás pronto para a aventura!' : pct >= 60 ? 'Bom trabalho! Continua a praticar.' : 'Continua a estudar — Ulisses não desiste!';
+  document.getElementById('trainingContainer').innerHTML = `
+    <div class="score-display">
+      <div style="font-size:4rem">${emoji}</div>
+      <div class="score-number">${trainingState.score}/${trainingState.questions.length}</div>
+      <div class="score-label">${pct}% • ${msg}</div>
+      <div class="btn-row" style="justify-content:center;margin-top:24px">
+        <button class="primary-btn" onclick="initTraining()">🔄 Tentar Novamente</button>
+        <button class="secondary-btn" onclick="showSection('study')">📖 Estudar</button>
+      </div>
+    </div>`;
+}
+
+// ===== TEST =====
+let testState = { questions: [], current: 0, score: 0, timer: null, timeLeft: 600, answers: [] };
+
+function initTest() {
+  clearInterval(testState.timer);
+  testState.questions = shuffle(ALL_QUESTIONS).slice(0, 20);
+  testState.current = 0;
+  testState.score = 0;
+  testState.timeLeft = 600;
+  testState.answers = new Array(20).fill(null);
+  renderTestIntro();
+}
+
+function renderTestIntro() {
+  document.getElementById('testContainer').innerHTML = `
+    <div class="score-display">
+      <div style="font-size:3.5rem">📋</div>
+      <h3 style="font-family:'Cinzel',serif;color:var(--gold);font-size:1.5rem;margin:20px 0 10px">Teste Final</h3>
+      <p style="color:var(--text-dim);font-family:'Crimson Text',serif;font-size:1.1rem;margin-bottom:24px">
+        20 questões • 10 minutos • Uma resposta por questão<br>
+        Podes navegar entre questões antes de submeter.
+      </p>
+      <button class="primary-btn" onclick="startTest()">▶ Começar Teste</button>
+    </div>`;
+}
+
+function startTest() {
+  renderTestQuestion();
+  testState.timer = setInterval(() => {
+    testState.timeLeft--;
+    updateTestTimer();
+    if (testState.timeLeft <= 0) { clearInterval(testState.timer); showTestResults(); }
+  }, 1000);
+}
+
+function updateTestTimer() {
+  const el = document.getElementById('testTimerDisplay');
+  if (!el) return;
+  const m = Math.floor(testState.timeLeft / 60);
+  const s = testState.timeLeft % 60;
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  if (testState.timeLeft <= 60) el.className = 'timer-display urgent';
+}
+
+function renderTestQuestion() {
+  const c = testState;
+  const q = c.questions[c.current];
+  const opts = shuffle(q.opts);
+  const nav = c.questions.map((_, i) => {
+    let cls = 'style="background:rgba(26,74,138,0.3);border:1px solid rgba(45,125,210,0.4);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--white);font-size:0.8rem;"';
+    if (c.answers[i] !== null) cls = 'style="background:rgba(39,174,96,0.3);border:1px solid var(--archer-green);border-radius:8px;padding:6px 10px;cursor:pointer;color:#7ddd9f;font-size:0.8rem;"';
+    if (i === c.current) cls = 'style="background:rgba(240,192,64,0.3);border:1px solid var(--gold);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--gold);font-size:0.8rem;"';
+    return `<button ${cls} onclick="goToTestQ(${i})">${i+1}</button>`;
+  }).join('');
+  
+  const answered = c.answers[c.current];
+  document.getElementById('testContainer').innerHTML = `
+    <div class="test-timer">
+      <div>
+        <div style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Tempo</div>
+        <div class="timer-display" id="testTimerDisplay">${Math.floor(c.timeLeft/60)}:${(c.timeLeft%60).toString().padStart(2,'0')}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:500px">${nav}</div>
+      <div class="test-score-live">${c.answers.filter(a=>a!==null).length}/20 respondidas</div>
+    </div>
+    <div class="question-card">
+      <div class="question-num">Questão ${c.current+1} de ${c.questions.length}</div>
+      <div class="question-text">${q.q}</div>
+      ${q.s ? `<div class="question-sentence">${q.s}</div>` : ''}
+      <div class="options-grid">
+        ${opts.map(o => {
+          let cls = 'option-btn';
+          if (answered === o) cls += ' correct';
+          return `<button class="${cls}" onclick="answerTest('${escQ(o)}')" ${answered ? 'disabled':''} >${o}</button>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="btn-row">
+      ${c.current > 0 ? `<button class="secondary-btn" onclick="goToTestQ(${c.current-1})">← Anterior</button>` : ''}
+      ${c.current < c.questions.length-1 ? `<button class="primary-btn" onclick="goToTestQ(${c.current+1})">Próxima →</button>` : ''}
+      ${c.answers.filter(a=>a!==null).length === 20 ? `<button class="primary-btn" onclick="showTestResults()" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">✅ Submeter Teste</button>` : ''}
+    </div>`;
+}
+
+function answerTest(opt) {
+  testState.answers[testState.current] = opt;
+  if (opt === testState.questions[testState.current].ans) testState.score++;
+  if (testState.current < testState.questions.length - 1) {
+    testState.current++;
+    renderTestQuestion();
+  } else {
+    renderTestQuestion();
+  }
+}
+
+function goToTestQ(i) {
+  testState.current = i;
+  renderTestQuestion();
+}
+
+function showTestResults() {
+  clearInterval(testState.timer);
+  const total = testState.questions.length;
+  // Recalc score
+  let sc = 0;
+  testState.questions.forEach((q, i) => { if (testState.answers[i] === q.ans) sc++; });
+  const pct = Math.round(sc/total*100);
+  const nota = pct >= 90 ? '5 — Muito Bom' : pct >= 70 ? '4 — Bom' : pct >= 50 ? '3 — Suficiente' : pct >= 30 ? '2 — Não Satisfaz' : '1 — Insuficiente';
+  const emoji = pct >= 70 ? '🏆' : pct >= 50 ? '⚓' : '🌊';
+
+  const detalhes = testState.questions.map((q, i) => {
+    const ok = testState.answers[i] === q.ans;
+    return `<div style="padding:12px;border-radius:10px;margin-bottom:8px;background:rgba(${ok?'39,174,96':'192,57,43'},0.1);border:1px solid rgba(${ok?'39,174,96':'192,57,43'},0.3)">
+      <div style="font-size:0.8rem;color:${ok?'#7ddd9f':'#f5938c'}">${ok?'✅':'❌'} Questão ${i+1}</div>
+      <div style="font-family:'Crimson Text',serif;font-size:0.95rem;margin-top:4px">${q.q}</div>
+      ${!ok && testState.answers[i] ? `<div style="font-size:0.8rem;color:var(--text-dim);margin-top:4px">A tua resposta: <em>${testState.answers[i]}</em> | Correta: <strong style="color:#7ddd9f">${q.ans}</strong></div>` : ''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('testContainer').innerHTML = `
+    <div class="score-display">
+      <div style="font-size:4rem">${emoji}</div>
+      <h3 style="font-family:'Cinzel',serif;color:var(--gold);font-size:1.2rem;margin:16px 0 4px">Resultado Final</h3>
+      <div class="score-number">${sc}/${total}</div>
+      <div style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--sea-foam);margin-bottom:8px">${nota}</div>
+      <div class="score-label">${pct}% de acertos</div>
+      <div class="btn-row" style="justify-content:center;margin:24px 0">
+        <button class="primary-btn" onclick="initTest()">🔄 Novo Teste</button>
+        <button class="secondary-btn" onclick="showSection('study')">📖 Estudar</button>
+      </div>
+      <details style="text-align:left;width:100%;max-width:600px;margin:0 auto">
+        <summary style="cursor:pointer;color:var(--text-dim);font-size:0.9rem;margin-bottom:12px">Ver detalhes das respostas</summary>
+        ${detalhes}
+      </details>
+    </div>`;
+}
+
+// ===== GAUNTLET TOP-DOWN ENGINE =====
+// Canvas resolution
+const CANVAS_W = 800;
+const CANVAS_H = 500;
+const TILE = 40; // tile size in pixels
+// Map dimensions in tiles
+const MAP_W = 20;
+const MAP_H = 14;
+
+// Tile types
+const T_FLOOR = 0;
+const T_WALL  = 1;
+const T_SPAWN = 2; // monster spawner (wall with hole)
+
+// ── Dungeon generator ──
+function makeLevel(levelNum) {
+  const m = [];
+  for (let y = 0; y < MAP_H; y++) {
+    m[y] = [];
+    for (let x = 0; x < MAP_W; x++) {
+      // Border walls
+      if (x===0||x===MAP_W-1||y===0||y===MAP_H-1) m[y][x] = T_WALL;
+      else m[y][x] = T_FLOOR;
+    }
+  }
+  // Internal walls (pillars & corridors)
+  const pillars = [
+    [3,3],[3,10],[6,3],[6,10],[10,3],[10,10],[14,3],[14,10],[17,3],[17,10],
+    [4,6],[4,7],[8,5],[8,8],[12,5],[12,8],[16,6],[16,7],
+    [6,6],[6,7],[10,6],[10,7],[14,6],[14,7],
+  ];
+  pillars.forEach(([x,y]) => { if(y>0&&y<MAP_H-1&&x>0&&x<MAP_W-1) m[y][x]=T_WALL; });
+  // Spawners on the border walls (not corners)
+  const spawnPositions = [
+    [5,0],[10,0],[15,0],           // top
+    [5,MAP_H-1],[10,MAP_H-1],[15,MAP_H-1], // bottom
+    [0,3],[0,7],[0,10],            // left
+    [MAP_W-1,3],[MAP_W-1,7],[MAP_W-1,10]   // right
+  ];
+  spawnPositions.forEach(([x,y]) => { m[y][x] = T_SPAWN; });
+  return m;
+}
+
+// ── Colors ──
+const FLOOR_COLORS = [
+  ['#2a4a38','#233d2e'], // level 1 mossy stone
+  ['#3a2858','#2e1f48'], // level 2 arcane purple
+  ['#4a3820','#3a2c18'], // level 3 sandstone
+  ['#1a3c54','#142e42'], // level 4 sea cave
+  ['#502018','#3e1610'], // level 5 volcanic
+];
+// Each wall palette: main fill, top/left highlight, bottom/right shadow, mortar line
+const WALL_COLORS = [
+  { main:'#1e4a2e', hi:'#3a8055', sh:'#0a1a10', mo:'#102010' },
+  { main:'#40207a', hi:'#8050c0', sh:'#180830', mo:'#280a48' },
+  { main:'#7a5220', hi:'#c89040', sh:'#301e08', mo:'#4a3010' },
+  { main:'#103878', hi:'#2070d0', sh:'#061228', mo:'#0c2048' },
+  { main:'#7a1810', hi:'#d04020', sh:'#300608', mo:'#480e08' },
+];
+
+// ── Enemy types ──
+const ENEMY_TYPES = [
+  { name:'Sombra',   color:'#7b2d8b', glow:'#d070f0', hp:30,  speed:1.0, dmg:8,  score:50,  size:14 },
+  { name:'Fantasma', color:'#2d5b8b', glow:'#60b0f0', hp:20,  speed:1.5, dmg:6,  score:40,  size:12 },
+  { name:'Ciclope',  color:'#8b4010', glow:'#f07030', hp:80,  speed:0.6, dmg:15, score:150, size:20 },
+  { name:'Sereia',   color:'#107060', glow:'#30e0d0', hp:60,  speed:0.9, dmg:12, score:120, size:16 },
+  { name:'Minotauro',color:'#5c3317', glow:'#c07040', hp:120, speed:0.5, dmg:20, score:250, size:22 },
+  { name:'Medusa',   color:'#2d7040', glow:'#60f090', hp:100, speed:0.7, dmg:18, score:200, size:18 },
+];
+
+// ── State ──
+let G = {}; // game state
+
+function initGState(charType) {
+  const isWarrior = charType === 'warrior';
+  G = {
+    char: charType,
+    // Player world position (pixels)
+    px: TILE * 2 + TILE/2,
+    py: TILE * 3 + TILE/2,
+    pdir: 0, // angle in radians
+    hp: isWarrior ? 120 : 80,
+    maxHp: isWarrior ? 120 : 80,
+    arrows: isWarrior ? 3 : 12,
+    maxArrows: isWarrior ? 3 : 12,
+    speed: isWarrior ? 2.2 : 2.8,
+    meleeDmg: isWarrior ? 30 : 10,
+    arrowDmg: isWarrior ? 10 : 25,
+    score: 0,
+    level: 1,
+    // Camera offset (top-left world px visible)
+    camX: 0, camY: 0,
+    // Map
+    map: makeLevel(1),
+    // Entities
+    enemies: [],
+    projectiles: [],
+    particles: [],
+    floatTexts: [],
+    spawners: [],  // active spawner positions
+    // Attack
+    attackTimer: 0, // frames of melee swing
+    attackCooldown: 0,
+    invTimer: 0, // invincibility frames after hit
+    // Questions
+    questionActive: false,
+    questionTimer: 0,
+    questionType: null, // 'hp' or 'arrows'
+    qTriggeredBy: null, // 'low_hp', 'low_arrows', 'kill'
+    // Frame
+    frame: 0,
+    active: true,
+    hpDrainTimer: 0,
+    spawnTimer: 0,
+    lastKillTime: 0,
+  };
+  // Collect spawner positions
+  for (let y=0; y<MAP_H; y++)
+    for (let x=0; x<MAP_W; x++)
+      if (G.map[y][x]===T_SPAWN) G.spawners.push({tx:x,ty:y,timer:Math.random()*180});
+  // Initial enemies
+  spawnInitialEnemies();
+  updateHUD();
+}
+
+function spawnInitialEnemies() {
+  for (let i=0; i<4; i++) spawnEnemy();
+}
+
+function spawnEnemy() {
+  // Pick a random spawner
+  if (!G.spawners.length) return;
+  const sp = G.spawners[Math.floor(Math.random()*G.spawners.length)];
+  const typeIdx = Math.min(Math.floor((G.level-1)/1.5), ENEMY_TYPES.length-1);
+  const typePool = ENEMY_TYPES.slice(0, typeIdx+2);
+  const type = typePool[Math.floor(Math.random()*typePool.length)];
+  // Spawn slightly inside from the wall
+  let wx = sp.tx*TILE + TILE/2;
+  let wy = sp.ty*TILE + TILE/2;
+  if (sp.tx===0) wx = TILE*1.2;
+  if (sp.tx===MAP_W-1) wx = (MAP_W-1.2)*TILE;
+  if (sp.ty===0) wy = TILE*1.2;
+  if (sp.ty===MAP_H-1) wy = (MAP_H-1.2)*TILE;
+  G.enemies.push({
+    x: wx, y: wy,
+    hp: type.hp + (G.level-1)*15,
+    maxHp: type.hp + (G.level-1)*15,
+    type, dir: Math.random()*Math.PI*2,
+    hitTimer: 0, moveTimer: Math.random()*60,
+    id: Math.random()
+  });
+}
+
+// ── Canvas & loop ──
+let gCanvas, gCtx, gAnimFrame;
+
+function startGame() {
+  document.getElementById('gameCharSelect').classList.add('hidden');
+  document.getElementById('gameArena').classList.remove('hidden');
+  const go = document.getElementById('gameOverScreen');
+  go.style.display = 'none';
+
+  gCanvas = document.getElementById('gameCanvas');
+  gCanvas.width = CANVAS_W;
+  gCanvas.height = CANVAS_H;
+  gCtx = gCanvas.getContext('2d');
+
+  // Keyboard
+  G.keys = {};
+  G._kd = e => { G.keys[e.code] = true; if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); };
+  G._ku = e => { G.keys[e.code] = false; };
+  window.addEventListener('keydown', G._kd);
+  window.addEventListener('keyup', G._ku);
+
+  if (gAnimFrame) cancelAnimationFrame(gAnimFrame);
+  gLoop();
+}
+
+function stopGame() {
+  G.active = false;
+  if (gAnimFrame) cancelAnimationFrame(gAnimFrame);
+  if (G._kd) window.removeEventListener('keydown', G._kd);
+  if (G._ku) window.removeEventListener('keyup', G._ku);
+}
+
+function gLoop() {
+  if (!G.active) return;
+  G.frame++;
+  updateGame();
+  drawGame();
+  gAnimFrame = requestAnimationFrame(gLoop);
+}
+
+// ── Physics helpers ──
+function tileAt(wx,wy) {
+  const tx = Math.floor(wx/TILE), ty = Math.floor(wy/TILE);
+  if (tx<0||ty<0||tx>=MAP_W||ty>=MAP_H) return T_WALL;
+  return G.map[ty][tx] === T_WALL ? T_WALL : T_FLOOR;
+}
+
+function moveAndSlide(ox, oy, dx, dy, radius) {
+  let nx = ox + dx, ny = oy + dy;
+  const r = radius;
+  // Try full move
+  if (tileAt(nx-r,ny-r)===T_FLOOR && tileAt(nx+r,ny-r)===T_FLOOR &&
+      tileAt(nx-r,ny+r)===T_FLOOR && tileAt(nx+r,ny+r)===T_FLOOR) return {x:nx,y:ny};
+  // Try X only
+  nx = ox + dx; ny = oy;
+  if (tileAt(nx-r,ny-r)===T_FLOOR && tileAt(nx+r,ny-r)===T_FLOOR &&
+      tileAt(nx-r,ny+r)===T_FLOOR && tileAt(nx+r,ny+r)===T_FLOOR) return {x:nx,y:ny};
+  // Try Y only
+  nx = ox; ny = oy + dy;
+  if (tileAt(nx-r,ny-r)===T_FLOOR && tileAt(nx+r,ny-r)===T_FLOOR &&
+      tileAt(nx-r,ny+r)===T_FLOOR && tileAt(nx+r,ny+r)===T_FLOOR) return {x:nx,y:ny};
+  return {x:ox,y:oy};
+}
+
+// ── Update ──
+function updateGame() {
+  if (!G.active || G.questionActive) return;
+  const spd = G.speed;
+  // Movement
+  let dx=0, dy=0;
+  if (G.keys['KeyW']||G.keys['ArrowUp'])    dy=-spd;
+  if (G.keys['KeyS']||G.keys['ArrowDown'])  dy= spd;
+  if (G.keys['KeyA']||G.keys['ArrowLeft'])  dx=-spd;
+  if (G.keys['KeyD']||G.keys['ArrowRight']) dx= spd;
+  if (dx&&dy) { dx*=0.707; dy*=0.707; }
+  if (dx||dy) G.pdir = Math.atan2(dy,dx);
+
+  const moved = moveAndSlide(G.px, G.py, dx, dy, 14);
+  G.px = moved.x; G.py = moved.y;
+
+  // Camera: center on player
+  G.camX = G.px - CANVAS_W/2;
+  G.camY = G.py - CANVAS_H/2;
+  const maxCX = MAP_W*TILE - CANVAS_W;
+  const maxCY = MAP_H*TILE - CANVAS_H;
+  G.camX = Math.max(0, Math.min(maxCX, G.camX));
+  G.camY = Math.max(0, Math.min(maxCY, G.camY));
+
+  // Attack
+  if (G.attackCooldown > 0) G.attackCooldown--;
+  if (G.attackTimer > 0) G.attackTimer--;
+  if ((G.keys['Space']) && G.attackCooldown===0) doAttack();
+
+  // Invincibility frames
+  if (G.invTimer > 0) G.invTimer--;
+
+  // HP drain over time (like original Gauntlet)
+  G.hpDrainTimer++;
+  if (G.hpDrainTimer >= 300) { // drain 1 hp every 5 seconds
+    G.hpDrainTimer = 0;
+    G.hp = Math.max(0, G.hp - 1);
+    updateHUD();
+    if (G.hp <= 0) { doGameOver(); return; }
+  }
+
+  // Spawners
+  G.spawnTimer++;
+  if (G.spawnTimer >= Math.max(200, 400 - G.level*30) && G.enemies.length < 8+G.level) {
+    G.spawnTimer = 0;
+    spawnEnemy();
+    if (G.spawners.length) {
+      const sp = G.spawners[Math.floor(Math.random()*G.spawners.length)];
+      addParticles(sp.tx*TILE+TILE/2, sp.ty*TILE+TILE/2, '#9030ff', 6);
+    }
+  }
+
+  // Enemies
+  G.enemies.forEach(e => {
+    if (e.hitTimer>0) e.hitTimer--;
+    e.moveTimer++;
+    // Chase player
+    const exd = G.px - e.x, eyd = G.py - e.y;
+    const dist = Math.sqrt(exd*exd+eyd*eyd);
+    if (dist > 1) {
+      const spd = e.type.speed * (1 + G.level*0.08);
+      const em = moveAndSlide(e.x, e.y, (exd/dist)*spd, (eyd/dist)*spd, e.type.size*0.7);
+      e.x = em.x; e.y = em.y;
+      e.dir = Math.atan2(eyd, exd);
+    }
+    // Hit player
+    if (dist < 20+e.type.size && G.invTimer===0) {
+      G.hp -= e.type.dmg * 0.016; // per-frame damage
+      G.hp = Math.max(0, G.hp);
+      G.invTimer = 8;
+      updateHUD();
+      if (G.hp <= 0) { doGameOver(); return; }
+    }
+  });
+
+  // Projectiles
+  G.projectiles = G.projectiles.filter(p => {
+    p.x += p.vx; p.y += p.vy;
+    p.life--;
+    if (p.life<=0 || tileAt(p.x,p.y)===T_WALL) { addParticles(p.x,p.y,p.color,3); return false; }
+    if (p.friendly) {
+      const hit = G.enemies.find(e => Math.hypot(e.x-p.x,e.y-p.y)<e.type.size+6);
+      if (hit) {
+        hit.hp -= p.dmg;
+        hit.hitTimer = 8;
+        addParticles(p.x,p.y,hit.type.glow,8);
+        addFloat(p.x,p.y-20,`-${p.dmg}`,'#ff8060');
+        if (hit.hp<=0) killEnemy(hit);
+        return false;
+      }
+    }
+    return true;
+  });
+
+  // Particles
+  G.particles = G.particles.filter(p => {
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.life--;
+    p.vx*=0.96; return p.life>0;
+  });
+
+  // Float texts
+  G.floatTexts = G.floatTexts.filter(f => { f.y-=1.2; f.life--; return f.life>0; });
+
+  // Question trigger logic
+  const hpPct = G.hp / G.maxHp;
+  const arPct = G.arrows / G.maxArrows;
+  if (G.frame % 300 === 0) { // every 5s check
+    if (G.char==='warrior' && hpPct < 0.4) triggerQuestion('hp');
+    if (G.char==='archer'  && arPct < 0.35) triggerQuestion('arrows');
+    if (G.char==='warrior' && arPct < 0.2) triggerQuestion('arrows');
+    if (G.char==='archer'  && hpPct < 0.45) triggerQuestion('hp');
+  }
+  // Force question if very low
+  if (G.frame % 180 === 0 && hpPct < 0.2 && !G.questionActive) triggerQuestion('hp');
+}
+
+function doAttack() {
+  G.attackTimer = 12;
+  G.attackCooldown = 20;
+  const isWarrior = G.char === 'warrior';
+  if (isWarrior) {
+    // Melee: hit all enemies in arc
+    G.enemies.forEach(e => {
+      const d = Math.hypot(e.x-G.px, e.y-G.py);
+      const angle = Math.atan2(e.y-G.py, e.x-G.px);
+      const diff = Math.abs(((angle - G.pdir + Math.PI*3) % (Math.PI*2)) - Math.PI);
+      if (d < 55 && diff < 0.9) {
+        e.hp -= G.meleeDmg;
+        e.hitTimer = 10;
+        addParticles(e.x, e.y, '#ff6030', 10);
+        addFloat(e.x, e.y-20, `-${G.meleeDmg}`, '#ff8060');
+        if (e.hp<=0) killEnemy(e);
+      }
+    });
+  } else {
+    // Ranged: shoot arrow
+    if (G.arrows <= 0) { addFloat(G.px, G.py-30, 'Sem setas!', '#ff6060'); return; }
+    G.arrows--;
+    updateHUD();
+    const spd = 7;
+    G.projectiles.push({
+      x: G.px, y: G.py,
+      vx: Math.cos(G.pdir)*spd, vy: Math.sin(G.pdir)*spd,
+      life: 80, dmg: G.arrowDmg, friendly: true, color: '#00e5ff',
+      type: 'arrow'
+    });
+  }
+}
+
+function killEnemy(e) {
+  const idx = G.enemies.indexOf(e);
+  if (idx===-1) return;
+  G.enemies.splice(idx,1);
+  const pts = e.type.score * G.level;
+  G.score += pts;
+  addFloat(e.x, e.y-30, `+${pts}`, '#f0c040');
+  addParticles(e.x, e.y, e.type.glow, 20);
+  G.lastKillTime = G.frame;
+  updateHUD();
+  // Trigger question on kill sometimes
+  if (Math.random() < 0.4) {
+    const needArrows = G.char==='archer' && G.arrows < G.maxArrows*0.7;
+    triggerQuestion(needArrows ? 'arrows' : 'hp');
+  }
+  // Level up every 10 kills
+  if (G.score > G.level * 1500) {
+    G.level++;
+    document.getElementById('levelText').textContent = `Nível ${G.level}`;
+    addFloat(G.px, G.py-50, `NÍVEL ${G.level}!`, '#f0c040');
+    addParticles(G.px, G.py, '#f0c040', 30);
+    // Spawn more on level up
+    for (let i=0; i<2; i++) spawnEnemy();
+  }
+}
+
+function addParticles(x, y, color, n) {
+  for (let i=0; i<n; i++) {
+    G.particles.push({
+      x, y, color,
+      vx: (Math.random()-0.5)*4,
+      vy: (Math.random()-2.5)*3,
+      life: 20+Math.random()*20
+    });
+  }
+}
+
+function addFloat(x, y, text, color) {
+  G.floatTexts.push({x, y, text, color, life:50});
+}
+
+// ── Draw ──
+function drawGame() {
+  const ctx = gCtx;
+  const lvlIdx = Math.min(G.level-1, FLOOR_COLORS.length-1);
+  const fc = FLOOR_COLORS[lvlIdx];
+
+  ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+  ctx.save();
+  ctx.translate(-G.camX, -G.camY);
+
+  // ── Tiles ──
+  const startTX = Math.max(0, Math.floor(G.camX/TILE)-1);
+  const startTY = Math.max(0, Math.floor(G.camY/TILE)-1);
+  const endTX   = Math.min(MAP_W, startTX + Math.ceil(CANVAS_W/TILE)+2);
+  const endTY   = Math.min(MAP_H, startTY + Math.ceil(CANVAS_H/TILE)+2);
+
+  for (let ty=startTY; ty<endTY; ty++) {
+    for (let tx=startTX; tx<endTX; tx++) {
+      const wx = tx*TILE, wy = ty*TILE;
+      const t = G.map[ty][tx];
+      if (t===T_WALL) {
+        const W = WALL_COLORS[lvlIdx];
+        // Main fill
+        ctx.fillStyle = W.main;
+        ctx.fillRect(wx,wy,TILE,TILE);
+        // Stone block texture: divide into 2x2 sub-blocks
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        ctx.fillRect(wx+TILE/2,wy,1,TILE);   // vertical crack
+        ctx.fillRect(wx,wy+TILE/2,TILE,1);   // horizontal crack
+        // Bevelled 3D edges — bright top & left, dark bottom & right
+        ctx.fillStyle = W.hi;
+        ctx.fillRect(wx, wy, TILE, 5);         // top bright edge
+        ctx.fillRect(wx, wy, 5, TILE);         // left bright edge
+        ctx.fillStyle = W.sh;
+        ctx.fillRect(wx, wy+TILE-5, TILE, 5);  // bottom dark edge
+        ctx.fillRect(wx+TILE-5, wy, 5, TILE);  // right dark edge
+        // Mortar outline
+        ctx.strokeStyle = W.mo;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(wx+0.5, wy+0.5, TILE-1, TILE-1);
+      } else if (t===T_SPAWN) {
+        const W = WALL_COLORS[lvlIdx];
+        ctx.fillStyle = W.sh; // darker for spawner base
+        ctx.fillRect(wx,wy,TILE,TILE);
+        ctx.fillStyle = W.hi;
+        ctx.fillRect(wx, wy, TILE, 4);
+        ctx.fillRect(wx, wy, 4, TILE);
+        ctx.fillStyle = W.sh;
+        ctx.fillRect(wx, wy+TILE-4, TILE, 4);
+        ctx.fillRect(wx+TILE-4, wy, 4, TILE);
+        // Pulsing arcane portal eye
+        const pulse = 0.5 + 0.4*Math.sin(G.frame*0.1);
+        const cx2 = wx+TILE/2, cy2 = wy+TILE/2;
+        // outer glow ring
+        ctx.save();
+        ctx.shadowColor='#cc44ff'; ctx.shadowBlur=16;
+        ctx.strokeStyle=`rgba(180,60,255,${pulse})`;
+        ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(cx2,cy2,10,0,Math.PI*2); ctx.stroke();
+        // inner bright dot
+        ctx.fillStyle=`rgba(220,120,255,${pulse})`;
+        ctx.beginPath(); ctx.arc(cx2,cy2,5,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+      } else {
+        // Floor: clear checkerboard
+        ctx.fillStyle = (tx+ty)%2===0 ? fc[0] : fc[1];
+        ctx.fillRect(wx,wy,TILE,TILE);
+        // Subtle stone joint lines
+        ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(wx+0.5,wy+0.5,TILE-1,TILE-1);
+        // Very faint inner detail on even tiles
+        if ((tx+ty)%2===0) {
+          ctx.strokeStyle='rgba(255,255,255,0.04)';
+          ctx.strokeRect(wx+4,wy+4,TILE-8,TILE-8);
+        }
+      }
+    }
+  }
+
+  // ── Ambient light around player ──
+  const lightGrad = ctx.createRadialGradient(G.px,G.py,0,G.px,G.py,180);
+  lightGrad.addColorStop(0,'rgba(255,220,120,0.12)');
+  lightGrad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = lightGrad;
+  ctx.fillRect(0,0,MAP_W*TILE,MAP_H*TILE);
+
+  // ── Enemies ──
+  G.enemies.forEach(e => drawEnemy(ctx, e));
+
+  // ── Projectiles ──
+  G.projectiles.forEach(p => {
+    ctx.save();
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 12;
+    if (p.type==='arrow') {
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(Math.atan2(p.vy,p.vx));
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(-10,0); ctx.lineTo(10,0); ctx.stroke();
+      ctx.restore();
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  });
+
+  // ── Particles ──
+  G.particles.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = p.life/40;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color; ctx.shadowBlur = 6;
+    ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+
+  // ── Player ──
+  drawPlayer(ctx);
+
+  // ── Melee arc ──
+  if (G.attackTimer > 0 && G.char==='warrior') {
+    ctx.save();
+    ctx.translate(G.px, G.py);
+    ctx.rotate(G.pdir);
+    ctx.strokeStyle = `rgba(255,100,40,${G.attackTimer/12})`;
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#ff6028'; ctx.shadowBlur = 20;
+    ctx.beginPath();
+    ctx.arc(0,0,50,-0.9,0.9);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // ── Float texts ──
+  G.floatTexts.forEach(f => {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, f.life/20);
+    ctx.fillStyle = f.color;
+    ctx.shadowColor = f.color; ctx.shadowBlur = 8;
+    ctx.font = `bold 15px "Exo 2", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(f.text, f.x, f.y);
+    ctx.restore();
+  });
+
+  ctx.restore(); // end camera transform
+}
+
+function drawPlayer(ctx) {
+  const x=G.px, y=G.py;
+  const isWarrior = G.char==='warrior';
+  const walk = Math.sin(G.frame*0.22)*2.5;
+  const flash = G.invTimer>0 && (G.invTimer%4<2);
+
+  ctx.save();
+  if (flash) ctx.globalAlpha = 0.35;
+
+  // Ground shadow
+  ctx.fillStyle='rgba(0,0,0,0.35)';
+  ctx.beginPath(); ctx.ellipse(x, y+16, 14, 6, 0, 0, Math.PI*2); ctx.fill();
+
+  ctx.translate(x, y + walk*0.3);
+  ctx.rotate(G.pdir + Math.PI/2);
+
+  if (isWarrior) {
+    // ── WARRIOR (Ulisses em armadura) ──
+    ctx.shadowColor='#ff6020'; ctx.shadowBlur=18;
+
+    // Legs
+    ctx.fillStyle='#4a3010';
+    ctx.fillRect(-7, 8, 6, 14);  // left leg
+    ctx.fillRect( 2, 8, 6, 14);  // right leg
+    // Boot buckles
+    ctx.fillStyle='#c8a020';
+    ctx.fillRect(-7,19,6,2);
+    ctx.fillRect(2,19,6,2);
+
+    // Cape (behind body)
+    ctx.fillStyle='#8b0000';
+    ctx.beginPath();
+    ctx.moveTo(-10,-6); ctx.lineTo(-14,14); ctx.lineTo(14,14); ctx.lineTo(10,-6);
+    ctx.closePath(); ctx.fill();
+
+    // Breastplate / torso
+    const bpGrad = ctx.createLinearGradient(-9,-12,9,-12);
+    bpGrad.addColorStop(0,'#707080'); bpGrad.addColorStop(0.3,'#c8c8d8');
+    bpGrad.addColorStop(0.7,'#9090a0'); bpGrad.addColorStop(1,'#505060');
+    ctx.fillStyle = bpGrad;
+    ctx.fillRect(-9,-12,18,22);
+    // Breastplate ridge
+    ctx.strokeStyle='#e0e0f0'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(0,-12); ctx.lineTo(0,10); ctx.stroke();
+    // Rivets
+    ctx.fillStyle='#c8a020';
+    [[-6,-8],[6,-8],[-6,2],[6,2]].forEach(([rx,ry])=>{
+      ctx.beginPath(); ctx.arc(rx,ry,2,0,Math.PI*2); ctx.fill();
+    });
+
+    // Shoulder guards
+    ctx.fillStyle='#808090';
+    ctx.save();
+    ctx.shadowColor='#c0c0d0'; ctx.shadowBlur=4;
+    ctx.beginPath(); ctx.ellipse(-11,-6,7,5,0.4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 11,-6,7,5,-0.4,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Neck
+    ctx.fillStyle='#d4a070';
+    ctx.fillRect(-4,-18,8,7);
+
+    // Head / face
+    ctx.fillStyle='#e8b880';
+    ctx.beginPath(); ctx.arc(0,-24,11,0,Math.PI*2); ctx.fill();
+    // Beard shadow
+    ctx.fillStyle='rgba(100,60,20,0.4)';
+    ctx.beginPath(); ctx.arc(0,-19,8,0,Math.PI); ctx.fill();
+
+    // Helmet — Corinthian style
+    ctx.fillStyle='#909098';
+    ctx.shadowColor='#ffffff'; ctx.shadowBlur=6;
+    ctx.beginPath();
+    ctx.arc(0,-25,12,Math.PI,0);  // dome
+    ctx.fill();
+    // Cheek guards
+    ctx.fillStyle='#787880';
+    ctx.fillRect(-12,-30,4,14);
+    ctx.fillRect( 8,-30,4,14);
+    // Nose guard
+    ctx.fillStyle='#888890';
+    ctx.fillRect(-2,-34,4,10);
+    // Crest / plume
+    ctx.shadowColor='#ff2000'; ctx.shadowBlur=10;
+    ctx.fillStyle='#cc1000';
+    ctx.beginPath();
+    ctx.moveTo(-4,-36); ctx.quadraticCurveTo(0,-50,4,-36); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#ff4020';
+    ctx.beginPath();
+    ctx.moveTo(-2,-36); ctx.quadraticCurveTo(0,-47,2,-36); ctx.closePath(); ctx.fill();
+    // Eye slit glow
+    ctx.fillStyle='rgba(255,200,50,0.8)';
+    ctx.fillRect(-8,-27,5,2);
+    ctx.fillRect( 3,-27,5,2);
+
+    // Sword arm
+    ctx.shadowColor='#a0c0ff'; ctx.shadowBlur=12;
+    const sw = G.attackTimer>0 ? -0.8 : 0;
+    ctx.save(); ctx.rotate(sw);
+    // Upper arm
+    ctx.fillStyle='#808090';
+    ctx.fillRect(8,-8,7,10);
+    // Forearm + gauntlet
+    ctx.fillStyle='#909098';
+    ctx.fillRect(10,-18,6,12);
+    // Sword blade
+    ctx.strokeStyle='#d0d8ff'; ctx.lineWidth=3;
+    ctx.shadowColor='#8080ff'; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.moveTo(12,-18); ctx.lineTo(22,-42); ctx.stroke();
+    // Crossguard
+    ctx.strokeStyle='#c8a020'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(7,-17); ctx.lineTo(17,-17); ctx.stroke();
+    // Pommel
+    ctx.fillStyle='#c8a020';
+    ctx.beginPath(); ctx.arc(12,-14,3,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Shield (other arm)
+    ctx.save();
+    ctx.shadowColor='#4060ff'; ctx.shadowBlur=8;
+    ctx.fillStyle='#8b0000';
+    ctx.beginPath();
+    ctx.moveTo(-10,-16); ctx.lineTo(-20,-8); ctx.lineTo(-22,8); ctx.lineTo(-10,10); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#c8a020'; ctx.lineWidth=2;
+    ctx.stroke();
+    // Shield boss
+    ctx.fillStyle='#c8a020';
+    ctx.beginPath(); ctx.arc(-15,-2,4,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+  } else {
+    // ── ARCHER (Ulisses arqueiro clássico) ──
+    ctx.shadowColor='#20d080'; ctx.shadowBlur=16;
+
+    // Legs / greaves
+    ctx.fillStyle='#3a4020';
+    ctx.fillRect(-6, 8, 5, 15);
+    ctx.fillRect( 2, 8, 5, 15);
+    // Sandal straps
+    ctx.strokeStyle='#a08040'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(-6,18); ctx.lineTo(-1,18); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(2,18); ctx.lineTo(7,18); ctx.stroke();
+
+    // Tunic
+    ctx.fillStyle='#4a6030';
+    ctx.fillRect(-8,-10,16,20);
+    // Tunic belt
+    ctx.fillStyle='#8a6020';
+    ctx.fillRect(-9,6,18,4);
+    // Belt buckle
+    ctx.fillStyle='#d4a030';
+    ctx.fillRect(-3,6,6,4);
+
+    // Leather armour on chest
+    ctx.fillStyle='#5a4020';
+    ctx.fillRect(-7,-10,14,17);
+    // Chest straps
+    ctx.strokeStyle='#a07030'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(-7,-8); ctx.lineTo(7,4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(7,-8); ctx.lineTo(-7,4); ctx.stroke();
+
+    // Cloak
+    ctx.fillStyle='#283818';
+    ctx.beginPath();
+    ctx.moveTo(-8,-10); ctx.lineTo(-14,10); ctx.lineTo(14,10); ctx.lineTo(8,-10);
+    ctx.closePath(); ctx.fill();
+
+    // Neck
+    ctx.fillStyle='#d4a870';
+    ctx.fillRect(-3,-18,6,9);
+
+    // Head / face
+    ctx.fillStyle='#e8b880';
+    ctx.beginPath(); ctx.arc(0,-24,11,0,Math.PI*2); ctx.fill();
+    // Hair
+    ctx.fillStyle='#3a2810';
+    ctx.beginPath(); ctx.arc(0,-26,11,Math.PI*1.1,Math.PI*1.9); ctx.fill();
+    ctx.fillRect(-11,-26,3,8);
+    ctx.fillRect(8,-26,3,8);
+
+    // Headband / wreath
+    ctx.strokeStyle='#d4a020'; ctx.lineWidth=3;
+    ctx.shadowColor='#f0c040'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.arc(0,-26,11,Math.PI*1.05,Math.PI*1.95); ctx.stroke();
+    // Wreath leaves
+    ctx.fillStyle='#60a020';
+    for (let i=0; i<5; i++) {
+      const a = Math.PI + i*0.22;
+      ctx.save(); ctx.translate(Math.cos(a)*11,Math.sin(a)*11-26);
+      ctx.rotate(a+Math.PI/2);
+      ctx.beginPath(); ctx.ellipse(0,0,3,5,0,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+
+    // Eyes
+    ctx.fillStyle='rgba(0,0,0,0.6)';
+    ctx.beginPath(); ctx.arc(-4,-23,2.5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc( 4,-23,2.5,0,Math.PI*2); ctx.fill();
+    // Eye glint
+    ctx.fillStyle='white';
+    ctx.beginPath(); ctx.arc(-3,-24,1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5,-24,1,0,Math.PI*2); ctx.fill();
+
+    // Bow (right side)
+    ctx.shadowColor='#a08040'; ctx.shadowBlur=6;
+    ctx.strokeStyle='#7a5010'; ctx.lineWidth=3.5;
+    ctx.beginPath(); ctx.arc(14,-6,18,-1.1,1.1); ctx.stroke();
+    // Bow string
+    ctx.strokeStyle='rgba(220,200,150,0.7)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(14,-23); ctx.lineTo(14,12); ctx.stroke();
+    // Notched arrow (if has arrows)
+    if (G.arrows > 0) {
+      ctx.shadowColor='#00e8ff'; ctx.shadowBlur=10;
+      ctx.strokeStyle='#c8a020'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(14,-14); ctx.lineTo(14,8); ctx.stroke();
+      // Arrowhead
+      ctx.fillStyle='#c0c8d0';
+      ctx.beginPath(); ctx.moveTo(14,-14); ctx.lineTo(11,-8); ctx.lineTo(17,-8); ctx.closePath(); ctx.fill();
+      // Fletching
+      ctx.fillStyle='#e04020';
+      ctx.beginPath(); ctx.moveTo(11,6); ctx.lineTo(14,10); ctx.lineTo(11,10); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(17,6); ctx.lineTo(14,10); ctx.lineTo(17,10); ctx.closePath(); ctx.fill();
+    }
+
+    // Quiver on back
+    ctx.fillStyle='#5a3810';
+    ctx.fillRect(-18,-12,8,20);
+    ctx.fillStyle='#3a2408';
+    ctx.fillRect(-18,-12,8,4);
+    // Arrow shafts in quiver
+    for (let i=0;i<Math.min(G.arrows,4);i++) {
+      ctx.strokeStyle='#c8a020'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(-17+i*2,-20); ctx.lineTo(-17+i*2,-12); ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawEnemy(ctx, e) {
+  const t = e.type;
+  const flash = e.hitTimer>0 && (e.hitTimer%3<2);
+  const bob = Math.sin(G.frame*0.14 + e.id*7)*2;
+  const x=e.x, y=e.y+bob;
+
+  ctx.save();
+  if (flash) ctx.globalAlpha = 0.45;
+
+  // Shadow
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.beginPath(); ctx.ellipse(x,y+t.size*0.9,t.size*0.75,t.size*0.28,0,0,Math.PI*2); ctx.fill();
+
+  ctx.shadowColor = t.glow; ctx.shadowBlur = 16;
+
+  // ── Draw by name ──
+  const name = t.name;
+
+  if (name==='Sombra') {
+    // Ghost-like wraith
+    ctx.fillStyle='#6020a0';
+    ctx.beginPath(); ctx.arc(x,y-8,t.size,0,Math.PI*2); ctx.fill();
+    // Wispy bottom
+    ctx.fillStyle='#5018888';
+    for (let i=0;i<4;i++) {
+      const wx2=x-t.size+i*(t.size*2/3);
+      ctx.beginPath(); ctx.moveTo(wx2,y+4); ctx.quadraticCurveTo(wx2+5,y+18,wx2+2,y+t.size+8); ctx.lineTo(wx2-2,y+t.size+8); ctx.closePath();
+      ctx.fillStyle=`rgba(100,30,160,0.7)`; ctx.fill();
+    }
+    // Eyes
+    ctx.fillStyle='#ff40ff'; ctx.shadowColor='#ff80ff'; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.arc(x-5,y-10,3.5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+5,y-10,3.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='white';
+    ctx.beginPath(); ctx.arc(x-4,y-11,1.2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+6,y-11,1.2,0,Math.PI*2); ctx.fill();
+
+  } else if (name==='Fantasma') {
+    // Blue spectral ghost
+    ctx.globalAlpha = (flash?0.45:1) * (0.7+0.2*Math.sin(G.frame*0.12));
+    ctx.fillStyle='#1848a0';
+    ctx.beginPath(); ctx.arc(x,y-6,t.size,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha = flash?0.45:1;
+    // Trailing wisp
+    ctx.fillStyle='rgba(40,100,200,0.5)';
+    ctx.beginPath(); ctx.ellipse(x,y+8,t.size*0.6,t.size*0.9,0,0,Math.PI*2); ctx.fill();
+    // Hollow eyes
+    ctx.fillStyle='#00ccff'; ctx.shadowColor='#00ffff'; ctx.shadowBlur=12;
+    ctx.beginPath(); ctx.arc(x-5,y-8,4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+5,y-8,4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#001030';
+    ctx.beginPath(); ctx.arc(x-5,y-8,2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+5,y-8,2,0,Math.PI*2); ctx.fill();
+
+  } else if (name==='Ciclope') {
+    // Giant one-eyed humanoid
+    // Body
+    ctx.fillStyle='#7a4020';
+    ctx.fillRect(x-t.size*0.75,y-t.size*0.3,t.size*1.5,t.size*1.1);
+    // Head - large and round
+    ctx.fillStyle='#9a5828';
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.5,t.size*0.85,0,Math.PI*2); ctx.fill();
+    // Single GIANT eye
+    ctx.fillStyle='#fff';
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.5,t.size*0.4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#cc2000'; ctx.shadowColor='#ff4000'; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.5,t.size*0.25,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#200000';
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.5,t.size*0.12,0,Math.PI*2); ctx.fill();
+    // Eyebrow ridge
+    ctx.strokeStyle='#5a3010'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(x-t.size*0.5,y-t.size*0.92); ctx.lineTo(x+t.size*0.5,y-t.size*0.92); ctx.stroke();
+    // Club
+    ctx.strokeStyle='#5a3810'; ctx.lineWidth=7;
+    ctx.shadowColor='#8a5820'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.moveTo(x+t.size,y+4); ctx.lineTo(x+t.size*1.8,y-t.size*0.9); ctx.stroke();
+    ctx.fillStyle='#7a4820';
+    ctx.beginPath(); ctx.arc(x+t.size*1.8,y-t.size*0.9,9,0,Math.PI*2); ctx.fill();
+    // Teeth
+    ctx.fillStyle='#e8d8a0';
+    for(let i=0;i<3;i++){
+      ctx.fillRect(x-8+i*7,y-t.size*0.18,5,7);
+    }
+
+  } else if (name==='Sereia') {
+    // Siren / mermaid
+    // Tail
+    ctx.fillStyle='#108060';
+    ctx.beginPath();
+    ctx.moveTo(x-t.size*0.5,y+4); ctx.bezierCurveTo(x-t.size,y+t.size*1.2,x+t.size,y+t.size*1.2,x+t.size*0.5,y+4);
+    ctx.fill();
+    // Scales on tail
+    ctx.strokeStyle='rgba(30,200,160,0.5)'; ctx.lineWidth=1;
+    for(let i=0;i<3;i++){
+      ctx.beginPath(); ctx.arc(x,y+8+i*9,8-i*1.5,0,Math.PI); ctx.stroke();
+    }
+    // Fin
+    ctx.fillStyle='#0a6050';
+    ctx.beginPath(); ctx.moveTo(x-t.size*0.4,y+t.size); ctx.lineTo(x-t.size*1.1,y+t.size*1.5); ctx.lineTo(x+t.size*1.1,y+t.size*1.5); ctx.lineTo(x+t.size*0.4,y+t.size); ctx.closePath(); ctx.fill();
+    // Body/torso
+    ctx.fillStyle='#e8a880';
+    ctx.fillRect(x-t.size*0.45,y-t.size*0.7,t.size*0.9,t.size*0.75);
+    // Head
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.85,t.size*0.52,0,Math.PI*2); ctx.fill();
+    // Hair
+    ctx.fillStyle='#20a0c0'; ctx.shadowColor='#40d0e0'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.9,t.size*0.55,Math.PI*1.1,Math.PI*1.9); ctx.fill();
+    ctx.fillRect(x-t.size*0.55,y-t.size*1.1,t.size*0.25,t.size*0.6);
+    ctx.fillRect(x+t.size*0.3,y-t.size*1.1,t.size*0.25,t.size*0.6);
+    // Eyes (glowing hypnotic)
+    ctx.fillStyle='#00ffcc'; ctx.shadowColor='#00ffcc'; ctx.shadowBlur=14;
+    ctx.beginPath(); ctx.arc(x-5,y-t.size*0.85,3.5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+5,y-t.size*0.85,3.5,0,Math.PI*2); ctx.fill();
+    // Musical note
+    ctx.fillStyle='rgba(255,255,200,0.8)';
+    ctx.font=`bold ${t.size*0.9}px serif`;
+    ctx.textAlign='center'; ctx.fillText('♪',x+t.size*1.1,y-t.size*0.5);
+
+  } else if (name==='Minotauro') {
+    // Giant bull-headed humanoid
+    // Legs
+    ctx.fillStyle='#4a2a10';
+    ctx.fillRect(x-t.size*0.8,y+t.size*0.3,t.size*0.65,t.size*0.8);
+    ctx.fillRect(x+t.size*0.15,y+t.size*0.3,t.size*0.65,t.size*0.8);
+    // Body (massive)
+    ctx.fillStyle='#6a3818';
+    ctx.fillRect(x-t.size,y-t.size*0.3,t.size*2,t.size*0.65);
+    // Arms
+    ctx.fillStyle='#5a2e14';
+    ctx.fillRect(x-t.size*1.2,y-t.size*0.5,t.size*0.35,t.size*0.7);
+    ctx.fillRect(x+t.size*0.85,y-t.size*0.5,t.size*0.35,t.size*0.7);
+    // Fists (weapon-holding)
+    ctx.fillStyle='#7a4020';
+    ctx.beginPath(); ctx.arc(x-t.size*1.2,y+t.size*0.25,t.size*0.28,0,Math.PI*2); ctx.fill();
+    // Axe
+    ctx.strokeStyle='#909098'; ctx.lineWidth=4; ctx.shadowColor='#c0c0d0'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(x+t.size*1.0,y+t.size*0.2); ctx.lineTo(x+t.size*1.8,y-t.size*0.9); ctx.stroke();
+    ctx.fillStyle='#9090a0';
+    ctx.beginPath(); ctx.moveTo(x+t.size*1.65,y-t.size*0.95); ctx.lineTo(x+t.size*2.1,y-t.size*1.2); ctx.lineTo(x+t.size*1.75,y-t.size*0.5); ctx.closePath(); ctx.fill();
+    // Head (bull)
+    ctx.fillStyle='#8a4820';
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.6,t.size*0.8,0,Math.PI*2); ctx.fill();
+    // Snout
+    ctx.fillStyle='#9a5828';
+    ctx.beginPath(); ctx.ellipse(x,y-t.size*0.3,t.size*0.42,t.size*0.28,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#3a1808';
+    ctx.beginPath(); ctx.arc(x-6,y-t.size*0.28,4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+6,y-t.size*0.28,4,0,Math.PI*2); ctx.fill();
+    // Horns
+    ctx.strokeStyle='#e8d080'; ctx.lineWidth=5; ctx.shadowColor='#f0e090'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.moveTo(x-t.size*0.6,y-t.size*1.1); ctx.quadraticCurveTo(x-t.size*1.1,y-t.size*1.6,x-t.size*0.9,y-t.size*1.8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x+t.size*0.6,y-t.size*1.1); ctx.quadraticCurveTo(x+t.size*1.1,y-t.size*1.6,x+t.size*0.9,y-t.size*1.8); ctx.stroke();
+    // Eyes (red rage)
+    ctx.fillStyle='#ff2000'; ctx.shadowColor='#ff4000'; ctx.shadowBlur=12;
+    ctx.beginPath(); ctx.arc(x-t.size*0.3,y-t.size*0.7,t.size*0.18,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+t.size*0.3,y-t.size*0.7,t.size*0.18,0,Math.PI*2); ctx.fill();
+
+  } else if (name==='Medusa') {
+    // Gorgon with snake hair
+    // Body / robes
+    ctx.fillStyle='#204030';
+    ctx.beginPath();
+    ctx.moveTo(x,y-t.size*0.2);
+    ctx.bezierCurveTo(x-t.size*1.1,y,x-t.size*0.8,y+t.size*1.2,x,y+t.size*1.1);
+    ctx.bezierCurveTo(x+t.size*0.8,y+t.size*1.2,x+t.size*1.1,y,x,y-t.size*0.2);
+    ctx.fill();
+    // Scale pattern on robe
+    ctx.strokeStyle='rgba(60,180,100,0.4)'; ctx.lineWidth=1;
+    for(let si=0;si<4;si++){
+      ctx.beginPath(); ctx.arc(x,y+t.size*0.4+si*8,8-si,0,Math.PI); ctx.stroke();
+    }
+    // Snake hands
+    for(let s=0;s<2;s++){
+      const sx2=s===0?-1:1;
+      ctx.strokeStyle='#208040'; ctx.lineWidth=3; ctx.shadowColor='#40ff80'; ctx.shadowBlur=6;
+      ctx.beginPath();
+      ctx.moveTo(x+sx2*t.size*0.5,y);
+      ctx.quadraticCurveTo(x+sx2*t.size*1.3,y-t.size*0.4,x+sx2*t.size*1.4,y-t.size*0.9);
+      ctx.stroke();
+      ctx.fillStyle='#40c060';
+      ctx.beginPath(); ctx.arc(x+sx2*t.size*1.4,y-t.size*0.9,4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ff2000';
+      ctx.fillRect(x+sx2*t.size*1.4-4,y-t.size*0.88,8,2);
+    }
+    // Head
+    ctx.fillStyle='#c8a870';
+    ctx.beginPath(); ctx.arc(x,y-t.size*0.7,t.size*0.6,0,Math.PI*2); ctx.fill();
+    // Snake hair
+    ctx.shadowColor='#40ff80'; ctx.shadowBlur=8;
+    for(let s=0;s<6;s++){
+      const a=Math.PI*(0.1+s*0.18);
+      const sx2=Math.cos(a)*t.size*0.6+x;
+      const sy2=Math.sin(-a)*t.size*0.6+y-t.size*0.7;
+      const sway=Math.sin(G.frame*0.1+s)*5;
+      ctx.strokeStyle=`hsl(${120+s*20},70%,45%)`; ctx.lineWidth=2.5;
+      ctx.beginPath();
+      ctx.moveTo(sx2,sy2);
+      ctx.quadraticCurveTo(sx2+sway,sy2-15,sx2+sway*1.5,sy2-28);
+      ctx.stroke();
+      ctx.fillStyle=`hsl(${120+s*20},80%,55%)`;
+      ctx.beginPath(); ctx.arc(sx2+sway*1.5,sy2-28,3.5,0,Math.PI*2); ctx.fill();
+    }
+    // Eyes (petrifying glow)
+    ctx.fillStyle='#80ff00'; ctx.shadowColor='#c0ff40'; ctx.shadowBlur=18;
+    ctx.beginPath(); ctx.arc(x-6,y-t.size*0.72,5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+6,y-t.size*0.72,5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#003000';
+    ctx.beginPath(); ctx.arc(x-6,y-t.size*0.72,2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+6,y-t.size*0.72,2,0,Math.PI*2); ctx.fill();
+  }
+
+  // HP bar above enemy
+  const barW = t.size*2.2;
+  const hpPct = Math.max(0,e.hp/e.maxHp);
+  ctx.shadowBlur=0;
+  // bar background
+  ctx.fillStyle='rgba(0,0,0,0.7)';
+  ctx.fillRect(x-barW/2-1, y-t.size*1.5-8, barW+2, 8);
+  // bar fill
+  const barCol = hpPct>0.6?'#30c050':hpPct>0.3?'#e0a020':'#e03020';
+  ctx.fillStyle=barCol;
+  ctx.fillRect(x-barW/2, y-t.size*1.5-7, barW*hpPct, 6);
+  // bar border
+  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1;
+  ctx.strokeRect(x-barW/2-1, y-t.size*1.5-8, barW+2, 8);
+  // Name label
+  ctx.fillStyle='#ffffff'; ctx.shadowColor=t.glow; ctx.shadowBlur=6;
+  ctx.font=`bold 10px "Exo 2",sans-serif`; ctx.textAlign='center';
+  ctx.fillText(t.name, x, y-t.size*1.5-11);
+
+  ctx.restore();
+}
+
+// ── HUD ──
+function updateHUD() {
+  const hp = Math.max(0,G.hp), mhp = G.maxHp;
+  const ar = Math.max(0,G.arrows), mar = G.maxArrows;
+  document.getElementById('hpBar').style.width=(hp/mhp*100)+'%';
+  document.getElementById('hpText').textContent=`${Math.ceil(hp)}/${mhp}`;
+  document.getElementById('arrowBar').style.width=(ar/mar*100)+'%';
+  document.getElementById('arrowText').textContent=`${ar}/${mar}`;
+  document.getElementById('gameScore').textContent=G.score;
+  document.getElementById('levelText').textContent=`Nível ${G.level}`;
+}
+
+// ── Question system ──
+let qTimerInterval = null;
+
+function triggerQuestion(type) {
+  if (G.questionActive) return;
+  G.questionActive = true;
+  G.questionType = type;
+
+  const q = shuffle(ALL_QUESTIONS)[0];
+  const opts = shuffle(q.opts);
+
+  const panel = document.getElementById('gameQPanel');
+  const badge = document.getElementById('gameQBadge');
+  const textEl = document.getElementById('gameQText');
+  const optsEl = document.getElementById('gameQOptions');
+  const timerEl = document.getElementById('gameQTimer');
+
+  if (type==='hp') {
+    badge.textContent='❤️ RESPONDE PARA GANHAR VIDA';
+    badge.style.cssText='background:rgba(192,57,43,0.3);color:#ff8c80;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:4px 12px;border-radius:20px;border:1px solid rgba(192,57,43,0.5)';
+  } else {
+    badge.textContent='🏹 RESPONDE PARA GANHAR SETAS';
+    badge.style.cssText='background:rgba(0,150,180,0.3);color:#60d0f0;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:4px 12px;border-radius:20px;border:1px solid rgba(0,150,180,0.5)';
+  }
+
+  const sentence = q.s ? `<div style="font-style:italic;color:var(--sea-foam);margin-top:6px;padding:8px 12px;background:rgba(126,206,202,0.08);border-left:2px solid var(--sea-foam);border-radius:0 8px 8px 0">${q.s.replace(/<span class="underline">(.*?)<\/span>/g,'<u style="text-underline-offset:3px;color:var(--gold)">$1</u>')}</div>` : '';
+  textEl.innerHTML = q.q + sentence;
+
+  optsEl.innerHTML = opts.map(o =>
+    `<button onclick="answerGameQ(this,'${escQ(o)}','${escQ(q.ans)}','${type}')"
+      style="background:rgba(26,74,138,0.4);border:1px solid rgba(45,125,210,0.4);border-radius:10px;padding:10px 14px;color:var(--white);font-family:'Exo 2',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;text-align:left"
+      onmouseover="this.style.background='rgba(45,125,210,0.5)'"
+      onmouseout="this.style.background='rgba(26,74,138,0.4)'"
+    >${o}</button>`
+  ).join('');
+
+  panel.style.display = 'block';
+
+  // countdown timer
+  let timeLeft = 10;
+  timerEl.textContent = timeLeft;
+  timerEl.style.color = 'var(--gold)';
+  if (qTimerInterval) clearInterval(qTimerInterval);
+  qTimerInterval = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+    if (timeLeft<=3) timerEl.style.color='#e74c3c';
+    if (timeLeft<=0) {
+      clearInterval(qTimerInterval);
+      // Time up = wrong answer penalty
+      G.hp = Math.max(0, G.hp - 20);
+      updateHUD();
+      addFloat(G.px, G.py-40, '⏰ Tempo! -20❤️', '#e74c3c');
+      closeQuestion();
+      if (G.hp<=0) doGameOver();
+    }
+  }, 1000);
+}
+
+function answerGameQ(btn, chosen, correct, type) {
+  clearInterval(qTimerInterval);
+  const btns = document.querySelectorAll('#gameQOptions button');
+  btns.forEach(b => {
+    b.disabled = true;
+    b.style.cursor='default';
+    if (b.textContent.trim()===correct) b.style.cssText+=';background:rgba(39,174,96,0.4);border-color:#27ae60;color:#7ddd9f';
+    if (b.textContent.trim()===chosen && chosen!==correct) b.style.cssText+=';background:rgba(192,57,43,0.4);border-color:#c0392b;color:#f5938c';
+  });
+  const isCorrect = chosen===correct;
+  if (isCorrect) {
+    if (type==='hp') {
+      const gain = G.char==='warrior' ? 30 : 15;
+      G.hp = Math.min(G.maxHp, G.hp+gain);
+      addFloat(G.px, G.py-40, `❤️ +${gain} Vida!`, '#e74c3c');
+    } else {
+      const gain = G.char==='archer' ? 5 : 2;
+      G.arrows = Math.min(G.maxArrows, G.arrows+gain);
+      addFloat(G.px, G.py-40, `🏹 +${gain} Setas!`, '#00bcd4');
+    }
+    G.score += 20;
+    addParticles(G.px, G.py, '#f0c040', 12);
+  } else {
+    G.hp = Math.max(0, G.hp-15);
+    addFloat(G.px, G.py-40, '❌ -15 Vida!', '#e74c3c');
+    addParticles(G.px, G.py, '#e74c3c', 8);
+    if (G.hp<=0) { setTimeout(()=>doGameOver(),1000); }
+  }
+  updateHUD();
+  setTimeout(()=>closeQuestion(), isCorrect?800:1100);
+}
+
+function closeQuestion() {
+  clearInterval(qTimerInterval);
+  document.getElementById('gameQPanel').style.display='none';
+  G.questionActive = false;
+}
+
+// ── Game Over ──
+function doGameOver() {
+  stopGame();
+  const go = document.getElementById('gameOverScreen');
+  go.style.display='flex';
+  document.getElementById('gameOverTitle').textContent = G.level>=4 ? '⚓ Regresso a Ítaca!' : '💀 Caíste em Batalha!';
+  document.getElementById('gameOverEmoji').textContent = G.level>=4 ? '🏆' : '💀';
+  document.getElementById('gameOverScore').textContent = G.score;
+  document.getElementById('gameQPanel').style.display='none';
+  clearInterval(qTimerInterval);
+}
+
+// ── Public functions called from HTML ──
+function selectChar(type) {
+  document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelector(`.char-card.${type}`).classList.add('selected');
+  setTimeout(()=>{
+    initGState(type);
+    startGame();
+  }, 500);
+}
+
+function restartGame() {
+  document.getElementById('gameOverScreen').style.display='none';
+  document.getElementById('gameArena').classList.add('hidden');
+  document.getElementById('gameCharSelect').classList.remove('hidden');
+  document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+}
+
+function initGame() {
+  stopGame();
+  clearInterval(qTimerInterval);
+  document.getElementById('gameQPanel') && (document.getElementById('gameQPanel').style.display='none');
+  document.getElementById('gameCharSelect').classList.remove('hidden');
+  document.getElementById('gameArena').classList.add('hidden');
+  document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+}
+
+// Init on page load
+renderStudy();
+showSection('hero');
+</script>
+</body>
+</html>
