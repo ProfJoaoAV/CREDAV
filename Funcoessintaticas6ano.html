@@ -962,6 +962,12 @@ canvas#gameCanvas {
 ::-webkit-scrollbar-track { background: var(--ocean-deep); }
 ::-webkit-scrollbar-thumb { background: var(--ocean-blue); border-radius: 3px; }
 
+@keyframes qShake {
+  0%,100% { transform: scale(1) translateX(0); }
+  25% { transform: scale(1) translateX(-6px); }
+  75% { transform: scale(1) translateX(6px); }
+}
+
 </style>
 </head>
 <body>
@@ -1139,22 +1145,54 @@ canvas#gameCanvas {
         </div>
       </div>
 
-      <!-- QUESTION PANEL -->
-      <div id="gameQPanel" style="display:none;margin-top:10px;background:rgba(5,12,25,0.98);border:2px solid rgba(240,192,64,0.35);border-radius:16px;padding:18px 20px;backdrop-filter:blur(20px)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div id="gameQBadge" style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:4px 12px;border-radius:20px">⚡ GANHAR VIDA</div>
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
-          <div id="gameQTimer" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold)">8</div>
+      <!-- QUESTION POPUP — overlay centrado no canvas -->
+      <div id="gameQPopupBg" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(3px);z-index:20;align-items:center;justify-content:center">
+        <div id="gameQPopup" style="
+          background:linear-gradient(160deg,#0a1e38 0%,#071428 100%);
+          border:2px solid rgba(240,192,64,0.5);
+          border-radius:20px;
+          padding:24px 28px;
+          width:min(480px,90%);
+          box-shadow:0 0 60px rgba(240,192,64,0.2), 0 20px 60px rgba(0,0,0,0.8);
+          transform:scale(0.85);
+          transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+          position:relative;
+        ">
+          <!-- Header row -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div id="gameQBadge" style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:5px 14px;border-radius:20px">❤️ GANHAR VIDA</div>
+            <!-- Timer ring -->
+            <div style="position:relative;width:46px;height:46px;flex-shrink:0">
+              <svg width="46" height="46" style="transform:rotate(-90deg)">
+                <circle cx="23" cy="23" r="19" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+                <circle id="gameQTimerRing" cx="23" cy="23" r="19" fill="none" stroke="#f0c040" stroke-width="4"
+                  stroke-dasharray="119.4" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear,stroke 0.3s"/>
+              </svg>
+              <div id="gameQTimer" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--gold)">10</div>
+            </div>
+          </div>
+
+          <!-- Decorative divider -->
+          <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(240,192,64,0.4),transparent);margin-bottom:16px"></div>
+
+          <!-- Question text -->
+          <div id="gameQText" style="font-family:'Crimson Text',serif;font-size:1.1rem;color:#f0ece0;line-height:1.6;margin-bottom:18px"></div>
+
+          <!-- Options grid -->
+          <div id="gameQOptions" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px"></div>
+
+          <!-- Footer: R hint -->
+          <div style="text-align:center;font-size:0.7rem;color:rgba(160,180,200,0.6);padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
+            Pressiona <kbd style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:5px;padding:1px 6px;font-family:monospace;font-size:0.75rem;color:#ccc">R</kbd> a qualquer momento para pedir uma pergunta
+          </div>
         </div>
-        <div id="gameQText" style="font-family:'Crimson Text',serif;font-size:1.05rem;color:var(--white);line-height:1.5;margin-bottom:14px"></div>
-        <div id="gameQOptions" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
       </div>
 
       <!-- Controls hint -->
       <div style="display:flex;gap:16px;justify-content:center;margin-top:10px;flex-wrap:wrap">
         <span style="font-size:0.72rem;color:var(--text-dim)">🎮 <strong style="color:var(--gold)">WASD/Setas</strong> mover</span>
         <span style="font-size:0.72rem;color:var(--text-dim)">⚔️ <strong style="color:var(--gold)">ESPAÇO</strong> atacar</span>
-        <span style="font-size:0.72rem;color:var(--text-dim)">💡 Responde às perguntas para recuperar!</span>
+        <span style="font-size:0.72rem;color:var(--text-dim)">❓ <strong style="color:var(--gold)">R</strong> pedir pergunta</span>
       </div>
     </div>
   </div>
@@ -2013,7 +2051,15 @@ function startGame() {
 
   // Keyboard
   G.keys = {};
-  G._kd = e => { G.keys[e.code] = true; if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); };
+  G._kd = e => {
+    G.keys[e.code] = true;
+    if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+    // R key = request question manually
+    if(e.code==='KeyR' && !G.questionActive && G.active) {
+      const needArrows = G.char==='archer' && G.arrows < G.maxArrows*0.8;
+      triggerQuestion(needArrows ? 'arrows' : 'hp');
+    }
+  };
   G._ku = e => { G.keys[e.code] = false; };
   window.addEventListener('keydown', G._kd);
   window.addEventListener('keyup', G._ku);
@@ -2898,102 +2944,166 @@ function triggerQuestion(type) {
   const q = shuffle(ALL_QUESTIONS)[0];
   const opts = shuffle(q.opts);
 
-  const panel = document.getElementById('gameQPanel');
-  const badge = document.getElementById('gameQBadge');
+  const bg     = document.getElementById('gameQPopupBg');
+  const popup  = document.getElementById('gameQPopup');
+  const badge  = document.getElementById('gameQBadge');
   const textEl = document.getElementById('gameQText');
   const optsEl = document.getElementById('gameQOptions');
-  const timerEl = document.getElementById('gameQTimer');
+  const timerEl= document.getElementById('gameQTimer');
+  const ring   = document.getElementById('gameQTimerRing');
 
+  // Badge style per type
   if (type==='hp') {
     badge.textContent='❤️ RESPONDE PARA GANHAR VIDA';
-    badge.style.cssText='background:rgba(192,57,43,0.3);color:#ff8c80;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:4px 12px;border-radius:20px;border:1px solid rgba(192,57,43,0.5)';
+    badge.style.cssText='font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:5px 14px;border-radius:20px;background:rgba(180,30,20,0.35);color:#ff9080;border:1px solid rgba(200,60,40,0.5)';
   } else {
     badge.textContent='🏹 RESPONDE PARA GANHAR SETAS';
-    badge.style.cssText='background:rgba(0,150,180,0.3);color:#60d0f0;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:4px 12px;border-radius:20px;border:1px solid rgba(0,150,180,0.5)';
+    badge.style.cssText='font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:5px 14px;border-radius:20px;background:rgba(0,130,170,0.35);color:#60d8f8;border:1px solid rgba(0,160,200,0.5)';
   }
 
-  const sentence = q.s ? `<div style="font-style:italic;color:var(--sea-foam);margin-top:6px;padding:8px 12px;background:rgba(126,206,202,0.08);border-left:2px solid var(--sea-foam);border-radius:0 8px 8px 0">${q.s.replace(/<span class="underline">(.*?)<\/span>/g,'<u style="text-underline-offset:3px;color:var(--gold)">$1</u>')}</div>` : '';
-  textEl.innerHTML = q.q + sentence;
+  // Question + sentence
+  const sentence = q.s
+    ? `<div style="font-style:italic;color:#7ececa;margin-top:8px;padding:10px 14px;background:rgba(126,206,202,0.07);border-left:3px solid rgba(126,206,202,0.5);border-radius:0 10px 10px 0;font-size:1rem">${
+        q.s.replace(/<span class="underline">(.*?)<\/span>/g,'<u style="text-underline-offset:4px;text-decoration-color:#f0c040;color:#f0d878;font-weight:600">$1</u>')
+      }</div>` : '';
+  textEl.innerHTML = `<span style="font-size:1.05rem">${q.q}</span>${sentence}`;
 
-  optsEl.innerHTML = opts.map(o =>
-    `<button onclick="answerGameQ(this,'${escQ(o)}','${escQ(q.ans)}','${type}')"
-      style="background:rgba(26,74,138,0.4);border:1px solid rgba(45,125,210,0.4);border-radius:10px;padding:10px 14px;color:var(--white);font-family:'Exo 2',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;text-align:left"
-      onmouseover="this.style.background='rgba(45,125,210,0.5)'"
-      onmouseout="this.style.background='rgba(26,74,138,0.4)'"
-    >${o}</button>`
-  ).join('');
+  // Option buttons
+  optsEl.innerHTML = opts.map((o,i) => {
+    const letters = ['A','B','C','D'];
+    return `<button
+      onclick="answerGameQ(this,'${escQ(o)}','${escQ(q.ans)}','${type}')"
+      style="
+        display:flex;align-items:flex-start;gap:10px;
+        background:rgba(20,50,100,0.5);
+        border:1px solid rgba(60,110,200,0.4);
+        border-radius:12px;padding:11px 14px;
+        color:#e8eeff;font-family:'Exo 2',sans-serif;font-size:0.88rem;
+        cursor:pointer;transition:all 0.18s;text-align:left;line-height:1.35;
+      "
+      onmouseover="if(!this.disabled){this.style.background='rgba(40,90,180,0.6)';this.style.borderColor='rgba(100,160,255,0.7)';this.style.transform='translateY(-1px)'}"
+      onmouseout="if(!this.disabled){this.style.background='rgba(20,50,100,0.5)';this.style.borderColor='rgba(60,110,200,0.4)';this.style.transform='none'}"
+    ><span style="flex-shrink:0;width:22px;height:22px;background:rgba(60,110,200,0.35);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;color:#80b0ff">${letters[i]}</span>${o}</button>`;
+  }).join('');
 
-  panel.style.display = 'block';
+  // Show popup with animation
+  bg.style.display = 'flex';
+  requestAnimationFrame(() => { popup.style.transform = 'scale(1)'; });
 
-  // countdown timer
-  let timeLeft = 10;
+  // Countdown timer with SVG ring
+  const TOTAL_SECS = 12;
+  const CIRCUMFERENCE = 119.4;
+  let timeLeft = TOTAL_SECS;
+  ring.style.strokeDashoffset = '0';
+  ring.style.stroke = '#f0c040';
   timerEl.textContent = timeLeft;
-  timerEl.style.color = 'var(--gold)';
+  timerEl.style.color = '#f0c040';
+
   if (qTimerInterval) clearInterval(qTimerInterval);
   qTimerInterval = setInterval(() => {
     timeLeft--;
+    // Update ring
+    const progress = timeLeft / TOTAL_SECS;
+    ring.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - progress));
     timerEl.textContent = timeLeft;
-    if (timeLeft<=3) timerEl.style.color='#e74c3c';
-    if (timeLeft<=0) {
+    if (timeLeft <= 4) {
+      ring.style.stroke = '#e74c3c';
+      timerEl.style.color = '#e74c3c';
+      // Shake popup on last 3s
+      popup.style.animation = 'none';
+      void popup.offsetWidth;
+      popup.style.animation = 'qShake 0.3s ease';
+    }
+    if (timeLeft <= 0) {
       clearInterval(qTimerInterval);
-      // Time up = wrong answer penalty
       G.hp = Math.max(0, G.hp - 20);
       updateHUD();
-      addFloat(G.px, G.py-40, '⏰ Tempo! -20❤️', '#e74c3c');
-      closeQuestion();
-      if (G.hp<=0) doGameOver();
+      addFloat(G.px, G.py-50, '⏰ Tempo esgotado! -20❤️', '#e74c3c');
+      addParticles(G.px, G.py, '#e74c3c', 10);
+      closeQuestion(false);
+      if (G.hp <= 0) doGameOver();
     }
   }, 1000);
 }
 
 function answerGameQ(btn, chosen, correct, type) {
   clearInterval(qTimerInterval);
+  // Stop ring animation
+  const ring = document.getElementById('gameQTimerRing');
+  ring.style.transition = 'none';
+
   const btns = document.querySelectorAll('#gameQOptions button');
   btns.forEach(b => {
     b.disabled = true;
-    b.style.cursor='default';
-    if (b.textContent.trim()===correct) b.style.cssText+=';background:rgba(39,174,96,0.4);border-color:#27ae60;color:#7ddd9f';
-    if (b.textContent.trim()===chosen && chosen!==correct) b.style.cssText+=';background:rgba(192,57,43,0.4);border-color:#c0392b;color:#f5938c';
+    b.style.cursor = 'default';
+    b.style.transform = 'none';
+    // Get actual option text (strip the A/B/C/D letter badge — it's in a child span)
+    const spans = b.querySelectorAll('span');
+    const labelSpan = spans[spans.length-1]; // last span is the text... actually text is a text node
+    // textContent includes letter + text; compare against passed correct/chosen values
+    const fullText = b.textContent.trim();
+    // The letter badge is 1 char, rest is the option
+    const optText = fullText.slice(1).trim();
+    if (optText === correct) {
+      b.style.background = 'rgba(30,140,70,0.5)';
+      b.style.borderColor = '#30c060';
+      b.style.color = '#80ff90';
+    }
+    if (optText === chosen && chosen !== correct) {
+      b.style.background = 'rgba(160,30,20,0.5)';
+      b.style.borderColor = '#c03020';
+      b.style.color = '#ff8070';
+    }
   });
-  const isCorrect = chosen===correct;
+
+  const isCorrect = chosen === correct;
+
   if (isCorrect) {
     if (type==='hp') {
       const gain = G.char==='warrior' ? 30 : 15;
-      G.hp = Math.min(G.maxHp, G.hp+gain);
-      addFloat(G.px, G.py-40, `❤️ +${gain} Vida!`, '#e74c3c');
+      G.hp = Math.min(G.maxHp, G.hp + gain);
+      addFloat(G.px, G.py-50, `❤️ +${gain} Vida!`, '#ff6060');
     } else {
       const gain = G.char==='archer' ? 5 : 2;
-      G.arrows = Math.min(G.maxArrows, G.arrows+gain);
-      addFloat(G.px, G.py-40, `🏹 +${gain} Setas!`, '#00bcd4');
+      G.arrows = Math.min(G.maxArrows, G.arrows + gain);
+      addFloat(G.px, G.py-50, `🏹 +${gain} Setas!`, '#00d4ff');
     }
     G.score += 20;
-    addParticles(G.px, G.py, '#f0c040', 12);
+    addParticles(G.px, G.py, '#f0c040', 14);
   } else {
-    G.hp = Math.max(0, G.hp-15);
-    addFloat(G.px, G.py-40, '❌ -15 Vida!', '#e74c3c');
-    addParticles(G.px, G.py, '#e74c3c', 8);
-    if (G.hp<=0) { setTimeout(()=>doGameOver(),1000); }
+    G.hp = Math.max(0, G.hp - 15);
+    addFloat(G.px, G.py-50, '❌ Errado! -15 Vida', '#ff4040');
+    addParticles(G.px, G.py, '#e74c3c', 10);
+    if (G.hp <= 0) setTimeout(() => doGameOver(), 900);
   }
+
   updateHUD();
-  setTimeout(()=>closeQuestion(), isCorrect?800:1100);
+  setTimeout(() => closeQuestion(isCorrect), isCorrect ? 700 : 1000);
 }
 
-function closeQuestion() {
+function closeQuestion(correct) {
   clearInterval(qTimerInterval);
-  document.getElementById('gameQPanel').style.display='none';
-  G.questionActive = false;
+  const popup = document.getElementById('gameQPopup');
+  const bg    = document.getElementById('gameQPopupBg');
+  popup.style.transform = 'scale(0.85)';
+  setTimeout(() => {
+    bg.style.display = 'none';
+    popup.style.transform = 'scale(0.85)'; // reset for next open
+    G.questionActive = false;
+  }, 220);
 }
 
 // ── Game Over ──
 function doGameOver() {
   stopGame();
+  clearInterval(qTimerInterval);
+  document.getElementById('gameQPopupBg').style.display='none';
+  G.questionActive = false;
   const go = document.getElementById('gameOverScreen');
   go.style.display='flex';
   document.getElementById('gameOverTitle').textContent = G.level>=4 ? '⚓ Regresso a Ítaca!' : '💀 Caíste em Batalha!';
   document.getElementById('gameOverEmoji').textContent = G.level>=4 ? '🏆' : '💀';
   document.getElementById('gameOverScore').textContent = G.score;
-  document.getElementById('gameQPanel').style.display='none';
-  clearInterval(qTimerInterval);
 }
 
 // ── Public functions called from HTML ──
@@ -3016,7 +3126,7 @@ function restartGame() {
 function initGame() {
   stopGame();
   clearInterval(qTimerInterval);
-  document.getElementById('gameQPanel') && (document.getElementById('gameQPanel').style.display='none');
+  document.getElementById('gameQPopupBg').style.display='none';
   document.getElementById('gameCharSelect').classList.remove('hidden');
   document.getElementById('gameArena').classList.add('hidden');
   document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
