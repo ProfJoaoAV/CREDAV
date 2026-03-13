@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Avaliação — Português 6.º Ano</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2744;
+    --blue: #2e4b8f;
+    --sky: #4a7cc7;
+    --gold: #c9a227;
+    --cream: #faf8f3;
+    --paper: #f5f2ea;
+    --ink: #1a1a2e;
+    --muted: #6b7280;
+    --line: #d4cfc4;
+    --correct: #16a34a;
+    --wrong: #dc2626;
+    --correct-bg: #f0fdf4;
+    --wrong-bg: #fef2f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .page-header {
+    background: var(--navy);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 30px,
+      rgba(255,255,255,0.02) 30px,
+      rgba(255,255,255,0.02) 60px
+    );
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 32px 36px;
+    position: relative;
+  }
+  .school-label {
+    font-family: 'Source Serif 4', serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .test-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .test-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.65);
+    font-style: italic;
+  }
+  .header-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .meta-pill span { color: var(--gold); font-weight: 600; }
+
+  /* STUDENT INFO */
+  .student-bar {
+    background: white;
+    border-bottom: 2px solid var(--line);
+    padding: 20px 32px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .student-fields {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .field-group label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: 'Source Serif 4', serif;
+  }
+  .field-group input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--line);
+    background: transparent;
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    padding: 4px 0;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field-group input:focus { border-color: var(--blue); }
+
+  /* PROGRESS */
+  .progress-section {
+    background: white;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .progress-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+  .progress-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--line);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--sky));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-score {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue);
+    white-space: nowrap;
+  }
+  .btn-submit {
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 6px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-submit:hover { background: var(--blue); }
+  .btn-submit:active { transform: scale(0.97); }
+
+  /* MAIN CONTENT */
+  .test-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* INTRO TEXT */
+  .text-block {
+    background: white;
+    border-left: 4px solid var(--gold);
+    padding: 20px 24px;
+    margin: 24px 0;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--ink);
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.04);
+  }
+  .text-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* GROUPS */
+  .group {
+    margin-bottom: 56px;
+  }
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--navy);
+  }
+  .group-number {
+    background: var(--navy);
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .group-info h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .group-info .pts {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* QUESTIONS */
+  .question {
+    margin-bottom: 32px;
+    padding: 24px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    transition: box-shadow 0.2s;
+  }
+  .question:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .question.answered { border-color: rgba(46,75,143,0.3); }
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .q-num {
+    background: var(--blue);
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .q-text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .q-pts {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    background: var(--paper);
+    padding: 3px 10px;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+
+  /* SUBQUESTIONS */
+  .subquestions { padding-left: 44px; }
+  .subq {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .subq-label {
+    font-weight: 600;
+    color: var(--blue);
+    font-size: 14px;
+    min-width: 22px;
+    margin-top: 2px;
+  }
+  .subq-body { flex: 1; }
+  .subq-text {
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  /* INPUTS */
+  .answer-line {
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px solid var(--line);
+    background: transparent;
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    padding: 6px 2px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 4px;
+  }
+  .answer-line:focus { border-color: var(--blue); }
+  .answer-line.correct { border-color: var(--correct); background: var(--correct-bg); }
+  .answer-line.wrong { border-color: var(--wrong); background: var(--wrong-bg); }
+
+  textarea.answer-line {
+    resize: vertical;
+    min-height: 56px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+  }
+  textarea.answer-line:focus { border-color: var(--blue); }
+
+  /* TABLES */
+  .answer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .answer-table th {
+    background: var(--navy);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+  }
+  .answer-table td {
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+  }
+  .answer-table tr:nth-child(even) td { background: var(--cream); }
+  .answer-table input {
+    border: none;
+    background: transparent;
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    padding: 4px 6px;
+    color: var(--ink);
+  }
+  .answer-table input:focus { background: rgba(46,75,143,0.06); border-radius: 4px; }
+
+  /* WORD BOX */
+  .word-box {
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin: 12px 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .word-chip {
+    background: white;
+    border: 1.5px solid var(--blue);
+    color: var(--blue);
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-family: 'Source Serif 4', serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .word-chip:hover { background: var(--blue); color: white; }
+  .word-chip.used { opacity: 0.35; pointer-events: none; }
+
+  /* FILL BLANK */
+  .fill-sentence {
+    font-size: 15px;
+    line-height: 2.2;
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    background: var(--cream);
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+  .fill-sentence input.blank {
+    border: none;
+    border-bottom: 2px solid var(--blue);
+    background: transparent;
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    width: 90px;
+    text-align: center;
+    outline: none;
+    color: var(--blue);
+    font-weight: 600;
+  }
+
+  /* MCQ */
+  .mcq-options { margin-top: 12px; }
+  .mcq-opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 14px;
+    background: white;
+  }
+  .mcq-opt:hover { border-color: var(--sky); background: rgba(74,124,199,0.04); }
+  .mcq-opt.selected { border-color: var(--blue); background: rgba(46,75,143,0.07); }
+  .mcq-opt.correct-answer { border-color: var(--correct); background: var(--correct-bg); }
+  .mcq-opt.wrong-answer { border-color: var(--wrong); background: var(--wrong-bg); }
+  .mcq-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    flex-shrink: 0;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mcq-opt.selected .mcq-dot { border-color: var(--blue); background: var(--blue); }
+  .mcq-opt.selected .mcq-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; display: block; }
+
+  /* FEEDBACK */
+  .feedback-inline {
+    margin-top: 10px;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    display: none;
+  }
+  .feedback-inline.show { display: block; }
+  .feedback-inline.ok { background: var(--correct-bg); color: var(--correct); border: 1px solid #bbf7d0; }
+  .feedback-inline.bad { background: var(--wrong-bg); color: var(--wrong); border: 1px solid #fecaca; }
+
+  /* RESULTS PANEL */
+  .results-panel {
+    display: none;
+    background: white;
+    border: 2px solid var(--navy);
+    border-radius: 14px;
+    padding: 40px;
+    margin-top: 48px;
+    text-align: center;
+    animation: slideUp 0.5s ease;
+  }
+  .results-panel.show { display: block; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .score-ring {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--blue) 0%, var(--blue) var(--pct), var(--line) var(--pct));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .score-ring::before {
+    content: '';
+    position: absolute;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: white;
+  }
+  .score-inner {
+    position: relative;
+    z-index: 1;
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--navy);
+  }
+  .result-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .result-sub { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
+  .result-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .breakdown-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 10px;
+  }
+  .breakdown-card .val {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--blue);
+  }
+  .breakdown-card .lbl {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .btn-reset {
+    background: var(--paper);
+    color: var(--navy);
+    border: 2px solid var(--navy);
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 12px;
+  }
+  .btn-reset:hover { background: var(--navy); color: white; }
+  .btn-check {
+    background: var(--navy);
+    color: white;
+    border: 2px solid var(--navy);
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-check:hover { background: var(--blue); border-color: var(--blue); }
+
+  /* FOOTER */
+  .page-footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 600px) {
+    .student-fields { grid-template-columns: 1fr 1fr; }
+    .result-breakdown { grid-template-columns: 1fr 1fr; }
+    .header-inner { padding: 32px 20px 24px; }
+    .test-body { padding: 24px 16px 60px; }
+    .progress-section { padding: 10px 16px; }
+    .btn-submit { font-size: 11px; padding: 7px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-inner">
+    <div class="school-label">Escola EB 2,3 · Ano Letivo 2025/2026</div>
+    <h1 class="test-title">Ficha de Avaliação<br>Língua Portuguesa</h1>
+    <p class="test-subtitle">6.º Ano · Gramática</p>
+    <div class="header-meta">
+      <div class="meta-pill">⏱ Duração: <span>90 min</span></div>
+      <div class="meta-pill">📋 Cotação: <span>100 pontos</span></div>
+      <div class="meta-pill">📚 3 Grupos</div>
+    </div>
+  </div>
+</header>
+
+<div class="student-bar">
+  <div class="student-fields">
+    <div class="field-group">
+      <label>Nome do Aluno</label>
+      <input type="text" id="student-name" placeholder="Escreve o teu nome completo">
+    </div>
+    <div class="field-group">
+      <label>Turma</label>
+      <input type="text" id="student-turma" placeholder="Ex: 6.º A">
+    </div>
+    <div class="field-group">
+      <label>Data</label>
+      <input type="date" id="student-date">
+    </div>
+  </div>
+</div>
+
+<div class="progress-section">
+  <div class="progress-inner">
+    <span class="progress-label">Progresso</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prog-bar"></div>
+    </div>
+    <span class="progress-score" id="prog-text">0 / 14 perguntas</span>
+    <button class="btn-submit" onclick="submitTest()">Submeter ✓</button>
+  </div>
+</div>
+
+<main class="test-body">
+
+  <!-- GRUPO I -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-number">I</div>
+      <div class="group-info">
+        <h2>Classes de Palavras</h2>
+        <div class="pts">30 pontos</div>
+      </div>
+    </div>
+
+    <div class="text-block">
+      <span class="text-label">Texto de apoio</span>
+      A <u>Maria</u> acordou cedo naquela manhã <u>fria</u> de inverno. Ela olhou pela janela e viu as folhas caídas no jardim. O seu cão <u>pequeno</u> latia <u>alegremente</u> lá fora. A avó chamou-a <u>gentilmente</u> para o pequeno-almoço e colocou um copo de leite quente <u>sobre</u> a mesa.
+    </div>
+
+    <!-- Q1 -->
+    <div class="question" id="q1">
+      <div class="q-header">
+        <div class="q-num">1</div>
+        <div class="q-text">Classifica as palavras sublinhadas no texto quanto à subclasse. Preenche a tabela.</div>
+        <div class="q-pts">6 pts</div>
+      </div>
+      <table class="answer-table">
+        <thead><tr><th>Palavra</th><th>Subclasse</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Maria</strong></td><td><input type="text" data-q="1" data-key="nome próprio" placeholder="resposta…" oninput="updateProgress()"></td></tr>
+          <tr><td><strong>fria</strong></td><td><input type="text" data-q="1" data-key="adjetivo qualificativo" placeholder="resposta…" oninput="updateProgress()"></td></tr>
+          <tr><td><strong>pequeno</strong></td><td><input type="text" data-q="1" data-key="adjetivo qualificativo" placeholder="resposta…" oninput="updateProgress()"></td></tr>
+          <tr><td><strong>alegremente</strong></td><td><input type="text" data-q="1" data-key="advérbio de modo" placeholder="resposta…" oninput="updateProgress()"></td></tr>
+          <tr><td><strong>gentilmente</strong></td><td><input type="text" data-q="1" data-key="advérbio de modo" placeholder="resposta…" oninput="updateProgress()"></td></tr>
+          <tr><td><strong>sobre</strong></td><td><input type="text" data-q="1" data-key="preposição" placeholder="resposta…" oninput="updateProgress()"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question" id="q2">
+      <div class="q-header">
+        <div class="q-num">2</div>
+        <div class="q-text">Identifica três nomes comuns presentes no texto e classifica-os quanto ao género e número.</div>
+        <div class="q-pts">6 pts</div>
+      </div>
+      <table class="answer-table">
+        <thead><tr><th>Nome comum</th><th>Género</th><th>Número</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><input type="text" placeholder="nome comum…" oninput="updateProgress()"></td>
+            <td><input type="text" placeholder="género…" oninput="updateProgress()"></td>
+            <td><input type="text" placeholder="número…" oninput="updateProgress()"></td>
+          </tr>
+          <tr>
+            <td><input type="text" placeholder="nome comum…" oninput="updateProgress()"></td>
+            <td><input type="text" placeholder="género…" oninput="updateProgress()"></td>
+            <td><input type="text" placeholder="número…" oninput="updateProgress()"></td>
+          </tr>
+          <tr>
+            <td><input type="text" placeholder="nome comum…" oninput="updateProgress()"></td>
+            <td><input type="text" placeholder="género…" oninput="updateProgress()"></td>
+            <td><input type="text" placeholder="número…" oninput="updateProgress()"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question" id="q3">
+      <div class="q-header">
+        <div class="q-num">3</div>
+        <div class="q-text">Retira do texto um exemplo de cada um dos seguintes determinantes e pronomes:</div>
+        <div class="q-pts">6 pts</div>
+      </div>
+      <div class="subquestions">
+        <div class="subq">
+          <div class="subq-label">a)</div>
+          <div class="subq-body">
+            <div class="subq-text">Determinante artigo definido:</div>
+            <input type="text" class="answer-line" data-q="3a" data-key="o,a,as,os" placeholder="escreve aqui…" oninput="updateProgress()">
+          </div>
+        </div>
+        <div class="subq">
+          <div class="subq-label">b)</div>
+          <div class="subq-body">
+            <div class="subq-text">Determinante possessivo:</div>
+            <input type="text" class="answer-line" data-q="3b" data-key="seu" placeholder="escreve aqui…" oninput="updateProgress()">
+          </div>
+        </div>
+        <div class="subq">
+          <div class="subq-label">c)</div>
+          <div class="subq-body">
+            <div class="subq-text">Pronome pessoal:</div>
+            <input type="text" class="answer-line" data-q="3c" data-key="ela,a" placeholder="escreve aqui…" oninput="updateProgress()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question" id="q4">
+      <div class="q-header">
+        <div class="q-num">4</div>
+        <div class="q-text">Indica o tipo de cada advérbio sublinhado nas frases seguintes:</div>
+        <div class="q-pts">6 pts</div>
+      </div>
+      <div class="fill-sentence">
+        a) O Pedro respondeu <u>corretamente</u>. → tipo: <input class="blank" type="text" data-q="4a" data-key="modo" oninput="updateProgress()" placeholder="___">
+      </div>
+      <div class="fill-sentence">
+        b) Ela <u>ainda</u> não terminou o trabalho. → tipo: <input class="blank" type="text" data-q="4b" data-key="tempo" oninput="updateProgress()" placeholder="___">
+      </div>
+      <div class="fill-sentence">
+        c) Eles ficaram <u>aqui</u> durante a tarde. → tipo: <input class="blank" type="text" data-q="4c" data-key="lugar" oninput="updateProgress()" placeholder="___">
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question" id="q5">
+      <div class="q-header">
+        <div class="q-num">5</div>
+        <div class="q-text">Completa as frases com a preposição adequada do quadro:</div>
+        <div class="q-pts">6 pts</div>
+      </div>
+      <div class="word-box" id="prep-box">
+        <span class="word-chip" onclick="selectPrep(this)">em</span>
+        <span class="word-chip" onclick="selectPrep(this)">de</span>
+        <span class="word-chip" onclick="selectPrep(this)">por</span>
+        <span class="word-chip" onclick="selectPrep(this)">com</span>
+        <span class="word-chip" onclick="selectPrep(this)">a</span>
+      </div>
+      <div class="fill-sentence">a) O livro está <input class="blank" type="text" id="p1" data-key="em" oninput="updateProgress()" placeholder="___"> cima da mesa.</div>
+      <div class="fill-sentence">b) Gosto muito <input class="blank" type="text" id="p2" data-key="de" oninput="updateProgress()" placeholder="___"> música clássica.</div>
+      <div class="fill-sentence">c) Fui <input class="blank" type="text" id="p3" data-key="a" oninput="updateProgress()" placeholder="___"> pé até à escola.</div>
+      <div class="fill-sentence">d) Ela viajou <input class="blank" type="text" id="p4" data-key="de" oninput="updateProgress()" placeholder="___"> comboio <input class="blank" type="text" id="p5" data-key="a" oninput="updateProgress()" placeholder="___"> Lisboa.</div>
+    </div>
+  </div>
+
+  <!-- GRUPO II -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-number">II</div>
+      <div class="group-info">
+        <h2>Funções Sintáticas</h2>
+        <div class="pts">40 pontos</div>
+      </div>
+    </div>
+
+    <div class="text-block">
+      <span class="text-label">Texto de apoio</span>
+      A professora explicou a matéria aos alunos com muita paciência. O João pareceu satisfeito no final da aula. Os colegas agradeceram à professora. <em>Ana, que boa explicação!</em>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question" id="q6">
+      <div class="q-header">
+        <div class="q-num">6</div>
+        <div class="q-text">Analisa sintaticamente as frases. Identifica o sujeito e o predicado.</div>
+        <div class="q-pts">8 pts</div>
+      </div>
+      <table class="answer-table">
+        <thead><tr><th>Frase</th><th>Sujeito</th><th>Predicado</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>A professora explicou a matéria.</td>
+            <td><input type="text" data-key="a professora" placeholder="sujeito…" oninput="updateProgress()"></td>
+            <td><input type="text" data-key="explicou a matéria" placeholder="predicado…" oninput="updateProgress()"></td>
+          </tr>
+          <tr>
+            <td>Os colegas agradeceram à professora.</td>
+            <td><input type="text" data-key="os colegas" placeholder="sujeito…" oninput="updateProgress()"></td>
+            <td><input type="text" data-key="agradeceram à professora" placeholder="predicado…" oninput="updateProgress()"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question" id="q7">
+      <div class="q-header">
+        <div class="q-num">7</div>
+        <div class="q-text">Na frase <em>«A professora explicou a matéria aos alunos com muita paciência»</em>, identifica:</div>
+        <div class="q-pts">9 pts</div>
+      </div>
+      <div class="subquestions">
+        <div class="subq">
+          <div class="subq-label">a)</div>
+          <div class="subq-body">
+            <div class="subq-text">O complemento direto:</div>
+            <input type="text" class="answer-line" data-q="7a" data-key="a matéria" placeholder="escreve aqui…" oninput="updateProgress()">
+          </div>
+        </div>
+        <div class="subq">
+          <div class="subq-label">b)</div>
+          <div class="subq-body">
+            <div class="subq-text">O complemento indireto:</div>
+            <input type="text" class="answer-line" data-q="7b" data-key="aos alunos" placeholder="escreve aqui…" oninput="updateProgress()">
+          </div>
+        </div>
+        <div class="subq">
+          <div class="subq-label">c)</div>
+          <div class="subq-body">
+            <div class="subq-text">O complemento oblíquo:</div>
+            <input type="text" class="answer-line" data-q="7c" data-key="com muita paciência" placeholder="escreve aqui…" oninput="updateProgress()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question" id="q8">
+      <div class="q-header">
+        <div class="q-num">8</div>
+        <div class="q-text">Na frase <em>«O João pareceu satisfeito no final da aula»</em>, indica:</div>
+        <div class="q-pts">8 pts</div>
+      </div>
+      <div class="subquestions">
+        <div class="subq">
+          <div class="subq-label">a)</div>
+          <div class="subq-body">
+            <div class="subq-text">O predicativo do sujeito:</div>
+            <input type="text" class="answer-line" data-q="8a" data-key="satisfeito" placeholder="escreve aqui…" oninput="updateProgress()">
+          </div>
+        </div>
+        <div class="subq">
+          <div class="subq-label">b)</div>
+          <div class="subq-body">
+            <div class="subq-text">Justifica porque é que <em>«satisfeito»</em> não é um complemento direto:</div>
+            <textarea class="answer-line" data-q="8b" placeholder="Escreve a tua justificação…" oninput="updateProgress()"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question" id="q9">
+      <div class="q-header">
+        <div class="q-num">9</div>
+        <div class="q-text">Na frase <em>«Ana, que boa explicação!»</em>, identifica a função sintática de <em>«Ana»</em> e explica o que é essa função.</div>
+        <div class="q-pts">6 pts</div>
+      </div>
+      <textarea class="answer-line" style="margin-top:12px" data-q="9" placeholder="Escreve a tua resposta…" oninput="updateProgress()"></textarea>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question" id="q10">
+      <div class="q-header">
+        <div class="q-num">10</div>
+        <div class="q-text">Classifica a função sintática das expressões em itálico:</div>
+        <div class="q-pts">9 pts</div>
+      </div>
+      <div class="fill-sentence">a) A Inês ofereceu um livro <em>ao irmão</em>. →
+        <input class="blank" style="width:200px" type="text" data-key="complemento indireto" oninput="updateProgress()" placeholder="função sintática">
+      </div>
+      <div class="fill-sentence">b) A turma visitou <em>o museu</em>. →
+        <input class="blank" style="width:200px" type="text" data-key="complemento direto" oninput="updateProgress()" placeholder="função sintática">
+      </div>
+      <div class="fill-sentence">c) O pai ficou <em>preocupado</em>. →
+        <input class="blank" style="width:200px" type="text" data-key="predicativo do sujeito" oninput="updateProgress()" placeholder="função sintática">
+      </div>
+      <div class="fill-sentence">d) <em>Meninos</em>, entrem na sala! →
+        <input class="blank" style="width:200px" type="text" data-key="vocativo" oninput="updateProgress()" placeholder="função sintática">
+      </div>
+    </div>
+  </div>
+
+  <!-- GRUPO III -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-number">III</div>
+      <div class="group-info">
+        <h2>Síntese e Aplicação</h2>
+        <div class="pts">30 pontos</div>
+      </div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="question" id="q11">
+      <div class="q-header">
+        <div class="q-num">11</div>
+        <div class="q-text">Reescreve as frases substituindo as expressões sublinhadas pelo pronome pessoal adequado.</div>
+        <div class="q-pts">8 pts</div>
+      </div>
+      <div class="subquestions">
+        <div class="subq">
+          <div class="subq-label">a)</div>
+          <div class="subq-body">
+            <div class="subq-text">A Maria encontrou <u>a carteira</u> na rua.</div>
+            <input type="text" class="answer-line" data-q="11a" data-key="a maria encontrou-a na rua" placeholder="reescreve a frase…" oninput="updateProgress()">
+          </div>
+        </div>
+        <div class="subq">
+          <div class="subq-label">b)</div>
+          <div class="subq-body">
+            <div class="subq-text">O professor entregou <u>os testes</u> aos alunos.</div>
+            <input type="text" class="answer-line" data-q="11b" data-key="o professor entregou-os aos alunos" placeholder="reescreve a frase…" oninput="updateProgress()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q12 -->
+    <div class="question" id="q12">
+      <div class="q-header">
+        <div class="q-num">12</div>
+        <div class="q-text">Transforma as frases conforme indicado:</div>
+        <div class="q-pts">8 pts</div>
+      </div>
+      <div class="subquestions">
+        <div class="subq">
+          <div class="subq-label">a)</div>
+          <div class="subq-body">
+            <div class="subq-text"><em>«Os meninos brincam no recreio.»</em> — Substitui o sujeito por um sujeito subentendido:</div>
+            <input type="text" class="answer-line" placeholder="nova frase…" oninput="updateProgress()">
+          </div>
+        </div>
+        <div class="subq">
+          <div class="subq-label">b)</div>
+          <div class="subq-body">
+            <div class="subq-text"><em>«Ela comprou fruta.»</em> — Acrescenta um complemento indireto e um complemento oblíquo:</div>
+            <input type="text" class="answer-line" placeholder="nova frase…" oninput="updateProgress()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q13 -->
+    <div class="question" id="q13">
+      <div class="q-header">
+        <div class="q-num">13</div>
+        <div class="q-text">Escreve uma frase que contenha: sujeito · predicado · complemento direto · vocativo</div>
+        <div class="q-pts">6 pts</div>
+      </div>
+      <textarea class="answer-line" style="margin-top:12px" data-q="13" placeholder="Escreve a tua frase…" oninput="updateProgress()"></textarea>
+    </div>
+
+    <!-- Q14 -->
+    <div class="question" id="q14">
+      <div class="q-header">
+        <div class="q-num">14</div>
+        <div class="q-text">Escolha múltipla. Assinala a opção correta em cada alínea:</div>
+        <div class="q-pts">8 pts</div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <p style="font-size:14px;margin-bottom:10px;font-weight:600">a) Na frase <em>«O professor deu um livro ao aluno»</em>, <em>«um livro»</em> é:</p>
+        <div class="mcq-options" id="mcq-a">
+          <div class="mcq-opt" onclick="selectMCQ('mcq-a', this, false)">
+            <div class="mcq-dot"></div><span>Sujeito</span>
+          </div>
+          <div class="mcq-opt" onclick="selectMCQ('mcq-a', this, true)">
+            <div class="mcq-dot"></div><span>Complemento direto</span>
+          </div>
+          <div class="mcq-opt" onclick="selectMCQ('mcq-a', this, false)">
+            <div class="mcq-dot"></div><span>Complemento indireto</span>
+          </div>
+          <div class="mcq-opt" onclick="selectMCQ('mcq-a', this, false)">
+            <div class="mcq-dot"></div><span>Predicativo do sujeito</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:14px;margin-bottom:10px;font-weight:600">b) Na frase <em>«Ela tornou-se médica»</em>, <em>«médica»</em> é:</p>
+        <div class="mcq-options" id="mcq-b">
+          <div class="mcq-opt" onclick="selectMCQ('mcq-b', this, false)">
+            <div class="mcq-dot"></div><span>Complemento direto</span>
+          </div>
+          <div class="mcq-opt" onclick="selectMCQ('mcq-b', this, true)">
+            <div class="mcq-dot"></div><span>Predicativo do sujeito</span>
+          </div>
+          <div class="mcq-opt" onclick="selectMCQ('mcq-b', this, false)">
+            <div class="mcq-dot"></div><span>Complemento oblíquo</span>
+          </div>
+          <div class="mcq-opt" onclick="selectMCQ('mcq-b', this, false)">
+            <div class="mcq-dot"></div><span>Vocativo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-panel" id="results-panel">
+    <div class="score-ring" id="score-ring" style="--pct:0%">
+      <div class="score-inner" id="score-inner">0%</div>
+    </div>
+    <div class="result-label" id="result-label">—</div>
+    <div class="result-sub" id="result-sub"></div>
+    <div class="result-breakdown">
+      <div class="breakdown-card"><div class="val" id="rb-correct">0</div><div class="lbl">Corretas</div></div>
+      <div class="breakdown-card"><div class="val" id="rb-wrong">0</div><div class="lbl">A melhorar</div></div>
+      <div class="breakdown-card"><div class="val" id="rb-open">0</div><div class="lbl">Abertas</div></div>
+    </div>
+    <button class="btn-reset" onclick="resetTest()">↺ Recomeçar</button>
+    <button class="btn-check" onclick="window.print()">🖨 Imprimir</button>
+  </div>
+
+</main>
+
+<footer class="page-footer">
+  Bom trabalho! · Língua Portuguesa 6.º Ano · Escola EB 2,3
+</footer>
+
+<script>
+  // MCQ state
+  const mcqState = {};
+
+  function selectMCQ(groupId, el, isCorrect) {
+    const group = document.getElementById(groupId);
+    group.querySelectorAll('.mcq-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    mcqState[groupId] = isCorrect;
+    updateProgress();
+  }
+
+  // Prep chip (optional helper)
+  function selectPrep(chip) {
+    // Just a visual helper — doesn't auto-fill
+    chip.style.transform = 'scale(0.9)';
+    setTimeout(() => chip.style.transform = '', 150);
+  }
+
+  // Progress
+  function updateProgress() {
+    const inputs = document.querySelectorAll('input[type=text], textarea');
+    let filled = 0;
+    inputs.forEach(inp => { if (inp.value.trim()) filled++; });
+
+    const mcqFilled = Object.keys(mcqState).length;
+    const total = inputs.length + 2; // +2 for MCQs
+    const done = filled + mcqFilled;
+
+    document.getElementById('prog-bar').style.width = Math.round((done / total) * 100) + '%';
+    document.getElementById('prog-text').textContent = `${done} / ${total} respondidas`;
+  }
+
+  // Submit
+  function submitTest() {
+    const inputs = document.querySelectorAll('input[data-key], textarea[data-key]');
+    let correct = 0, wrong = 0, open = 0;
+
+    inputs.forEach(inp => {
+      const key = inp.dataset.key || '';
+      const val = inp.value.trim().toLowerCase();
+      const keys = key.toLowerCase().split(',').map(k => k.trim());
+
+      if (!val) { open++; return; }
+
+      const isMatch = keys.some(k => val.includes(k) || k.includes(val));
+
+      if (isMatch) {
+        inp.classList.add('correct');
+        inp.classList.remove('wrong');
+        correct++;
+      } else if (inp.tagName === 'TEXTAREA' || !key) {
+        open++;
+      } else {
+        inp.classList.add('wrong');
+        inp.classList.remove('correct');
+        wrong++;
+      }
+    });
+
+    // MCQ
+    Object.values(mcqState).forEach(v => {
+      const groups = document.querySelectorAll('.mcq-options');
+      if (v) correct++; else wrong++;
+    });
+
+    // Open text answers (textareas without data-key, big inputs)
+    document.querySelectorAll('textarea:not([data-key])').forEach(t => {
+      if (t.value.trim()) open++; else open++;
+    });
+
+    const pct = Math.round((correct / (correct + wrong + 0.001)) * 100);
+
+    document.getElementById('rb-correct').textContent = correct;
+    document.getElementById('rb-wrong').textContent = wrong;
+    document.getElementById('rb-open').textContent = open;
+    document.getElementById('score-inner').textContent = pct + '%';
+    document.getElementById('score-ring').style.setProperty('--pct', pct + '%');
+
+    let label, sub;
+    if (pct >= 90) { label = 'Excelente! 🌟'; sub = 'Demonstras um domínio muito sólido da gramática!'; }
+    else if (pct >= 75) { label = 'Muito Bom! 👏'; sub = 'Boa prestação, com pequenos pontos a rever.'; }
+    else if (pct >= 60) { label = 'Bom! 😊'; sub = 'Atingiste os objetivos, mas podes melhorar ainda mais.'; }
+    else if (pct >= 50) { label = 'Suficiente'; sub = 'Há matéria a consolidar. Não desistas!'; }
+    else { label = 'Insuficiente'; sub = 'É necessário rever os conteúdos com atenção.'; }
+
+    document.getElementById('result-label').textContent = label;
+    document.getElementById('result-sub').textContent = sub;
+
+    const panel = document.getElementById('results-panel');
+    panel.classList.add('show');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function resetTest() {
+    document.querySelectorAll('input[type=text], textarea').forEach(i => {
+      i.value = '';
+      i.classList.remove('correct', 'wrong');
+    });
+    Object.keys(mcqState).forEach(k => delete mcqState[k]);
+    document.querySelectorAll('.mcq-opt').forEach(o => o.classList.remove('selected', 'correct-answer', 'wrong-answer'));
+    document.getElementById('results-panel').classList.remove('show');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Set today's date
+  const d = new Date();
+  document.getElementById('student-date').value = d.toISOString().split('T')[0];
+
+  updateProgress();
+</script>
+</body>
+</html>
