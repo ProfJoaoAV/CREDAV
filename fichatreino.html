@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Português — 5.º Ano</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2744;
+    --blue: #2d4a8a;
+    --accent: #e8602c;
+    --gold: #f0a500;
+    --cream: #faf8f4;
+    --light: #eef1f8;
+    --text: #1a2744;
+    --muted: #6b7b9e;
+    --correct: #1a7a4a;
+    --correct-bg: #e8f5ee;
+    --wrong: #c0392b;
+    --wrong-bg: #fdecea;
+    --border: #d0d8ee;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--navy);
+    padding: 2.5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 20%;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(232,96,44,0.12);
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+  }
+  .header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.2rem;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+  .header-sub {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+  .score-badge {
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0 0 0 1rem;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.1;
+  }
+  .score-badge span { font-size: 0.6rem; font-family: 'DM Sans', sans-serif; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ── Student Info ── */
+  .student-info {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: end;
+  }
+  .info-field label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+  .info-field input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--border);
+    padding: 0.35rem 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    background: transparent;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .info-field input:focus { border-color: var(--blue); }
+  .info-right { display: flex; gap: 1rem; }
+  .info-right .info-field { min-width: 80px; }
+
+  /* ── Grupos ── */
+  .group {
+    margin-bottom: 2.5rem;
+  }
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .group-num {
+    background: var(--navy);
+    color: #fff;
+    font-family: 'Fraunces', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.85rem;
+    border-radius: 2rem;
+  }
+  .group-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    color: var(--navy);
+  }
+
+  /* ── Secções ── */
+  .section {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--light);
+  }
+
+  /* ── Questões ── */
+  .question {
+    margin-bottom: 1.4rem;
+  }
+  .question:last-child { margin-bottom: 0; }
+  .q-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .q-text { font-size: 0.95rem; line-height: 1.5; }
+  .q-pts {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: var(--muted);
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* Texto de contexto */
+  .context-box {
+    background: var(--light);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 0.9rem 1.1rem;
+    font-style: italic;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    color: #334;
+  }
+
+  /* ── Escolha Múltipla ── */
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.7rem;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.8rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-size: 0.92rem;
+    user-select: none;
+    position: relative;
+  }
+  .option:hover { border-color: var(--blue); background: var(--light); }
+  .option input[type=radio] { display: none; }
+  .opt-circle {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option.selected { border-color: var(--blue); background: #eef2fb; }
+  .option.selected .opt-circle { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .option.correct { border-color: var(--correct); background: var(--correct-bg); }
+  .option.correct .opt-circle { background: var(--correct); border-color: var(--correct); color: #fff; }
+  .option.wrong { border-color: var(--wrong); background: var(--wrong-bg); }
+  .option.wrong .opt-circle { background: var(--wrong); border-color: var(--wrong); color: #fff; }
+
+  /* ── Preenchimento de espaço ── */
+  .fill-sentence {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 0.5rem;
+  }
+  .fill-input {
+    border: none;
+    border-bottom: 2px solid var(--border);
+    padding: 0.15rem 0.4rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: transparent;
+    outline: none;
+    width: 160px;
+    transition: border-color 0.2s;
+    text-align: center;
+  }
+  .fill-input:focus { border-color: var(--blue); }
+  .fill-input.correct { border-color: var(--correct); color: var(--correct); background: var(--correct-bg); border-radius: 4px 4px 0 0; }
+  .fill-input.wrong { border-color: var(--wrong); color: var(--wrong); background: var(--wrong-bg); border-radius: 4px 4px 0 0; }
+
+  /* ── Identificação/Classificação ── */
+  .identify-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .identify-phrase {
+    font-size: 0.93rem;
+    line-height: 1.7;
+    flex: 1;
+    min-width: 200px;
+  }
+  .identify-phrase u { text-decoration-color: var(--blue); text-underline-offset: 3px; }
+  .identify-phrase em { font-style: italic; color: var(--blue); font-weight: 600; }
+  .answer-input {
+    border: none;
+    border-bottom: 2px solid var(--border);
+    padding: 0.2rem 0.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: transparent;
+    outline: none;
+    flex: 1;
+    min-width: 160px;
+    transition: border-color 0.2s;
+  }
+  .answer-input:focus { border-color: var(--blue); }
+  .answer-input.correct { border-color: var(--correct); color: var(--correct); background: var(--correct-bg); border-radius: 4px 4px 0 0; }
+  .answer-input.wrong { border-color: var(--wrong); color: var(--wrong); background: var(--wrong-bg); border-radius: 4px 4px 0 0; }
+
+  /* ── Tabela nomes ── */
+  .names-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.9rem; }
+  .names-table th { background: var(--blue); color: #fff; padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+  .names-table th:first-child { border-radius: 8px 0 0 0; }
+  .names-table th:last-child { border-radius: 0 8px 0 0; }
+  .names-table td { border: 1px solid var(--border); padding: 0.5rem 0.3rem; }
+  .names-table td input { border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; width: 100%; padding: 0.2rem 0.4rem; outline: none; color: var(--text); }
+
+  /* ── Textarea ── */
+  .long-answer {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.93rem;
+    color: var(--text);
+    resize: vertical;
+    min-height: 70px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-top: 0.6rem;
+  }
+  .long-answer:focus { border-color: var(--blue); }
+
+  /* ── Feedback inline ── */
+  .feedback-msg {
+    display: none;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .feedback-msg.correct { background: var(--correct-bg); color: var(--correct); border-left: 3px solid var(--correct); }
+  .feedback-msg.wrong { background: var(--wrong-bg); color: var(--wrong); border-left: 3px solid var(--wrong); }
+
+  /* ── Botão corrigir ── */
+  .btn-bar {
+    text-align: center;
+    margin: 2rem 0 1rem;
+  }
+  .btn-correct {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.9rem 2.8rem;
+    border-radius: 2rem;
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(232,96,44,0.3);
+  }
+  .btn-correct:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,96,44,0.4); }
+  .btn-correct:active { transform: translateY(0); }
+
+  /* ── Resultado Final ── */
+  #result-panel {
+    display: none;
+    background: var(--navy);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+    color: #fff;
+    animation: slideUp 0.4s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .result-top {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .result-circle {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    border: 4px solid var(--accent);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .result-score { font-family: 'Fraunces', serif; font-size: 2rem; line-height: 1; }
+  .result-total { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+  .result-text h2 { font-family: 'Fraunces', serif; font-size: 1.5rem; margin-bottom: 0.3rem; }
+  .result-text p { font-size: 0.9rem; color: rgba(255,255,255,0.65); line-height: 1.5; }
+
+  .result-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  .breakdown-item {
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+  }
+  .breakdown-item .b-label { font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.2rem; }
+  .breakdown-item .b-score { font-family: 'Fraunces', serif; font-size: 1.2rem; }
+  .breakdown-item .b-score span { font-size: 0.75rem; font-family: 'DM Sans', sans-serif; color: rgba(255,255,255,0.5); }
+
+  .feedback-list { list-style: none; }
+  .feedback-list li {
+    padding: 0.55rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    line-height: 1.5;
+  }
+  .feedback-list li.fb-wrong { background: rgba(192,57,43,0.25); border-left: 3px solid #e74c3c; }
+  .feedback-list li.fb-correct { background: rgba(26,122,74,0.2); border-left: 3px solid #2ecc71; }
+  .feedback-list li.fb-title { background: rgba(255,255,255,0.1); font-weight: 600; margin-top: 0.8rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); border-left: none; }
+
+  .btn-retry {
+    background: transparent;
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    padding: 0.6rem 1.8rem;
+    border-radius: 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 1rem;
+  }
+  .btn-retry:hover { background: rgba(255,255,255,0.1); }
+
+  /* ── Utils ── */
+  .highlight { font-weight: 600; color: var(--blue); }
+  .tipo-hint { font-size: 0.8rem; font-weight: 600; color: var(--accent); margin-left: 0.5rem; }
+  .mb-sm { margin-bottom: 0.5rem; }
+  .mb-md { margin-bottom: 1rem; }
+  input[disabled], textarea[disabled] { cursor: not-allowed; opacity: 0.8; }
+  select {
+    border: none; border-bottom: 2px solid var(--border); padding: 0.2rem 0.4rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--text);
+    background: transparent; outline: none; transition: border-color 0.2s; cursor: pointer;
+  }
+  select:focus { border-color: var(--blue); }
+  select.correct { border-color: var(--correct); color: var(--correct); }
+  select.wrong { border-color: var(--wrong); color: var(--wrong); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-label">5.º Ano do Ensino Básico</div>
+    <h1>Ficha de Português<br>Gramática</h1>
+    <div class="header-sub">Classes de Palavras · Funções Sintáticas</div>
+  </div>
+  <div class="score-badge" id="top-score"><span>Nota</span><span id="top-score-val">—</span></div>
+</div>
+
+<div class="container">
+
+  <!-- Info aluno -->
+  <div class="student-info">
+    <div class="info-field" style="grid-column:1/-1">
+      <label>Nome completo</label>
+      <input type="text" id="student-name" placeholder="Escreve o teu nome...">
+    </div>
+    <div class="info-right">
+      <div class="info-field">
+        <label>Turma</label>
+        <input type="text" id="student-turma" placeholder="Ex: 5A" style="width:80px">
+      </div>
+      <div class="info-field">
+        <label>N.º</label>
+        <input type="text" id="student-num" placeholder="—" style="width:60px">
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ GRUPO I ══════════════ -->
+  <div class="group">
+    <div class="group-header">
+      <span class="group-num">Grupo I</span>
+      <span class="group-title">Classes de Palavras</span>
+    </div>
+
+    <!-- 1. Nome -->
+    <div class="section">
+      <div class="section-title">1. Nome</div>
+
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">1.1</span>
+          <span class="q-text">Lê o texto com atenção.</span>
+        </div>
+        <div class="context-box">
+          A Marta e o seu irmão Tomás foram ao mercado comprar fruta para o lanche. Havia morangos, maçãs e laranjas. A vendedora, com muita simpatia, ofereceu-lhes um cacho de uvas. No aquário ao fundo da loja, nadava um cardume de peixes coloridos.
+        </div>
+      </div>
+
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">1.2</span>
+          <span class="q-text">Identifica no texto dois nomes de cada tipo e completa a tabela.</span>
+          <span class="q-pts">3 val.</span>
+        </div>
+        <table class="names-table" id="names-table">
+          <thead>
+            <tr>
+              <th>Nome Próprio</th>
+              <th>Nome Comum</th>
+              <th>Nome Coletivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" class="name-input" data-col="0" data-row="0" placeholder="1.º..."></td>
+              <td><input type="text" class="name-input" data-col="1" data-row="0" placeholder="1.º..."></td>
+              <td><input type="text" class="name-input" data-col="2" data-row="0" placeholder="1.º..."></td>
+            </tr>
+            <tr>
+              <td><input type="text" class="name-input" data-col="0" data-row="1" placeholder="2.º..."></td>
+              <td><input type="text" class="name-input" data-col="1" data-row="1" placeholder="2.º..."></td>
+              <td><input type="text" class="name-input" data-col="2" data-row="1" placeholder="2.º..."></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="feedback-msg" id="fb-names"></div>
+      </div>
+    </div>
+
+    <!-- 2. Determinante -->
+    <div class="section">
+      <div class="section-title">2. Determinante</div>
+
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">2.1</span>
+          <span class="q-text">Escolhe a opção correta de acordo com o pedido. Rodeia a letra.</span>
+          <span class="q-pts">5 val.</span>
+        </div>
+
+        <!-- 2.1a -->
+        <div class="mb-md">
+          <div class="fill-sentence">a) <span style="border-bottom:2px solid var(--border);padding:0 1rem;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> rapaz chegou tarde à escola. <span class="tipo-hint">(Det. Demonstrativo)</span></div>
+          <div class="options" data-q="det1" data-correct="C">
+            <label class="option"><input type="radio" name="det1" value="A"><span class="opt-circle">A</span> Um</label>
+            <label class="option"><input type="radio" name="det1" value="B"><span class="opt-circle">B</span> O</label>
+            <label class="option"><input type="radio" name="det1" value="C"><span class="opt-circle">C</span> Esse</label>
+            <label class="option"><input type="radio" name="det1" value="D"><span class="opt-circle">D</span> Meu</label>
+          </div>
+          <div class="feedback-msg" id="fb-det1"></div>
+        </div>
+
+        <!-- 2.1b -->
+        <div class="mb-md">
+          <div class="fill-sentence">b) Vi a <span style="border-bottom:2px solid var(--border);padding:0 1rem;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> fotografia muito bonita. <span class="tipo-hint">(Det. Possessivo)</span></div>
+          <div class="options" data-q="det2" data-correct="D">
+            <label class="option"><input type="radio" name="det2" value="A"><span class="opt-circle">A</span> uma</label>
+            <label class="option"><input type="radio" name="det2" value="B"><span class="opt-circle">B</span> a</label>
+            <label class="option"><input type="radio" name="det2" value="C"><span class="opt-circle">C</span> essa</label>
+            <label class="option"><input type="radio" name="det2" value="D"><span class="opt-circle">D</span> tua</label>
+          </div>
+          <div class="feedback-msg" id="fb-det2"></div>
+        </div>
+
+        <!-- 2.1c -->
+        <div class="mb-md">
+          <div class="fill-sentence">c) <span style="border-bottom:2px solid var(--border);padding:0 1rem;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> alunos estudaram muito para o teste. <span class="tipo-hint">(Det. Artigo Definido)</span></div>
+          <div class="options" data-q="det3" data-correct="A">
+            <label class="option"><input type="radio" name="det3" value="A"><span class="opt-circle">A</span> Os</label>
+            <label class="option"><input type="radio" name="det3" value="B"><span class="opt-circle">B</span> Uns</label>
+            <label class="option"><input type="radio" name="det3" value="C"><span class="opt-circle">C</span> Esses</label>
+            <label class="option"><input type="radio" name="det3" value="D"><span class="opt-circle">D</span> Todos</label>
+          </div>
+          <div class="feedback-msg" id="fb-det3"></div>
+        </div>
+
+        <!-- 2.1d -->
+        <div class="mb-md">
+          <div class="fill-sentence">d) <span style="border-bottom:2px solid var(--border);padding:0 1rem;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> livros estão em cima da mesa. <span class="tipo-hint">(Det. Artigo Indefinido)</span></div>
+          <div class="options" data-q="det4" data-correct="B">
+            <label class="option"><input type="radio" name="det4" value="A"><span class="opt-circle">A</span> Os</label>
+            <label class="option"><input type="radio" name="det4" value="B"><span class="opt-circle">B</span> Uns</label>
+            <label class="option"><input type="radio" name="det4" value="C"><span class="opt-circle">C</span> Esses</label>
+            <label class="option"><input type="radio" name="det4" value="D"><span class="opt-circle">D</span> Aqueles</label>
+          </div>
+          <div class="feedback-msg" id="fb-det4"></div>
+        </div>
+
+        <!-- 2.1e -->
+        <div class="mb-md">
+          <div class="fill-sentence">e) <span style="border-bottom:2px solid var(--border);padding:0 1rem;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> casaco é muito quente. <span class="tipo-hint">(Det. Possessivo)</span></div>
+          <div class="options" data-q="det5" data-correct="A">
+            <label class="option"><input type="radio" name="det5" value="A"><span class="opt-circle">A</span> O meu</label>
+            <label class="option"><input type="radio" name="det5" value="B"><span class="opt-circle">B</span> O</label>
+            <label class="option"><input type="radio" name="det5" value="C"><span class="opt-circle">C</span> Aquele</label>
+            <label class="option"><input type="radio" name="det5" value="D"><span class="opt-circle">D</span> Um</label>
+          </div>
+          <div class="feedback-msg" id="fb-det5"></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">2.2</span>
+          <span class="q-text">Classifica os determinantes sublinhados.</span>
+          <span class="q-pts">3 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) <u>A</u> professora elogiou <u>os</u> trabalhos.</div>
+        </div>
+        <div class="identify-row mb-md">
+          <span style="font-size:0.85rem;color:var(--muted)">«A»:</span>
+          <input type="text" class="answer-input" id="det2-2a1" placeholder="classifica...">
+          <span style="font-size:0.85rem;color:var(--muted)">«os»:</span>
+          <input type="text" class="answer-input" id="det2-2a2" placeholder="classifica...">
+        </div>
+        <div class="feedback-msg" id="fb-det22a"></div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">b) <u>Aquele</u> menino é <u>meu</u> amigo.</div>
+        </div>
+        <div class="identify-row mb-md">
+          <span style="font-size:0.85rem;color:var(--muted)">«Aquele»:</span>
+          <input type="text" class="answer-input" id="det2-2b1" placeholder="classifica...">
+          <span style="font-size:0.85rem;color:var(--muted)">«meu»:</span>
+          <input type="text" class="answer-input" id="det2-2b2" placeholder="classifica...">
+        </div>
+        <div class="feedback-msg" id="fb-det22b"></div>
+      </div>
+    </div>
+
+    <!-- 3. Pronome -->
+    <div class="section">
+      <div class="section-title">3. Pronome</div>
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">3.1</span>
+          <span class="q-text">Substitui as palavras sublinhadas pelo pronome pessoal correto.</span>
+          <span class="q-pts">4 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) A Ana comprou <u>a mochila</u> nova.</div>
+          <input type="text" class="answer-input" id="pron-a" placeholder="pronome...">
+        </div>
+        <div class="feedback-msg" id="fb-pron-a"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">b) O João deu <u>ao irmão</u> o livro.</div>
+          <input type="text" class="answer-input" id="pron-b" placeholder="pronome...">
+        </div>
+        <div class="feedback-msg" id="fb-pron-b"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">c) <u>A professora e eu</u> fomos à biblioteca.</div>
+          <input type="text" class="answer-input" id="pron-c" placeholder="pronome...">
+        </div>
+        <div class="feedback-msg" id="fb-pron-c"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">d) O pai comprou <u>os bilhetes</u> para o teatro.</div>
+          <input type="text" class="answer-input" id="pron-d" placeholder="pronome...">
+        </div>
+        <div class="feedback-msg" id="fb-pron-d"></div>
+      </div>
+    </div>
+
+    <!-- 4. Verbo -->
+    <div class="section">
+      <div class="section-title">4. Verbo</div>
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">4.1</span>
+          <span class="q-text">Preenche os espaços com o verbo no modo, tempo e pessoa indicados.</span>
+          <span class="q-pts">4 val.</span>
+        </div>
+        <div class="mb-sm">
+          <div class="fill-sentence">a) Ontem, a Leonor <input type="text" class="fill-input" id="verb-a" placeholder="brincar..."> ao jardim. <span class="tipo-hint">(Pret. Perf. Ind., 3.ª p. sing.)</span></div>
+          <div class="feedback-msg" id="fb-verb-a"></div>
+        </div>
+        <div class="mb-sm">
+          <div class="fill-sentence">b) Amanhã, nós <input type="text" class="fill-input" id="verb-b" placeholder="estudar..."> muito. <span class="tipo-hint">(Fut. Ind., 1.ª p. pl.)</span></div>
+          <div class="feedback-msg" id="fb-verb-b"></div>
+        </div>
+        <div class="mb-sm">
+          <div class="fill-sentence">c) Todos os dias, tu <input type="text" class="fill-input" id="verb-c" placeholder="ler..."> um capítulo. <span class="tipo-hint">(Pres. Ind., 2.ª p. sing.)</span></div>
+          <div class="feedback-msg" id="fb-verb-c"></div>
+        </div>
+      </div>
+
+      <div class="question" style="margin-top:1rem">
+        <div class="q-label">
+          <span class="q-num">4.2</span>
+          <span class="q-text">Indica a conjugação a que pertence cada verbo (1.ª, 2.ª ou 3.ª).</span>
+          <span class="q-pts">5 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) <em>cantar</em></div>
+          <input type="text" class="answer-input" id="conj-a" placeholder="conjugação...">
+        </div>
+        <div class="feedback-msg" id="fb-conj-a"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">b) <em>correr</em></div>
+          <input type="text" class="answer-input" id="conj-b" placeholder="conjugação...">
+        </div>
+        <div class="feedback-msg" id="fb-conj-b"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">c) <em>partir</em></div>
+          <input type="text" class="answer-input" id="conj-c" placeholder="conjugação...">
+        </div>
+        <div class="feedback-msg" id="fb-conj-c"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">d) <em>beber</em></div>
+          <input type="text" class="answer-input" id="conj-d" placeholder="conjugação...">
+        </div>
+        <div class="feedback-msg" id="fb-conj-d"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">e) <em>sorrir</em></div>
+          <input type="text" class="answer-input" id="conj-e" placeholder="conjugação...">
+        </div>
+        <div class="feedback-msg" id="fb-conj-e"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">5. Advérbio</div>
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">5.1</span>
+          <span class="q-text">Identifica o advérbio em cada frase e indica a sua subclasse.</span>
+          <span class="q-pts">4 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) O cão ladrou <em>muito</em>.</div>
+          <input type="text" class="answer-input" id="adv-a" placeholder="advérbio + subclasse...">
+        </div>
+        <div class="feedback-msg" id="fb-adv-a"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">b) Ela chegou <em>cedo</em> à escola.</div>
+          <input type="text" class="answer-input" id="adv-b" placeholder="advérbio + subclasse...">
+        </div>
+        <div class="feedback-msg" id="fb-adv-b"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">c) <em>Talvez</em> ele venha à festa.</div>
+          <input type="text" class="answer-input" id="adv-c1" placeholder="advérbio + subclasse...">
+        </div>
+        <div class="feedback-msg" id="fb-adv-c"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">d) Ele <em>não</em> gosta de espinafres.</div>
+          <input type="text" class="answer-input" id="adv-d1" placeholder="advérbio + subclasse...">
+        </div>
+        <div class="feedback-msg" id="fb-adv-d"></div>
+      </div>
+    </div>
+
+    <!-- 6. Adjetivo -->
+    <div class="section">
+      <div class="section-title">6. Adjetivo</div>
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">6.1</span>
+          <span class="q-text">Identifica e classifica o adjetivo sublinhado em cada frase (qualificativo / numeral cardinal / numeral ordinal).</span>
+          <span class="q-pts">5 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) O Tomás foi o <em>primeiro</em> a chegar à escola.</div>
+          <input type="text" class="answer-input" id="adj-a" placeholder="adjetivo + classificação...">
+        </div>
+        <div class="feedback-msg" id="fb-adj-a"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">b) A Inês bebeu <em>dois</em> copos de água ao almoço.</div>
+          <input type="text" class="answer-input" id="adj-b" placeholder="adjetivo + classificação...">
+        </div>
+        <div class="feedback-msg" id="fb-adj-b"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">c) Moro no <em>terceiro</em> andar do edifício.</div>
+          <input type="text" class="answer-input" id="adj-c" placeholder="adjetivo + classificação...">
+        </div>
+        <div class="feedback-msg" id="fb-adj-c"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">d) O cão da vizinha é muito <em>brincalhão</em>.</div>
+          <input type="text" class="answer-input" id="adj-d" placeholder="adjetivo + classificação...">
+        </div>
+        <div class="feedback-msg" id="fb-adj-d"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.6rem">
+          <div class="identify-phrase">e) Aquela árvore <em>enorme</em> dá muita sombra.</div>
+          <input type="text" class="answer-input" id="adj-e" placeholder="adjetivo + classificação...">
+        </div>
+        <div class="feedback-msg" id="fb-adj-e"></div>
+      </div>
+
+      <div class="question" style="margin-top:1rem">
+        <div class="q-label">
+          <span class="q-num">6.2</span>
+          <span class="q-text">Coloca o adjetivo no grau superlativo absoluto sintético.</span>
+          <span class="q-pts">2 val.</span>
+        </div>
+        <div class="fill-sentence">
+          a) bom → <input type="text" class="fill-input" id="sup-a" placeholder="..."> &nbsp;&nbsp;
+          b) mau → <input type="text" class="fill-input" id="sup-b" placeholder="..."> &nbsp;&nbsp;
+          c) grande → <input type="text" class="fill-input" id="sup-c" placeholder="...">
+        </div>
+        <div class="feedback-msg" id="fb-sup"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ GRUPO II ══════════════ -->
+  <div class="group">
+    <div class="group-header">
+      <span class="group-num">Grupo II</span>
+      <span class="group-title">Funções Sintáticas</span>
+    </div>
+
+    <!-- 1. Sujeito e Predicado -->
+    <div class="section">
+      <div class="section-title">1. Sujeito e Predicado</div>
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">1.1</span>
+          <span class="q-text">Identifica o sujeito e o predicado nas frases.</span>
+          <span class="q-pts">5 val.</span>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.8rem">Para cada frase, escreve o sujeito e o predicado nos campos correspondentes.</p>
+
+        <div style="margin-bottom:1rem">
+          <div class="fill-sentence mb-sm">a) O Pedro leu um livro muito interessante.</div>
+          <div class="identify-row">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:80px">Sujeito:</span>
+            <input type="text" class="answer-input" id="suj1a" placeholder="">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:90px">Predicado:</span>
+            <input type="text" class="answer-input" id="pred1a" placeholder="">
+          </div>
+          <div class="feedback-msg" id="fb-sint1a"></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div class="fill-sentence mb-sm">b) A minha avó faz bolos deliciosos.</div>
+          <div class="identify-row">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:80px">Sujeito:</span>
+            <input type="text" class="answer-input" id="suj1b" placeholder="">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:90px">Predicado:</span>
+            <input type="text" class="answer-input" id="pred1b" placeholder="">
+          </div>
+          <div class="feedback-msg" id="fb-sint1b"></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div class="fill-sentence mb-sm">c) Os gatos dormem muito.</div>
+          <div class="identify-row">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:80px">Sujeito:</span>
+            <input type="text" class="answer-input" id="suj1c" placeholder="">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:90px">Predicado:</span>
+            <input type="text" class="answer-input" id="pred1c" placeholder="">
+          </div>
+          <div class="feedback-msg" id="fb-sint1c"></div>
+        </div>
+        <div style="margin-bottom:1rem">
+          <div class="fill-sentence mb-sm">d) A equipa ganhou o jogo.</div>
+          <div class="identify-row">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:80px">Sujeito:</span>
+            <input type="text" class="answer-input" id="suj1d" placeholder="">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:90px">Predicado:</span>
+            <input type="text" class="answer-input" id="pred1d" placeholder="">
+          </div>
+          <div class="feedback-msg" id="fb-sint1d"></div>
+        </div>
+        <div>
+          <div class="fill-sentence mb-sm">e) O diretor da escola cumprimentou os alunos.</div>
+          <div class="identify-row">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:80px">Sujeito:</span>
+            <input type="text" class="answer-input" id="suj1e" placeholder="">
+            <span style="font-size:0.85rem;color:var(--muted);min-width:90px">Predicado:</span>
+            <input type="text" class="answer-input" id="pred1e" placeholder="">
+          </div>
+          <div class="feedback-msg" id="fb-sint1e"></div>
+        </div>
+      </div>
+
+      <div class="question" style="margin-top:1rem">
+        <div class="q-label">
+          <span class="q-num">1.2</span>
+          <span class="q-text">Indica o tipo de sujeito (simples ou composto).</span>
+          <span class="q-pts">5 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) O Miguel e a Sofia foram ao cinema.</div>
+          <input type="text" class="answer-input" id="tipo-suj-a" placeholder="tipo de sujeito...">
+        </div>
+        <div class="feedback-msg" id="fb-tsuj-a"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">b) A professora corrigiu os testes.</div>
+          <input type="text" class="answer-input" id="tipo-suj-b" placeholder="tipo de sujeito...">
+        </div>
+        <div class="feedback-msg" id="fb-tsuj-b"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">c) O Rui, a Beatriz e a Leonor jogaram à bola.</div>
+          <input type="text" class="answer-input" id="tipo-suj-c" placeholder="tipo de sujeito...">
+        </div>
+        <div class="feedback-msg" id="fb-tsuj-c"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">d) O meu gato dorme o dia todo.</div>
+          <input type="text" class="answer-input" id="tipo-suj-d" placeholder="tipo de sujeito...">
+        </div>
+        <div class="feedback-msg" id="fb-tsuj-d"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">e) O pai e a mãe foram buscar o João à escola.</div>
+          <input type="text" class="answer-input" id="tipo-suj-e" placeholder="tipo de sujeito...">
+        </div>
+        <div class="feedback-msg" id="fb-tsuj-e"></div>
+      </div>
+    </div>
+
+    <!-- 2. Complementos -->
+    <div class="section">
+      <div class="section-title">2. Complemento Direto e Complemento Indireto</div>
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">2.1</span>
+          <span class="q-text">Identifica e classifica o complemento sublinhado em cada frase.</span>
+          <span class="q-pts">5 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) A professora distribuiu <u>os testes</u>.</div>
+          <input type="text" class="answer-input" id="comp-a" placeholder="função sintática...">
+        </div>
+        <div class="feedback-msg" id="fb-comp-a"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">b) O pai ofereceu <u>um brinquedo</u> à filha.</div>
+          <input type="text" class="answer-input" id="comp-b" placeholder="função sintática...">
+        </div>
+        <div class="feedback-msg" id="fb-comp-b"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">c) O pai ofereceu um brinquedo <u>à filha</u>.</div>
+          <input type="text" class="answer-input" id="comp-c" placeholder="função sintática...">
+        </div>
+        <div class="feedback-msg" id="fb-comp-c"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">d) A Ana enviou <u>uma mensagem</u> ao amigo.</div>
+          <input type="text" class="answer-input" id="comp-d" placeholder="função sintática...">
+        </div>
+        <div class="feedback-msg" id="fb-comp-d"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">e) O Rui escreveu <u>ao avô</u>.</div>
+          <input type="text" class="answer-input" id="comp-e" placeholder="função sintática...">
+        </div>
+        <div class="feedback-msg" id="fb-comp-e"></div>
+      </div>
+
+      <div class="question" style="margin-top:1rem">
+        <div class="q-label">
+          <span class="q-num">2.2</span>
+          <span class="q-text">Substitui os complementos sublinhados pelos pronomes correspondentes.</span>
+          <span class="q-pts">5 val.</span>
+        </div>
+        <div class="mb-sm">
+          <div class="fill-sentence">a) A Ana leu <u>o livro</u>. →</div>
+          <input type="text" class="answer-input" id="pron22a" placeholder="frase com pronome..." style="width:100%;margin-top:0.4rem">
+          <div class="feedback-msg" id="fb-pron22a"></div>
+        </div>
+        <div class="mb-sm" style="margin-top:0.7rem">
+          <div class="fill-sentence">b) O professor explicou a matéria <u>aos alunos</u>. →</div>
+          <input type="text" class="answer-input" id="pron22b" placeholder="frase com pronome..." style="width:100%;margin-top:0.4rem">
+          <div class="feedback-msg" id="fb-pron22b"></div>
+        </div>
+        <div class="mb-sm" style="margin-top:0.7rem">
+          <div class="fill-sentence">c) A Maria deu <u>o livro</u> <u>ao irmão</u>. →</div>
+          <input type="text" class="answer-input" id="pron22c" placeholder="frase com pronomes..." style="width:100%;margin-top:0.4rem">
+          <div class="feedback-msg" id="fb-pron22c"></div>
+        </div>
+        <div class="mb-sm" style="margin-top:0.7rem">
+          <div class="fill-sentence">d) O Tomás trouxe <u>as laranjas</u>. →</div>
+          <input type="text" class="answer-input" id="pron22d" placeholder="frase com pronome..." style="width:100%;margin-top:0.4rem">
+          <div class="feedback-msg" id="fb-pron22d"></div>
+        </div>
+        <div class="mb-sm" style="margin-top:0.7rem">
+          <div class="fill-sentence">e) A Inês ofereceu <u>o desenho</u> <u>à mãe</u>. →</div>
+          <input type="text" class="answer-input" id="pron22e" placeholder="frase com pronomes..." style="width:100%;margin-top:0.4rem">
+          <div class="feedback-msg" id="fb-pron22e"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Vocativo -->
+    <div class="section">
+      <div class="section-title">3. Vocativo</div>
+      <div class="question">
+        <div class="q-label">
+          <span class="q-num">3.1</span>
+          <span class="q-text">Identifica o vocativo em cada frase.</span>
+          <span class="q-pts">4 val.</span>
+        </div>
+        <div class="identify-row mb-sm">
+          <div class="identify-phrase">a) «Filipa, podes vir cá, por favor?»</div>
+          <input type="text" class="answer-input" id="voc-a" placeholder="vocativo...">
+        </div>
+        <div class="feedback-msg" id="fb-voc-a"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">b) «Vem cá, Tomás!»</div>
+          <input type="text" class="answer-input" id="voc-b" placeholder="vocativo...">
+        </div>
+        <div class="feedback-msg" id="fb-voc-b"></div>
+        <div class="identify-row mb-sm" style="margin-top:0.5rem">
+          <div class="identify-phrase">c) «Amigos, temos de nos ajudar uns aos outros.»</div>
+          <input type="text" class="answer-input" id="voc-c" placeholder="vocativo...">
+        </div>
+        <div class="feedback-msg" id="fb-voc-c"></div>
+      </div>
+
+      <div class="question" style="margin-top:1rem">
+        <div class="q-label">
+          <span class="q-num">3.2</span>
+          <span class="q-text">Escreve uma frase com vocativo dirigida a um colega de turma.</span>
+          <span class="q-pts">2 val.</span>
+        </div>
+        <textarea class="long-answer" id="voc32" placeholder="Escreve a tua frase aqui..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botão -->
+  <div class="btn-bar">
+    <button class="btn-correct" onclick="corrigir()">✦ Corrigir Ficha</button>
+  </div>
+
+  <!-- Resultado -->
+  <div id="result-panel">
+    <div class="result-top">
+      <div class="result-circle">
+        <div class="result-score" id="res-score">—</div>
+        <div class="result-total" id="res-total">/ — val.</div>
+      </div>
+      <div class="result-text">
+        <h2 id="res-title">—</h2>
+        <p id="res-msg">—</p>
+      </div>
+    </div>
+    <div class="result-breakdown" id="res-breakdown"></div>
+    <div>
+      <p style="font-size:0.78rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.7rem">Feedback detalhado</p>
+      <ul class="feedback-list" id="res-feedback"></ul>
+    </div>
+    <button class="btn-retry" onclick="reiniciar()">↺ Recomeçar</button>
+  </div>
+
+</div>
+
+<script>
+// ── Interatividade das opções ──
+document.querySelectorAll('.options').forEach(group => {
+  group.querySelectorAll('.option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (opt.querySelector('input').disabled) return;
+      group.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input').checked = true;
+    });
+  });
+});
+
+// ── Normalização de texto ──
+function norm(s) {
+  return s.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[.\-,;:!?]/g, "")
+    .trim();
+}
+
+function includes(answer, keywords) {
+  const n = norm(answer);
+  return keywords.some(k => n.includes(norm(k)));
+}
+
+function exact(answer, options) {
+  const n = norm(answer);
+  return options.map(norm).includes(n);
+}
+
+// ── Estado da correção ──
+let totalPontos = 0;
+let pontuacao = 0;
+const feedback = [];
+const breakdown = {};
+
+function addFeedback(ok, msg) {
+  feedback.push({ ok, msg });
+}
+
+function setFb(id, ok, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'feedback-msg ' + (ok ? 'correct' : 'wrong');
+  el.textContent = ok ? '✓ ' + msg : '✗ ' + msg;
+  el.style.display = 'block';
+}
+
+function markInput(id, ok) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('correct','wrong');
+  el.classList.add(ok ? 'correct' : 'wrong');
+  el.disabled = true;
+}
+
+function markSelect(id, ok) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add(ok ? 'correct' : 'wrong');
+  el.disabled = true;
+}
+
+// ── Função principal ──
+function corrigir() {
+  totalPontos = 0; pontuacao = 0;
+  feedback.length = 0;
+  Object.keys(breakdown).forEach(k => delete breakdown[k]);
+
+  // ── 1.2 Nomes ──
+  {
+    const proprios = ['marta','tomas'];
+    const comuns = ['mercado','fruta','lanche','maçã','maças','morango','laranja','vendedora','simpatia','irmao'];
+    const coletivos = ['cacho','cardume'];
+    let pts = 0, max = 3;
+
+    const inputs = document.querySelectorAll('.name-input');
+    const vals = {};
+    inputs.forEach(inp => {
+      const col = inp.dataset.col;
+      if (!vals[col]) vals[col] = [];
+      if (inp.value.trim()) vals[col].push(norm(inp.value));
+      inp.disabled = true;
+    });
+
+    const checkCol = (col, lista, nome) => {
+      const resps = vals[col] || [];
+      const corretas = resps.filter(r => lista.some(l => norm(l) === r));
+      return corretas.length >= 1 ? 1 : 0;
+    };
+
+    const nProp = checkCol('0', proprios, 'Próprio');
+    const nCom = checkCol('1', comuns, 'Comum');
+    const nCol = checkCol('2', coletivos, 'Coletivo');
+    pts = nProp + nCom + nCol;
+    pontuacao += pts; totalPontos += max;
+    breakdown['1. Nomes'] = `${pts}/${max}`;
+    setFb('fb-names', pts === max,
+      pts === max ? 'Muito bem! Identificaste corretamente os três tipos de nomes.' :
+      `Resposta parcialmente correta. Nomes próprios do texto: Marta, Tomás. Nomes comuns: mercado, fruta, vendedora, etc. Nomes coletivos: cacho, cardume.`);
+    addFeedback(pts === max, `1.2 Nomes — ${pts}/${max} val.`);
+  }
+
+  // ── 2.1 Determinantes escolha múltipla ──
+  {
+    let pts = 0, max = 5;
+    const qs = [
+      { q: 'det1', correct: 'C', fb: 'fb-det1', expl: 'A resposta correta é C) Esse — é o único demonstrativo da lista.' },
+      { q: 'det2', correct: 'D', fb: 'fb-det2', expl: 'A resposta correta é D) tua — é o único possessivo da lista.' },
+      { q: 'det3', correct: 'A', fb: 'fb-det3', expl: 'A resposta correta é A) Os — é o artigo definido plural.' },
+      { q: 'det4', correct: 'B', fb: 'fb-det4', expl: 'A resposta correta é B) Uns — é o artigo indefinido plural.' },
+      { q: 'det5', correct: 'A', fb: 'fb-det5', expl: 'A resposta correta é A) O meu — é o único possessivo da lista.' },
+    ];
+    qs.forEach(({q, correct, fb, expl}) => {
+      const group = document.querySelector(`.options[data-q="${q}"]`);
+      const selected = group ? group.querySelector('input:checked') : null;
+      const val = selected ? selected.value : null;
+      const ok = val === correct;
+      if (ok) pts++;
+      group && group.querySelectorAll('.option').forEach(opt => {
+        const v = opt.querySelector('input').value;
+        opt.querySelector('input').disabled = true;
+        if (v === correct) opt.classList.add('correct');
+        else if (v === val && !ok) opt.classList.add('wrong');
+      });
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['2.1 Det. Múltipla'] = `${pts}/${max}`;
+    addFeedback(pts === max, `2.1 Determinantes (escolha múltipla) — ${pts}/${max} val.`);
+  }
+
+  // ── 2.2 Classificar determinantes ──
+  {
+    let pts = 0, max = 3;
+    const items = [
+      { id1:'det2-2a1', id2:'det2-2a2', fb:'fb-det22a',
+        r1:['artigo definido','determinante artigo definido'], r2:['artigo definido','determinante artigo definido'],
+        expl:'«A» e «os» são determinantes artigo definido.' },
+      { id1:'det2-2b1', id2:'det2-2b2', fb:'fb-det22b',
+        r1:['demonstrativo','determinante demonstrativo'], r2:['possessivo','determinante possessivo'],
+        expl:'«Aquele» é demonstrativo; «meu» é possessivo.' },
+    ];
+    items.forEach(({id1,id2,fb,r1,r2,expl}) => {
+      const v1 = document.getElementById(id1)?.value || '';
+      const v2 = document.getElementById(id2)?.value || '';
+      const ok1 = includes(v1, r1);
+      const ok2 = includes(v2, r2);
+      const ok = ok1 && ok2;
+      if (ok) pts++;
+      markInput(id1, ok1); markInput(id2, ok2);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pts = Math.min(pts * 1.5 | 0, max); // escala
+    pts = Math.min(items.filter(({id1,id2,r1,r2}) => {
+      return includes(document.getElementById(id1)?.value||'',r1) && includes(document.getElementById(id2)?.value||'',r2);
+    }).length * 1.5 | 0, max);
+    // recalculate properly
+    let raw = 0;
+    items.forEach(({id1,id2,r1,r2}) => {
+      if(includes(document.getElementById(id1)?.value||'',r1) && includes(document.getElementById(id2)?.value||'',r2)) raw++;
+    });
+    pts = raw >= 2 ? 3 : raw >= 1 ? 1 : 0;
+    pontuacao += pts; totalPontos += max;
+    breakdown['2.2 Det. Classificação'] = `${pts}/${max}`;
+    addFeedback(pts >= max-1, `2.2 Classificar determinantes — ${pts}/${max} val.`);
+  }
+
+  // ── 3.1 Pronomes ──
+  {
+    let pts = 0, max = 4;
+    const items = [
+      { id:'pron-a', fb:'fb-pron-a', answers:['a','a-la'], expl:'«a mochila» → complemento direto feminino singular → «a» (comprou-a).' },
+      { id:'pron-b', fb:'fb-pron-b', answers:['lhe'], expl:'«ao irmão» → complemento indireto → «lhe».' },
+      { id:'pron-c', fb:'fb-pron-c', answers:['nos','nós'], expl:'«A professora e eu» → 1.ª pessoa plural → «nós».' },
+      { id:'pron-d', fb:'fb-pron-d', answers:['os'], expl:'«os bilhetes» → complemento direto masc. plural → «os».' },
+    ];
+    items.forEach(({id,fb,answers,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = exact(v, answers);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : `Resposta correta: ${answers[0]}. ${expl}`);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['3. Pronomes'] = `${pts}/${max}`;
+    addFeedback(pts >= 3, `3.1 Substituição por pronomes — ${pts}/${max} val.`);
+  }
+
+  // ── 4.1 Conjugação verbal ──
+  {
+    let pts = 0, max = 3;
+    const items = [
+      { id:'verb-a', fb:'fb-verb-a', answers:['brincou'], expl:'Pretérito Perfeito do Indicativo, 3.ª p. sing. de «brincar» → brincou.' },
+      { id:'verb-b', fb:'fb-verb-b', answers:['estudaremos'], expl:'Futuro do Indicativo, 1.ª p. pl. de «estudar» → estudaremos.' },
+      { id:'verb-c', fb:'fb-verb-c', answers:['les','lês'], expl:'Presente do Indicativo, 2.ª p. sing. de «ler» → lês.' },
+    ];
+    items.forEach(({id,fb,answers,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = exact(v, answers);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : `Resposta correta: ${answers[0]}. ${expl}`);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['4.1 Conjugação'] = `${pts}/${max}`;
+    addFeedback(pts >= 2, `4.1 Conjugação verbal — ${pts}/${max} val.`);
+  }
+
+  // ── 4.2 Conjugação verbal ──
+  {
+    let pts = 0, max = 5;
+    const items = [
+      { id:'conj-a', fb:'fb-conj-a', answers:['1','primeira','1ª'], expl:'«cantar» termina em -ar → 1.ª conjugação.' },
+      { id:'conj-b', fb:'fb-conj-b', answers:['2','segunda','2ª'], expl:'«correr» termina em -er → 2.ª conjugação.' },
+      { id:'conj-c', fb:'fb-conj-c', answers:['3','terceira','3ª'], expl:'«partir» termina em -ir → 3.ª conjugação.' },
+      { id:'conj-d', fb:'fb-conj-d', answers:['2','segunda','2ª'], expl:'«beber» termina em -er → 2.ª conjugação.' },
+      { id:'conj-e', fb:'fb-conj-e', answers:['3','terceira','3ª'], expl:'«sorrir» termina em -ir → 3.ª conjugação.' },
+    ];
+    items.forEach(({id,fb,answers,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = exact(v, answers);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['4.2 Conjugação'] = `${pts}/${max}`;
+    addFeedback(pts >= 4, `4.2 Conjugação dos verbos — ${pts}/${max} val.`);
+  }
+
+  // ── 5.1 Advérbios ──
+  {
+    let pts = 0, max = 4;
+    const items = [
+      { id:'adv-a',  fb:'fb-adv-a', keys:['quantidade','intensidade'], expl:'«muito» é advérbio de quantidade / intensidade.' },
+      { id:'adv-b',  fb:'fb-adv-b', keys:['tempo'],                    expl:'«cedo» é advérbio de tempo.' },
+      { id:'adv-c1', fb:'fb-adv-c', keys:['duvida','talvez'],          expl:'«talvez» é advérbio de dúvida.' },
+      { id:'adv-d1', fb:'fb-adv-d', keys:['negacao','negação','nao'],  expl:'«não» é advérbio de negação.' },
+    ];
+    items.forEach(({id,fb,keys,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = includes(v, keys);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['5. Advérbios'] = `${pts}/${max}`;
+    addFeedback(pts >= 3, `5.1 Advérbios — ${pts}/${max} val.`);
+  }
+
+  // ── 6.1 Adjetivos ──
+  {
+    let pts = 0, max = 5;
+    const items = [
+      { id:'adj-a', fb:'fb-adj-a', keys:['ordinal','numeral'], expl:'«primeiro» é adjetivo numeral ordinal.' },
+      { id:'adj-b', fb:'fb-adj-b', keys:['cardinal','numeral'], expl:'«dois» é adjetivo numeral cardinal.' },
+      { id:'adj-c', fb:'fb-adj-c', keys:['ordinal','numeral'], expl:'«terceiro» é adjetivo numeral ordinal.' },
+      { id:'adj-d', fb:'fb-adj-d', keys:['qualificativo','qualidade'], expl:'«brincalhão» é adjetivo qualificativo.' },
+      { id:'adj-e', fb:'fb-adj-e', keys:['qualificativo','qualidade'], expl:'«enorme» é adjetivo qualificativo.' },
+    ];
+    items.forEach(({id,fb,keys,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = includes(v, keys);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['6.1 Adjetivos'] = `${pts}/${max}`;
+    addFeedback(pts >= 4, `6.1 Adjetivos — ${pts}/${max} val.`);
+  }
+
+  // ── 6.2 Superlativo ──
+  {
+    let pts = 0, max = 2;
+    const items = [
+      { id:'sup-a', answers:['otimo','óptimo'] },
+      { id:'sup-b', answers:['pessimo'] },
+      { id:'sup-c', answers:['maximo'] },
+    ];
+    let raw = 0;
+    items.forEach(({id,answers}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = exact(v, answers);
+      if (ok) raw++;
+      markInput(id, ok);
+    });
+    pts = raw >= 3 ? 2 : raw >= 2 ? 1 : 0;
+    pontuacao += pts; totalPontos += max;
+    breakdown['6.2 Superlativo'] = `${pts}/${max}`;
+    setFb('fb-sup', raw === 3, raw === 3 ? 'Correto!' : 'Respostas: ótimo, péssimo, máximo.');
+    addFeedback(raw >= 2, `6.2 Superlativo absoluto — ${pts}/${max} val.`);
+  }
+
+  // ── II.1.1 Sujeito e Predicado ──
+  {
+    let pts = 0, max = 5;
+    const items = [
+      { si:'suj1a', pi:'pred1a', fb:'fb-sint1a', s:['o pedro'], p:['leu um livro muito interessante'], expl:'Sujeito: «O Pedro»; Predicado: «leu um livro muito interessante».' },
+      { si:'suj1b', pi:'pred1b', fb:'fb-sint1b', s:['a minha avo','a minha avó'], p:['faz bolos deliciosos'], expl:'Sujeito: «A minha avó»; Predicado: «faz bolos deliciosos».' },
+      { si:'suj1c', pi:'pred1c', fb:'fb-sint1c', s:['os gatos'], p:['dormem muito'], expl:'Sujeito: «Os gatos»; Predicado: «dormem muito».' },
+      { si:'suj1d', pi:'pred1d', fb:'fb-sint1d', s:['a equipa'], p:['ganhou o jogo'], expl:'Sujeito: «A equipa»; Predicado: «ganhou o jogo».' },
+      { si:'suj1e', pi:'pred1e', fb:'fb-sint1e', s:['o diretor','diretor'], p:['cumprimentou os alunos'], expl:'Sujeito: «O diretor da escola»; Predicado: «cumprimentou os alunos».' },
+    ];
+    items.forEach(({si,pi,fb,s,p,expl}) => {
+      const vs = document.getElementById(si)?.value || '';
+      const vp = document.getElementById(pi)?.value || '';
+      const oks = s.some(x => norm(vs).includes(norm(x)));
+      const okp = p.some(x => norm(vp).includes(norm(x)));
+      const ok = oks && okp;
+      if (ok) pts++;
+      markInput(si, oks); markInput(pi, okp);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['II.1.1 Suj./Pred.'] = `${pts}/${max}`;
+    addFeedback(pts >= 4, `II.1.1 Sujeito e predicado — ${pts}/${max} val.`);
+  }
+
+  // ── II.1.2 Tipo de sujeito ──
+  {
+    let pts = 0, max = 5;
+    const items = [
+      { id:'tipo-suj-a', fb:'fb-tsuj-a', keys:['composto'], expl:'Sujeito composto: «O Miguel e a Sofia» (dois núcleos).' },
+      { id:'tipo-suj-b', fb:'fb-tsuj-b', keys:['simples'], expl:'Sujeito simples: «A professora» (um único núcleo).' },
+      { id:'tipo-suj-c', fb:'fb-tsuj-c', keys:['composto'], expl:'Sujeito composto: «O Rui, a Beatriz e a Leonor» (três núcleos).' },
+      { id:'tipo-suj-d', fb:'fb-tsuj-d', keys:['simples'], expl:'Sujeito simples: «O meu gato» (um único núcleo).' },
+      { id:'tipo-suj-e', fb:'fb-tsuj-e', keys:['composto'], expl:'Sujeito composto: «O pai e a mãe» (dois núcleos).' },
+    ];
+    items.forEach(({id,fb,keys,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = includes(v, keys);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['II.1.2 Tipo Sujeito'] = `${pts}/${max}`;
+    addFeedback(pts >= 4, `II.1.2 Tipo de sujeito — ${pts}/${max} val.`);
+  }
+
+  // ── II.2.1 Complementos ──
+  {
+    let pts = 0, max = 5;
+    const items = [
+      { id:'comp-a', fb:'fb-comp-a', keys:['direto','cd'], expl:'«os testes» é complemento direto (responde a «distribuiu o quê?»).' },
+      { id:'comp-b', fb:'fb-comp-b', keys:['direto','cd'], expl:'«um brinquedo» é complemento direto (responde a «ofereceu o quê?»).' },
+      { id:'comp-c', fb:'fb-comp-c', keys:['indireto','ci'], expl:'«à filha» é complemento indireto (responde a «ofereceu a quem?»).' },
+      { id:'comp-d', fb:'fb-comp-d', keys:['direto','cd'], expl:'«uma mensagem» é complemento direto (responde a «enviou o quê?»).' },
+      { id:'comp-e', fb:'fb-comp-e', keys:['indireto','ci'], expl:'«ao avô» é complemento indireto (responde a «escreveu a quem?»).' },
+    ];
+    items.forEach(({id,fb,keys,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = includes(v, keys);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pontuacao += pts; totalPontos += max;
+    breakdown['II.2.1 Complementos'] = `${pts}/${max}`;
+    addFeedback(pts >= 4, `II.2.1 Complementos — ${pts}/${max} val.`);
+  }
+
+  // ── II.2.2 Substituição pronomes ──
+  {
+    let pts = 0, max = 5;
+    const items = [
+      { id:'pron22a', fb:'fb-pron22a', pts:1,
+        keys:['leu-o','a ana leu-o','leu o'], expl:'CD «o livro» → «o» (masc. sing.). Frase: «A Ana leu-o».' },
+      { id:'pron22b', fb:'fb-pron22b', pts:1,
+        keys:['lhes','explicou-lhes','lhes explicou'], expl:'CI «aos alunos» → «lhes» (plural). Frase: «O professor explicou-lhes a matéria».' },
+      { id:'pron22c', fb:'fb-pron22c', pts:1,
+        keys:['deu-lho','lho','lho deu'], expl:'CD «o livro» → «o»; CI «ao irmão» → «lhe» → contração «lho». Frase: «A Maria deu-lho».' },
+      { id:'pron22d', fb:'fb-pron22d', pts:1,
+        keys:['trouxe-as','as trouxe','trouxe as'], expl:'CD «as laranjas» → «as» (fem. pl.). Frase: «O Tomás trouxe-as».' },
+      { id:'pron22e', fb:'fb-pron22e', pts:1,
+        keys:['ofereceu-lho','lho ofereceu','lho'], expl:'CD «o desenho» → «o»; CI «à mãe» → «lhe» → contração «lho». Frase: «A Inês ofereceu-lho».' },
+    ];
+    items.forEach(({id,fb,keys,expl,pts:p}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = includes(v, keys);
+      if (ok) pts += p;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pts = Math.min(pts, max);
+    pontuacao += pts; totalPontos += max;
+    breakdown['II.2.2 Pron. Subst.'] = `${pts}/${max}`;
+    addFeedback(pts >= 4, `II.2.2 Substituição por pronomes — ${pts}/${max} val.`);
+  }
+
+  // ── II.3.1 Vocativo ──
+  {
+    let pts = 0, max = 4;
+    const items = [
+      { id:'voc-a', fb:'fb-voc-a', keys:['filipa'], expl:'O vocativo é «Filipa».' },
+      { id:'voc-b', fb:'fb-voc-b', keys:['tomas','tomás'], expl:'O vocativo é «Tomás».' },
+      { id:'voc-c', fb:'fb-voc-c', keys:['amigos'], expl:'O vocativo é «Amigos».' },
+    ];
+    items.forEach(({id,fb,keys,expl}) => {
+      const v = document.getElementById(id)?.value || '';
+      const ok = includes(v, keys);
+      if (ok) pts++;
+      markInput(id, ok);
+      setFb(fb, ok, ok ? 'Correto!' : expl);
+    });
+    pts = Math.min(pts + (pts > 0 ? 1 : 0), max); // bonus por ter a maioria
+    pts = Math.min(items.filter(({id,keys}) => includes(document.getElementById(id)?.value||'', keys)).length * 1.33 | 0, max);
+    pontuacao += pts; totalPontos += max;
+    breakdown['II.3.1 Vocativo'] = `${pts}/${max}`;
+    addFeedback(pts >= 3, `II.3.1 Vocativo — ${pts}/${max} val.`);
+  }
+
+  // ── Produção escrita livre (3.2 Vocativo) ──
+  {
+    const max = 2;
+    const v32 = document.getElementById('voc32')?.value?.trim() || '';
+    const pts = v32.length > 5 ? 2 : 0;
+    pontuacao += pts; totalPontos += max;
+    breakdown['Produção escrita'] = `${pts}/${max}`;
+    addFeedback(pts >= 2, `3.2 Produção de frase com vocativo — ${pts}/${max} val.`);
+  }
+
+  // ── Mostrar resultado ──
+  mostrarResultado();
+}
+
+function mostrarResultado() {
+  const panel = document.getElementById('result-panel');
+  const pct = Math.round((pontuacao / totalPontos) * 100);
+
+  document.getElementById('res-score').textContent = pontuacao;
+  document.getElementById('res-total').textContent = `/ ${totalPontos} val.`;
+
+  let title, msg;
+  if (pct >= 90) { title = 'Excelente! 🌟'; msg = 'Demonstraste um domínio muito sólido da gramática portuguesa. Parabéns!'; }
+  else if (pct >= 75) { title = 'Muito bom! 👏'; msg = 'Conheces bem os conteúdos gramaticais. Há ainda alguns pontos a consolidar.'; }
+  else if (pct >= 60) { title = 'Bom trabalho! 💪'; msg = 'Estás no bom caminho, mas convém rever alguns conteúdos com mais atenção.'; }
+  else if (pct >= 50) { title = 'Satisfatório'; msg = 'Mostraste conhecimentos básicos, mas precisas de estudar mais alguns conteúdos.'; }
+  else { title = 'Precisas de estudar mais'; msg = 'Não desistas! Revê a matéria com atenção e tenta novamente.'; }
+
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-msg').textContent = msg;
+
+  // Breakdown
+  const bd = document.getElementById('res-breakdown');
+  bd.innerHTML = '';
+  Object.entries(breakdown).forEach(([label, score]) => {
+    const [got, total] = score.split('/').map(Number);
+    const pct2 = total > 0 ? got/total : 0;
+    const color = pct2 >= 0.8 ? '#2ecc71' : pct2 >= 0.5 ? '#f0a500' : '#e74c3c';
+    bd.innerHTML += `<div class="breakdown-item">
+      <div class="b-label">${label}</div>
+      <div class="b-score" style="color:${color}">${got} <span>/ ${total}</span></div>
+    </div>`;
+  });
+
+  // Feedback list
+  const fl = document.getElementById('res-feedback');
+  fl.innerHTML = '';
+  const erros = feedback.filter(f => !f.ok);
+  const acertos = feedback.filter(f => f.ok);
+  if (erros.length) {
+    fl.innerHTML += `<li class="fb-title">A melhorar</li>`;
+    erros.forEach(f => fl.innerHTML += `<li class="fb-wrong">✗ ${f.msg}</li>`);
+  }
+  if (acertos.length) {
+    fl.innerHTML += `<li class="fb-title">Bem respondido</li>`;
+    acertos.forEach(f => fl.innerHTML += `<li class="fb-correct">✓ ${f.msg}</li>`);
+  }
+
+  panel.style.display = 'block';
+  const badge = document.getElementById('top-score');
+  document.getElementById('top-score-val').textContent = `${pontuacao}/${totalPontos}`;
+  badge.style.display = 'flex';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function reiniciar() {
+  location.reload();
+}
+</script>
+</body>
+</html>
