@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Lagartinha Comilona 🐛</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --green: #4caf50;
+    --green-dark: #2e7d32;
+    --green-light: #a5d6a7;
+    --yellow: #ffeb3b;
+    --orange: #ff9800;
+    --red: #f44336;
+    --blue: #2196f3;
+    --purple: #9c27b0;
+    --pink: #e91e63;
+    --bg: #f0fdf4;
+    --shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: #1b5e20;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #43a047 100%);
+    padding: 24px 20px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(255,235,59,0.12) 0%, transparent 60%);
+  }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 #1b5e20;
+    position: relative;
+  }
+  header p { color: #c8e6c9; font-size: 1rem; margin-top: 4px; position: relative; }
+  .header-worm {
+    display: flex; justify-content: center;
+    margin-top: 10px; position: relative;
+  }
+  .hw-seg {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.25);
+    animation: wbounce 1.2s ease-in-out infinite;
+  }
+  .hw-seg:nth-child(1){background:#f44336;animation-delay:0s}
+  .hw-seg:nth-child(2){background:#ff9800;animation-delay:.1s}
+  .hw-seg:nth-child(3){background:#ffeb3b;animation-delay:.2s}
+  .hw-seg:nth-child(4){background:#4caf50;animation-delay:.3s}
+  .hw-seg:nth-child(5){background:#2196f3;animation-delay:.4s}
+  .hw-seg:nth-child(6){background:#9c27b0;animation-delay:.5s}
+  .hw-head {
+    width: 32px; height: 32px; background: #8bc34a; border-radius: 50%;
+    border: 2px solid white; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; animation: wbounce 1.2s ease-in-out infinite; animation-delay:.6s;
+  }
+  @keyframes wbounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+  /* TABS */
+  .tabs {
+    display: flex; justify-content: center; gap: 12px;
+    padding: 18px; background: #e8f5e9;
+    border-bottom: 3px solid #c8e6c9; flex-wrap: wrap;
+  }
+  .tab-btn {
+    font-family: 'Fredoka One', cursive; font-size: 1.05rem;
+    padding: 11px 26px; border: none; border-radius: 50px;
+    cursor: pointer; transition: all .25s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .tab-btn:nth-child(1){background:#ff9800;color:white}
+  .tab-btn:nth-child(2){background:#2196f3;color:white}
+  .tab-btn:nth-child(3){background:#7b1fa2;color:white}
+  .tab-btn.active,.tab-btn:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,0.2);filter:brightness(1.1)}
+
+  /* SECTIONS */
+  .section { display: none; padding: 28px 16px; max-width: 860px; margin: 0 auto; }
+  .section.active { display: block; animation: fadeIn .35s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+
+  /* STORY */
+  .story-card {
+    background: white; border-radius: 24px; padding: 28px;
+    box-shadow: var(--shadow); border: 3px solid #c8e6c9;
+  }
+  .story-title {
+    font-family: 'Fredoka One', cursive; font-size: 1.9rem;
+    color: var(--green-dark); text-align: center; margin-bottom: 4px;
+  }
+  .story-author { text-align: center; color: #888; font-style: italic; margin-bottom: 22px; }
+
+  .audio-box {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    border: 2px dashed var(--green); border-radius: 16px;
+    padding: 18px; margin-bottom: 26px; text-align: center;
+  }
+  .audio-box p { font-size: .9rem; color: #555; margin-bottom: 10px; }
+  .audio-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .audio-row input {
+    padding: 9px 14px; border: 2px solid #c8e6c9; border-radius: 10px;
+    font-family: 'Nunito', sans-serif; font-size: .9rem; flex: 1; min-width: 180px;
+  }
+  .audio-row button {
+    background: var(--green-dark); color: white; border: none;
+    border-radius: 10px; padding: 9px 18px;
+    font-family: 'Fredoka One', cursive; font-size: 1rem; cursor: pointer; transition: all .2s;
+  }
+  .audio-row button:hover { filter: brightness(1.15); transform: scale(1.04); }
+  #audio-player { width: 100%; margin-top: 12px; display: none; border-radius: 8px; }
+  #audio-ok { display: none; color: var(--green-dark); font-weight: 700; margin-top: 8px; font-size: .9rem; }
+
+  .story-text { font-size: 1.1rem; line-height: 1.9; color: #333; }
+  .story-text p { margin: 10px 0; }
+  .day-block {
+    margin: 14px 0; padding: 14px 18px;
+    border-radius: 14px; border-left: 5px solid;
+  }
+  .day-block.mon{border-color:#f44336;background:#fff5f5}
+  .day-block.tue{border-color:#ff9800;background:#fff8f0}
+  .day-block.wed{border-color:#f9a825;background:#fffef0}
+  .day-block.thu{border-color:#4caf50;background:#f3fff3}
+  .day-block.fri{border-color:#2196f3;background:#f0f7ff}
+  .day-block.sat{border-color:#9c27b0;background:#faf0ff}
+  .day-block.sun{border-color:#e91e63;background:#fff0f5}
+  .day-label { font-family: 'Fredoka One', cursive; font-size: 1.1rem; margin-bottom: 4px; }
+
+  /* QUIZ */
+  .quiz-intro {
+    text-align: center; background: white;
+    border-radius: 24px; padding: 36px 28px;
+    box-shadow: var(--shadow); border: 3px solid #bbdefb;
+  }
+  .quiz-intro h2 { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--blue); margin-bottom: 10px; }
+  .quiz-intro p { font-size: 1.05rem; color: #555; margin-bottom: 22px; }
+  .start-btn {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: white; border: none; border-radius: 50px;
+    padding: 15px 40px; font-family: 'Fredoka One', cursive;
+    font-size: 1.25rem; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(33,150,243,0.4); transition: all .25s;
+  }
+  .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(33,150,243,0.5); }
+
+  #quiz-game { display: none; }
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
+  }
+  .q-prog, .q-score {
+    background: white; border-radius: 50px; padding: 8px 20px;
+    font-family: 'Fredoka One', cursive; font-size: 1.05rem;
+    box-shadow: var(--shadow);
+  }
+  .q-prog { color: var(--blue); }
+  .q-score { background: linear-gradient(135deg, #ffeb3b, #ff9800); color: #333; }
+
+  .quiz-card {
+    background: white; border-radius: 22px; padding: 30px;
+    box-shadow: var(--shadow); border: 3px solid #e0e0e0;
+  }
+  .q-emoji { font-size: 3rem; text-align: center; display: block; margin-bottom: 10px; }
+  .q-text {
+    font-family: 'Fredoka One', cursive; font-size: 1.4rem;
+    color: #333; text-align: center; margin-bottom: 26px; line-height: 1.4;
+  }
+  .q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:480px){.q-opts{grid-template-columns:1fr}}
+  .q-opt {
+    background: #f5f5f5; border: 3px solid #e0e0e0;
+    border-radius: 14px; padding: 14px 18px;
+    font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all .2s; text-align: left;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .q-opt:hover { border-color: var(--blue); background: #e3f2fd; transform: scale(1.02); }
+  .q-opt.correct { background: #e8f5e9; border-color: var(--green); color: #2e7d32; }
+  .q-opt.wrong   { background: #ffebee; border-color: var(--red); color: var(--red); }
+  .q-opt.disabled { pointer-events: none; }
+  .q-opt .opt-letter {
+    background: var(--blue); color: white; border-radius: 50%;
+    width: 28px; height: 28px; display: inline-flex;
+    align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+  }
+  .q-feedback {
+    margin-top: 18px; text-align: center; font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem; padding: 12px; border-radius: 12px; display: none;
+  }
+  .q-feedback.ok  { background: #e8f5e9; color: #2e7d32; }
+  .q-feedback.err { background: #ffebee; color: var(--red); }
+  .next-btn {
+    display: none; margin: 18px auto 0;
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white; border: none; border-radius: 50px;
+    padding: 13px 36px; font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(76,175,80,0.4); transition: all .25s;
+  }
+  .next-btn:hover { transform: translateY(-2px); }
+  .q-result {
+    display: none; text-align: center; background: white;
+    border-radius: 24px; padding: 40px 28px;
+    box-shadow: var(--shadow); border: 3px solid #c8e6c9;
+  }
+  .q-result h2 { font-family: 'Fredoka One', cursive; font-size: 2.2rem; color: #2e7d32; margin-bottom: 10px; }
+  .q-result .stars { font-size: 2.4rem; margin: 10px 0; }
+  .q-result p { font-size: 1.1rem; color: #555; margin-bottom: 22px; }
+  .replay-btn {
+    background: linear-gradient(135deg, #ff9800, #e65100);
+    color: white; border: none; border-radius: 50px;
+    padding: 13px 36px; font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(255,152,0,0.4); transition: all .25s;
+  }
+  .replay-btn:hover { transform: translateY(-3px); }
+
+  /* GAME */
+  .game-section h2 {
+    font-family: 'Fredoka One', cursive; font-size: 1.9rem;
+    color: #2e7d32; text-align: center; margin-bottom: 4px;
+  }
+  .game-section > p { text-align: center; color: #555; margin-bottom: 18px; }
+  .game-wrapper { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+  .game-hud {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    justify-content: center; width: 100%; max-width: 580px;
+  }
+  .hud-box {
+    background: white; border-radius: 14px; padding: 9px 18px;
+    box-shadow: var(--shadow); text-align: center; flex: 1; min-width: 90px;
+  }
+  .hud-box .lbl { font-size: .72rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .hud-box .val { font-family: 'Fredoka One', cursive; font-size: 1.4rem; }
+  .hud-box.score .val { color: #2e7d32; }
+  .hud-box.lives .val { color: var(--red); }
+  .hud-box.ammo  .val { color: var(--orange); }
+
+  #gameCanvas {
+    border: 4px solid #2e7d32; border-radius: 18px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    background: #1a3a1a; max-width: 100%; display: block;
+  }
+
+  .game-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .gbtn {
+    border: none; border-radius: 12px; padding: 11px 20px;
+    font-family: 'Fredoka One', cursive; font-size: 1rem;
+    cursor: pointer; transition: all .2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  .gbtn.start  { background: #4caf50; color: white; }
+  .gbtn.pause  { background: var(--orange); color: white; }
+  .gbtn.reload { background: #7b1fa2; color: white; }
+  .gbtn:hover  { transform: translateY(-2px); filter: brightness(1.1); }
+  .gbtn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  .dpad {
+    display: grid;
+    grid-template-columns: 46px 46px 46px;
+    grid-template-rows: 46px 46px 46px;
+    gap: 4px;
+  }
+  .dp {
+    background: #2e7d32; color: white; border: none;
+    border-radius: 10px; font-size: 1.2rem; cursor: pointer;
+    transition: all .15s; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  }
+  .dp:active { transform: scale(.88); background: #43a047; }
+  .dp.up    { grid-column: 2; grid-row: 1; }
+  .dp.left  { grid-column: 1; grid-row: 2; }
+  .dp.ctr   { grid-column: 2; grid-row: 2; background: #444; font-size: .7rem; }
+  .dp.right { grid-column: 3; grid-row: 2; }
+  .dp.down  { grid-column: 2; grid-row: 3; }
+
+  .game-info {
+    background: white; border-radius: 16px; padding: 18px 24px;
+    box-shadow: var(--shadow); max-width: 580px; width: 100%;
+    font-size: .9rem; color: #444; line-height: 1.7;
+  }
+  .game-info h3 { font-family: 'Fredoka One', cursive; color: #2e7d32; margin-bottom: 8px; }
+  .game-info ul { padding-left: 16px; }
+  .game-info li { margin-bottom: 3px; }
+  kbd { background: #e0e0e0; border-radius: 5px; padding: 1px 7px; font-size: .85em; border: 1px solid #bbb; }
+
+  /* MODAL */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 26px; padding: 34px 28px;
+    max-width: 460px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  .modal h3 { font-family: 'Fredoka One', cursive; font-size: 1.7rem; color: #7b1fa2; margin-bottom: 6px; }
+  .modal .m-emoji { font-size: 2.8rem; display: block; margin-bottom: 6px; }
+  .modal .m-q { font-size: 1.15rem; color: #333; margin-bottom: 18px; line-height: 1.5; }
+  .m-opts { display: flex; flex-direction: column; gap: 9px; }
+  .m-opt {
+    background: #f5f5f5; border: 3px solid #e0e0e0;
+    border-radius: 12px; padding: 12px 16px;
+    font-size: .98rem; font-weight: 700; cursor: pointer;
+    transition: all .2s; text-align: left;
+  }
+  .m-opt:hover { border-color: #7b1fa2; background: #f3e5f5; }
+  .m-opt.ok  { background: #e8f5e9; border-color: var(--green); color: #2e7d32; }
+  .m-opt.bad { background: #ffebee; border-color: var(--red); color: var(--red); }
+  #m-fb { margin-top: 12px; font-family: 'Fredoka One', cursive; font-size: 1.1rem; display: none; }
+
+  footer {
+    text-align: center; padding: 20px; color: #888;
+    font-size: .82rem; border-top: 2px solid #e0e0e0; margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐛 A Lagartinha Comilona</h1>
+  <p>Eric Carle</p>
+  <div class="header-worm">
+    <div class="hw-seg"></div><div class="hw-seg"></div><div class="hw-seg"></div>
+    <div class="hw-seg"></div><div class="hw-seg"></div><div class="hw-seg"></div>
+    <div class="hw-head">😊</div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" onclick="showTab('story')">📖 A História</button>
+  <button class="tab-btn" onclick="showTab('quiz')">❓ Perguntas</button>
+  <button class="tab-btn" onclick="showTab('game')">🎮 Jogo</button>
+</nav>
+
+<!-- STORY -->
+<section id="story" class="section active">
+  <div class="story-card">
+    <h2 class="story-title">📖 A Lagartinha Comilona</h2>
+    <p class="story-author">Eric Carle · Traduzido por Maria Alberta Menéres</p>
+
+    <div class="audio-box">
+      <p>🎙️ Ouve a narração da história! Cola o link do áudio abaixo:</p>
+      <div class="audio-row">
+        <input type="text" id="audioUrl" placeholder="https://... (link do ficheiro mp3 ou ogg)" />
+        <button onclick="loadAudio()">▶ Carregar</button>
+      </div>
+      <audio id="audio-player" controls></audio>
+      <p id="audio-ok">✅ Áudio carregado! Carrega em play para ouvir. 🎧</p>
+    </div>
+
+    <div class="story-text">
+      <p>Na luz do luar, numa noite de domingo, um pequeno ovo estava deitado sobre uma folha.</p>
+      <p>Num domingo de manhã, o sol raiou e — <em>puf!</em> — saiu de dentro do ovo uma lagartinha muito pequenina com muita fome.</p>
+      <p>Começou a procurar comida.</p>
+
+      <div class="day-block mon">
+        <div class="day-label" style="color:#c62828">🔴 Segunda-feira</div>
+        <p>Na segunda-feira comeu 🍎 uma maçã mas ainda tinha fome.</p>
+      </div>
+      <div class="day-block tue">
+        <div class="day-label" style="color:#e65100">🟠 Terça-feira</div>
+        <p>Na terça-feira comeu 🍐🍐 duas peras mas ainda tinha fome.</p>
+      </div>
+      <div class="day-block wed">
+        <div class="day-label" style="color:#f57f17">🟡 Quarta-feira</div>
+        <p>Na quarta-feira comeu 🍑🍑🍑 três ameixas mas ainda tinha fome.</p>
+      </div>
+      <div class="day-block thu">
+        <div class="day-label" style="color:#2e7d32">🟢 Quinta-feira</div>
+        <p>Na quinta-feira comeu 🍓🍓🍓🍓 quatro morangos mas ainda tinha fome.</p>
+      </div>
+      <div class="day-block fri">
+        <div class="day-label" style="color:#1565c0">🔵 Sexta-feira</div>
+        <p>Na sexta-feira comeu 🍊🍊🍊🍊🍊 cinco laranjas mas ainda tinha fome.</p>
+      </div>
+      <div class="day-block sat">
+        <div class="day-label" style="color:#6a1b9a">🟣 Sábado</div>
+        <p>No sábado comeu um pedaço de bolo de chocolate 🎂, um cone de gelado 🍦, um pepino 🥒, uma fatia de queijo suíço 🧀, uma fatia de salame 🍖, um pirulito 🍭, uma fatia de torta de cereja 🥧, uma salsichinha 🌭, um cupcake 🧁 e uma fatia de melancia 🍉.</p>
+        <p>Nessa noite, a lagartinha tinha uma dor de barriga horrorosa!</p>
+      </div>
+      <div class="day-block sun">
+        <div class="day-label" style="color:#880e4f">🩷 Domingo</div>
+        <p>No domingo seguinte comeu uma folha verde e bonita 🍃 e sentiu-se muito melhor.</p>
+      </div>
+
+      <p style="margin-top:18px">Agora a lagartinha já não era pequena. Era uma lagartinha gorda e bem nutrida.</p>
+      <p>Construiu uma casinha chamada <strong>casulo</strong> à volta de si mesma e ficou lá dentro durante mais de duas semanas.</p>
+      <p>Depois fez um buraquinho no casulo, saiu e...</p>
+      <p style="font-size:1.3rem;text-align:center;font-family:'Fredoka One',cursive;color:#2e7d32;margin-top:16px">
+        ✨ Era uma bela borboleta! 🦋 ✨
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="section">
+  <div id="quiz-intro" class="quiz-intro">
+    <h2>❓ Perguntas de Interpretação</h2>
+    <p>Leste a história com atenção? 🐛<br>São <strong>10 perguntas</strong> para verificarmos!</p>
+    <button class="start-btn" onclick="startQuiz()">🚀 Começar o Quizz!</button>
+  </div>
+
+  <div id="quiz-game">
+    <div class="quiz-header">
+      <div class="q-prog" id="q-prog">Pergunta 1 / 10</div>
+      <div class="q-score">⭐ <span id="q-score-n">0</span> pontos</div>
+    </div>
+    <div class="quiz-card" id="quiz-card">
+      <span class="q-emoji" id="q-emoji">🐛</span>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-opts" id="q-opts"></div>
+      <div class="q-feedback" id="q-fb"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQ()">Próxima ➡</button>
+    </div>
+    <div class="q-result" id="q-result">
+      <div class="stars" id="r-stars">⭐⭐⭐</div>
+      <h2 id="r-title">Parabéns!</h2>
+      <p id="r-msg"></p>
+      <button class="replay-btn" onclick="restartQuiz()">🔄 Jogar de Novo</button>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game" class="section game-section">
+  <h2>🐛 Jogo da Lagartinha Comilona</h2>
+  <p>Come folhas de amoreira 🌿 · Foge dos pássaros 🐦 · Dispara raios ⚡</p>
+
+  <div class="game-wrapper">
+    <div class="game-hud">
+      <div class="hud-box score"><div class="lbl">Pontos</div><div class="val" id="h-score">0</div></div>
+      <div class="hud-box lives"><div class="lbl">Vidas</div><div class="val" id="h-lives">❤️❤️❤️</div></div>
+      <div class="hud-box ammo"><div class="lbl">Munições</div><div class="val" id="h-ammo">⚡⚡⚡⚡⚡⚡</div></div>
+    </div>
+
+    <canvas id="gameCanvas" width="560" height="420"></canvas>
+
+    <div class="game-btns">
+      <button class="gbtn start" id="gStart" onclick="startGame()">▶ Iniciar</button>
+      <button class="gbtn pause" id="gPause" onclick="pauseGame()" disabled>⏸ Pausa</button>
+      <button class="gbtn reload" onclick="triggerReload()">🔄 Recarregar [R]</button>
+    </div>
+
+    <div class="dpad">
+      <button class="dp up"    onclick="setDir(0,-1)"  ontouchstart="e(event,0,-1)">▲</button>
+      <button class="dp left"  onclick="setDir(-1,0)"  ontouchstart="e(event,-1,0)">◀</button>
+      <button class="dp ctr">D-Pad</button>
+      <button class="dp right" onclick="setDir(1,0)"   ontouchstart="e(event,1,0)">▶</button>
+      <button class="dp down"  onclick="setDir(0,1)"   ontouchstart="e(event,0,1)">▼</button>
+    </div>
+
+    <div class="game-info">
+      <h3>📋 Como Jogar</h3>
+      <ul>
+        <li>🌿 Come as <strong>folhas de amoreira</strong> para crescer e ganhar pontos</li>
+        <li>🐦 <strong>Foge dos pássaros!</strong> Se te apanharem perdes uma vida</li>
+        <li>⚡ Carrega em <kbd>Espaço</kbd> para <strong>disparar um raio</strong> e afastar os pássaros</li>
+        <li>🔄 Carrega em <kbd>R</kbd> para <strong>recarregar munições</strong> — tens de responder a uma pergunta!</li>
+        <li>🎮 Usa as <kbd>⬆</kbd> <kbd>⬇</kbd> <kbd>⬅</kbd> <kbd>➡</kbd> ou o D-Pad para mover</li>
+        <li>⚠️ Tens 6 munições. Ao disparar todas, usa o botão Recarregar!</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- RELOAD MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <span class="m-emoji">⚡</span>
+    <h3>Recarregar Munições!</h3>
+    <div class="m-q" id="m-q">Responde corretamente para recarregar!</div>
+    <div class="m-opts" id="m-opts"></div>
+    <p id="m-fb"></p>
+  </div>
+</div>
+
+<footer>
+  <p>🐛 A Lagartinha Comilona · Eric Carle · App Educativa para o 1.º Ciclo</p>
+</footer>
+
+<script>
+// ===== TABS =====
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  ['story','quiz','game'].forEach((t,i) => {
+    if(t===id) document.querySelectorAll('.tab-btn')[i].classList.add('active');
+  });
+  if(id !== 'game' && gameRunning) pauseGame();
+}
+
+// ===== AUDIO =====
+function loadAudio() {
+  const url = document.getElementById('audioUrl').value.trim();
+  if(!url) return alert('Por favor, cola o link do áudio!');
+  const p = document.getElementById('audio-player');
+  p.src = url;
+  p.style.display = 'block';
+  document.getElementById('audio-ok').style.display = 'block';
+}
+
+// ===== QUIZ =====
+const QS = [
+  {e:'🌙',q:'Em que noite apareceu o ovo da lagartinha?',opts:['Numa noite de sábado','Numa noite de domingo','Numa noite de sexta-feira','Numa noite de quinta-feira'],ans:1},
+  {e:'🍎',q:'O que comeu a lagartinha na segunda-feira?',opts:['Duas maçãs','Três laranjas','Uma maçã','Um morango'],ans:2},
+  {e:'🍐',q:'Quantas peras comeu a lagartinha na terça-feira?',opts:['Uma','Duas','Três','Quatro'],ans:1},
+  {e:'🍑',q:'O que comeu a lagartinha na quarta-feira?',opts:['Três ameixas','Dois pêssegos','Quatro peras','Cinco cerejas'],ans:0},
+  {e:'🍓',q:'Quantos morangos comeu a lagartinha na quinta-feira?',opts:['Três','Cinco','Dois','Quatro'],ans:3},
+  {e:'🍊',q:'O que comeu a lagartinha na sexta-feira?',opts:['Cinco laranjas','Três maçãs','Quatro bananas','Seis uvas'],ans:0},
+  {e:'🤒',q:'Como se sentiu a lagartinha depois do sábado?',opts:['Muito feliz','Com dor de barriga','Com muita fome','Com sono'],ans:1},
+  {e:'🍃',q:'O que comeu a lagartinha no domingo para se sentir melhor?',opts:['Uma maçã','Um pepino','Uma folha verde','Um morango'],ans:2},
+  {e:'🏠',q:'Como se chama a casinha que a lagartinha construiu?',opts:['Ninho','Casulo','Toca','Concha'],ans:1},
+  {e:'🦋',q:'Em que se transformou a lagartinha no final?',opts:['Numa abelha','Numa joaninha','Numa borboleta','Num bicho-da-seda'],ans:2},
+];
+
+let qI=0, qScore=0;
+
+function startQuiz() {
+  document.getElementById('quiz-intro').style.display='none';
+  document.getElementById('quiz-game').style.display='block';
+  qI=0; qScore=0;
+  document.getElementById('q-score-n').textContent=0;
+  document.getElementById('quiz-card').style.display='block';
+  document.querySelector('.quiz-header').style.display='flex';
+  document.getElementById('q-result').style.display='none';
+  renderQ();
+}
+
+function renderQ() {
+  const q=QS[qI];
+  document.getElementById('q-prog').textContent=`Pergunta ${qI+1} / ${QS.length}`;
+  document.getElementById('q-emoji').textContent=q.e;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-fb').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+  const el=document.getElementById('q-opts'); el.innerHTML='';
+  ['A','B','C','D'].forEach((L,i)=>{
+    const b=document.createElement('button');
+    b.className='q-opt';
+    b.innerHTML=`<span class="opt-letter">${L}</span>${q.opts[i]}`;
+    b.onclick=()=>pickQ(i,q.ans);
+    el.appendChild(b);
+  });
+}
+
+function pickQ(sel,ans) {
+  document.querySelectorAll('.q-opt').forEach((o,i)=>{
+    o.classList.add('disabled');
+    if(i===ans) o.classList.add('correct');
+    else if(i===sel) o.classList.add('wrong');
+  });
+  const fb=document.getElementById('q-fb');
+  if(sel===ans){ qScore++; document.getElementById('q-score-n').textContent=qScore; fb.textContent='✅ Muito bem! Resposta certa! 🎉'; fb.className='q-feedback ok'; }
+  else { fb.textContent='❌ Ops! A resposta certa era a opção '+['A','B','C','D'][ans]+'.'; fb.className='q-feedback err'; }
+  fb.style.display='block';
+  const nb=document.getElementById('next-btn');
+  nb.style.display='block';
+  nb.textContent=qI<QS.length-1?'Próxima ➡':'🏆 Ver Resultado';
+}
+
+function nextQ() {
+  qI++;
+  if(qI>=QS.length){ showQResult(); return; }
+  renderQ();
+}
+
+function showQResult() {
+  document.getElementById('quiz-card').style.display='none';
+  document.querySelector('.quiz-header').style.display='none';
+  const r=document.getElementById('q-result');
+  r.style.display='block';
+  const pct=qScore/QS.length;
+  document.getElementById('r-stars').textContent=pct>=.9?'⭐⭐⭐':pct>=.6?'⭐⭐':'⭐';
+  document.getElementById('r-title').textContent=pct>=.9?'Excelente! 🎉':pct>=.6?'Muito bem! 👏':'Continua a tentar! 💪';
+  document.getElementById('r-msg').textContent=`Acertaste em ${qScore} de ${QS.length} perguntas!`;
+}
+
+function restartQuiz() {
+  document.getElementById('quiz-card').style.display='block';
+  document.querySelector('.quiz-header').style.display='flex';
+  document.getElementById('q-result').style.display='none';
+  qI=0; qScore=0; document.getElementById('q-score-n').textContent=0;
+  renderQ();
+}
+
+// ===== SNAKE GAME =====
+const cv=document.getElementById('gameCanvas');
+const cx=cv.getContext('2d');
+const COLS=28,ROWS=21;
+const CW=cv.width/COLS,CH=cv.height/ROWS;
+
+let snake,dir,nextDir,leaves,birds,bullets,score,lives,ammo;
+let gameRunning=false,gamePaused=false,reloadPending=false;
+let loop=null, birdTimer=null;
+
+const RELOAD_QS=[
+  {q:'O que comeu a lagartinha na segunda-feira?',opts:['Uma maçã','Uma pera','Uma ameixa','Um morango'],ans:0},
+  {q:'Em que se transformou a lagartinha no final?',opts:['Numa abelha','Numa borboleta','Numa joaninha','Num besouro'],ans:1},
+  {q:'Como se chama a casinha que a lagartinha construiu?',opts:['Ninho','Toca','Casulo','Gruta'],ans:2},
+  {q:'Quantas laranjas comeu na sexta-feira?',opts:['Três','Quatro','Seis','Cinco'],ans:3},
+  {q:'Quantas peras comeu na terça-feira?',opts:['Uma','Duas','Três','Quatro'],ans:1},
+  {q:'O que comeu no domingo para se sentir melhor?',opts:['Uma maçã','Um pepino','Uma folha verde','Um morango'],ans:2},
+  {q:'Quantos morangos comeu na quinta-feira?',opts:['Dois','Três','Quatro','Cinco'],ans:2},
+  {q:'Em que dia nasceu a lagartinha?',opts:['Sábado','Sexta-feira','Domingo','Segunda-feira'],ans:2},
+];
+
+function e(ev,x,y){ ev.preventDefault(); setDir(x,y); }
+
+function initGame() {
+  snake=[{x:14,y:10},{x:13,y:10},{x:12,y:10},{x:11,y:10}];
+  dir={x:1,y:0}; nextDir={x:1,y:0};
+  leaves=[]; birds=[]; bullets=[];
+  score=0; lives=3; ammo=6;
+  for(let i=0;i<3;i++) spawnLeaf();
+  hud();
+}
+
+function spawnLeaf() {
+  let p;
+  do{ p={x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)}; }
+  while(snake.some(s=>s.x===p.x&&s.y===p.y)||leaves.some(l=>l.x===p.x&&l.y===p.y));
+  leaves.push(p);
+}
+
+function spawnBird() {
+  if(!gameRunning||gamePaused) return;
+  const maxB=2+Math.floor(score/50);
+  if(birds.length>=maxB) return;
+  const edge=Math.floor(Math.random()*4);
+  let px,py;
+  if(edge===0){px=Math.random()*cv.width;py=-24;}
+  else if(edge===1){px=cv.width+24;py=Math.random()*cv.height;}
+  else if(edge===2){px=Math.random()*cv.width;py=cv.height+24;}
+  else{px=-24;py=Math.random()*cv.height;}
+  birds.push({px,py,stun:0});
+}
+
+function hud() {
+  document.getElementById('h-score').textContent=score;
+  document.getElementById('h-lives').textContent='❤️'.repeat(lives)||'💀';
+  document.getElementById('h-ammo').textContent=ammo>0?'⚡'.repeat(ammo):'🔋 Vazio!';
+}
+
+function startGame() {
+  if(gameRunning) return;
+  initGame();
+  gameRunning=true; gamePaused=false;
+  document.getElementById('gStart').disabled=true;
+  document.getElementById('gPause').disabled=false;
+  clearInterval(loop); clearInterval(birdTimer);
+  loop=setInterval(tick,130);
+  birdTimer=setInterval(spawnBird,3500);
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId=requestAnimationFrame(animFrame);
+}
+
+function pauseGame() {
+  if(!gameRunning) return;
+  gamePaused=!gamePaused;
+  document.getElementById('gPause').textContent=gamePaused?'▶ Continuar':'⏸ Pausa';
+  if(!gamePaused) draw();
+}
+
+function tick() {
+  if(gamePaused||!gameRunning||reloadPending) return;
+  dir=nextDir;
+  const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+
+  head.x=(head.x+COLS)%COLS;
+  head.y=(head.y+ROWS)%ROWS;
+  if(snake.some(s=>s.x===head.x&&s.y===head.y)){ loseLife(); return; }
+  snake.unshift(head);
+
+  const li=leaves.findIndex(l=>l.x===head.x&&l.y===head.y);
+  if(li>=0){ leaves.splice(li,1); score+=10; spawnLeaf(); if(leaves.length<2)spawnLeaf(); }
+  else snake.pop();
+
+  // Move birds
+  birds.forEach(b=>{
+    if(b.stun>0){b.stun--;return;}
+    const tx=snake[0].x*CW+CW/2, ty=snake[0].y*CH+CH/2;
+    const dx=tx-b.px,dy=ty-b.py,dist=Math.sqrt(dx*dx+dy*dy)||1;
+    const spd=1.6+(score/200);
+    b.px+=dx/dist*spd; b.py+=dy/dist*spd;
+    const hx=snake[0].x*CW+CW/2,hy=snake[0].y*CH+CH/2;
+    if(Math.sqrt((b.px-hx)**2+(b.py-hy)**2)<CW*0.85){b.stun=70;loseLife();}
+  });
+
+  hud();
+}
+
+function loseLife() {
+  lives--;
+  hud();
+  if(lives<=0){gameOver();return;}
+  cv.style.filter='brightness(4) saturate(0)';
+  setTimeout(()=>cv.style.filter='',200);
+  snake=[{x:14,y:10},{x:13,y:10},{x:12,y:10},{x:11,y:10}];
+  dir={x:1,y:0};nextDir={x:1,y:0};
+}
+
+function gameOver() {
+  gameRunning=false;
+  clearInterval(loop);clearInterval(birdTimer);
+  document.getElementById('gStart').disabled=false;
+  document.getElementById('gPause').disabled=true;
+  cx.fillStyle='rgba(0,0,0,.75)'; cx.fillRect(0,0,cv.width,cv.height);
+  cx.textAlign='center';
+  cx.fillStyle='#ffeb3b'; cx.font=`bold 44px 'Fredoka One',cursive`;
+  cx.fillText('Game Over! 🐛',cv.width/2,cv.height/2-22);
+  cx.fillStyle='white'; cx.font=`26px 'Fredoka One',cursive`;
+  cx.fillText(`Pontuação: ${score} pontos`,cv.width/2,cv.height/2+22);
+  cx.font=`18px 'Nunito',sans-serif`;
+  cx.fillText('Clica em Iniciar para jogar novamente',cv.width/2,cv.height/2+60);
+}
+
+function setDir(x,y) {
+  if(x===1&&dir.x===-1)return;
+  if(x===-1&&dir.x===1)return;
+  if(y===1&&dir.y===-1)return;
+  if(y===-1&&dir.y===1)return;
+  nextDir={x,y};
+}
+
+function shoot() {
+  if(!gameRunning||gamePaused||ammo<=0) return;
+  ammo--;
+  // Spawn bullet one full cell ahead of the head so it never overlaps
+  const hx=snake[0].x*CW+CW/2 + dir.x*CW,
+        hy=snake[0].y*CH+CH/2 + dir.y*CH;
+  bullets.push({px:hx,py:hy,vx:dir.x,vy:dir.y});
+  hud();
+}
+
+function triggerReload() {
+  if(!gameRunning) return;
+  reloadPending=true; gamePaused=true;
+  const rq=RELOAD_QS[Math.floor(Math.random()*RELOAD_QS.length)];
+  document.getElementById('m-q').textContent=rq.q;
+  document.getElementById('m-fb').style.display='none';
+  const el=document.getElementById('m-opts'); el.innerHTML='';
+  rq.opts.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='m-opt';
+    b.textContent=['A','B','C','D'][i]+') '+opt;
+    b.onclick=()=>answerReload(i,rq.ans,b);
+    el.appendChild(b);
+  });
+  document.getElementById('overlay').classList.add('open');
+}
+
+function answerReload(sel,ans,btn) {
+  document.querySelectorAll('.m-opt').forEach(b=>b.onclick=null);
+  document.querySelectorAll('.m-opt')[ans].classList.add('ok');
+  const fb=document.getElementById('m-fb');
+  fb.style.display='block';
+  if(sel===ans){
+    btn.classList.add('ok'); ammo=6;
+    fb.textContent='✅ Correto! Munições totalmente recarregadas! ⚡⚡⚡⚡⚡⚡';
+    fb.style.color='#2e7d32';
+  } else {
+    btn.classList.add('bad'); ammo=Math.min(ammo+2,6);
+    fb.textContent='❌ Incorreto! Carregaste apenas 2 munições.';
+    fb.style.color='#c62828';
+  }
+  hud();
+  setTimeout(()=>{
+    document.getElementById('overlay').classList.remove('open');
+    reloadPending=false; gamePaused=false;
+  },2000);
+}
+
+
+// rAF bullet loop — runs independently of snake tick
+let rafId=null;
+function animFrame() {
+  if(!gameRunning){ draw(); return; }
+  if(!gamePaused && !reloadPending){
+    // Move bullets fast (10px per frame ~600px/s at 60fps)
+    const spd=10;
+    bullets.forEach(b=>{ b.px+=b.vx*spd; b.py+=b.vy*spd; });
+    bullets=bullets.filter(b=>b.px>=0&&b.px<=cv.width&&b.py>=0&&b.py<=cv.height);
+
+    // Bullet-bird collisions
+    for(let bi=bullets.length-1;bi>=0;bi--){
+      for(let di=birds.length-1;di>=0;di--){
+        const dx=bullets[bi].px-birds[di].px,dy=bullets[bi].py-birds[di].py;
+        if(Math.sqrt(dx*dx+dy*dy)<24){ birds[di].stun=100; bullets.splice(bi,1); score+=5; hud(); break; }
+      }
+    }
+  }
+  draw();
+  rafId=requestAnimationFrame(animFrame);
+}
+
+// ===== DRAW =====
+function draw() {
+  cx.fillStyle='#1a3a1a'; cx.fillRect(0,0,cv.width,cv.height);
+
+  // Grid dots
+  cx.fillStyle='rgba(255,255,255,0.04)';
+  for(let x=0;x<COLS;x++) for(let y=0;y<ROWS;y++){
+    cx.beginPath(); cx.arc(x*CW+CW/2,y*CH+CH/2,1.2,0,Math.PI*2); cx.fill();
+  }
+
+  // Leaves (mulberry style)
+  leaves.forEach(l=>{
+    const px=l.x*CW,py=l.y*CH;
+    // Leaf shape
+    cx.fillStyle='#66bb6a';
+    cx.beginPath();
+    cx.ellipse(px+CW/2,py+CH*0.55,CW*0.4,CH*0.38,0.3,0,Math.PI*2);
+    cx.fill();
+    cx.fillStyle='#81c784';
+    cx.beginPath();
+    cx.ellipse(px+CW*0.38,py+CH*0.4,CW*0.3,CH*0.28,-0.3,0,Math.PI*2);
+    cx.fill();
+    // Vein
+    cx.strokeStyle='#43a047'; cx.lineWidth=1;
+    cx.beginPath(); cx.moveTo(px+CW/2,py+CH*0.15); cx.lineTo(px+CW/2,py+CH*0.85); cx.stroke();
+    // Stem
+    cx.strokeStyle='#388e3c'; cx.lineWidth=1.5;
+    cx.beginPath(); cx.moveTo(px+CW/2,py+CH*0.15); cx.lineTo(px+CW/2,py-1); cx.stroke();
+  });
+
+  // Snake
+  const colors=['#8bc34a','#7cb342','#6da834','#5e9e25','#4f9418'];
+  snake.forEach((seg,i)=>{
+    const px=seg.x*CW+1,py=seg.y*CH+1,w=CW-2,h=CH-2;
+    cx.fillStyle=colors[Math.min(i,colors.length-1)];
+    cx.beginPath(); cx.roundRect(px,py,w,h,i===0?7:4); cx.fill();
+    cx.strokeStyle='rgba(255,255,255,.12)'; cx.lineWidth=1; cx.stroke();
+    if(i===0){
+      // Eyes
+      const ex1=px+w*.28,ex2=px+w*.68,ey=py+h*.3;
+      cx.fillStyle='white';
+      cx.beginPath();cx.arc(ex1,ey,2.6,0,Math.PI*2);cx.fill();
+      cx.beginPath();cx.arc(ex2,ey,2.6,0,Math.PI*2);cx.fill();
+      cx.fillStyle='#1a3a1a';
+      cx.beginPath();cx.arc(ex1+.6,ey+.5,1.2,0,Math.PI*2);cx.fill();
+      cx.beginPath();cx.arc(ex2+.6,ey+.5,1.2,0,Math.PI*2);cx.fill();
+      // Smile
+      cx.strokeStyle='white'; cx.lineWidth=1.2;
+      cx.beginPath(); cx.arc(px+w/2,py+h*.6,w*.18,0.15,Math.PI-.15); cx.stroke();
+    }
+  });
+
+  // Birds
+  birds.forEach(b=>{
+    cx.save(); cx.translate(b.px,b.py);
+    if(b.stun>0) cx.globalAlpha=.4+Math.sin(Date.now()/60)*.3;
+    cx.font=`${Math.floor(CW*1.15)}px serif`;
+    cx.textAlign='center'; cx.textBaseline='middle';
+    cx.fillText(b.stun>0?'💫':'🐦‍⬛',0,0);
+    cx.restore();
+  });
+
+  // Bullets
+  bullets.forEach(b=>{
+    const g=cx.createRadialGradient(b.px,b.py,0,b.px,b.py,9);
+    g.addColorStop(0,'#ffff88');
+    g.addColorStop(.5,'#ffd600');
+    g.addColorStop(1,'rgba(255,200,0,0)');
+    cx.fillStyle=g;
+    cx.beginPath(); cx.arc(b.px,b.py,9,0,Math.PI*2); cx.fill();
+    cx.fillStyle='#fff';
+    cx.beginPath(); cx.arc(b.px,b.py,3,0,Math.PI*2); cx.fill();
+  });
+
+  // Pause overlay
+  if(gamePaused&&!reloadPending){
+    cx.fillStyle='rgba(0,0,0,.55)'; cx.fillRect(0,0,cv.width,cv.height);
+    cx.fillStyle='#ffeb3b'; cx.font=`bold 38px 'Fredoka One',cursive`; cx.textAlign='center';
+    cx.fillText('⏸ Em Pausa',cv.width/2,cv.height/2);
+    cx.fillStyle='#ccc'; cx.font=`18px 'Nunito',sans-serif`;
+    cx.fillText('Clica em Continuar',cv.width/2,cv.height/2+40);
+  }
+}
+
+// Initial canvas screen
+(()=>{
+  cx.fillStyle='#1a3a1a'; cx.fillRect(0,0,cv.width,cv.height);
+  cx.textAlign='center';
+  cx.fillStyle='#66bb6a'; cx.font=`bold 28px 'Fredoka One',cursive`;
+  cx.fillText('Clica em Iniciar para jogar!',cv.width/2,cv.height/2-24);
+  cx.font='52px serif'; cx.fillText('🐛🌿🐦‍⬛',cv.width/2,cv.height/2+28);
+})();
+
+// Keyboard
+document.addEventListener('keydown',ev=>{
+  switch(ev.key){
+    case 'ArrowUp':   ev.preventDefault();setDir(0,-1);break;
+    case 'ArrowDown': ev.preventDefault();setDir(0,1);break;
+    case 'ArrowLeft': ev.preventDefault();setDir(-1,0);break;
+    case 'ArrowRight':ev.preventDefault();setDir(1,0);break;
+    case ' ':         ev.preventDefault();shoot();break;
+    case 'r':case 'R':triggerReload();break;
+  }
+});
+</script>
+</body>
+</html>
