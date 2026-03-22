@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐣 Easter English – 5th Grade</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow:#FFD93D;--pink:#FF6B9D;--green:#6BCB77;--blue:#4D96FF;
+    --purple:#C77DFF;--orange:#FF9F1C;--bg:#FFF5E6;--text:#3a2c1e;
+    --radius:18px;--shadow:0 6px 24px rgba(0,0,0,0.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
+
+  header{background:linear-gradient(135deg,#FFD93D 0%,#FF6B9D 50%,#C77DFF 100%);padding:28px 20px 20px;text-align:center;position:relative;overflow:hidden;}
+  header::before{content:'🐰🌸🐣🌷🦋🥚🌼🐥';position:absolute;top:6px;left:0;right:0;font-size:1.4rem;letter-spacing:8px;opacity:0.5;}
+  header h1{font-family:'Baloo 2',cursive;font-size:2.6rem;font-weight:800;color:white;text-shadow:3px 3px 0 rgba(0,0,0,0.15);}
+  header p{color:rgba(255,255,255,0.92);font-size:1.05rem;margin-top:4px;}
+
+  nav{display:flex;justify-content:center;gap:12px;padding:20px 16px 0;flex-wrap:wrap;}
+  .tab-btn{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:600;padding:10px 22px;border-radius:50px;border:3px solid transparent;cursor:pointer;transition:all 0.2s;background:white;color:var(--text);box-shadow:0 3px 10px rgba(0,0,0,0.08);}
+  .tab-btn.active{color:white;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.18);}
+  .tab-btn[data-tab="flashcards"].active{background:var(--blue);border-color:var(--blue);}
+  .tab-btn[data-tab="memory"].active{background:var(--green);border-color:var(--green);}
+  .tab-btn[data-tab="wordsearch"].active{background:var(--pink);border-color:var(--pink);}
+  .tab-btn[data-tab="bunnygame"].active{background:#e85d04;border-color:#e85d04;}
+
+  .section{display:none;padding:24px 16px 40px;max-width:960px;margin:0 auto;}
+  .section.active{display:block;}
+  .section-title{font-family:'Baloo 2',cursive;font-size:1.6rem;font-weight:800;margin-bottom:20px;text-align:center;}
+
+  .btn{font-family:'Baloo 2',cursive;font-weight:600;font-size:1rem;padding:10px 24px;border-radius:50px;border:none;cursor:pointer;transition:all 0.18s;box-shadow:0 4px 12px rgba(0,0,0,0.12);}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.18);}
+  .btn-blue{background:var(--blue);color:white;}.btn-green{background:var(--green);color:white;}
+  .btn-pink{background:var(--pink);color:white;}.btn-orange{background:var(--orange);color:white;}
+  .btn-purple{background:var(--purple);color:white;}
+
+  /* FLASHCARDS */
+  .fc-controls{display:flex;justify-content:center;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
+  .fc-counter{font-weight:700;font-size:1rem;color:#888;}
+  .flashcard-wrapper{perspective:800px;max-width:420px;margin:0 auto;}
+  .flashcard{width:100%;aspect-ratio:3/2;cursor:pointer;transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(.4,2,.55,.9);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .flashcard.flipped{transform:rotateY(180deg);}
+  .fc-front,.fc-back{position:absolute;inset:0;border-radius:var(--radius);backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;}
+  .fc-front{background:white;}.fc-back{background:var(--yellow);transform:rotateY(180deg);}
+  .fc-emoji{font-size:5rem;line-height:1;}
+  .fc-word{font-family:'Baloo 2',cursive;font-size:1.9rem;font-weight:800;color:var(--text);}
+  .fc-pt{font-size:1.1rem;color:#777;}
+  .fc-back .fc-word{color:#3a2c1e;font-size:2rem;}
+  .fc-hint{font-size:0.82rem;color:#aaa;margin-top:8px;}
+  .fc-nav{display:flex;justify-content:center;gap:16px;margin-top:20px;}
+  .fc-progress{height:10px;background:#eee;border-radius:20px;overflow:hidden;max-width:420px;margin:0 auto 20px;}
+  .fc-progress-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width 0.4s;border-radius:20px;}
+
+  /* MEMORY */
+  .mem-controls{display:flex;justify-content:center;gap:14px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+  .mem-score-box{background:white;border-radius:50px;padding:8px 20px;font-weight:700;font-size:0.95rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+  .mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:600px;margin:0 auto;}
+  .mem-card{aspect-ratio:1;border-radius:14px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform 0.4s cubic-bezier(.4,2,.55,.9);box-shadow:0 4px 12px rgba(0,0,0,0.10);}
+  .mem-card.flipped{transform:rotateY(180deg);}
+  .mem-card.matched{transform:rotateY(180deg);opacity:0.7;cursor:default;}
+  .mem-card-front,.mem-card-back{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+  .mem-card-front{background:linear-gradient(135deg,#C77DFF,#4D96FF);}
+  .mem-card-front::after{content:'?';font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:rgba(255,255,255,0.8);}
+  .mem-card-back{background:white;transform:rotateY(180deg);padding:6px;}
+  .mem-card-back .mem-emoji{font-size:2rem;line-height:1;}
+  .mem-card-back .mem-word{font-family:'Baloo 2',cursive;font-size:0.72rem;font-weight:700;text-align:center;color:var(--text);}
+  .mem-card.type-word .mem-card-back{background:var(--yellow);}
+  .mem-card.type-word .mem-card-back .mem-emoji{display:none;}
+  .mem-card.type-word .mem-card-back .mem-word{font-size:1rem;}
+  #mem-win{display:none;text-align:center;padding:30px;background:white;border-radius:var(--radius);box-shadow:var(--shadow);max-width:380px;margin:20px auto 0;}
+  #mem-win .win-emoji{font-size:3.5rem;}
+  #mem-win h2{font-family:'Baloo 2',cursive;font-size:1.8rem;color:var(--green);}
+
+  /* WORD SEARCH */
+  .ws-layout{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;}
+  .ws-grid-wrap{overflow-x:auto;}
+  .ws-grid{display:inline-grid;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);background:white;user-select:none;}
+  .ws-cell{width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;cursor:pointer;color:var(--text);transition:background 0.15s;border:1px solid #f0e8e0;}
+  .ws-cell.selected{background:var(--yellow);}
+  .ws-cell.found{background:var(--green);color:white;}
+  .ws-words{background:white;border-radius:14px;padding:18px 22px;box-shadow:var(--shadow);min-width:160px;}
+  .ws-words h3{font-family:'Baloo 2',cursive;font-size:1.1rem;margin-bottom:12px;color:var(--pink);}
+  .ws-word-item{font-size:0.95rem;font-weight:700;padding:4px 0;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
+  .ws-word-item.found-word{text-decoration:line-through;color:#bbb;}
+  .ws-word-item.found-word::before{content:'✅';font-size:0.85rem;}
+  #ws-congrats{display:none;text-align:center;padding:20px;background:white;border-radius:var(--radius);box-shadow:var(--shadow);margin-top:16px;}
+  #ws-congrats h2{font-family:'Baloo 2',cursive;font-size:1.6rem;color:var(--pink);}
+
+  /* ========================
+     BUNNY GAME
+  ======================== */
+  #bunnygame{padding:16px 8px 40px;max-width:700px;margin:0 auto;}
+  #game-hud{display:flex;justify-content:space-between;align-items:center;background:#1a1a2e;border-radius:16px 16px 0 0;padding:10px 18px;color:white;flex-wrap:wrap;gap:8px;font-family:'Baloo 2',cursive;}
+  .hud-block{display:flex;flex-direction:column;align-items:center;font-size:0.78rem;opacity:0.8;}
+  .hud-val{font-size:1.1rem;font-weight:800;opacity:1;}
+  #energy-bar-wrap{width:100px;height:12px;background:#333;border-radius:20px;overflow:hidden;}
+  #energy-bar{height:100%;border-radius:20px;transition:width 0.2s,background 0.4s;background:#6BCB77;}
+  #game-canvas{display:block;width:100%;background:#1a1a2e;border:4px solid #1a1a2e;touch-action:none;}
+  #game-footer{background:#1a1a2e;border-radius:0 0 16px 16px;padding:8px 18px;text-align:center;font-family:'Baloo 2',cursive;font-size:0.85rem;color:#aaa;}
+  #game-footer span{color:white;font-weight:700;}
+  #music-btn{font-family:'Baloo 2',cursive;font-size:0.85rem;font-weight:700;
+    padding:5px 14px;border-radius:30px;border:none;cursor:pointer;
+    background:#e85d04;color:white;box-shadow:0 2px 8px rgba(0,0,0,0.3);
+    transition:all 0.18s;margin-left:10px;}
+  #music-btn:hover{background:#ff6b1a;}
+
+  #game-overlay{position:relative;max-width:700px;margin:0 auto;}
+  #game-screen{display:none;position:absolute;inset:0;background:rgba(10,10,30,0.93);border-radius:0 0 16px 16px;z-index:10;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;gap:14px;font-family:'Baloo 2',cursive;color:white;}
+  #game-screen.visible{display:flex;}
+  #game-screen h2{font-size:2.2rem;font-weight:800;}
+  #game-screen p{font-size:1rem;color:#ccc;max-width:340px;line-height:1.6;}
+  .gs-btn{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;padding:12px 32px;border-radius:50px;border:none;cursor:pointer;background:linear-gradient(135deg,#FFD93D,#FF9F1C);color:#1a1a2e;box-shadow:0 4px 16px rgba(255,159,28,0.4);transition:all 0.18s;margin-top:6px;}
+  .gs-btn:hover{transform:scale(1.06);}
+  .lives-row{display:flex;gap:6px;font-size:1.6rem;}
+
+  /* QUESTION MODAL */
+  #q-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:200;align-items:center;justify-content:center;padding:16px;}
+  #q-modal.open{display:flex;}
+  #q-box{background:white;border-radius:24px;padding:32px 28px;max-width:440px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:popIn 0.35s cubic-bezier(.4,2,.55,.9);}
+  @keyframes popIn{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}
+  #q-box h3{font-family:'Baloo 2',cursive;font-size:1.4rem;color:var(--text);margin-bottom:6px;}
+  #q-emoji{font-size:3.5rem;margin-bottom:8px;}
+  #q-prompt{font-size:1.05rem;color:#555;margin-bottom:20px;}
+  #q-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .q-opt{font-family:'Baloo 2',cursive;font-size:1rem;font-weight:700;padding:12px 10px;border-radius:14px;border:3px solid #eee;background:white;cursor:pointer;transition:all 0.15s;color:var(--text);}
+  .q-opt:hover{border-color:var(--blue);background:#f0f7ff;transform:scale(1.03);}
+  .q-opt.correct{background:#d4edda;border-color:var(--green);color:#155724;}
+  .q-opt.wrong{background:#f8d7da;border-color:var(--pink);color:#721c24;}
+  #q-feedback{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;margin-top:14px;min-height:28px;}
+  #q-timer-bar-wrap{height:8px;background:#eee;border-radius:20px;overflow:hidden;margin-bottom:16px;}
+  #q-timer-bar{height:100%;background:var(--green);border-radius:20px;transition:width 0.1s linear,background 0.3s;}
+
+  /* Mobile dpad */
+  #mobile-controls{display:none;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+  @media(max-width:600px){#mobile-controls{display:flex;}}
+  .dpad{display:grid;grid-template-columns:56px 56px 56px;grid-template-rows:56px 56px;gap:6px;}
+  .mob-btn{font-size:1.6rem;width:56px;height:56px;border-radius:50%;border:none;background:#1a1a2e;color:white;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
+  .mob-btn:active{background:#e85d04;}
+  #mob-recharge{width:auto;border-radius:30px;padding:0 20px;font-family:'Baloo 2',cursive;font-size:1rem;font-weight:700;background:linear-gradient(135deg,#FFD93D,#FF9F1C);color:#1a1a2e;height:56px;}
+
+  .deco{position:fixed;pointer-events:none;font-size:1.5rem;opacity:0.12;z-index:0;animation:float 6s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+</style>
+</head>
+<body>
+
+<div class="deco" style="top:12%;left:3%;animation-delay:0s">🌸</div>
+<div class="deco" style="top:35%;right:2%;animation-delay:1.5s">🥚</div>
+<div class="deco" style="top:65%;left:1%;animation-delay:3s">🐣</div>
+<div class="deco" style="top:80%;right:4%;animation-delay:2s">🌷</div>
+
+<header>
+  <h1>🐰 Easter English 🐣</h1>
+  <p>Learn Easter vocabulary – 5th Grade</p>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="flashcards">📇 Flashcards</button>
+  <button class="tab-btn" data-tab="memory">🧠 Memory</button>
+  <button class="tab-btn" data-tab="wordsearch">🔍 Word Search</button>
+  <button class="tab-btn" data-tab="bunnygame">🐰 Bunny Game</button>
+</nav>
+
+<!-- FLASHCARDS -->
+<section class="section active" id="flashcards">
+  <div class="section-title" style="color:var(--blue)">📇 Flashcards</div>
+  <div class="fc-progress"><div class="fc-progress-bar" id="fc-bar" style="width:5%"></div></div>
+  <div class="fc-controls">
+    <button class="btn btn-orange" onclick="shuffleCards()">🔀 Shuffle</button>
+    <span class="fc-counter" id="fc-counter">1 / 16</span>
+    <button class="btn btn-purple" onclick="resetCards()">🔄 Reset</button>
+  </div>
+  <div class="flashcard-wrapper">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="fc-front">
+        <div class="fc-emoji" id="fc-emoji">🐰</div>
+        <div class="fc-word" id="fc-word">Easter Bunny</div>
+        <div class="fc-hint">👆 Click to see the translation</div>
+      </div>
+      <div class="fc-back">
+        <div class="fc-word" id="fc-pt">Coelho da Páscoa</div>
+        <div class="fc-pt" id="fc-example">The Easter Bunny hides eggs!</div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-nav">
+    <button class="btn btn-blue" onclick="prevCard()">◀ Previous</button>
+    <button class="btn btn-blue" onclick="nextCard()">Next ▶</button>
+  </div>
+</section>
+
+<!-- MEMORY -->
+<section class="section" id="memory">
+  <div class="section-title" style="color:var(--green)">🧠 Memory Game</div>
+  <p style="text-align:center;color:#888;margin-bottom:16px;font-size:0.95rem">Match each picture with its English word!</p>
+  <div class="mem-controls">
+    <div class="mem-score-box">🏆 Pairs: <span id="mem-pairs">0</span> / 8</div>
+    <div class="mem-score-box">🔄 Tries: <span id="mem-tries">0</span></div>
+    <button class="btn btn-green" onclick="initMemory()">New Game</button>
+  </div>
+  <div class="mem-grid" id="mem-grid"></div>
+  <div id="mem-win">
+    <div class="win-emoji">🎉🐣🎉</div>
+    <h2>Well done!</h2>
+    <p id="mem-win-msg" style="margin:10px 0;font-size:1.05rem"></p>
+    <button class="btn btn-green" onclick="initMemory()" style="margin-top:12px">Play Again</button>
+  </div>
+</section>
+
+<!-- WORD SEARCH -->
+<section class="section" id="wordsearch">
+  <div class="section-title" style="color:var(--pink)">🔍 Word Search</div>
+  <p style="text-align:center;color:#888;margin-bottom:16px;font-size:0.95rem">Click the first and last letter to select a word!</p>
+  <div style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="btn btn-pink" onclick="initWordSearch()">New Puzzle</button>
+    <button class="btn btn-orange" onclick="showHint()">💡 Hint</button>
+  </div>
+  <div class="ws-layout">
+    <div class="ws-grid-wrap"><div class="ws-grid" id="ws-grid"></div></div>
+    <div class="ws-words"><h3>🔎 Find these words:</h3><div id="ws-word-list"></div></div>
+  </div>
+  <div id="ws-congrats"><h2>🌟 Amazing! 🌟</h2><p>You found all the words!</p><button class="btn btn-pink" onclick="initWordSearch()" style="margin-top:12px">New Puzzle</button></div>
+</section>
+
+<!-- BUNNY GAME -->
+<section class="section" id="bunnygame">
+  <div class="section-title" style="color:#e85d04">🐰 Bunny Egg Hunt!</div>
+  <div id="game-hud">
+    <div class="hud-block">🥚 Eggs<br><span class="hud-val" id="hud-eggs">0/0</span></div>
+    <div class="hud-block">⚡ Energy<div id="energy-bar-wrap"><div id="energy-bar" style="width:100%"></div></div></div>
+    <div class="hud-block">❤️ Lives<br><span class="hud-val" id="hud-lives">3</span></div>
+    <div class="hud-block">🏅 Score<br><span class="hud-val" id="hud-score">0</span></div>
+    <div class="hud-block">🌿 Phase<br><span class="hud-val" id="hud-phase">1</span></div>
+    <div class="hud-block"><button id="music-btn" onclick="toggleMusic()">🔇 Music OFF</button></div>
+  </div>
+  <div id="game-overlay">
+    <canvas id="game-canvas" width="544" height="416"></canvas>
+    <div id="game-screen" class="visible">
+      <div style="font-size:3rem">🐰🥚🦊</div>
+      <h2>Bunny Egg Hunt!</h2>
+      <p>Collect all the 🥚 eggs!<br>
+      Avoid the 🦊 foxes!<br>
+      You lose energy when moving.<br>
+      Press <b style="color:var(--yellow)">R</b> to answer a question and recharge ⚡</p>
+      <button class="gs-btn" onclick="startGame()">🐰 Start Game!</button>
+    </div>
+  </div>
+  <div id="game-footer">⬆⬇⬅➡ or WASD to move &nbsp;|&nbsp; <span>R</span> = Recharge energy &nbsp;|&nbsp; Collect all 🥚 to advance!</div>
+  <div id="mobile-controls">
+    <div class="dpad">
+      <div></div>
+      <button class="mob-btn" ontouchstart="setDir(0,-1)" onclick="setDir(0,-1)">⬆</button>
+      <div></div>
+      <button class="mob-btn" ontouchstart="setDir(-1,0)" onclick="setDir(-1,0)">⬅</button>
+      <button class="mob-btn" ontouchstart="setDir(0,1)" onclick="setDir(0,1)">⬇</button>
+      <button class="mob-btn" ontouchstart="setDir(1,0)" onclick="setDir(1,0)">➡</button>
+    </div>
+    <button class="mob-btn" id="mob-recharge" onclick="triggerR()">⚡ Recharge (R)</button>
+  </div>
+</section>
+
+<!-- QUESTION MODAL -->
+<div id="q-modal">
+  <div id="q-box">
+    <div id="q-emoji">🥚</div>
+    <h3 id="q-title">Easter Question!</h3>
+    <p id="q-prompt">What is this?</p>
+    <div id="q-timer-bar-wrap"><div id="q-timer-bar" style="width:100%"></div></div>
+    <div id="q-options"></div>
+    <div id="q-feedback"></div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//  DATA
+// ================================================================
+const vocab=[
+  {word:'Easter Bunny',pt:'Coelho da Páscoa',emoji:'🐰',example:'The Easter Bunny hides eggs!'},
+  {word:'Easter Egg',  pt:'Ovo de Páscoa',   emoji:'🥚',example:'I found a blue Easter egg!'},
+  {word:'Basket',      pt:'Cesto / Cabaz',   emoji:'🧺',example:'Put the eggs in the basket.'},
+  {word:'Chick',       pt:'Pintainho',        emoji:'🐥',example:'A cute yellow chick!'},
+  {word:'Lamb',        pt:'Cordeiro',         emoji:'🐑',example:'The white lamb is fluffy.'},
+  {word:'Chocolate',   pt:'Chocolate',        emoji:'🍫',example:'I love chocolate eggs!'},
+  {word:'Spring',      pt:'Primavera',        emoji:'🌸',example:'Easter is in spring.'},
+  {word:'Flower',      pt:'Flor',             emoji:'🌷',example:'Beautiful flowers bloom.'},
+  {word:'Butterfly',   pt:'Borboleta',        emoji:'🦋',example:'A butterfly lands on a flower.'},
+  {word:'Nest',        pt:'Ninho',            emoji:'🪺',example:'The eggs are in a nest.'},
+  {word:'Candy',       pt:'Rebuçado / Doce',  emoji:'🍬',example:'Sweet candy in my basket!'},
+  {word:'Garden',      pt:'Jardim',           emoji:'🌿',example:'We hunt eggs in the garden.'},
+  {word:'Cross',       pt:'Cruz',             emoji:'✝️',example:'The cross is a symbol of Easter.'},
+  {word:'Church',      pt:'Igreja',           emoji:'⛪',example:'We go to church on Sunday.'},
+  {word:'Rainbow',     pt:'Arco-íris',        emoji:'🌈',example:'A rainbow after the rain!'},
+  {word:'Bee',         pt:'Abelha',           emoji:'🐝',example:'The bee loves flowers.'},
+];
+
+// ================================================================
+//  TABS
+// ================================================================
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ================================================================
+//  FLASHCARDS
+// ================================================================
+let fcCards=[...vocab],fcIdx=0;
+const sArr=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shuffleCards(){sArr(fcCards);fcIdx=0;showCard();}
+function resetCards(){fcCards=[...vocab];fcIdx=0;showCard();}
+function showCard(){
+  const c=fcCards[fcIdx];
+  document.getElementById('flashcard').classList.remove('flipped');
+  setTimeout(()=>{
+    document.getElementById('fc-emoji').textContent=c.emoji;
+    document.getElementById('fc-word').textContent=c.word;
+    document.getElementById('fc-pt').textContent=c.pt;
+    document.getElementById('fc-example').textContent=c.example;
+    document.getElementById('fc-counter').textContent=`${fcIdx+1} / ${fcCards.length}`;
+    document.getElementById('fc-bar').style.width=((fcIdx+1)/fcCards.length*100)+'%';
+  },150);
+}
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped');}
+function nextCard(){fcIdx=(fcIdx+1)%fcCards.length;showCard();}
+function prevCard(){fcIdx=(fcIdx-1+fcCards.length)%fcCards.length;showCard();}
+showCard();
+
+// ================================================================
+//  MEMORY
+// ================================================================
+let mSel=[],mMatch=0,mTries=0,mLock=false;
+function initMemory(){
+  mSel=[];mMatch=0;mTries=0;mLock=false;
+  document.getElementById('mem-pairs').textContent='0';
+  document.getElementById('mem-tries').textContent='0';
+  document.getElementById('mem-win').style.display='none';
+  const g=document.getElementById('mem-grid');g.innerHTML='';
+  let cards=[];
+  vocab.slice(0,8).forEach(w=>{
+    cards.push({id:w.word,type:'emoji',emoji:w.emoji,word:w.word});
+    cards.push({id:w.word,type:'word', emoji:w.emoji,word:w.word});
+  });
+  sArr(cards);
+  cards.forEach(c=>{
+    const el=document.createElement('div');
+    el.className='mem-card'+(c.type==='word'?' type-word':'');
+    el.dataset.id=c.id;
+    el.innerHTML=`<div class="mem-card-front"></div><div class="mem-card-back"><div class="mem-emoji">${c.emoji}</div><div class="mem-word">${c.type==='word'?c.word:c.emoji}</div></div>`;
+    el.addEventListener('click',()=>{
+      if(mLock||el.classList.contains('flipped')||el.classList.contains('matched'))return;
+      el.classList.add('flipped');mSel.push(el);
+      if(mSel.length===2){
+        mTries++;document.getElementById('mem-tries').textContent=mTries;mLock=true;
+        if(mSel[0].dataset.id===mSel[1].dataset.id&&mSel[0]!==mSel[1]){
+          mSel.forEach(e=>e.classList.add('matched'));mMatch++;
+          document.getElementById('mem-pairs').textContent=mMatch;
+          mSel=[];mLock=false;
+          if(mMatch===8){setTimeout(()=>{document.getElementById('mem-win').style.display='block';document.getElementById('mem-win-msg').textContent=`Finished in ${mTries} tries! ${mTries<=10?'⭐⭐⭐':mTries<=14?'⭐⭐':'⭐'}`;},500);}
+        }else{setTimeout(()=>{mSel.forEach(e=>e.classList.remove('flipped'));mSel=[];mLock=false;},900);}
+      }
+    });
+    g.appendChild(el);
+  });
+}
+initMemory();
+
+// ================================================================
+//  WORD SEARCH
+// ================================================================
+const wsList=[
+  {word:'BUNNY',emoji:'🐰'},{word:'EGG',emoji:'🥚'},{word:'BASKET',emoji:'🧺'},
+  {word:'CHICK',emoji:'🐥'},{word:'SPRING',emoji:'🌸'},{word:'FLOWER',emoji:'🌷'},
+  {word:'NEST',emoji:'🪺'},{word:'CANDY',emoji:'🍬'},{word:'LAMB',emoji:'🐑'},{word:'BEE',emoji:'🐝'},
+];
+const WC=14,WR=12;
+let wGrid=[],wPlace=[],wFirst=null,wFound=[];
+function initWordSearch(){
+  wFound=[];wFirst=null;wPlace=[];
+  wGrid=Array.from({length:WR},()=>Array(WC).fill(''));
+  const dirs=[[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+  sArr(wsList);
+  for(const wo of wsList){
+    const w=wo.word;let ok=false;
+    for(let a=0;a<200;a++){
+      const d=dirs[Math.floor(Math.random()*dirs.length)];
+      const r=Math.floor(Math.random()*WR),c=Math.floor(Math.random()*WC);
+      let cells=[];
+      for(let k=0;k<w.length;k++){
+        const nr=r+d[0]*k,nc=c+d[1]*k;
+        if(nr<0||nr>=WR||nc<0||nc>=WC){cells=null;break;}
+        if(wGrid[nr][nc]!==''&&wGrid[nr][nc]!==w[k]){cells=null;break;}
+        cells.push([nr,nc]);
+      }
+      if(cells){cells.forEach(([nr,nc],k)=>wGrid[nr][nc]=w[k]);wPlace.push({word:w,cells});ok=true;break;}
+    }
+  }
+  const L='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for(let r=0;r<WR;r++)for(let c=0;c<WC;c++)if(!wGrid[r][c])wGrid[r][c]=L[Math.floor(Math.random()*26)];
+  const g=document.getElementById('ws-grid');
+  g.style.gridTemplateColumns=`repeat(${WC},36px)`;g.innerHTML='';
+  for(let r=0;r<WR;r++)for(let c=0;c<WC;c++){
+    const cell=document.createElement('div');cell.className='ws-cell';
+    cell.textContent=wGrid[r][c];cell.dataset.r=r;cell.dataset.c=c;
+    cell.addEventListener('click',()=>{
+      if(cell.classList.contains('found'))return;
+      if(!wFirst){wFirst=null;document.querySelectorAll('.ws-cell.selected').forEach(e=>e.classList.remove('selected'));wFirst={el:cell,r,c};cell.classList.add('selected');}
+      else{
+        if(wFirst.el===cell){wFirst=null;document.querySelectorAll('.ws-cell.selected').forEach(e=>e.classList.remove('selected'));return;}
+        const dr=Math.sign(r-wFirst.r),dc=Math.sign(c-wFirst.c);
+        const len=Math.max(Math.abs(r-wFirst.r),Math.abs(c-wFirst.c))+1;
+        let cells=[];let valid=true;
+        for(let k=0;k<len;k++){const nr=wFirst.r+dr*k,nc=wFirst.c+dc*k;if(nr<0||nr>=WR||nc<0||nc>=WC){valid=false;break;}cells.push({r:nr,c:nc});}
+        if(!valid){wFirst=null;document.querySelectorAll('.ws-cell.selected').forEach(e=>e.classList.remove('selected'));return;}
+        const sel=cells.map(({r,c})=>wGrid[r][c]).join(''),rev=sel.split('').reverse().join('');
+        let matched=null;
+        for(const pl of wPlace){if(wFound.includes(pl.word))continue;const ps=pl.cells.map(([r,c])=>wGrid[r][c]).join('');if(sel===ps||rev===ps){matched=pl;break;}}
+        if(matched){
+          wFound.push(matched.word);
+          matched.cells.forEach(([r,c])=>{const ce=document.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);if(ce){ce.classList.remove('selected');ce.classList.add('found');}});
+          const list=document.getElementById('ws-word-list');list.innerHTML='';
+          wsList.forEach(w=>{const div=document.createElement('div');div.className='ws-word-item'+(wFound.includes(w.word)?' found-word':'');div.innerHTML=`<span>${w.emoji}</span> ${w.word}`;list.appendChild(div);});
+          if(wFound.length===wPlace.length)setTimeout(()=>document.getElementById('ws-congrats').style.display='block',400);
+        }else{document.querySelectorAll('.ws-cell.selected').forEach(e=>e.classList.remove('selected'));}
+        wFirst=null;
+      }
+    });
+    g.appendChild(cell);
+  }
+  const list=document.getElementById('ws-word-list');list.innerHTML='';
+  wsList.forEach(w=>{const div=document.createElement('div');div.className='ws-word-item';div.innerHTML=`<span>${w.emoji}</span> ${w.word}`;list.appendChild(div);});
+  document.getElementById('ws-congrats').style.display='none';
+}
+function showHint(){
+  const rem=wPlace.filter(p=>!wFound.includes(p.word));if(!rem.length)return;
+  const pick=rem[Math.floor(Math.random()*rem.length)];const[r,c]=pick.cells[0];
+  const ce=document.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);
+  if(ce){ce.style.background='var(--orange)';setTimeout(()=>{if(!ce.classList.contains('found'))ce.style.background='';},1200);}
+}
+initWordSearch();
+
+// ================================================================
+//  BUNNY GAME
+// ================================================================
+// ── MUSIC via Web Audio API (bypasses CORS/format issues) ──────
+const MUSIC_URL = 'https://profjoaoav.github.io/CREDAV/Easter.mp3';
+let audioCtx = null, audioSource = null, audioBuffer = null, gainNode = null;
+let musicOn = false, musicLoaded = false, musicLoading = false;
+
+async function loadMusic(){
+  if(musicLoaded || musicLoading) return;
+  musicLoading = true;
+  try {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.6;
+    gainNode.connect(audioCtx.destination);
+    const resp = await fetch(MUSIC_URL);
+    const arrayBuf = await resp.arrayBuffer();
+    audioBuffer = await audioCtx.decodeAudioData(arrayBuf);
+    musicLoaded = true;
+    musicLoading = false;
+  } catch(e){
+    console.warn('Music load failed:', e.message);
+    musicLoading = false;
+  }
+}
+
+function playMusic(){
+  if(!musicLoaded || musicOn) return;
+  try {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    audioSource = audioCtx.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioSource.loop = true;
+    audioSource.connect(gainNode);
+    audioSource.start(0);
+    musicOn = true;
+    updateMusicBtn();
+  } catch(e){ console.warn('Play error:', e.message); }
+}
+
+function stopMusic(){
+  if(!musicOn || !audioSource) return;
+  try { audioSource.stop(); } catch(e){}
+  audioSource = null;
+  musicOn = false;
+  updateMusicBtn();
+}
+
+function toggleMusic(){
+  if(musicOn){ stopMusic(); }
+  else {
+    if(musicLoaded){ playMusic(); }
+    else {
+      // Not loaded yet — load then play
+      loadMusic().then(()=>{ if(musicLoaded) playMusic(); });
+    }
+  }
+}
+
+function updateMusicBtn(){
+  const btn = document.getElementById('music-btn');
+  if(btn) btn.textContent = musicOn ? '🔊 Music ON' : '🔇 Music OFF';
+}
+
+// ── BFS PATHFINDING ─────────────────────────────
+// Returns the first step direction [dr,dc] for fox at (fr,fc) toward (tr,tc)
+// canEnterFn(r,c) — returns true if that tile is walkable for this entity
+function bfsNextStep(fr, fc, tr, tc, canEnterFn){
+  if(fr===tr && fc===tc) return null;
+  const key=(r,c)=>r*100+c;
+  const visited=new Set([key(fr,fc)]);
+  const queue=[{r:fr,c:fc,step:null}];
+  const DIRS=[[0,1],[0,-1],[1,0],[-1,0]];
+  while(queue.length){
+    const {r,c,step}=queue.shift();
+    for(const [dr,dc] of DIRS){
+      const nr=r+dr, nc=((c+dc)+GC)%GC;
+      if(nr<0||nr>=GR) continue;
+      if(visited.has(key(nr,nc))) continue;
+      if(!canEnterFn(nr,nc)) continue;
+      const s = step ?? [dr,dc];
+      if(nr===tr && nc===tc) return s;
+      visited.add(key(nr,nc));
+      queue.push({r:nr,c:nc,step:s});
+    }
+  }
+  return null; // no path found — stay
+}
+
+const canvas=document.getElementById('game-canvas');
+const ctx=canvas.getContext('2d');
+const TILE=32,GC=17,GR=13;
+canvas.width=GC*TILE;canvas.height=GR*TILE;
+
+// Maze: 0=wall, 1=path+egg, 2=path no egg, 3=prison interior (fox-only)
+// Prison is rows 5-8, cols 6-10 — walled box, open gap at top centre (col 8 row 5)
+const MAZE=[
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  // row 0
+  [0,1,1,1,1,1,0,1,2,1,0,1,1,1,1,1,0],  // row 1
+  [0,1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],  // row 2
+  [0,1,0,0,1,1,1,1,2,1,1,1,1,0,0,1,0],  // row 3
+  [0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1,0],  // row 4  (corridor above prison)
+  [1,1,1,1,0,0,0,0,2,0,0,0,0,1,1,1,1],  // row 5  — tunnel row; prison wall top, gap at col 8
+  [0,0,0,1,0,0,0,3,3,3,0,0,0,1,0,0,0],  // row 6  — prison interior
+  [0,0,0,1,0,0,0,3,3,3,0,0,0,1,0,0,0],  // row 7  — prison interior
+  [0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0],  // row 8  — prison wall bottom (all wall between 6-10)
+  [0,0,0,1,0,0,1,1,1,1,1,0,0,1,0,0,0],  // row 9
+  [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],  // row 10
+  [0,1,0,0,1,0,0,1,2,1,0,0,1,0,0,1,0],  // row 11
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  // row 12
+];
+
+const PHASES=[
+  // foxSpd in px/s. Bunny = 80 px/s. Fox starts slower, grows to match then exceed.
+  {foxes:1,foxSpd:45,  drain:4.0, label:'Phase 1 🦊 – A Slow Fox!'},
+  {foxes:2,foxSpd:58,  drain:5.0, label:'Phase 2 🦊🦊 – Two Foxes!'},
+  {foxes:1,foxSpd:68,  drain:6.0, label:'Phase 3 🦊 – Even Faster!'},
+  {foxes:2,foxSpd:75,  drain:7.0, label:'Phase 4 🦊🦊 – Two Foxes!'},
+  {foxes:2,foxSpd:85,  drain:8.5, label:'Phase 5 🦊🦊 – Speed Up!'},
+  {foxes:3,foxSpd:95,  drain:10.0,label:'Phase 6 🦊🦊🦊 – Danger Zone!'},
+];
+
+let phase=0,lives=3,score=0,energy=100;
+let eggs=[],foxList=[];
+let bunny={col:8,row:10,x:0,y:0,tx:0,ty:0,moving:false,dir:'right',lastDx:1,lastDy:0,anim:0};
+let pendDx=0,pendDy=0;
+let gameRunning=false,paused=false,state='idle';
+let frameId=null,lastTs=0;
+let sparkles=[];
+let phaseTimer=0;
+// Power-up state
+let superEggs=[];          // golden power-up eggs [{r,c,got}]
+let powered=false;         // is bunny currently big & powerful?
+let poweredTimer=0;        // seconds remaining
+const POWER_DUR=8;         // seconds of power
+// Prison (centre of maze — tiles row 5-8, col 6-10 area)
+const PRISON_COL=8, PRISON_ROW=6; // tile where captured foxes wait
+let qOpen=false,qTimerId=null;
+let qPool=[],qIdx=0;
+
+function buildQPool(){
+  const qs=[];
+  vocab.forEach(v=>{
+    const wrongPT=vocab.filter(x=>x.word!==v.word).sort(()=>Math.random()-0.5).slice(0,3).map(x=>x.pt);
+    qs.push({emoji:v.emoji,q:`What is "${v.word}" in Portuguese?`,correct:v.pt,opts:sArr([v.pt,...wrongPT])});
+    const wrongEN=vocab.filter(x=>x.word!==v.word).sort(()=>Math.random()-0.5).slice(0,3).map(x=>x.word);
+    qs.push({emoji:v.emoji,q:`"${v.pt}" in English is…`,correct:v.word,opts:sArr([v.word,...wrongEN])});
+  });
+  return sArr(qs);
+}
+
+function isWall(r,c){
+  const cc=((c%GC)+GC)%GC;
+  if(r<0||r>=GR)return true;
+  return MAZE[r][cc]===0 || MAZE[r][cc]===3; // 3=prison, bunny cannot enter
+}
+function isPrisonWall(r,c){ // for drawing prison walls
+  if(r<0||r>=GR||c<0||c>=GC)return false;
+  return MAZE[r][c]===3;
+}
+
+function resetLevel(){
+  eggs=[]; superEggs=[];
+  for(let r=0;r<GR;r++)for(let c=0;c<GC;c++)if(MAZE[r][c]===1)eggs.push({r,c,got:false});
+  // Two special power-up eggs at fixed passageway tiles
+  const extra = phase>=1 ? [{r:10,c:3,got:false},{r:10,c:13,got:false}] : [];
+  superEggs=[{r:1,c:1,got:false},{r:1,c:15,got:false},...extra]; // top corners + bottom in phase 2+
+  powered=false; poweredTimer=0;
+  spawnBunny();spawnFoxes();
+}
+
+function spawnBunny(){
+  bunny.col=8;bunny.row=10;
+  bunny.x=bunny.col*TILE+TILE/2;bunny.y=bunny.row*TILE+TILE/2;
+  bunny.tx=bunny.x;bunny.ty=bunny.y;
+  bunny.moving=false;bunny.dir='right';bunny.lastDx=1;bunny.lastDy=0;bunny.anim=0;
+  pendDx=0;pendDy=0;
+}
+
+function spawnFoxes(){
+  foxList=[];
+  const cfg=PHASES[Math.min(phase,PHASES.length-1)];
+  const starts=[{r:6,c:8},{r:7,c:7},{r:7,c:8},{r:6,c:7}]; // inside prison
+  for(let i=0;i<cfg.foxes;i++){
+    const s=starts[i%starts.length];
+    foxList.push({col:s.c,row:s.r,x:s.c*TILE+TILE/2,y:s.r*TILE+TILE/2,tx:s.c*TILE+TILE/2,ty:s.r*TILE+TILE/2,moving:false,dir:'right',anim:0,stepCd:0,jailed:false,jailTimer:0});
+  }
+}
+
+function startGame(){
+  phase=0;lives=3;score=0;energy=100;
+  qPool=buildQPool();qIdx=0;
+  resetLevel();
+  state='playing';gameRunning=true;paused=false;
+  // Load and play music — user gesture unlocks AudioContext
+  if(!musicLoaded){ loadMusic().then(()=>{ if(musicLoaded) playMusic(); }); }
+  else { playMusic(); }
+  phaseTimer=0;
+  document.getElementById('game-screen').classList.remove('visible');
+  updateHUD();
+  if(frameId)cancelAnimationFrame(frameId);
+  lastTs=performance.now();
+  frameId=requestAnimationFrame(loop);
+}
+
+function updateHUD(){
+  const tot=eggs.length,got=eggs.filter(e=>e.got).length;
+  document.getElementById('hud-eggs').textContent=got+'/'+tot;
+  document.getElementById('hud-lives').textContent='❤️'.repeat(Math.max(0,lives));
+  document.getElementById('hud-score').textContent=score;
+  document.getElementById('hud-phase').textContent=phase+1;
+  const pct=Math.max(0,energy/100*100);
+  const bar=document.getElementById('energy-bar');
+  bar.style.width=pct+'%';
+  bar.style.background=pct>50?'#6BCB77':pct>25?'#FFD93D':'#FF6B9D';
+}
+
+// Input
+document.addEventListener('keydown',e=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+  if(e.key==='ArrowUp'   ||e.key==='w'||e.key==='W'){pendDx=0;pendDy=-1;}
+  if(e.key==='ArrowDown' ||e.key==='s'||e.key==='S'){pendDx=0;pendDy=1;}
+  if(e.key==='ArrowLeft' ||e.key==='a'||e.key==='A'){pendDx=-1;pendDy=0;}
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){pendDx=1;pendDy=0;}
+  if((e.key==='r'||e.key==='R')&&state==='playing'&&!qOpen)openQ();
+});
+function setDir(dx,dy){pendDx=dx;pendDy=dy;}
+function triggerR(){if(state==='playing'&&!qOpen)openQ();}
+
+// Question
+function openQ(){
+  qOpen=true;paused=true;
+  const q=qPool[qIdx%qPool.length];qIdx++;
+  document.getElementById('q-emoji').textContent=q.emoji;
+  document.getElementById('q-title').textContent='⚡ Recharge Energy!';
+  document.getElementById('q-prompt').textContent=q.q;
+  document.getElementById('q-feedback').textContent='';
+  document.getElementById('q-timer-bar').style.width='100%';
+  document.getElementById('q-timer-bar').style.background='var(--green)';
+  const opts=document.getElementById('q-options');opts.innerHTML='';
+  let answered=false;
+  let tl=15;
+  if(qTimerId)clearInterval(qTimerId);
+  qTimerId=setInterval(()=>{
+    tl--;
+    const p=tl/15*100;
+    document.getElementById('q-timer-bar').style.width=p+'%';
+    document.getElementById('q-timer-bar').style.background=p>40?'var(--green)':p>20?'var(--yellow)':'var(--pink)';
+    if(tl<=0){clearInterval(qTimerId);if(!answered){answered=true;showFb(false,'⏰ Time\'s up!');setTimeout(closeQ,1200);}}
+  },1000);
+  q.opts.forEach(o=>{
+    const btn=document.createElement('button');btn.className='q-opt';btn.textContent=o;
+    btn.addEventListener('click',()=>{
+      if(answered)return;answered=true;clearInterval(qTimerId);
+      const ok=o===q.correct;
+      btn.classList.add(ok?'correct':'wrong');
+      if(!ok)opts.querySelectorAll('.q-opt').forEach(b=>{if(b.textContent===q.correct)b.classList.add('correct');});
+      showFb(ok,ok?'✅ Correct! +40 Energy!':'❌ Wrong! +10 Energy');
+      energy=Math.min(100,energy+(ok?40:10));
+      if(ok)score+=15;
+      updateHUD();
+      setTimeout(closeQ,1200);
+    });
+    opts.appendChild(btn);
+  });
+  document.getElementById('q-modal').classList.add('open');
+}
+function showFb(ok,msg){const fb=document.getElementById('q-feedback');fb.textContent=msg;fb.style.color=ok?'var(--green)':'var(--pink)';}
+function closeQ(){clearInterval(qTimerId);document.getElementById('q-modal').classList.remove('open');qOpen=false;paused=false;}
+
+// Game loop
+function loop(ts){
+  if(!gameRunning){draw();return;}
+  frameId=requestAnimationFrame(loop);
+  const dt=Math.min((ts-lastTs)/1000,0.1);lastTs=ts; // real seconds, capped at 100ms
+  if(paused||state!=='playing'){draw();return;}
+
+  // Phase announcement
+  if(phaseTimer>0){
+    phaseTimer-=dt;draw();drawPhaseMsg();return;
+  }
+
+  // Energy drain
+  const cfg=PHASES[Math.min(phase,PHASES.length-1)];
+  energy=Math.max(0,energy-cfg.drain*dt);
+  if(energy<=0){hitBunny();return;}
+  updateHUD();
+
+  // Move bunny
+  moveBunny(dt);
+
+  // Collect normal eggs
+  eggs.forEach(egg=>{
+    if(!egg.got&&egg.r===bunny.row&&egg.c===bunny.col){
+      egg.got=true;score+=5;
+      mkSparkle(egg.c*TILE+TILE/2,egg.r*TILE+TILE/2);
+      updateHUD();
+    }
+  });
+  // Collect super-eggs (power-up)
+  superEggs.forEach(se=>{
+    if(!se.got&&se.r===bunny.row&&se.c===bunny.col){
+      se.got=true; powered=true; poweredTimer=POWER_DUR;
+      score+=20;
+      mkSparkle(se.c*TILE+TILE/2,se.r*TILE+TILE/2,true);
+      updateHUD();
+    }
+  });
+  // Power-up countdown
+  if(powered){
+    poweredTimer-=dt;
+    if(poweredTimer<=0){ powered=false; poweredTimer=0; }
+  }
+  // Unjail foxes whose timer expired
+  foxList.forEach(f=>{
+    if(f.jailed){ f.jailTimer-=dt; if(f.jailTimer<=0){ f.jailed=false; f.col=8; f.row=5; f.x=f.col*TILE+TILE/2; f.y=f.row*TILE+TILE/2; f.tx=f.x; f.ty=f.y; f.moving=false; } }
+  });
+
+  // Level complete?
+  if(eggs.every(e=>e.got)){
+    score+=50*(phase+1);phase++;
+    if(phase>=PHASES.length){
+      state='win';gameRunning=false;
+      showScreen('🏆 You Won!',`Incredible! All ${PHASES.length} phases complete!<br>Score: <b>${score}</b>`,'Play Again',startGame);
+    }else{
+      showScreen(PHASES[phase].label,`All eggs collected! +${50*phase} bonus!<br>Get ready for Phase ${phase+1}!`,'▶ Next Phase',()=>{
+        energy=100;resetLevel();state='playing';gameRunning=true;
+        phaseTimer=2.5;
+        document.getElementById('game-screen').classList.remove('visible');
+        updateHUD();lastTs=performance.now();frameId=requestAnimationFrame(loop);
+      });
+      state='between';gameRunning=false;
+    }
+    updateHUD();return;
+  }
+
+  // Fox AI
+  foxList.forEach(f=>{ if(!f.jailed) moveFox(f,dt); });
+
+  // Collision — tile-based: fox must be on the same tile as bunny
+  // AND pixel distance within half-tile to avoid ghost hits through walls
+  foxList.forEach(f=>{
+    if(f.jailed) return;
+    const sameTile = (f.row===bunny.row && f.col===bunny.col);
+    const px=f.x-bunny.x, py=f.y-bunny.y;
+    const pixelClose = Math.sqrt(px*px+py*py) < TILE*0.6;
+    if(sameTile && pixelClose){
+      if(powered){ jailFox(f); } else { hitBunny(); }
+    }
+  });
+
+  // Sparkles
+  sparkles=sparkles.filter(s=>s.life>0);
+  sparkles.forEach(s=>{s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;});
+
+  draw();
+}
+
+
+// Bunny speed: 80 px/s — slow and controllable
+function moveBunny(dt){
+  const SPEED = 80; // pixels per second
+  const step  = SPEED * dt;
+  if(!bunny.moving){
+    for(const [dx,dy] of [[pendDx,pendDy],[bunny.lastDx,bunny.lastDy]]){
+      if(dx===0 && dy===0) continue;
+      const nr = bunny.row + dy;
+      const nc = ((bunny.col + dx) + GC) % GC;
+      if(!isWall(nr, nc)){
+        const tunnelling = (bunny.col===0 && dx===-1) || (bunny.col===GC-1 && dx===1);
+        bunny.row=nr; bunny.col=nc;
+        bunny.tx=nc*TILE+TILE/2; bunny.ty=nr*TILE+TILE/2;
+        if(tunnelling){
+          // Teleport instantly — no smooth slide across the gap
+          bunny.x=bunny.tx; bunny.y=bunny.ty;
+        }
+        bunny.lastDx=dx; bunny.lastDy=dy;
+        if(dx>0) bunny.dir='right';
+        if(dx<0) bunny.dir='left';
+        if(dy>0) bunny.dir='down';
+        if(dy<0) bunny.dir='up';
+        bunny.moving=true;
+        if(dx===pendDx && dy===pendDy){ pendDx=0; pendDy=0; }
+        break;
+      }
+    }
+  }
+  if(bunny.moving){
+    const ddx=bunny.tx-bunny.x, ddy=bunny.ty-bunny.y;
+    const dist=Math.sqrt(ddx*ddx+ddy*ddy);
+    if(dist<=step){ bunny.x=bunny.tx; bunny.y=bunny.ty; bunny.moving=false; }
+    else { bunny.x+=ddx/dist*step; bunny.y+=ddy/dist*step; }
+    bunny.anim=(bunny.anim+dt*5)%1;
+  }
+}
+
+function foxCanEnter(r,c){
+  // Foxes can walk on paths (1,2) and prison interior (3), not walls (0)
+  if(r<0||r>=GR) return false;
+  const cc=((c%GC)+GC)%GC;
+  return MAZE[r][cc] !== 0;
+}
+
+function moveFox(f, dt){
+  const SPEED = PHASES[Math.min(phase,PHASES.length-1)].foxSpd;
+  const step  = SPEED * dt;
+
+  if(f.moving){
+    const ddx=f.tx-f.x, ddy=f.ty-f.y;
+    const dist=Math.sqrt(ddx*ddx+ddy*ddy);
+    if(dist<=step){ f.x=f.tx; f.y=f.ty; f.moving=false; }
+    else { f.x+=ddx/dist*step; f.y+=ddy/dist*step; }
+    f.anim=(f.anim+dt*4)%1;
+    return;
+  }
+
+  // Use BFS to find the real shortest path to the bunny
+  // Occasionally (20% of steps) pick a random valid neighbour to avoid pure predictability
+  let chosen = null;
+  if(Math.random() > 0.20){
+    chosen = bfsNextStep(f.row, f.col, bunny.row, bunny.col, foxCanEnter);
+  }
+  if(!chosen){
+    // fallback: pick any valid neighbour at random
+    const DIRS=[[0,1],[0,-1],[1,0],[-1,0]];
+    const valid=DIRS.filter(([dr,dc])=>{
+      const nr=f.row+dr, nc=((f.col+dc)+GC)%GC;
+      return foxCanEnter(nr,nc);
+    });
+    if(valid.length) chosen = valid[Math.floor(Math.random()*valid.length)];
+  }
+
+  if(chosen){
+    const [dr,dc]=chosen;
+    const nr=f.row+dr, nc=((f.col+dc)+GC)%GC;
+    f.row=nr; f.col=nc;
+    f.tx=nc*TILE+TILE/2; f.ty=nr*TILE+TILE/2;
+    f.moving=true;
+    if(dc>0) f.dir='right'; if(dc<0) f.dir='left';
+    if(dr>0) f.dir='down';  if(dr<0) f.dir='up';
+  }
+}
+
+
+function jailFox(f){
+  score+=30;
+  mkSparkle(f.x,f.y,true);
+  f.jailed=true;
+  f.jailTimer=8; // seconds in jail
+  f.moving=false;
+  // Send to prison centre
+  f.col=PRISON_COL; f.row=PRISON_ROW;
+  f.x=f.col*TILE+TILE/2; f.y=f.row*TILE+TILE/2;
+  f.tx=f.x; f.ty=f.y;
+}
+
+function hitBunny(){
+  if(state!=='playing')return;
+  lives--;state='respawn';
+  if(lives<=0){
+    state='gameover';gameRunning=false;
+    showScreen('💀 Game Over!',`The fox caught you!<br>Score: <b>${score}</b>`,'🔄 Try Again',startGame);
+  }else{
+    updateHUD();
+    setTimeout(()=>{spawnBunny();energy=65;state='playing';updateHUD();},1600);
+  }
+}
+
+function showScreen(title,msg,btnLabel,fn){
+  const s=document.getElementById('game-screen');
+  s.innerHTML=`<div style="font-size:2.8rem">🌟</div><h2>${title}</h2><p>${msg}</p><div class="lives-row">${'❤️'.repeat(Math.max(0,lives))}</div><button class="gs-btn" id="gs-action">${btnLabel}</button>`;
+  s.classList.add('visible');
+  document.getElementById('gs-action').addEventListener('click',fn);
+}
+
+// Drawing
+const EGG_COLS=['#FFD93D','#FF6B9D','#6BCB77','#4D96FF','#C77DFF','#FF9F1C'];
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // bg
+  ctx.fillStyle='#1a1a40';ctx.fillRect(0,0,canvas.width,canvas.height);
+  // walls + subtle grid
+  for(let r=0;r<GR;r++)for(let c=0;c<GC;c++){
+    if(MAZE[r][c]===0){
+      ctx.fillStyle='#0d1b2a';ctx.fillRect(c*TILE,r*TILE,TILE,TILE);
+      ctx.strokeStyle='#162447';ctx.lineWidth=1.5;
+      ctx.strokeRect(c*TILE+1,r*TILE+1,TILE-2,TILE-2);
+      // Wall decoration dots
+      ctx.fillStyle='#1e3a5f';
+      ctx.beginPath();ctx.arc(c*TILE+TILE/2,r*TILE+TILE/2,3,0,Math.PI*2);ctx.fill();
+    }
+  }
+  // eggs
+  eggs.forEach((egg,i)=>{
+    if(egg.got)return;
+    const cx=egg.c*TILE+TILE/2,cy=egg.r*TILE+TILE/2;
+    const col=EGG_COLS[i%EGG_COLS.length];
+    ctx.save();ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=10;
+    ctx.beginPath();ctx.ellipse(cx,cy,5,7,0,0,Math.PI*2);ctx.fill();
+    // stripe
+    ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(cx,cy-1,3,0.2,Math.PI-0.2);ctx.stroke();
+    ctx.restore();
+  });
+  // Super-eggs (power-up) — big pulsing golden egg
+  superEggs.forEach(se=>{
+    if(se.got) return;
+    const cx=se.c*TILE+TILE/2, cy=se.r*TILE+TILE/2;
+    const pulse=1+0.18*Math.sin(Date.now()/300);
+    ctx.save();
+    ctx.shadowColor='#FFD93D'; ctx.shadowBlur=20;
+    ctx.fillStyle='#FFD93D';
+    ctx.beginPath(); ctx.ellipse(cx,cy,8*pulse,11*pulse,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#FF9F1C';
+    ctx.beginPath(); ctx.ellipse(cx,cy,5*pulse,7*pulse,0,0,Math.PI*2); ctx.fill();
+    // star on top
+    ctx.fillStyle='white'; ctx.font=`${14*pulse}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('⭐',cx,cy);
+    ctx.restore();
+  });
+  // Prison interior floor (soft highlight so it reads as special zone)
+  for(let r=0;r<GR;r++) for(let c=0;c<GC;c++){
+    if(MAZE[r][c]===3){
+      ctx.fillStyle='#1a1040';
+      ctx.fillRect(c*TILE,r*TILE,TILE,TILE);
+    }
+  }
+  // Prison border walls — draw a clean rounded rectangle outline
+  // Box: rows 5-8, cols 6-10 with gap at top col 8
+  {
+    const bx=7*TILE, by=5*TILE, bw=3*TILE, bh=3*TILE; // inner box cols 7-9, rows 5-7
+    ctx.save();
+    ctx.strokeStyle='#e0c050'; ctx.lineWidth=3.5; ctx.lineJoin='round';
+    ctx.shadowColor='#e0c050'; ctx.shadowBlur=8;
+    // Draw the box as a path with the top-centre gap open
+    ctx.beginPath();
+    // top-left corner → go right until gap
+    ctx.moveTo(bx, by);
+    ctx.lineTo(bx+TILE-4, by);          // top left segment (stop before gap)
+    ctx.moveTo(bx+2*TILE+4, by);        // resume after gap (right of col 8)
+    ctx.lineTo(bx+bw, by);              // top right segment
+    ctx.lineTo(bx+bw, by+bh);           // right side
+    ctx.lineTo(bx, by+bh);              // bottom
+    ctx.lineTo(bx, by);                 // left side
+    ctx.stroke();
+    ctx.restore();
+    // Jailed label
+    const jailed=foxList.filter(f=>f.jailed);
+    if(jailed.length>0){
+      ctx.save(); ctx.font='bold 12px "Baloo 2",cursive';
+      ctx.fillStyle='#e0c050'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('🦊 jail', bx+bw/2, by+bh+14);
+      ctx.restore();
+    }
+  }
+  // sparkles
+  sparkles.forEach(s=>{
+    ctx.save();ctx.globalAlpha=Math.max(0,s.life/s.maxLife);
+    ctx.fillStyle=s.col;ctx.font=`${12+s.life*8}px serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✨',s.x,s.y);ctx.restore();
+  });
+  // foxes
+  foxList.forEach(f=>drawFox(f));
+  // Power-up warning flash when almost over
+  if(powered && poweredTimer<2){
+    const a=0.15+0.15*Math.sin(Date.now()/80);
+    ctx.save(); ctx.globalAlpha=a; ctx.fillStyle='#FFD93D';
+    ctx.fillRect(0,0,canvas.width,canvas.height); ctx.restore();
+  }
+  // bunny (flicker when respawning)
+  if(state!=='respawn'||(Math.floor(Date.now()/120)%2===0))drawBunny();
+  // low energy vignette
+  if(energy<30){
+    const a=0.12+0.1*Math.sin(Date.now()/180);
+    const g2=ctx.createRadialGradient(canvas.width/2,canvas.height/2,canvas.height*0.25,canvas.width/2,canvas.height/2,canvas.height*0.75);
+    g2.addColorStop(0,'transparent');g2.addColorStop(1,`rgba(255,0,80,${a})`);
+    ctx.fillStyle=g2;ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.save();ctx.globalAlpha=0.55+0.45*Math.sin(Date.now()/140);
+    ctx.fillStyle='#FF6B9D';ctx.font='bold 17px "Baloo 2",cursive';
+    ctx.textAlign='center';ctx.fillText('⚡ Press R to recharge!',canvas.width/2,canvas.height-18);ctx.restore();
+  }
+}
+
+function drawBunny(){
+  const x=bunny.x,y=bunny.y;
+  const bob=bunny.moving?Math.sin(bunny.anim*Math.PI*2)*3:0;
+  ctx.save();ctx.translate(x,y+bob);
+  if(bunny.dir==='left')ctx.scale(-1,1);
+  // Power-up: scale up and golden glow
+  if(powered){
+    const sc=1.45+0.08*Math.sin(Date.now()/150);
+    ctx.scale(sc,sc);
+    ctx.shadowColor='#FFD93D'; ctx.shadowBlur=28;
+  } else {
+    ctx.shadowColor='rgba(255,230,180,0.7)';ctx.shadowBlur=16;
+  }
+  // body
+  ctx.fillStyle='#f0e6d3';ctx.beginPath();ctx.ellipse(0,3,9,11,0,0,Math.PI*2);ctx.fill();
+  // head
+  ctx.fillStyle='#f5ede0';ctx.beginPath();ctx.ellipse(0,-7,8,8,0,0,Math.PI*2);ctx.fill();
+  // ears
+  ctx.fillStyle='#f5ede0';
+  ctx.beginPath();ctx.ellipse(-4,-17,3,9,-0.2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(4,-17,3,9,0.2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffb3c1';
+  ctx.beginPath();ctx.ellipse(-4,-17,1.5,6,-0.2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(4,-17,1.5,6,0.2,0,Math.PI*2);ctx.fill();
+  // eyes
+  ctx.fillStyle='#333';
+  ctx.beginPath();ctx.arc(-3,-8,1.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(3,-8,1.5,0,Math.PI*2);ctx.fill();
+  // nose
+  ctx.fillStyle='#ffb3c1';ctx.beginPath();ctx.arc(0,-4,2,0,Math.PI*2);ctx.fill();
+  // tail
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(-1,12,4,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function drawFox(f){
+  const x=f.x,y=f.y;
+  const bob=f.moving?Math.sin(f.anim*Math.PI*2)*2:0;
+  ctx.save();ctx.translate(x,y+bob);
+  if(f.dir==='left')ctx.scale(-1,1);
+  ctx.shadowColor='rgba(255,80,0,0.6)';ctx.shadowBlur=16;
+  // body
+  ctx.fillStyle='#e85d04';ctx.beginPath();ctx.ellipse(0,3,9,11,0,0,Math.PI*2);ctx.fill();
+  // belly
+  ctx.fillStyle='#ffe0c0';ctx.beginPath();ctx.ellipse(0,5,5,7,0,0,Math.PI*2);ctx.fill();
+  // head
+  ctx.fillStyle='#e85d04';ctx.beginPath();ctx.ellipse(0,-7,8,8,0,0,Math.PI*2);ctx.fill();
+  // ears
+  ctx.fillStyle='#e85d04';
+  ctx.beginPath();ctx.moveTo(-6,-13);ctx.lineTo(-2,-23);ctx.lineTo(0,-13);ctx.fill();
+  ctx.beginPath();ctx.moveTo(6,-13);ctx.lineTo(2,-23);ctx.lineTo(0,-13);ctx.fill();
+  ctx.fillStyle='#ffb3c1';
+  ctx.beginPath();ctx.moveTo(-5,-14);ctx.lineTo(-2,-20);ctx.lineTo(-1,-14);ctx.fill();
+  ctx.beginPath();ctx.moveTo(5,-14);ctx.lineTo(2,-20);ctx.lineTo(1,-14);ctx.fill();
+  // eyes
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(-3,-8,2.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(3,-8,2.5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#c1121f';ctx.beginPath();ctx.arc(-3,-8,1.3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(3,-8,1.3,0,Math.PI*2);ctx.fill();
+  // nose
+  ctx.fillStyle='#222';ctx.beginPath();ctx.arc(0,-4,2,0,Math.PI*2);ctx.fill();
+  // tail
+  ctx.fillStyle='#e85d04';
+  ctx.beginPath();ctx.moveTo(-2,13);ctx.bezierCurveTo(-16,16,-18,8,-12,4);ctx.lineTo(-2,11);ctx.fill();
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(-13,7,4,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+  // Cage overlay if jailed
+  if(f.jailed){
+    ctx.save();ctx.translate(f.x,f.y);
+    ctx.strokeStyle='#e0c050';ctx.lineWidth=2;ctx.globalAlpha=0.85;
+    for(let b=-12;b<=12;b+=8){ ctx.beginPath();ctx.moveTo(b,-18);ctx.lineTo(b,18);ctx.stroke(); }
+    ctx.strokeRect(-14,-18,28,36);
+    // Timer badge
+    ctx.globalAlpha=1;ctx.fillStyle='#FFD93D';
+    ctx.font='bold 11px "Baloo 2",cursive';ctx.textAlign='center';
+    ctx.fillText(Math.ceil(f.jailTimer)+'s',-0,24);
+    ctx.restore();
+  }
+}
+
+function drawPhaseMsg(){
+  const cfg=PHASES[Math.min(phase,PHASES.length-1)];
+  const a=Math.min(1,phaseTimer/0.8);
+  ctx.save();ctx.globalAlpha=a;
+  ctx.fillStyle='rgba(10,10,40,0.75)';ctx.fillRect(0,canvas.height/2-55,canvas.width,110);
+  ctx.fillStyle='#FFD93D';ctx.font='bold 26px "Baloo 2",cursive';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(cfg.label,canvas.width/2,canvas.height/2-14);
+  ctx.fillStyle='#ccc';ctx.font='15px "Baloo 2",cursive';
+  ctx.fillText('Collect all 🥚 eggs! Press R to recharge ⚡',canvas.width/2,canvas.height/2+18);
+  ctx.restore();
+}
+
+function mkSparkle(x,y,big=false){
+  const n=big?16:6;
+  for(let i=0;i<n;i++){
+    sparkles.push({x,y,
+      vx:(Math.random()-0.5)*(big?3.5:1.8),
+      vy:(Math.random()-0.9)*(big?3.5:2.2),
+      life:(big?1.0:0.6)+Math.random()*0.5,
+      maxLife:big?1.5:1.1,
+      col:big?['#FFD93D','#FF9F1C','#fff','#FF6B9D'][i%4]:EGG_COLS[Math.floor(Math.random()*EGG_COLS.length)]
+    });
+  }
+}
+
+// Initial preview
+setTimeout(()=>{resetLevel();spawnBunny();spawnFoxes();draw();},300);
+</script>
+</body>
+</html>
