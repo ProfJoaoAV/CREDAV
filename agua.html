@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prefeito da Água 💧</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#2EC4F3;--dblue:#0A7BCC;--lblue:#E8F7FF;
+  --green:#4ECB71;--dgreen:#27A048;
+  --yellow:#FFD43B;--dyellow:#CC8800;
+  --orange:#FF9F1C;--red:#FF4757;
+  --purple:#9B59B6;
+  --dark:#1A2B3C;--dgray:#6B7A8D;
+  --panel:rgba(255,255,255,0.96);
+  --sh:0 4px 20px rgba(10,60,120,0.14);
+  --sh2:0 8px 32px rgba(10,60,120,0.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(145deg,#b8eaff 0%,#d8f5e8 55%,#fffde0 100%);min-height:100vh;color:var(--dark);overflow-x:hidden}
+
+/* HEADER */
+header{background:linear-gradient(90deg,#0554a0,var(--dblue),var(--blue));padding:10px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 18px rgba(5,60,150,.35);position:sticky;top:0;z-index:100}
+header h1{font-family:'Fredoka One',cursive;color:#fff;font-size:clamp(1.1rem,2.5vw,1.6rem);text-shadow:0 2px 6px rgba(0,0,0,.25)}
+#turno-badge{background:var(--yellow);color:var(--dark);font-weight:900;font-size:.85rem;padding:5px 14px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* STATS BAR */
+#stats-bar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border-bottom:2px solid rgba(46,196,243,.25);justify-content:center}
+.scard{background:#fff;border-radius:14px;padding:8px 14px;display:flex;align-items:center;gap:9px;box-shadow:var(--sh);min-width:115px;transition:transform .2s}
+.scard:hover{transform:translateY(-2px)}
+.sc-icon{font-size:1.6rem}
+.sc-info{display:flex;flex-direction:column}
+.sc-lbl{font-size:.58rem;font-weight:800;text-transform:uppercase;color:#99a;letter-spacing:.5px}
+.sc-val{font-family:'Fredoka One',cursive;font-size:1.15rem;line-height:1.1}
+.c-blue{color:var(--dblue)}.c-green{color:var(--dgreen)}.c-gold{color:var(--dyellow)}.c-red{color:var(--red)}.c-purple{color:var(--purple)}.c-orange{color:var(--orange)}
+.mbar-w{width:80px;height:6px;background:#e4e8f0;border-radius:99px;margin-top:3px}
+.mbar{height:6px;border-radius:99px;transition:width .5s}
+
+/* UNREST WARNING */
+#unrest-bar{display:none;background:linear-gradient(90deg,#ff4757,#ff6b81);color:#fff;padding:8px 20px;font-weight:800;font-size:.82rem;text-align:center;animation:flash 1.2s infinite}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* LAYOUT */
+#main{display:grid;grid-template-columns:1fr 330px;gap:14px;padding:14px 18px;max-width:1200px;margin:0 auto}
+@media(max-width:840px){#main{grid-template-columns:1fr}}
+
+/* MAP */
+#map-area{background:var(--panel);border-radius:22px;padding:14px;box-shadow:var(--sh2)}
+#map-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+#map-top h2{font-family:'Fredoka One',cursive;font-size:1rem;color:var(--dblue)}
+#flow-pill{background:#E8F7FF;border:2px solid var(--blue);border-radius:12px;padding:4px 12px;font-size:.72rem;font-weight:800;color:var(--dblue)}
+#city-grid{display:grid;gap:6px}
+
+/* TILES */
+.tile{aspect-ratio:1;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s;border:2.5px solid transparent;position:relative;user-select:none;overflow:hidden}
+.tile:hover{transform:scale(1.07);box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.tile.sel{border-color:var(--yellow)!important;box-shadow:0 0 0 4px rgba(255,212,59,.4)!important;transform:scale(1.07)}
+.tile-empty{background:#EEF3F9;border:2.5px dashed #C0CCDC}
+.tile-empty:hover{background:#E0EEFF;border-color:var(--blue)}
+.tile-rio{background:linear-gradient(180deg,#7ecef4,#AADDFF);cursor:default}
+/* Housing levels */
+.tile-casa{background:#FFF0D4}
+.tile-casa.deg1{background:#FFE4B5;border:2px solid #e8b060}
+.tile-casa.deg2{background:#FFDDA0;border:2px solid #d4903a}
+.tile-casa.deg3{background:#FFD080;border:2px solid #bb7020;box-shadow:inset 0 0 8px rgba(180,80,0,.2)}
+.tile-hab2{background:#FFE4B5}
+.tile-hab2.deg1{background:#FFD898;border:2px solid #d4903a}
+.tile-hab2.deg2{background:#FFC878;border:2px dashed #bb7020}
+.tile-hab2.deg3{background:#FFB850;border:2px solid #9a5010;box-shadow:inset 0 0 8px rgba(150,60,0,.25)}
+.tile-hab3{background:#FFD580}
+.tile-hab3.deg1{background:#FFC060;border:2px solid #bb7020}
+.tile-hab3.deg2{background:#FFaa40;border:2px dashed #9a5010}
+.tile-hab3.deg3{background:#FF9020;border:2px solid #7a3800;box-shadow:inset 0 0 10px rgba(120,40,0,.3)}
+.tile-recolha{background:#D6F0FF}.tile-torre{background:#C8E6FF}
+.tile-escola{background:#D6F8FF}.tile-policia{background:#D6DCF8}
+.tile-parque{background:#D8FFE0}.tile-cinema{background:#F8D6FF}
+.tile-hospital{background:#FFD6D6}.tile-biblioteca{background:#FFF0D6}
+
+.t-icon{font-size:1.5rem;line-height:1}
+.t-lbl{font-size:.48rem;font-weight:800;color:#556;margin-top:1px;text-align:center;line-height:1.1}
+.t-badge{position:absolute;top:2px;right:2px;font-size:.46rem;font-weight:900;padding:1px 4px;border-radius:6px;white-space:nowrap}
+.tb-blue{background:var(--blue);color:#fff}.tb-green{background:var(--green);color:#fff}
+.tb-gold{background:var(--yellow);color:#333}.tb-red{background:var(--red);color:#fff}
+.t-deg{position:absolute;bottom:2px;left:2px;font-size:.75rem}
+.t-unrest{position:absolute;top:1px;left:2px;font-size:.85rem;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+
+/* RIGHT PANEL */
+#right{display:flex;flex-direction:column;gap:12px}
+.pbox{background:var(--panel);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+.pbox h3{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--dblue);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+
+/* BUILD */
+.build-tabs{display:flex;gap:5px;margin-bottom:8px}
+.btab{background:#eef3f9;border:none;border-radius:10px;padding:4px 10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.68rem;cursor:pointer;color:var(--dgray);transition:background .15s}
+.btab.active{background:var(--dblue);color:#fff}
+.build-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.bbtn{background:#fff;border:2px solid #dde4ee;border-radius:12px;padding:7px 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:border-color .15s,transform .15s,box-shadow .15s;text-align:center}
+.bbtn:hover:not(:disabled){border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 12px rgba(10,120,200,.2)}
+.bbtn:disabled{opacity:.38;cursor:not-allowed}
+.bbtn.sel-build{border-color:var(--yellow);background:#FFF8E8;box-shadow:0 0 0 3px rgba(255,212,59,.3)}
+.bb-icon{font-size:1.4rem}.bb-name{font-size:.65rem;font-weight:800;color:var(--dark)}
+.bb-cost{font-size:.6rem;color:var(--dblue);font-weight:700}
+.bb-stats{font-size:.52rem;color:var(--dgray);line-height:1.55;margin-top:1px}
+
+/* TILE INFO */
+#tile-info-box{border-left:4px solid var(--blue)}
+.ti-row{display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid #eef;font-size:.76rem}
+.ti-row:last-child{border:none}
+.ti-key{color:var(--dgray);font-weight:700}
+.ti-pos{color:var(--dgreen);font-weight:800}.ti-neg{color:var(--red);font-weight:800}.ti-neu{color:var(--dblue);font-weight:800}.ti-warn{color:var(--orange);font-weight:800}
+
+/* SUMMARY */
+#summary-box{border-left:4px solid var(--green)}
+.sum-row{display:flex;justify-content:space-between;font-size:.73rem;padding:3px 0;border-bottom:1px dotted #ddeeff}
+.sum-row:last-child{border:none}
+.sum-lbl{color:var(--dgray);font-weight:700}
+.sum-pos{color:var(--dgreen);font-weight:800}.sum-neg{color:var(--red);font-weight:800}.sum-neu{color:var(--dblue);font-weight:800}.sum-sep{border:none;border-top:1px dashed #dde;margin:4px 0}
+
+/* LOG */
+#log-list{max-height:110px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+#log-list::-webkit-scrollbar{width:3px}
+#log-list::-webkit-scrollbar-thumb{background:#bcd;border-radius:3px}
+.li{font-size:.68rem;padding:3px 8px;border-radius:7px;font-weight:700}
+.lg{background:#d4fce3;color:#1a6b35}.lb{background:#ffd6d6;color:#8b0000}
+.li2{background:#e8f0ff;color:#1a3a8b}.lw{background:#fff3cc;color:#7a5c00}
+
+#next-btn{background:linear-gradient(135deg,#0554a0,var(--dblue));color:#fff;border:none;border-radius:14px;padding:12px;font-family:'Nunito',sans-serif;font-weight:900;font-size:.9rem;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(5,80,160,.35);transition:transform .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+#next-btn:hover{transform:translateY(-2px)}
+
+/* EVENT */
+#event-box{border-left:4px solid var(--orange);background:linear-gradient(135deg,#fff8ee,#f0fff8)}
+#ev-inner{display:flex;gap:10px;align-items:flex-start}
+#ev-emoji{font-size:2.1rem;flex-shrink:0}
+#ev-text{font-size:.75rem;font-weight:700;line-height:1.55;color:#334}
+
+/* MODAL */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center}
+#overlay.show{display:flex}
+#modal{background:#fff;border-radius:26px;padding:26px 22px;max-width:420px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.moji{font-size:3.2rem;margin-bottom:6px}
+#modal h2{font-family:'Fredoka One',cursive;font-size:1.45rem;color:var(--dblue);margin-bottom:6px}
+#modal p{font-size:.82rem;color:#556;line-height:1.6;margin-bottom:16px}
+#mbtn{background:linear-gradient(90deg,var(--dblue),var(--blue));color:#fff;border:none;border-radius:12px;padding:10px 30px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;transition:transform .15s}
+#mbtn:hover{transform:scale(1.04)}
+
+/* UNREST POPUP */
+#unrest-popup{display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff4757,#c0392b);color:#fff;border-radius:18px;padding:14px 24px;text-align:center;z-index:250;box-shadow:0 8px 30px rgba(200,0,0,.4);animation:slideIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideIn{from{top:40px;opacity:0}to{top:80px;opacity:1}}
+#unrest-popup h3{font-family:'Fredoka One',cursive;font-size:1.2rem;margin-bottom:4px}
+#unrest-popup p{font-size:.78rem;opacity:.9}
+
+/* END */
+#endscreen{display:none;position:fixed;inset:0;z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:20px}
+#endscreen.show{display:flex}
+#endscreen.win{background:linear-gradient(135deg,#0096c7,#48cae4,#ade8f4)}
+#endscreen.lose{background:linear-gradient(135deg,#e63946,#f4845f,#ffd166)}
+.e-emoji{font-size:5rem;animation:eb 1s infinite}
+@keyframes eb{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+#endscreen h1{font-family:'Fredoka One',cursive;font-size:clamp(2rem,6vw,3rem);color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.3)}
+#endscreen p{font-size:.95rem;color:rgba(255,255,255,.9);max-width:400px;line-height:1.6}
+#end-score{background:rgba(255,255,255,.22);border-radius:18px;padding:10px 26px}
+#end-score span{font-family:'Fredoka One',cursive;font-size:2.2rem;color:#fff}
+#rbtn{background:#fff;color:var(--dblue);border:none;border-radius:14px;padding:12px 36px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.22);transition:transform .15s;margin-top:6px}
+#rbtn:hover{transform:scale(1.05)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💧 Prefeito da Água</h1>
+  <div id="turno-badge">Turno 1 / 15</div>
+</header>
+
+<!-- Aviso de agitação social -->
+<div id="unrest-bar">⚠️ AGITAÇÃO SOCIAL ATIVA — A população está descontente! Melhora os serviços e a água urgentemente!</div>
+
+<div id="stats-bar">
+  <div class="scard">
+    <span class="sc-icon">💧</span>
+    <div class="sc-info"><span class="sc-lbl">Água</span>
+      <span class="sc-val c-blue" id="v-agua">20/50L</span>
+      <div class="mbar-w"><div class="mbar" id="b-agua" style="width:40%;background:var(--blue)"></div></div>
+    </div>
+  </div>
+  <div class="scard">
+    <span class="sc-icon">🌊</span>
+    <div class="sc-info"><span class="sc-lbl">Fluxo/Turno</span>
+      <span class="sc-val c-blue" id="v-fluxo">+8L</span>
+    </div>
+  </div>
+  <div class="scard">
+    <span class="sc-icon">💰</span>
+    <div class="sc-info"><span class="sc-lbl">Orçamento</span>
+      <span class="sc-val c-gold" id="v-orc">800€</span>
+    </div>
+  </div>
+  <div class="scard">
+    <span class="sc-icon">💚</span>
+    <div class="sc-info"><span class="sc-lbl">Felicidade</span>
+      <span class="sc-val c-green" id="v-fel">50%</span>
+      <div class="mbar-w"><div class="mbar" id="b-fel" style="width:50%;background:var(--green)"></div></div>
+    </div>
+  </div>
+  <div class="scard">
+    <span class="sc-icon">🏛️</span>
+    <div class="sc-info"><span class="sc-lbl">Serviços</span>
+      <span class="sc-val c-purple" id="v-srv">0%</span>
+      <div class="mbar-w"><div class="mbar" id="b-srv" style="width:0%;background:var(--purple)"></div></div>
+    </div>
+  </div>
+  <div class="scard">
+    <span class="sc-icon">😤</span>
+    <div class="sc-info"><span class="sc-lbl">Agitação</span>
+      <span class="sc-val c-orange" id="v-unrest">0</span>
+      <div class="mbar-w"><div class="mbar" id="b-unrest" style="width:0%;background:var(--orange)"></div></div>
+    </div>
+  </div>
+  <div class="scard">
+    <span class="sc-icon">👥</span>
+    <div class="sc-info"><span class="sc-lbl">População</span>
+      <span class="sc-val c-blue" id="v-pop">4</span>
+    </div>
+  </div>
+  <div class="scard">
+    <span class="sc-icon">⭐</span>
+    <div class="sc-info"><span class="sc-lbl">Pontos</span>
+      <span class="sc-val c-gold" id="v-pts">0</span>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="map-area">
+    <div id="map-top">
+      <h2>🗺️ Município</h2>
+      <div id="flow-pill">Rio base: +10L/turno</div>
+    </div>
+    <div id="city-grid"></div>
+    <!-- Legenda degradação -->
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;font-size:.62rem;font-weight:700;color:var(--dgray)">
+      <span>Degradação:</span>
+      <span style="background:#FFF0D4;border:2px solid #e8e0d0;padding:1px 7px;border-radius:6px">🏠 OK</span>
+      <span style="background:#FFE4B5;border:2px solid #e8b060;padding:1px 7px;border-radius:6px">🏠 Nível 1</span>
+      <span style="background:#FFDDA0;border:2px solid #d4903a;padding:1px 7px;border-radius:6px">🏠 Nível 2</span>
+      <span style="background:#FFD080;border:2px solid #bb7020;padding:1px 7px;border-radius:6px">🏠 Nível 3 (crítico)</span>
+    </div>
+  </div>
+
+  <div id="right">
+    <div class="pbox" id="event-box">
+      <h3>📢 Evento</h3>
+      <div id="ev-inner">
+        <span id="ev-emoji">🌤️</span>
+        <p id="ev-text">Bem-vindo! Seleciona um edifício e clica num terreno vazio (＋). Começa pela Estação de Recolha de Água!</p>
+      </div>
+    </div>
+
+    <div class="pbox">
+      <h3>🏗️ Construir</h3>
+      <div class="build-tabs">
+        <button class="btab active" onclick="setTab('agua')">💧 Água</button>
+        <button class="btab" onclick="setTab('hab')">🏠 Habitação</button>
+        <button class="btab" onclick="setTab('srv')">🏛️ Serviços</button>
+      </div>
+      <div class="build-grid" id="build-grid"></div>
+      <div style="margin-top:8px;font-size:.66rem;color:var(--dgray);font-weight:700;text-align:center" id="build-hint">Seleciona um edifício → clica num terreno vazio</div>
+    </div>
+
+    <div class="pbox" id="tile-info-box">
+      <h3>🔍 Selecionado</h3>
+      <div id="tile-info-inner"><span style="color:var(--dgray);font-size:.76rem">Clica num tile para ver detalhes.</span></div>
+    </div>
+
+    <div class="pbox" id="summary-box">
+      <h3>📊 Resumo do Turno</h3>
+      <div id="summary-inner"></div>
+    </div>
+
+    <div class="pbox">
+      <h3>📋 Registo</h3>
+      <div id="log-list"></div>
+    </div>
+
+    <button id="next-btn" onclick="nextTurn()">⏭️ Próximo Turno</button>
+  </div>
+</div>
+
+<!-- Popup agitação -->
+<div id="unrest-popup">
+  <h3 id="up-title">😤 Agitação Social!</h3>
+  <p id="up-msg">A população está descontente.</p>
+</div>
+
+<!-- Modal -->
+<div id="overlay"><div id="modal">
+  <div class="moji" id="moji">💧</div>
+  <h2 id="mtitle"></h2>
+  <p id="mbody"></p>
+  <button id="mbtn" onclick="closeModal()">OK, entendi!</button>
+</div></div>
+
+<!-- End -->
+<div id="endscreen">
+  <div class="e-emoji" id="e-emoji">🏆</div>
+  <h1 id="e-title"></h1>
+  <p id="e-msg"></p>
+  <div id="end-score">Pontuação: <span id="e-pts">0</span></div>
+  <button id="rbtn" onclick="initGame()">🔄 Jogar de Novo</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// DEFINIÇÕES DE EDIFÍCIOS
+// ════════════════════════════════════════════
+const B = {
+  // ÁGUA
+  recolha:{name:'Estação de Recolha',icon:'🚰',tab:'agua',cost:200,maint:-15,
+    aguaProd:18,aguaCons:0,aguaCap:0,pop:0,rec:0,fel:0,srv:0,
+    css:'tile-recolha',desc:'Capta 18L de água do rio por turno. Essencial!'},
+  torre:{name:'Torre de Água',icon:'🗼',tab:'agua',cost:280,maint:-10,
+    aguaProd:0,aguaCons:0,aguaCap:50,pop:0,rec:0,fel:0,srv:0,
+    css:'tile-torre',desc:'Aumenta a capacidade máxima em 50L.'},
+
+  // HABITAÇÃO (3 níveis — mais receita, mais consumo de água)
+  casa:{name:'Casa Simples',icon:'🏠',tab:'hab',cost:150,maint:0,
+    aguaCons:5,aguaCap:0,pop:4,rec:40,fel:0,srv:0,
+    css:'tile-casa',desc:'4 hab. Receita +40€/t. Consumo moderado.'},
+  hab2:{name:'Moradia',icon:'🏡',tab:'hab',cost:300,maint:0,
+    aguaCons:10,aguaCap:0,pop:8,rec:90,fel:1,srv:0,
+    css:'tile-hab2',desc:'8 hab. Receita +90€/t. Consome mais água.'},
+  hab3:{name:'Prédio',icon:'🏢',tab:'hab',cost:550,maint:-15,
+    aguaCons:20,aguaCap:0,pop:20,rec:200,fel:0,srv:0,
+    css:'tile-hab3',desc:'20 hab. Receita +200€/t. Alto consumo de água e manutenção.'},
+
+  // SERVIÇOS
+  escola:{name:'Escola',icon:'🏫',tab:'srv',cost:350,maint:-25,
+    aguaCons:5,pop:0,rec:0,fel:8,srv:15,
+    css:'tile-escola',desc:'+15% serviços, +8% felicidade/turno.'},
+  policia:{name:'Esquadra',icon:'🚔',tab:'srv',cost:280,maint:-20,
+    aguaCons:3,pop:0,rec:0,fel:6,srv:12,
+    css:'tile-policia',desc:'+12% serviços, +6% felicidade/turno. Reduz agitação.'},
+  parque:{name:'Parque',icon:'🌳',tab:'srv',cost:180,maint:-8,
+    aguaCons:2,pop:0,rec:0,fel:10,srv:8,
+    css:'tile-parque',desc:'+8% serviços, +10% felicidade/turno.'},
+  cinema:{name:'Cinema',icon:'🎬',tab:'srv',cost:400,maint:-30,
+    aguaCons:4,pop:0,rec:20,fel:12,srv:10,
+    css:'tile-cinema',desc:'+10% serviços, +12% fel/turno. Gera 20€.'},
+  hospital:{name:'Hospital',icon:'🏥',tab:'srv',cost:600,maint:-40,
+    aguaCons:8,pop:0,rec:0,fel:10,srv:20,
+    css:'tile-hospital',desc:'+20% serviços, +10% felicidade/turno.'},
+  biblioteca:{name:'Biblioteca',icon:'📚',tab:'srv',cost:250,maint:-15,
+    aguaCons:2,pop:0,rec:0,fel:7,srv:8,
+    css:'tile-biblioteca',desc:'+8% serviços, +7% felicidade/turno.'},
+};
+
+// ════════════════════════════════════════════
+// EVENTOS
+// ════════════════════════════════════════════
+const EVENTS = [
+  {emoji:'☀️',text:'Onda de calor! Consumo de água extra (+30%) e agitação sobe +5.',
+    effect:g=>{const ex=Math.round(calcConsumo(g)*.3);g.agua=Math.max(0,g.agua-ex);g.unrest=Math.min(100,g.unrest+5);log(`☀️ Calor: -${ex}L, agitação+5`,'lb')}},
+  {emoji:'🌧️',text:'Chuva intensa! +18L extra nas reservas.',
+    effect:g=>{g.agua=Math.min(g.agua+18,g.aguaMax);log('🌧️ Chuva: +18L','lg')}},
+  {emoji:'🌊',text:'Cheia no rio! +22L mas danos nas infraestruturas (-70€).',
+    effect:g=>{g.agua=Math.min(g.agua+22,g.aguaMax);g.orc-=70;log('🌊 Cheia: +22L, -70€','lw')}},
+  {emoji:'🦠',text:'Contaminação! Felicidade -10%, agitação +8 e perdes 12L.',
+    effect:g=>{g.fel=Math.max(0,g.fel-10);g.unrest=Math.min(100,g.unrest+8);g.agua=Math.max(0,g.agua-12);log('🦠 Contaminação: -10%fel, +8agit, -12L','lb')}},
+  {emoji:'💡',text:'ONG instala sensores gratuitos. Consumo -10% por 2 turnos.',
+    effect:g=>{g.bonusConsumo=Math.min(.5,(g.bonusConsumo||0)+.1);g.bonusTurnos=2;log('💡 Sensores: -10% consumo /2t','lg')}},
+  {emoji:'🏜️',text:'Seca! Produção de água reduzida este turno. Agitação +5.',
+    effect:g=>{g.secaTurno=true;g.unrest=Math.min(100,g.unrest+5);log('🏜️ Seca: produção reduzida, agitação+5','lb')}},
+  {emoji:'🎓',text:'Campanha de poupança nas escolas! Felicidade +6%, agitação -5.',
+    effect:g=>{g.fel=Math.min(100,g.fel+6);g.unrest=Math.max(0,g.unrest-5);log('🎓 Campanha: +6%fel, agitação-5','lg')}},
+  {emoji:'🔧',text:'Tubagem rebentou! Perdes 18L imediatamente.',
+    effect:g=>{g.agua=Math.max(0,g.agua-18);log('🔧 Fuga: -18L','lb')}},
+  {emoji:'🌿',text:'Turno tranquilo. A cidade respira.',
+    effect:g=>{log('🌿 Turno calmo.','li2')}},
+  {emoji:'💧',text:'Doação ambiental! +120€ ao orçamento.',
+    effect:g=>{g.orc+=120;log('💧 Doação: +120€','lg')}},
+  {emoji:'🌡️',text:'Inverno frio. Consumo -20% este turno.',
+    effect:g=>{g.bonusConsumo=Math.min(.5,(g.bonusConsumo||0)+.2);g.bonusTurnos=1;log('🌡️ Frio: consumo -20% este turno','lg')}},
+  {emoji:'🎉',text:'Festival da cidade! Felicidade +12%, agitação -8, mas custa 40€.',
+    effect:g=>{g.fel=Math.min(100,g.fel+12);g.unrest=Math.max(0,g.unrest-8);g.orc-=40;log('🎉 Festival: +12%fel, agit-8, -40€','lw')}},
+  {emoji:'📰',text:'Notícia negativa na imprensa. Agitação sobe +10.',
+    effect:g=>{g.unrest=Math.min(100,g.unrest+10);log('📰 Imprensa negativa: agitação+10','lb')}},
+  {emoji:'🏆',text:'Prémio de gestão sustentável! +150€ e felicidade +5%.',
+    effect:g=>{g.orc+=150;g.fel=Math.min(100,g.fel+5);log('🏆 Prémio: +150€, +5%fel','lg')}},
+];
+
+// ════════════════════════════════════════════
+// ESTADO
+// ════════════════════════════════════════════
+const COLS=6, ROWS=6, N=COLS*ROWS;
+let G, selectedBuild=null, selectedTile=null, activeTab='agua';
+
+// degradação: { tileIndex: nível 0-3 }
+// unrestActions: lista de efeitos ativos da agitação
+
+function initGame(){
+  const tiles=Array(N).fill(null);
+  for(let r=0;r<ROWS;r++) tiles[r*COLS]='rio';
+  tiles[1+Math.floor(ROWS/2)*COLS]='casa';
+
+  G={
+    turno:1, maxTurnos:15,
+    tiles,
+    agua:20, aguaMax:50,
+    orc:800,
+    fel:55, srv:0,
+    pop:4,
+    pts:0,
+    unrest:0,           // 0-100: agitação social
+    unrestActive:false, // agitação em modo crítico (>60)
+    degradation:{},     // idx -> nivel 0-3
+    bonusConsumo:0, bonusTurnos:0,
+    secaTurno:false,
+    currentEvent:EVENTS[8],
+  };
+
+  document.getElementById('endscreen').className='';
+  selectedBuild=null; selectedTile=null;
+  renderMap(); renderBuildMenu(); updateStats(); updateSummary();
+  log('🎮 Novo jogo! Constrói uma Estação de Recolha primeiro.','li2');
+  showModal('💧','Bem-vindo, Prefeito!',
+    'A tua cidade tem 1 casa e um rio. Sem estações de recolha não há água!\n\n⚠️ NOVO: A felicidade baixa gera Agitação Social — que degrada habitações e reduz receitas. Serve a população com serviços de qualidade!');
+}
+
+// ════════════════════════════════════════════
+// MAP
+// ════════════════════════════════════════════
+function renderMap(){
+  const grid=document.getElementById('city-grid');
+  grid.style.gridTemplateColumns=`repeat(${COLS},1fr)`;
+  grid.innerHTML='';
+  G.tiles.forEach((t,i)=>{
+    const div=document.createElement('div');
+    const deg=G.degradation[i]||0;
+
+    if(t==='rio'){
+      div.className='tile tile-rio';
+      div.innerHTML=`<span class="t-icon">🌊</span><span class="t-lbl">Rio</span>`;
+      div.onclick=()=>clickTile(i,'rio');
+    } else if(!t){
+      div.className='tile tile-empty';
+      div.innerHTML=`<span style="font-size:1.2rem;color:#b0bccc">＋</span>`;
+      div.onclick=()=>clickEmpty(i);
+    } else {
+      const b=B[t];
+      const isHab=b.tab==='hab';
+      div.className=`tile ${b.css}${isHab&&deg>0?' deg'+deg:''}`;
+      let inner=`<span class="t-icon">${b.icon}</span><span class="t-lbl">${b.name.split(' ')[0]}</span>`;
+      if(b.aguaCons>0) inner+=`<span class="t-badge tb-blue">-${b.aguaCons}L</span>`;
+      if(b.aguaProd>0) inner+=`<span class="t-badge tb-green">+${b.aguaProd}L</span>`;
+      if(b.rec>0)      inner+=`<span class="t-badge tb-gold" style="top:auto;bottom:2px;right:2px">+${b.rec}€</span>`;
+      if(isHab&&deg>0) inner+=`<span class="t-deg">${['','🔨','⚠️','🚨'][deg]}</span>`;
+      if(isHab&&G.unrestActive) inner+=`<span class="t-unrest">😤</span>`;
+      div.innerHTML=inner;
+      div.onclick=()=>clickTile(i,t);
+    }
+    if(i===selectedTile) div.classList.add('sel');
+    grid.appendChild(div);
+  });
+}
+
+function clickEmpty(i){
+  if(!selectedBuild){toast('Escolhe primeiro o que construir!');return}
+  const b=B[selectedBuild];
+  if(G.orc<b.cost){showModal('💸','Sem Orçamento',`Precisas de ${b.cost}€ mas tens ${G.orc}€. Avança turnos para gerar receita.`);return}
+  G.orc-=b.cost;
+  G.tiles[i]=selectedBuild;
+  if(b.aguaCap) G.aguaMax+=b.aguaCap;
+  log(`🏗️ ${b.name} construída (-${b.cost}€)`,'lg');
+  selectedBuild=null;
+  document.querySelectorAll('.bbtn').forEach(x=>x.classList.remove('sel-build'));
+  document.getElementById('build-hint').textContent='Seleciona um edifício → clica num terreno vazio';
+  renderMap(); updateStats(); updateSummary();
+}
+
+function clickTile(i,t){
+  selectedTile=(selectedTile===i)?null:i;
+  renderMap();
+  selectedTile!==null?showTileInfo(t,i):resetTileInfo();
+}
+
+function resetTileInfo(){
+  document.getElementById('tile-info-inner').innerHTML=`<span style="color:var(--dgray);font-size:.76rem">Clica num tile para ver detalhes.</span>`;
+}
+
+function showTileInfo(t,i){
+  if(t==='rio'){
+    document.getElementById('tile-info-inner').innerHTML=
+      tr('Rio','Fonte natural')+tr('Produção base','+10L/turno','pos')+tr('Com estações','amplia a produção','neu');
+    return;
+  }
+  const b=B[t];
+  const deg=G.degradation[i]||0;
+  const isHab=b.tab==='hab';
+  const recEfetiva=isHab?Math.round(b.rec*(1-deg*.25)):b.rec;
+
+  let html=tr('Edifício',b.name)+tr('Custo construção',b.cost+'€');
+  if(b.maint)     html+=tr('Manutenção/turno',b.maint+'€','neg');
+  if(b.rec)       html+=tr('Receita/turno (base)','+'+b.rec+'€','pos');
+  if(isHab&&deg>0)html+=tr('Receita atual (degradado)','+'+recEfetiva+'€','warn');
+  if(b.aguaProd)  html+=tr('Produz água/turno','+'+b.aguaProd+'L','pos');
+  if(b.aguaCons)  html+=tr('Consome água/turno','-'+b.aguaCons+'L','neg');
+  if(b.aguaCap)   html+=tr('Capacidade extra','+'+b.aguaCap+'L','pos');
+  if(b.pop)       html+=tr('Habitantes','+'+b.pop+' hab.','pos');
+  if(b.fel)       html+=tr('Felicidade/turno','+'+b.fel+'%','pos');
+  if(b.srv)       html+=tr('Serviços','+'+b.srv+'%','pos');
+  if(isHab){
+    const degLabel=['✅ Óptimo','🔨 Ligeiro','⚠️ Moderado','🚨 Crítico'][deg];
+    html+=tr('Estado habitação',degLabel, deg===0?'pos':deg<3?'warn':'neg');
+    if(deg>0) html+=tr('Receita reduzida',`-${deg*25}% por degradação`,'neg');
+    html+=`<div style="margin-top:6px;font-size:.64rem;color:#888;background:#fff8ee;padding:5px 8px;border-radius:8px;font-style:italic">
+      💡 Agitação social acima de 40 degrada habitações. Investe em serviços para reduzir agitação.
+    </div>`;
+  }
+  document.getElementById('tile-info-inner').innerHTML=html;
+}
+function tr(k,v,cls='neu'){return`<div class="ti-row"><span class="ti-key">${k}</span><span class="ti-${cls}">${v}</span></div>`}
+
+// ════════════════════════════════════════════
+// BUILD MENU
+// ════════════════════════════════════════════
+function setTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.btab').forEach((b,i)=>b.classList.toggle('active',['agua','hab','srv'][i]===tab));
+  renderBuildMenu();
+}
+
+function renderBuildMenu(){
+  const grid=document.getElementById('build-grid');
+  grid.innerHTML='';
+  Object.entries(B).filter(([k,b])=>b.tab===activeTab).forEach(([k,b])=>{
+    const btn=document.createElement('button');
+    btn.className='bbtn'+(selectedBuild===k?' sel-build':'');
+    btn.disabled=G.orc<b.cost;
+    let stats='';
+    if(b.maint)    stats+=`<span style="color:var(--red)">Mant:${b.maint}€</span> `;
+    if(b.rec)      stats+=`<span style="color:var(--dgreen)">+${b.rec}€/t</span> `;
+    if(b.aguaProd) stats+=`<span style="color:var(--dblue)">+${b.aguaProd}L/t</span> `;
+    if(b.aguaCons) stats+=`<span style="color:var(--red)">-${b.aguaCons}L/t</span> `;
+    if(b.aguaCap)  stats+=`<span style="color:var(--dblue)">cap+${b.aguaCap}L</span> `;
+    if(b.fel)      stats+=`<span style="color:var(--dgreen)">+${b.fel}%😊</span> `;
+    if(b.srv)      stats+=`<span style="color:var(--purple)">+${b.srv}%🏛️</span>`;
+    btn.innerHTML=`<span class="bb-icon">${b.icon}</span><span class="bb-name">${b.name}</span><span class="bb-cost">${b.cost}€</span><span class="bb-stats">${stats||'—'}</span>`;
+    btn.onclick=()=>selectBuild(k);
+    grid.appendChild(btn);
+  });
+}
+
+function selectBuild(k){
+  selectedBuild=(selectedBuild===k)?null:k;
+  renderBuildMenu();
+  document.getElementById('build-hint').textContent=selectedBuild
+    ?'✅ Agora clica num terreno vazio (＋) no mapa'
+    :'Seleciona um edifício → clica num terreno vazio';
+}
+
+// ════════════════════════════════════════════
+// CÁLCULOS
+// ════════════════════════════════════════════
+function calcConsumo(g){
+  let c=0;
+  g.tiles.forEach(t=>{if(t&&t!=='rio')c+=B[t]?.aguaCons||0});
+  return Math.round(c*(1-(g.bonusConsumo||0)));
+}
+function calcProd(g){
+  let p=g.secaTurno?5:10;
+  g.tiles.forEach(t=>{if(t&&t!=='rio')p+=B[t]?.aguaProd||0});
+  return p;
+}
+function calcRec(g){
+  // receita reduzida pela degradação
+  let r=0;
+  g.tiles.forEach((t,i)=>{
+    if(!t||t==='rio') return;
+    const b=B[t];
+    if(!b.rec) return;
+    const deg=g.degradation[i]||0;
+    r+=Math.round(b.rec*(1-deg*.25));
+  });
+  return r;
+}
+function calcMaint(g){
+  let m=0; g.tiles.forEach(t=>{if(t&&t!=='rio')m+=B[t]?.maint||0}); return m;
+}
+function calcFelD(g){
+  let f=0; g.tiles.forEach(t=>{if(t&&t!=='rio')f+=B[t]?.fel||0}); return f;
+}
+function calcSrv(g){
+  let s=0; g.tiles.forEach(t=>{if(t&&t!=='rio')s+=B[t]?.srv||0}); return Math.min(100,s);
+}
+function calcPop(g){
+  let p=0; g.tiles.forEach(t=>{if(t&&t!=='rio')p+=B[t]?.pop||0}); return p;
+}
+
+// ════════════════════════════════════════════
+// AGITAÇÃO SOCIAL
+// ════════════════════════════════════════════
+function processUnrest(g){
+  const srv=calcSrv(g);
+  const pop=calcPop(g);
+
+  // Agitação sobe se felicidade baixa
+  if(g.fel<25){g.unrest=Math.min(100,g.unrest+12);log('😡 Fel muito baixa: agitação +12','lb')}
+  else if(g.fel<40){g.unrest=Math.min(100,g.unrest+6);log('😠 Fel baixa: agitação +6','lb')}
+  else if(g.fel>70){g.unrest=Math.max(0,g.unrest-5);} // fel alta reduz agitação
+  else if(g.fel>55){g.unrest=Math.max(0,g.unrest-2);}
+
+  // Falta de serviços para população grande
+  const srvNecessario=Math.min(100,Math.floor(pop/5)*10);
+  if(srv<srvNecessario){
+    const deficit=srvNecessario-srv;
+    const agitExtra=Math.round(deficit*.3);
+    g.unrest=Math.min(100,g.unrest+agitExtra);
+    log(`🏛️ Serviços insuficientes (${srv}%<${srvNecessario}%): agitação +${agitExtra}`,'lw');
+  }
+
+  // Esquadra de polícia reduz agitação
+  let polCount=0;
+  g.tiles.forEach(t=>{if(t==='policia')polCount++});
+  if(polCount>0){
+    const red=polCount*6;
+    g.unrest=Math.max(0,g.unrest-red);
+    log(`🚔 Polícia: agitação -${red}`,'lg');
+  }
+
+  // EFEITOS DA AGITAÇÃO ACTIVA (>40)
+  if(g.unrest>=40){
+    g.unrestActive=true;
+    document.getElementById('unrest-bar').style.display='block';
+
+    if(g.unrest>=40){
+      // Degrada habitações aleatoriamente
+      const habTiles=[];
+      g.tiles.forEach((t,i)=>{if(t&&B[t]?.tab==='hab')habTiles.push(i)});
+      if(habTiles.length>0){
+        const idx=habTiles[Math.floor(Math.random()*habTiles.length)];
+        const curDeg=g.degradation[idx]||0;
+        if(curDeg<3){
+          g.degradation[idx]=curDeg+1;
+          log(`🔨 Agitação degrada habitação ${['','🔨Nível1','⚠️Nível2','🚨Nível3'][curDeg+1]}`,'lb');
+        }
+      }
+    }
+
+    if(g.unrest>=60){
+      // Greve: receita reduzida extra
+      const perdaGreve=Math.round(calcRec(g)*.2);
+      g.orc-=perdaGreve;
+      log(`⛔ GREVE! Receita -${perdaGreve}€ extra`,'lb');
+      showUnrestPopup('⛔ Greve Geral!',`Trabalhadores paralisam. Perdeste ${perdaGreve}€ extra em receita!`);
+    }
+
+    if(g.unrest>=80){
+      // Êxodo: perde população (remove habitação mais degradada)
+      let worstIdx=-1, worstDeg=0;
+      g.tiles.forEach((t,i)=>{
+        if(t&&B[t]?.tab==='hab'&&(g.degradation[i]||0)>=worstDeg){
+          worstDeg=g.degradation[i]||0;worstIdx=i;
+        }
+      });
+      if(worstIdx>=0){
+        const b=B[g.tiles[worstIdx]];
+        g.tiles[worstIdx]=null;
+        delete g.degradation[worstIdx];
+        log(`🚶 ÊXODO! ${b.name} abandonada pela população!`,'lb');
+        showUnrestPopup('🚶 Êxodo Populacional!',`A população abandona uma ${b.name}! Agitação crítica!`);
+      }
+    }
+  } else {
+    g.unrestActive=false;
+    document.getElementById('unrest-bar').style.display='none';
+  }
+}
+
+function showUnrestPopup(title,msg){
+  const p=document.getElementById('unrest-popup');
+  document.getElementById('up-title').textContent=title;
+  document.getElementById('up-msg').textContent=msg;
+  p.style.display='block';
+  setTimeout(()=>p.style.display='none',3500);
+}
+
+// ════════════════════════════════════════════
+// SUMMARY PANEL
+// ════════════════════════════════════════════
+function updateSummary(){
+  const prod=calcProd(G), cons=calcConsumo(G), fluxo=prod-cons;
+  const rec=calcRec(G), maint=calcMaint(G), saldo=rec+maint;
+  const felD=calcFelD(G), srv=calcSrv(G), pop=calcPop(G);
+  const rioBase=G.secaTurno?5:10;
+  const estacoesExtra=prod-rioBase;
+  const srvNec=Math.min(100,Math.floor(pop/5)*10);
+
+  document.getElementById('v-fluxo').textContent=(fluxo>=0?'+':'')+fluxo+'L';
+  document.getElementById('v-fluxo').style.color=fluxo>=0?'var(--dgreen)':'var(--red)';
+
+  document.getElementById('summary-inner').innerHTML=`
+    <div class="sum-row"><span class="sum-lbl">🌊 Rio (base)</span><span class="sum-pos">+${rioBase}L/t</span></div>
+    <div class="sum-row"><span class="sum-lbl">🚰 Estações de recolha</span><span class="sum-pos">+${estacoesExtra}L/t</span></div>
+    <div class="sum-row"><span class="sum-lbl">🏠 Consumo da cidade</span><span class="sum-neg">-${cons}L/t</span></div>
+    <div class="sum-row" style="font-weight:900"><span class="sum-lbl">💧 Fluxo líquido</span><span class="${fluxo>=0?'sum-pos':'sum-neg'}">${fluxo>=0?'+':''}${fluxo}L/t</span></div>
+    <hr class="sum-sep">
+    <div class="sum-row"><span class="sum-lbl">🏠 Receita habitações</span><span class="sum-pos">+${rec}€/t</span></div>
+    <div class="sum-row"><span class="sum-lbl">🔧 Manutenção total</span><span class="sum-neg">${maint}€/t</span></div>
+    <div class="sum-row" style="font-weight:900"><span class="sum-lbl">💰 Saldo líquido</span><span class="${saldo>=0?'sum-pos':'sum-neg'}">${saldo>=0?'+':''}${saldo}€/t</span></div>
+    <hr class="sum-sep">
+    <div class="sum-row"><span class="sum-lbl">😊 Felicidade ganha/t</span><span class="sum-pos">+${felD}%</span></div>
+    <div class="sum-row"><span class="sum-lbl">🏛️ Serviços / Necessário</span><span class="${srv>=srvNec?'sum-pos':'sum-neg'}">${srv}% / ${srvNec}%</span></div>
+    <div class="sum-row"><span class="sum-lbl">😤 Agitação atual</span><span class="${G.unrest<40?'sum-neu':G.unrest<70?'sum-neg':'sum-neg'}">${G.unrest}/100</span></div>
+  `;
+}
+
+// ════════════════════════════════════════════
+// STATS UI
+// ════════════════════════════════════════════
+function updateStats(){
+  G.pop=calcPop(G); G.srv=calcSrv(G);
+  const pct=G.aguaMax>0?Math.min(100,Math.round(G.agua/G.aguaMax*100)):0;
+  document.getElementById('v-agua').textContent=`${G.agua}/${G.aguaMax}L`;
+  document.getElementById('b-agua').style.cssText=`width:${pct}%;background:${pct<20?'var(--red)':pct<40?'var(--orange)':'var(--blue)'}`;
+  document.getElementById('v-orc').textContent=G.orc+'€';
+  document.getElementById('v-fel').textContent=G.fel+'%';
+  document.getElementById('b-fel').style.cssText=`width:${G.fel}%;background:${G.fel<30?'var(--red)':G.fel<55?'var(--orange)':'var(--green)'}`;
+  document.getElementById('v-srv').textContent=G.srv+'%';
+  document.getElementById('b-srv').style.width=G.srv+'%';
+  document.getElementById('v-unrest').textContent=G.unrest;
+  document.getElementById('v-unrest').style.color=G.unrest<40?'var(--dgreen)':G.unrest<70?'var(--orange)':'var(--red)';
+  document.getElementById('b-unrest').style.cssText=`width:${G.unrest}%;background:${G.unrest<40?'var(--green)':G.unrest<70?'var(--orange)':'var(--red)'}`;
+  document.getElementById('v-pop').textContent=G.pop;
+  document.getElementById('v-pts').textContent=G.pts;
+  document.getElementById('turno-badge').textContent=`Turno ${G.turno}/${G.maxTurnos}`;
+  renderBuildMenu();
+}
+
+// ════════════════════════════════════════════
+// NEXT TURN
+// ════════════════════════════════════════════
+function nextTurn(){
+  G.secaTurno=false;
+  G.currentEvent.effect(G); // evento
+
+  // água
+  const prod=calcProd(G);
+  G.agua=Math.min(G.aguaMax, G.agua+prod);
+  const cons=calcConsumo(G);
+  G.agua=Math.max(0, G.agua-cons);
+  log(`💧 +${prod}L prod, -${cons}L cons → ${G.agua}L`,'li2');
+
+  // orçamento
+  const rec=calcRec(G), maint=calcMaint(G);
+  G.orc+=rec+maint;
+  log(`💰 +${rec}€ rec, ${maint}€ maint → ${G.orc}€`,'li2');
+
+  // felicidade
+  const felD=calcFelD(G);
+  G.fel=Math.min(100, G.fel+felD);
+
+  // penalidades água
+  const pct=G.aguaMax>0?G.agua/G.aguaMax:0;
+  if(pct<0.10){G.fel=Math.max(0,G.fel-15);G.unrest=Math.min(100,G.unrest+12);log('😟 Água crítica: fel-15%, agitação+12','lb')}
+  else if(pct<0.25){G.fel=Math.max(0,G.fel-5);G.unrest=Math.min(100,G.unrest+5);log('😕 Água baixa: fel-5%, agitação+5','lb')}
+  else if(pct>0.7){G.fel=Math.min(100,G.fel+2);}
+
+  // AGITAÇÃO SOCIAL
+  processUnrest(G);
+
+  // bonus consumo
+  if(G.bonusTurnos>0){G.bonusTurnos--;if(G.bonusTurnos===0){G.bonusConsumo=0;log('💡 Bónus consumo expirou','lw')}}
+
+  // pontos
+  const srv=calcSrv(G);
+  const ptsTurno=Math.round(G.fel*.4+pct*20+srv*.2+G.pop*.1-G.unrest*.15);
+  G.pts+=Math.max(0,ptsTurno);
+  log(`⭐ +${Math.max(0,ptsTurno)} pts`,'li2');
+
+  G.turno++;
+
+  // CHECK END
+  if(G.agua<=0&&cons>0){G.agua=0;endGame(false,'A cidade ficou sem água! 💀 Precisavas de mais estações de recolha.');return}
+  if(G.fel<=0){endGame(false,'A população abandonou completamente a cidade! 😢 Precisavas de mais serviços e água.');return}
+  if(G.orc<-700){endGame(false,'Falência! 💸 As despesas superaram os rendimentos. Precisavas de mais habitações.');return}
+  if(G.unrest>=100){endGame(false,'Revolução! 😤 A agitação social atingiu o nível máximo. Investir em serviços era fundamental!');return}
+  if(G.turno>G.maxTurnos){endGame(true);return}
+
+  G.currentEvent=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  document.getElementById('ev-emoji').textContent=G.currentEvent.emoji;
+  document.getElementById('ev-text').textContent=G.currentEvent.text;
+
+  updateStats(); updateSummary();
+  if(selectedTile!==null&&G.tiles[selectedTile]){
+    showTileInfo(G.tiles[selectedTile],selectedTile);
+  }
+}
+
+function endGame(win,reason=''){
+  const es=document.getElementById('endscreen');
+  es.className=win?'show win':'show lose';
+  document.getElementById('e-emoji').textContent=win?'🏆':'😢';
+  document.getElementById('e-title').textContent=win?'Parabéns, Prefeito!':'Fim de Jogo!';
+  document.getElementById('e-msg').textContent=win
+    ?`Governaste o município com sabedoria por ${G.maxTurnos} turnos! A água, os serviços e a felicidade estiveram em equilíbrio. A cidade prosperou!`
+    :reason+' A gestão da água e dos serviços é um desafio real. Tenta de novo!';
+  document.getElementById('e-pts').textContent=G.pts;
+}
+
+// ════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════
+function log(msg,cls='li2'){
+  const l=document.getElementById('log-list');
+  const d=document.createElement('div');
+  d.className='li '+cls; d.textContent=msg; l.prepend(d);
+  while(l.children.length>28)l.removeChild(l.lastChild);
+}
+function showModal(e,t,b){
+  document.getElementById('moji').textContent=e;
+  document.getElementById('mtitle').textContent=t;
+  document.getElementById('mbody').textContent=b;
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('show')}
+function toast(msg){
+  const oe=document.getElementById('ev-emoji').textContent;
+  const ot=document.getElementById('ev-text').textContent;
+  document.getElementById('ev-emoji').textContent='⚠️';
+  document.getElementById('ev-text').textContent=msg;
+  setTimeout(()=>{document.getElementById('ev-emoji').textContent=oe;document.getElementById('ev-text').textContent=ot},2200);
+}
+
+initGame();
+</script>
+</body>
+</html>
