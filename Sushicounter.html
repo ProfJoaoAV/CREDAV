@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍣 Sushi Counter</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E8392A;
+    --red-dark: #B52B1E;
+    --cream: #FDF6EC;
+    --ink: #1A1008;
+    --wood: #C4845A;
+    --wood-light: #E8B98A;
+    --nori: #2A3320;
+    --sake: #F4D5A0;
+    --glow: rgba(232,57,42,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,0.012) 30px, rgba(255,255,255,0.012) 31px),
+      repeating-linear-gradient(-45deg, transparent, transparent 30px, rgba(255,255,255,0.012) 30px, rgba(255,255,255,0.012) 31px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen {
+    display: none;
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    animation: fadeIn 0.5s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── HEADER ─── */
+  .app-header {
+    text-align: center;
+    padding: 2.5rem 1rem 1rem;
+  }
+  .app-header h1 {
+    font-family: 'Kaisei Decol', serif;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    color: var(--cream);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .app-header h1 span { color: var(--red); }
+  .app-header p {
+    color: var(--wood-light);
+    font-size: 0.95rem;
+    font-weight: 300;
+    margin-top: 0.4rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ─── SCREEN 1 – PLAYER COUNT ─── */
+  #screen-count {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    gap: 2.5rem;
+  }
+
+  .sushi-deco {
+    font-size: 4rem;
+    filter: drop-shadow(0 0 20px var(--glow));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .count-label {
+    font-family: 'Kaisei Decol', serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    text-align: center;
+    color: var(--cream);
+  }
+
+  .player-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .count-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--cream);
+    font-family: 'Kaisei Decol', serif;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .count-btn:hover {
+    border-color: var(--red);
+    background: rgba(232,57,42,0.12);
+    transform: scale(1.08);
+  }
+  .count-btn.selected {
+    border-color: var(--red);
+    background: var(--red);
+    box-shadow: 0 0 24px var(--glow), 0 0 48px var(--glow);
+    transform: scale(1.12);
+  }
+
+  .next-btn {
+    background: var(--red);
+    color: var(--cream);
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 24px rgba(232,57,42,0.3);
+  }
+  .next-btn:hover {
+    background: var(--red-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(232,57,42,0.4);
+  }
+  .next-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ─── SCREEN 2 – NAMES ─── */
+  #screen-names {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    gap: 1.8rem;
+  }
+
+  .names-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .name-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .player-emoji {
+    font-size: 1.6rem;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .name-input {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .name-input::placeholder { color: rgba(255,255,255,0.3); }
+  .name-input:focus {
+    border-color: var(--red);
+    background: rgba(232,57,42,0.06);
+  }
+
+  /* ─── SCREEN 3 – GAME ─── */
+  #screen-game {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .game-header {
+    text-align: center;
+    padding: 1rem 0 0.5rem;
+  }
+  .game-header h2 {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 1.6rem;
+    color: var(--cream);
+  }
+  .game-header p {
+    color: var(--wood-light);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+  }
+
+  /* ─── TRACK ─── */
+  .track-container {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 1.2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .track-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(196,132,90,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .track-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--wood-light);
+    margin-bottom: 0.8rem;
+    text-align: center;
+  }
+
+  .track-rail {
+    position: relative;
+    height: 36px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 100px;
+    overflow: visible;
+    margin: 0 20px;
+  }
+
+  .track-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    border-radius: 100px;
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .track-markers {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* Multiple player tokens */
+  .token {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.6rem;
+    transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    pointer-events: none;
+  }
+
+  .gap-indicator {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--wood-light);
+    margin-top: 0.6rem;
+    min-height: 1em;
+  }
+
+  /* ─── PLAYER CARDS ─── */
+  .players-grid {
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .player-card {
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 1.2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .player-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .player-card.leading { border-color: rgba(255, 200, 50, 0.5); }
+  .player-card.leading::before { opacity: 1; background: radial-gradient(ellipse at top, rgba(255,200,50,0.06) 0%, transparent 70%); }
+
+  .card-emoji { font-size: 2rem; }
+  .card-name {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 1rem;
+    color: var(--cream);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
+  .card-count {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 2.8rem;
+    color: var(--cream);
+    line-height: 1;
+    transition: transform 0.1s;
+  }
+  .card-count.bump {
+    animation: bump 0.3s ease;
+  }
+  @keyframes bump {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .card-label {
+    font-size: 0.7rem;
+    color: var(--wood-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .add-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: var(--red);
+    color: white;
+    font-size: 1.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    box-shadow: 0 4px 16px rgba(232,57,42,0.35);
+    line-height: 1;
+    padding-bottom: 2px;
+  }
+  .add-btn:hover {
+    background: var(--red-dark);
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(232,57,42,0.5);
+  }
+  .add-btn:active {
+    transform: scale(0.95);
+  }
+
+  .undo-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.4);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .undo-btn:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ─── FINISH BUTTON ─── */
+  .finish-bar {
+    padding: 0.5rem 0 1rem;
+    display: flex;
+    justify-content: center;
+  }
+  .finish-btn {
+    background: transparent;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 0.75rem 2rem;
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .finish-btn:hover {
+    color: var(--cream);
+    border-color: rgba(255,255,255,0.4);
+  }
+
+  /* ─── SCREEN 4 – RESULTS ─── */
+  #screen-results {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    gap: 2rem;
+  }
+
+  .podium {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    transition: all 0.3s;
+    animation: slideUp 0.4s ease both;
+  }
+  .result-row:nth-child(1) { animation-delay: 0.05s; }
+  .result-row:nth-child(2) { animation-delay: 0.15s; }
+  .result-row:nth-child(3) { animation-delay: 0.25s; }
+  .result-row:nth-child(4) { animation-delay: 0.35s; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-row.first {
+    border-color: rgba(255,200,50,0.4);
+    background: rgba(255,200,50,0.07);
+  }
+
+  .rank {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 1.4rem;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .result-name {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 1.1rem;
+    flex: 1;
+  }
+  .result-score {
+    font-family: 'Kaisei Decol', serif;
+    font-size: 1.5rem;
+    color: var(--red);
+  }
+  .result-unit {
+    font-size: 0.75rem;
+    color: var(--wood-light);
+    letter-spacing: 0.04em;
+  }
+
+  .winner-badge {
+    font-family: 'Kaisei Decol', serif;
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
+    text-align: center;
+    color: var(--cream);
+  }
+  .winner-badge span { color: #FFD133; }
+
+  .restart-btn {
+    background: transparent;
+    color: var(--cream);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    padding: 0.9rem 2.5rem;
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .restart-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    width: 40px;
+    height: 2px;
+    background: var(--red);
+    border-radius: 1px;
+    margin: 0 auto;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+    pointer-events: none;
+    z-index: 999;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: Choose number of players -->
+<section id="screen-count" class="screen active">
+  <div class="sushi-deco">🍣</div>
+  <div class="app-header">
+    <h1>Sushi <span>Counter</span></h1>
+    <p>Quem come mais?</p>
+  </div>
+  <div class="divider"></div>
+  <p class="count-label">Quantos jogadores?</p>
+  <div class="player-grid" id="count-grid"></div>
+  <button class="next-btn" id="count-next" disabled onclick="goToNames()">Continuar →</button>
+</section>
+
+<!-- SCREEN 2: Enter names -->
+<section id="screen-names" class="screen">
+  <div class="app-header">
+    <h1>Os <span>Jogadores</span></h1>
+    <p>Digita os nomes</p>
+  </div>
+  <div class="divider"></div>
+  <div class="names-form" id="names-form"></div>
+  <button class="next-btn" onclick="goToGame()">Começar! 🥢</button>
+</section>
+
+<!-- SCREEN 3: Game -->
+<section id="screen-game" class="screen">
+  <div class="game-header">
+    <h2>🍱 Em jogo</h2>
+    <p>Carrega + quando comeres uma peça</p>
+  </div>
+
+  <div class="track-container" id="track-container">
+    <div class="track-title">Pista de sushi 🏁</div>
+    <div class="track-rail" id="track-rail">
+      <!-- tokens added dynamically -->
+    </div>
+    <div class="track-markers">
+      <span>0</span><span>·</span><span>·</span><span>·</span><span>Máx</span>
+    </div>
+    <div class="gap-indicator" id="gap-indicator"></div>
+  </div>
+
+  <div class="players-grid" id="players-grid"></div>
+
+  <div class="finish-bar">
+    <button class="finish-btn" onclick="goToResults()">Terminar contagem</button>
+  </div>
+</section>
+
+<!-- SCREEN 4: Results -->
+<section id="screen-results" class="screen">
+  <div class="sushi-deco">🏆</div>
+  <div class="app-header">
+    <h1>Resultado <span>Final</span></h1>
+    <p>O vencedor é...</p>
+  </div>
+  <div class="winner-badge" id="winner-badge"></div>
+  <div class="podium" id="podium"></div>
+  <button class="restart-btn" onclick="restart()">↺ Jogar novamente</button>
+</section>
+
+<script>
+  const EMOJIS = ['🐙','🦑','🐟','🦐'];
+  const COLORS = ['#E8392A','#4A9BE8','#3BB558','#F4A528'];
+  const TRACK_COLORS = ['rgba(232,57,42,0.6)','rgba(74,155,232,0.6)','rgba(59,181,88,0.6)','rgba(244,165,40,0.6)'];
+
+  let numPlayers = 0;
+  let players = []; // {name, count, emoji, color}
+
+  // ─── SCREEN 1 ───
+  const grid = document.getElementById('count-grid');
+  for (let i = 1; i <= 4; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'count-btn';
+    btn.textContent = i;
+    btn.onclick = () => {
+      document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      numPlayers = i;
+      document.getElementById('count-next').disabled = false;
+    };
+    grid.appendChild(btn);
+  }
+
+  function goToNames() {
+    const form = document.getElementById('names-form');
+    form.innerHTML = '';
+    for (let i = 0; i < numPlayers; i++) {
+      form.innerHTML += `
+        <div class="name-input-wrap">
+          <span class="player-emoji">${EMOJIS[i]}</span>
+          <input class="name-input" id="name-${i}" placeholder="Jogador ${i+1}" maxlength="16" />
+        </div>`;
+    }
+    showScreen('screen-names');
+  }
+
+  // ─── SCREEN 2 ───
+  function goToGame() {
+    players = [];
+    for (let i = 0; i < numPlayers; i++) {
+      const val = document.getElementById(`name-${i}`).value.trim();
+      players.push({ name: val || `Jogador ${i+1}`, count: 0, emoji: EMOJIS[i], color: COLORS[i] });
+    }
+    buildGameScreen();
+    showScreen('screen-game');
+    updateTrack();
+  }
+
+  // ─── GAME ───
+  function buildGameScreen() {
+    const grid = document.getElementById('players-grid');
+    grid.innerHTML = '';
+    const rail = document.getElementById('track-rail');
+    rail.innerHTML = '';
+
+    players.forEach((p, i) => {
+      // Card
+      const card = document.createElement('div');
+      card.className = 'player-card';
+      card.id = `card-${i}`;
+      card.innerHTML = `
+        <span class="card-emoji">${p.emoji}</span>
+        <span class="card-name">${p.name}</span>
+        <span class="card-count" id="count-${i}">0</span>
+        <span class="card-label">peças</span>
+        <button class="add-btn" onclick="addPiece(${i})">+</button>
+        <button class="undo-btn" onclick="undoPiece(${i})">desfazer</button>
+      `;
+      grid.appendChild(card);
+
+      // Token on track
+      const token = document.createElement('div');
+      token.className = 'token';
+      token.id = `token-${i}`;
+      token.textContent = p.emoji;
+      token.style.left = '0%';
+      rail.appendChild(token);
+    });
+  }
+
+  function addPiece(i) {
+    players[i].count++;
+    const el = document.getElementById(`count-${i}`);
+    el.textContent = players[i].count;
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+    updateTrack();
+    updateLeader();
+  }
+
+  function undoPiece(i) {
+    if (players[i].count > 0) {
+      players[i].count--;
+      document.getElementById(`count-${i}`).textContent = players[i].count;
+      updateTrack();
+      updateLeader();
+    }
+  }
+
+  function updateTrack() {
+    const max = Math.max(...players.map(p => p.count), 1);
+    const rail = document.getElementById('track-rail');
+    const railW = rail.offsetWidth;
+
+    players.forEach((p, i) => {
+      const pct = max > 0 ? (p.count / max) : 0;
+      const token = document.getElementById(`token-${i}`);
+      // Offset tokens slightly vertically so they don't overlap
+      const offsetY = numPlayers === 1 ? 0 : (i - (numPlayers - 1) / 2) * 0;
+      const leftPct = pct * 88 + 6; // 6% to 94%
+      token.style.left = leftPct + '%';
+      token.style.top = '50%';
+    });
+
+    // Gap indicator
+    const gap = document.getElementById('gap-indicator');
+    if (numPlayers >= 2) {
+      const sorted = [...players].sort((a, b) => b.count - a.count);
+      const leader = sorted[0];
+      const second = sorted[1];
+      if (leader.count === 0) {
+        gap.textContent = 'Ainda não começaram!';
+      } else if (leader.count === second.count) {
+        gap.textContent = `🎯 ${leader.name} e ${second.name} estão empatados!`;
+      } else {
+        const diff = leader.count - second.count;
+        gap.textContent = `${leader.emoji} ${leader.name} lidera com ${diff} peça${diff > 1 ? 's' : ''} de vantagem`;
+      }
+    } else {
+      gap.textContent = `${players[0].emoji} ${players[0].count} peças devoradas!`;
+    }
+  }
+
+  function updateLeader() {
+    const max = Math.max(...players.map(p => p.count));
+    players.forEach((p, i) => {
+      const card = document.getElementById(`card-${i}`);
+      if (p.count === max && max > 0) card.classList.add('leading');
+      else card.classList.remove('leading');
+    });
+  }
+
+  // ─── RESULTS ───
+  function goToResults() {
+    const sorted = [...players].sort((a, b) => b.count - a.count);
+    const podium = document.getElementById('podium');
+    podium.innerHTML = '';
+    const ranks = ['🥇','🥈','🥉','4️⃣'];
+    sorted.forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'result-row' + (i === 0 ? ' first' : '');
+      row.innerHTML = `
+        <span class="rank">${ranks[i]}</span>
+        <span style="font-size:1.4rem">${p.emoji}</span>
+        <span class="result-name">${p.name}</span>
+        <span class="result-score">${p.count}</span>
+        <span class="result-unit">peças</span>
+      `;
+      podium.appendChild(row);
+    });
+
+    const wb = document.getElementById('winner-badge');
+    if (sorted[0].count === 0) {
+      wb.innerHTML = `Ninguém comeu nada! 😅`;
+    } else if (numPlayers > 1 && sorted[0].count === sorted[1].count) {
+      wb.innerHTML = `<span>${sorted[0].name}</span> e <span>${sorted[1].name}</span> empataram! 🎌`;
+    } else {
+      wb.innerHTML = `<span>${sorted[0].emoji} ${sorted[0].name}</span> venceu com ${sorted[0].count} peças! 🎉`;
+    }
+
+    showScreen('screen-results');
+    if (sorted[0].count > 0) spawnConfetti();
+  }
+
+  function restart() {
+    numPlayers = 0;
+    document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('count-next').disabled = true;
+    showScreen('screen-count');
+  }
+
+  // ─── UTILS ───
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function spawnConfetti() {
+    const colors = ['#E8392A','#FFD133','#3BB558','#4A9BE8','#FDF6EC','#F4A528'];
+    for (let i = 0; i < 60; i++) {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.cssText = `
+          left: ${Math.random() * 100}vw;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          animation-duration: ${1.5 + Math.random() * 2}s;
+          animation-delay: ${Math.random() * 0.5}s;
+          width: ${6 + Math.random() * 6}px;
+          height: ${6 + Math.random() * 6}px;
+          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        `;
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+      }, i * 30);
+    }
+  }
+</script>
+</body>
+</html>
