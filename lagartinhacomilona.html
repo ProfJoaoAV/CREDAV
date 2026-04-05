@@ -107,25 +107,6 @@
   }
   .story-author { text-align: center; color: #888; font-style: italic; margin-bottom: 22px; }
 
-  .audio-box {
-    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-    border: 2px dashed var(--green); border-radius: 16px;
-    padding: 18px; margin-bottom: 26px; text-align: center;
-  }
-  .audio-box p { font-size: .9rem; color: #555; margin-bottom: 10px; }
-  .audio-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-  .audio-row input {
-    padding: 9px 14px; border: 2px solid #c8e6c9; border-radius: 10px;
-    font-family: 'Nunito', sans-serif; font-size: .9rem; flex: 1; min-width: 180px;
-  }
-  .audio-row button {
-    background: var(--green-dark); color: white; border: none;
-    border-radius: 10px; padding: 9px 18px;
-    font-family: 'Fredoka One', cursive; font-size: 1rem; cursor: pointer; transition: all .2s;
-  }
-  .audio-row button:hover { filter: brightness(1.15); transform: scale(1.04); }
-  #audio-player { width: 100%; margin-top: 12px; display: none; border-radius: 8px; }
-  #audio-ok { display: none; color: var(--green-dark); font-weight: 700; margin-top: 8px; font-size: .9rem; }
 
   .story-text { font-size: 1.1rem; line-height: 1.9; color: #333; }
   .story-text p { margin: 10px 0; }
@@ -356,15 +337,6 @@
     <h2 class="story-title">📖 A Lagartinha Comilona</h2>
     <p class="story-author">Eric Carle · Traduzido por Maria Alberta Menéres</p>
 
-    <div class="audio-box">
-      <p>🎙️ Ouve a narração da história! Cola o link do áudio abaixo:</p>
-      <div class="audio-row">
-        <input type="text" id="audioUrl" placeholder="https://... (link do ficheiro mp3 ou ogg)" />
-        <button onclick="loadAudio()">▶ Carregar</button>
-      </div>
-      <audio id="audio-player" controls></audio>
-      <p id="audio-ok">✅ Áudio carregado! Carrega em play para ouvir. 🎧</p>
-    </div>
 
     <div class="story-text">
       <p>Na luz do luar, numa noite de domingo, um pequeno ovo estava deitado sobre uma folha.</p>
@@ -510,14 +482,6 @@ function showTab(id) {
 }
 
 // ===== AUDIO =====
-function loadAudio() {
-  const url = document.getElementById('audioUrl').value.trim();
-  if(!url) return alert('Por favor, cola o link do áudio!');
-  const p = document.getElementById('audio-player');
-  p.src = url;
-  p.style.display = 'block';
-  document.getElementById('audio-ok').style.display = 'block';
-}
 
 // ===== QUIZ =====
 const QS = [
@@ -531,6 +495,11 @@ const QS = [
   {e:'🍃',q:'O que comeu a lagartinha no domingo para se sentir melhor?',opts:['Uma maçã','Um pepino','Uma folha verde','Um morango'],ans:2},
   {e:'🏠',q:'Como se chama a casinha que a lagartinha construiu?',opts:['Ninho','Casulo','Toca','Concha'],ans:1},
   {e:'🦋',q:'Em que se transformou a lagartinha no final?',opts:['Numa abelha','Numa joaninha','Numa borboleta','Num bicho-da-seda'],ans:2},
+  {e:'🍒',q:'Comeu mais morangos ou mais peras?',opts:['Mais peras','Mais morangos','Comeu igual quantidade','Mais ameixas'],ans:1},
+  {e:'➕',q:'Se juntarmos as ameixas e as laranjas, quantas frutas são no total?',opts:['6','9','8','7'],ans:2},
+  {e:'🏆',q:'Qual foi o alimento que ela comeu em maior quantidade?',opts:['As peras','Os morangos','As ameixas','As laranjas'],ans:3},
+  {e:'🤢',q:'O que aconteceu quando ela comeu comida menos saudável (doces, gelados)?',opts:['Ficou muito feliz e cheia de energia','Ficou com dor de barriga','Transformou-se em borboleta','Adormeceu logo a seguir'],ans:1},
+  {e:'🔢',q:'Quantas frutas comeu a lagartinha ao longo de toda a semana (de segunda a sexta)?',opts:['10','12','15','20'],ans:2},
 ];
 
 let qI=0, qScore=0;
@@ -622,6 +591,13 @@ const RELOAD_QS=[
   {q:'O que comeu no domingo para se sentir melhor?',opts:['Uma maçã','Um pepino','Uma folha verde','Um morango'],ans:2},
   {q:'Quantos morangos comeu na quinta-feira?',opts:['Dois','Três','Quatro','Cinco'],ans:2},
   {q:'Em que dia nasceu a lagartinha?',opts:['Sábado','Sexta-feira','Domingo','Segunda-feira'],ans:2},
+  {q:'Comeu mais morangos ou mais peras?',opts:['Mais peras','Mais morangos','Comeu igual quantidade','Mais ameixas'],ans:1},
+  {q:'Se juntarmos as ameixas e as laranjas, quantas frutas são no total?',opts:['6','9','8','7'],ans:2},
+  {q:'Qual foi o alimento que ela comeu em maior quantidade?',opts:['As peras','Os morangos','As ameixas','As laranjas'],ans:3},
+  {q:'O que aconteceu quando ela comeu comida menos saudável (doces, gelados)?',opts:['Ficou muito feliz e cheia de energia','Ficou com dor de barriga','Transformou-se em borboleta','Adormeceu logo a seguir'],ans:1},
+  {q:'Quantas frutas comeu a lagartinha ao longo de toda a semana (de segunda a sexta)?',opts:['10','12','15','20'],ans:2},
+  {q:'Em que noite apareceu o ovo da lagartinha?',opts:['Numa noite de sábado','Numa noite de domingo','Numa noite de sexta-feira','Numa noite de quinta-feira'],ans:1},
+  {q:'O que comeu a lagartinha na quarta-feira?',opts:['Três ameixas','Dois pêssegos','Quatro peras','Cinco cerejas'],ans:0},
 ];
 
 function e(ev,x,y){ ev.preventDefault(); setDir(x,y); }
