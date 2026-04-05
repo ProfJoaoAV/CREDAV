@@ -5,26 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Jornada do Milhão</title>
     
-    <!-- Importar Tailwind CSS para el diseño -->
+    <!-- Importar Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Importar React y ReactDOM (Modo Standalone para funcionar en el navegador) -->
+    <!-- Importar React e ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     
-    <!-- Importar Babel para traducir el código JSX en tiempo real -->
+    <!-- Importar Babel para traduzir o código JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-slate-900 m-0 p-0 overflow-hidden">
     
-    <!-- Donde se dibujará nuestro juego -->
+    <!-- Onde o jogo será desenhado -->
     <div id="root"></div>
 
-    <!-- Script del Juego -->
+    <!-- Script Principal do Jogo -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- COMPONENTES DE ICONOS ---
+        // --- COMPONENTES DE ÍCONES ---
         const IconPlay = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
         const IconInfo = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
         const IconTrophy = ({ size = 24, className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
@@ -48,7 +48,7 @@
             );
         };
 
-        // --- CONFIGURACIÓN DE RECURSOS ---
+        // --- RECURSOS DO JOGO ---
         const BOARD_IMG = "https://profjoaoav.github.io/CREDAV/Tabuleiro.png";
         const PAWNS = [
             { id: 1, name: "Macaco", img: "https://profjoaoav.github.io/CREDAV/Peao1.png", color: "bg-orange-500" },
@@ -57,31 +57,58 @@
             { id: 4, name: "Joaninha", img: "https://profjoaoav.github.io/CREDAV/Peao4.png", color: "bg-red-500" }
         ];
 
-        // --- DATOS DEL JUEGO ---
+        // --- 50 PERGUNTAS DE LITERACIA FINANCEIRA ---
         const QUESTIONS = [
-            // Originais
             { q: "Qual é o método de poupança correto?", options: ["A. Gastar, gastar, gastar.", "B. Ajudar, dar, poupar.", "C. Gastar, poupar, ajudar."], correct: 2 },
             { q: "De onde nasce o dinheiro?", options: ["A. Das árvores.", "B. Do céu aos trambolhões.", "C. Do trabalho."], correct: 2 },
             { q: "Tinhas 5€ no mealheiro e poupaste 2€. Com quanto ficaste?", options: ["A. 7,50€", "B. 6€", "C. 7€"], correct: 2 },
             { q: "O que é poupar?", options: ["A. Gastares todo o teu dinheiro.", "B. Guardares dinheiro para sonhos.", "C. Pedires dinheiro aos teus pais."], correct: 1 },
             { q: "Como podes poupar o planeta?", options: ["A. Deitares lixo para o chão.", "B. Desligares luzes e torneiras.", "C. Fazeres a dança da chuva."], correct: 1 },
             { q: "O que é um mealheiro?", options: ["A. Um utensílio de cozinha.", "B. Sítio onde guardas poupanças.", "C. Um objeto decorativo."], correct: 1 },
-            
-            // Novas Perguntas (14)
             { q: "Recebeste a tua mesada. O que deves fazer primeiro?", options: ["A. Comprar logo guloseimas.", "B. Guardar uma parte no mealheiro.", "C. Gastar tudo no mesmo dia."], correct: 1 },
-            { q: "Foste ao supermercado. Qual destes é uma \"necessidade\"?", options: ["A. Um pacote de bolachas.", "B. Um brinquedo novo.", "C. Pão para o lanche."], correct: 2 },
+            { q: "Foste ao supermercado. Qual destes é uma \"necessidade\"?", options: ["A. Um pacote de bolachas.", "B. Um brinquedo novo.", "C. Pão para o pequeno-almoço."], correct: 2 },
             { q: "Queres comprar um jogo de 20€, mas só tens 15€. O que fazes?", options: ["A. Choras até os teus pais comprarem.", "B. Esperas e poupas até teres os 20€.", "C. Gastas logo os 15€ noutra coisa."], correct: 1 },
             { q: "O que significa \"Fazer um orçamento\"?", options: ["A. Planear como vais usar o teu dinheiro.", "B. Ir ao banco pedir um empréstimo.", "C. Uma receita para um bolo."], correct: 0 },
             { q: "Se a água estiver a correr enquanto lavas os dentes...", options: ["A. Poupas água e dinheiro.", "B. Gastas água e a conta fica mais cara.", "C. Os dentes ficam mais limpos."], correct: 1 },
-            { q: "O que é uma \"mesada\" ou \"semanada\"?", options: ["A. Uma multa por te portares mal.", "B. Dinheiro para gastar só em doces.", "C. Dinheiro que recebes para gerir."], correct: 2 },
+            { q: "O que é uma \"mesada\" ou \"semanada\"?", options: ["A. Uma multa por te portares mal.", "B. Dinheiro para gastar só em doces.", "C. Dinheiro que recebes para aprenderes a gerir."], correct: 2 },
             { q: "O que é um \"desejo\"?", options: ["A. Algo que precisas para viver (ex: água).", "B. Algo que gostavas de ter, mas não é urgente.", "C. Dinheiro guardado no banco."], correct: 1 },
             { q: "Encontraste 1€ na escola e sabes de quem é. O que fazes?", options: ["A. Devolves ao dono.", "B. Guardas no teu mealheiro.", "C. Vais a correr comprar um sumo."], correct: 0 },
             { q: "A eletricidade custa dinheiro. Como podes ajudar a poupar?", options: ["A. Deixar a televisão sempre ligada.", "B. Desligar a luz quando sais do quarto.", "C. Abrir o frigorífico muitas vezes."], correct: 1 },
-            { q: "O que deves fazer antes de ires às compras?", options: ["A. Fazer uma lista do que precisas.", "B. Levar o carrinho maior do supermercado.", "C. Ir com muita fome."], correct: 0 },
+            { q: "O que deves fazer antes de ires às compras?", options: ["A. Fazer uma lista do que precisas.", "B. Levar o carrinho maior do supermercado.", "C. Ir com muita fome para comprar mais."], correct: 0 },
             { q: "Poupaste 10€ num mês e 5€ no outro. Quanto tens agora?", options: ["A. 10€", "B. 15€", "C. 20€"], correct: 1 },
             { q: "O que é melhor para o ambiente e para a tua carteira?", options: ["A. Usar uma garrafa de água reutilizável.", "B. Comprar uma garrafa nova todos os dias.", "C. Deixar as luzes acesas de dia."], correct: 0 },
             { q: "Tens dinheiro guardado num banco. Como se chama a conta?", options: ["A. Conta de Guloseimas.", "B. Conta Poupança.", "C. Conta de Esconderijo."], correct: 1 },
-            { q: "Se quiseres ajudar quem mais precisa, o que podes fazer?", options: ["A. Doar uma parte da poupança ou brinquedos.", "B. Gastar o dinheiro todo num jogo só teu.", "C. Esconder o mealheiro."], correct: 0 }
+            { q: "Se quiseres ajudar quem mais precisa, o que podes fazer?", options: ["A. Doar uma parte da poupança ou roupa que não usas.", "B. Gastar o dinheiro todo num jogo só para ti.", "C. Esconder o teu mealheiro."], correct: 0 },
+            { q: "Foste ao shopping e viste uns ténis caros de que não precisas. O que fazes?", options: ["A. Compro logo.", "B. Peço dinheiro emprestado aos amigos.", "C. Penso bem se preciso mesmo deles antes de gastar."], correct: 2 },
+            { q: "O que é o juro de um depósito bancário?", options: ["A. Dinheiro que o banco te paga por guardares lá o teu dinheiro.", "B. Um imposto obrigatório.", "C. O preço de abrir a porta do banco."], correct: 0 },
+            { q: "O que significa \"comprar por impulso\"?", options: ["A. Planear uma compra durante meses.", "B. Comprar algo de repente, sem pensar se é preciso.", "C. Fazer as compras normais do supermercado."], correct: 1 },
+            { q: "Se a tua mochila escolar se rasgar um bocadinho, qual é a atitude mais poupada?", options: ["A. Deitá-la ao lixo e pedir aos pais uma nova.", "B. Tentar coser e arranjar.", "C. Deixar andar até cair tudo no chão."], correct: 1 },
+            { q: "O que deves fazer quando recebes dinheiro nos anos (aniversário)?", options: ["A. Gastar tudo no próprio dia em guloseimas.", "B. Guardar pelo menos uma parte no teu mealheiro.", "C. Esconder debaixo do tapete e esquecer."], correct: 1 },
+            { q: "Para que serve um multibanco (ATM)?", options: ["A. Para dar dinheiro de graça a quem pedir.", "B. Para jogar videojogos na rua.", "C. Para levantar o dinheiro que temos na nossa conta."], correct: 2 },
+            { q: "Qual é a vantagem de comparar preços antes de comprar um brinquedo?", options: ["A. Encontrar a loja mais barata e poupar dinheiro.", "B. Demorar mais tempo nas lojas a chatear os pais.", "C. Nenhuma, os preços são iguais em todo o lado."], correct: 0 },
+            { q: "Qual destes é considerado um \"bem essencial\"?", options: ["A. Uma consola de jogos de última geração.", "B. Água, comida e habitação.", "C. Uma camisola de marca muito cara."], correct: 1 },
+            { q: "Como podes poupar dinheiro na escola?", options: ["A. Levar o lanche de casa em vez de comprar sempre no bar.", "B. Perder os lápis todos os dias para comprar novos.", "C. Rasgar os cadernos para usar cadernos novos."], correct: 0 },
+            { q: "O que quer dizer a expressão \"o barato sai caro\"?", options: ["A. Que as coisas baratas são sempre as melhores do mundo.", "B. Que comprar produtos fracos obriga a gastar mais para os substituir.", "C. Que não deves poupar dinheiro nunca."], correct: 1 },
+            { q: "Se a tua mesada acabar antes do fim do mês, o que deves fazer?", options: ["A. Esperar pelo próximo mês e aprender a gerir melhor.", "B. Fazer uma birra para receber mais.", "C. Pedir dinheiro emprestado a toda a gente."], correct: 0 },
+            { q: "Qual é a vantagem de comprar produtos locais ou da época?", options: ["A. Apoias a economia local e costumam ser mais baratos.", "B. São piores que os outros.", "C. Vêm de avião e são muito caros."], correct: 0 },
+            { q: "O que é o desperdício invisível?", options: ["A. Deixar os aparelhos em standby a consumir energia.", "B. Deitar o lixo no caixote certo.", "C. Perder moedas de 1 cêntimo na rua."], correct: 0 },
+            { q: "Um amigo quer um jogo igual ao teu. O que lhe podes propor?", options: ["A. Obrigar a ir comprar um novo.", "B. Ignorar e jogar sozinho.", "C. Emprestar o teu jogo depois de já o teres jogado."], correct: 2 },
+            { q: "O que significa 'Custo de Oportunidade'?", options: ["A. Uma festa onde te oferecem coisas.", "B. Ao escolheres comprar algo, perdes a oportunidade de comprar outra coisa.", "C. O preço mais baixo da loja."], correct: 1 },
+            { q: "Tens de dar um presente a um amigo, mas tens pouco dinheiro. O que fazes?", options: ["A. Fazes tu próprio uma prenda criativa em casa.", "B. Faltas à festa dele para não dar nada.", "C. Gastas o dinheiro que era para o teu almoço."], correct: 0 },
+            { q: "Como podes poupar nas viagens para a escola?", options: ["A. Ir de táxi todos os dias.", "B. Pedir um helicóptero.", "C. Ir a pé, de bicicleta ou partilhar boleia com colegas."], correct: 2 },
+            { q: "Por que não deves guardar o código (PIN) junto ao cartão multibanco?", options: ["A. Porque o banco não deixa escrever em papéis.", "B. Se perderes a carteira, podem roubar o teu dinheiro.", "C. Para treinar a tua memória fotográfica."], correct: 1 },
+            { q: "A tua mochila antiga ainda está boa, mas os teus amigos têm mochilas novas.", options: ["A. Usas a do ano passado, poupas dinheiro e o ambiente.", "B. Choras por uma nova até os teus pais cederem.", "C. Cortas a mochila antiga para teres a desculpa de comprar outra."], correct: 0 },
+            { q: "O que é um 'Consumidor Responsável'?", options: ["A. Alguém que compra tudo o que vê nos anúncios.", "B. Alguém que não gasta dinheiro absolutamente nenhum.", "C. Alguém que pensa antes de comprar e evita o desperdício."], correct: 2 },
+            { q: "Onde podes encontrar livros para ler sem gastar dinheiro?", options: ["A. Numa loja de brinquedos.", "B. Na biblioteca escolar ou municipal.", "C. Num restaurante."], correct: 1 },
+            { q: "Se vires luzes acesas numa divisão de casa onde não está ninguém, deves:", options: ["A. Deixar acesas para os móveis não terem medo do escuro.", "B. Ligar também a televisão para fazer barulho.", "C. Apagá-las imediatamente para poupar energia."], correct: 2 },
+            { q: "Para que serve a maioria da publicidade na televisão?", options: ["A. Tentar convencer-te a comprar produtos de que talvez não precises.", "B. Ensinar aulas de matemática financeiras.", "C. Apenas decorar o ecrã com cores bonitas."], correct: 0 },
+            { q: "Qual é o primeiro passo para alcançares um objetivo financeiro (ex: uma bicicleta)?", options: ["A. Saber quanto custa e começar a poupar um bocadinho de cada vez.", "B. Sentar no sofá e esperar que chova dinheiro.", "C. Desistir porque é muito caro."], correct: 0 },
+            { q: "Se tiveres roupa que já não te serve, mas que está boa, o que é melhor fazer?", options: ["A. Deitar no caixote do lixo normal.", "B. Doar a instituições, amigos ou familiares mais novos.", "C. Queimar tudo no quintal."], correct: 1 },
+            { q: "O que é a 'garantia' de um produto novo?", options: ["A. Um documento que te permite arranjar ou trocar se tiver defeito.", "B. O embrulho bonito que vem à volta da caixa.", "C. Um autocolante autografado pelo presidente da loja."], correct: 0 },
+            { q: "Quando deitas papel no ecoponto azul (reciclagem), estás a:", options: ["A. Poluir a água da tua cidade.", "B. Ajudar a reciclar, proteger as florestas e a economia circular.", "C. Gastar dinheiro em impostos desnecessários."], correct: 1 },
+            { q: "Qual destas é uma despesa variável (muda todos os meses)?", options: ["A. A mensalidade fixa da tua escola de futebol.", "B. A renda que se paga pela casa.", "C. A conta da água, que depende do que gastas."], correct: 2 },
+            { q: "Em vez de comprares garrafas de plástico de água todos os dias, deves:", options: ["A. Comprar uma garrafa reutilizável e enchê-la em casa.", "B. Não beber água para poupar.", "C. Beber da torneira com as mãos na escola."], correct: 0 },
+            { q: "Poupar dinheiro desde pequeno ensina-nos a ter:", options: ["A. Medo de ir ao banco e falar com os funcionários.", "B. Fome constante de comer doces.", "C. Paciência, planeamento e responsabilidade para o futuro."], correct: 2 }
         ];
 
         const LUCK_CARDS = [
@@ -93,106 +120,50 @@
             { text: "Vais ficar a próxima jogada sem jogar.", action: "SKIP", value: 1 }
         ];
 
-        // --- RUTA FINAL DEL JUEGO ---
-        // Coordenadas mapeadas meticulosamente
+        // --- ROTA DO TABULEIRO (As tuas coordenadas exatas) ---
         const PATH = [
-            { x: 3.8, y: 93.2 }, // Casa 0
-            { x: 8.2, y: 93.8 }, // Casa 1
-            { x: 12.6, y: 93.2 }, // Casa 2
-            { x: 16.2, y: 93.2 }, // Casa 3
-            { x: 19.9, y: 93.8 }, // Casa 4
-            { x: 22.8, y: 91.5 }, // Casa 5
-            { x: 25.6, y: 88.6 }, // Casa 6
-            { x: 27.3, y: 82.9 }, // Casa 7
-            { x: 27.1, y: 75.5 }, // Casa 8
-            { x: 25.8, y: 69.2 }, // Casa 9
-            { x: 22.2, y: 64.2 }, // Casa 10
-            { x: 18.8, y: 62 }, // Casa 11
-            { x: 16.5, y: 58.3 }, // Casa 12
-            { x: 13.4, y: 54.2 }, // Casa 13
-            { x: 10.9, y: 48.7 }, // Casa 14
-            { x: 10.3, y: 44.8 }, // Casa 15
-            { x: 9.8, y: 37.6 }, // Casa 16
-            { x: 9.2, y: 30.9 }, // Casa 17
-            { x: 8.9, y: 25.8 }, // Casa 18
-            { x: 11.1, y: 20 }, // Casa 19
-            { x: 13.2, y: 15.2 }, // Casa 20
-            { x: 16, y: 12.4 }, // Casa 21
-            { x: 19.8, y: 9.1 }, // Casa 22
-            { x: 22.6, y: 8 }, // Casa 23
-            { x: 25.7, y: 8 }, // Casa 24
-            { x: 28.2, y: 9.1 }, // Casa 25
-            { x: 31.8, y: 12.3 }, // Casa 26
-            { x: 32, y: 20.2 }, // Casa 27
-            { x: 28.5, y: 25.4 }, // Casa 28
-            { x: 25.9, y: 30.7 }, // Casa 29
-            { x: 24.8, y: 36.1 }, // Casa 30
-            { x: 25.5, y: 44.4 }, // Casa 31
-            { x: 28.4, y: 47.2 }, // Casa 32
-            { x: 30.5, y: 51.1 }, // Casa 33
-            { x: 32.9, y: 55.1 }, // Casa 34
-            { x: 34.3, y: 61.2 }, // Casa 35
-            { x: 34.7, y: 67.2 }, // Casa 36
-            { x: 34.6, y: 72.3 }, // Casa 37
-            { x: 35.2, y: 80.5 }, // Casa 38
-            { x: 36.1, y: 86 }, // Casa 39
-            { x: 38.6, y: 91.4 }, // Casa 40
-            { x: 41.5, y: 94.5 }, // Casa 41
-            { x: 44.1, y: 93.8 }, // Casa 42
-            { x: 46.7, y: 90.1 }, // Casa 43
-            { x: 47.7, y: 85.1 }, // Casa 44
-            { x: 49, y: 79 }, // Casa 45
-            { x: 48.3, y: 73.3 }, // Casa 46
-            { x: 48, y: 67.9 }, // Casa 47
-            { x: 46.9, y: 62.7 }, // Casa 48
-            { x: 46.1, y: 55.7 }, // Casa 49
-            { x: 44, y: 48.5 }, // Casa 50
-            { x: 41.4, y: 45.3 }, // Casa 51
-            { x: 41.4, y: 39.8 }, // Casa 52
-            { x: 40.6, y: 34.3 }, // Casa 53
-            { x: 40.5, y: 28.7 }, // Casa 54
-            { x: 41.4, y: 22.6 }, // Casa 55
-            { x: 43.2, y: 18.7 }, // Casa 56
-            { x: 44.8, y: 14.7 }, // Casa 57
-            { x: 48.3, y: 11.9 }, // Casa 58
-            { x: 51.1, y: 10.2 }, // Casa 59
-            { x: 54.9, y: 10.2 }, // Casa 60
-            { x: 58.6, y: 8.7 }, // Casa 61
-            { x: 62.8, y: 8.4 }, // Casa 62
-            { x: 65.9, y: 11 }, // Casa 63
-            { x: 66.7, y: 19.3 }, // Casa 64
-            { x: 63.8, y: 28 }, // Casa 65
-            { x: 60.2, y: 30.9 }, // Casa 66
-            { x: 57.9, y: 32.2 }, // Casa 67
-            { x: 54.6, y: 35.5 }, // Casa 68
-            { x: 52, y: 39.6 }, // Casa 69
-            { x: 51.1, y: 47.2 }, // Casa 70
-            { x: 53.3, y: 53.1 }, // Casa 71
-            { x: 57.1, y: 55.9 }, // Casa 72
-            { x: 61.1, y: 57.2 }, // Casa 73
-            { x: 63.5, y: 56.2 }, // Casa 74
-            { x: 67.1, y: 53.1 }, // Casa 75
-            { x: 69.5, y: 51.8 }, // Casa 76
-            { x: 72.6, y: 50.9 }, // Casa 77
-            { x: 75.4, y: 48.9 }, // Casa 78
-            { x: 79.8, y: 50 }, // Casa 79
-            { x: 86.1, y: 45 } // Casa 80
+            { x: 3.8, y: 93.2 }, { x: 8.2, y: 93.8 }, { x: 12.6, y: 93.2 }, { x: 16.2, y: 93.2 }, { x: 19.9, y: 93.8 }, 
+            { x: 22.8, y: 91.5 }, { x: 25.6, y: 88.6 }, { x: 27.3, y: 82.9 }, { x: 27.1, y: 75.5 }, { x: 25.8, y: 69.2 }, 
+            { x: 22.2, y: 64.2 }, { x: 18.8, y: 62 }, { x: 16.5, y: 58.3 }, { x: 13.4, y: 54.2 }, { x: 10.9, y: 48.7 }, 
+            { x: 10.3, y: 44.8 }, { x: 9.8, y: 37.6 }, { x: 9.2, y: 30.9 }, { x: 8.9, y: 25.8 }, { x: 11.1, y: 20 }, 
+            { x: 13.2, y: 15.2 }, { x: 16, y: 12.4 }, { x: 19.8, y: 9.1 }, { x: 22.6, y: 8 }, { x: 25.7, y: 8 }, 
+            { x: 28.2, y: 9.1 }, { x: 31.8, y: 12.3 }, { x: 32, y: 20.2 }, { x: 28.5, y: 25.4 }, { x: 25.9, y: 30.7 }, 
+            { x: 24.8, y: 36.1 }, { x: 25.5, y: 44.4 }, { x: 28.4, y: 47.2 }, { x: 30.5, y: 51.1 }, { x: 32.9, y: 55.1 }, 
+            { x: 34.3, y: 61.2 }, { x: 34.7, y: 67.2 }, { x: 34.6, y: 72.3 }, { x: 35.2, y: 80.5 }, { x: 36.1, y: 86 }, 
+            { x: 38.6, y: 91.4 }, { x: 41.5, y: 94.5 }, { x: 44.1, y: 93.8 }, { x: 46.7, y: 90.1 }, { x: 47.7, y: 85.1 }, 
+            { x: 49, y: 79 }, { x: 48.3, y: 73.3 }, { x: 48, y: 67.9 }, { x: 46.9, y: 62.7 }, { x: 46.1, y: 55.7 }, 
+            { x: 44, y: 48.5 }, { x: 41.4, y: 45.3 }, { x: 41.4, y: 39.8 }, { x: 40.6, y: 34.3 }, { x: 40.5, y: 28.7 }, 
+            { x: 41.4, y: 22.6 }, { x: 43.2, y: 18.7 }, { x: 44.8, y: 14.7 }, { x: 48.3, y: 11.9 }, { x: 51.1, y: 10.2 }, 
+            { x: 54.9, y: 10.2 }, { x: 58.6, y: 8.7 }, { x: 62.8, y: 8.4 }, { x: 65.9, y: 11 }, { x: 66.7, y: 19.3 }, 
+            { x: 63.8, y: 28 }, { x: 60.2, y: 30.9 }, { x: 57.9, y: 32.2 }, { x: 54.6, y: 35.5 }, { x: 52, y: 39.6 }, 
+            { x: 51.1, y: 47.2 }, { x: 53.3, y: 53.1 }, { x: 57.1, y: 55.9 }, { x: 61.1, y: 57.2 }, { x: 63.5, y: 56.2 }, 
+            { x: 67.1, y: 53.1 }, { x: 69.5, y: 51.8 }, { x: 72.6, y: 50.9 }, { x: 75.4, y: 48.9 }, { x: 79.8, y: 50 }, 
+            { x: 86.1, y: 45 } 
         ];
 
-        // --- CASILLAS ESPECIALES ---
+        // --- CASAS ESPECIAIS (Distribuição) ---
         const SPECIAL_TILES = {
-            4: { type: 'luck' }, 5: { type: 'question' }, 7: { type: 'luck' }, 9: { type: 'candy' }, 
-            13: { type: 'question' }, 18: { type: 'dice' }, 25: { type: 'question' }, 26: { type: 'luck' },
-            28: { type: 'piggy' }, 30: { type: 'piggy' }, 35: { type: 'piggy' }, 43: { type: 'luck' },
-            46: { type: 'arrow' }, 48: { type: 'piggy' }, 52: { type: 'piggy' }, 58: { type: 'luck' },
-            59: { type: 'question' }, 64: { type: 'piggy' }, 67: { type: 'dice' }, 71: { type: 'piggy' },
-            72: { type: 'luck' }, 75: { type: 'redX' }, 78: { type: 'luck' },
-            
-            // Novas casas de perguntas adicionadas para perfazer 15 no total:
-            11: { type: 'question' }, 16: { type: 'question' }, 21: { type: 'question' },
-            33: { type: 'question' }, 38: { type: 'question' }, 41: { type: 'question' },
-            50: { type: 'question' }, 55: { type: 'question' }, 61: { type: 'question' },
-            69: { type: 'question' }, 76: { type: 'question' }
+            // Sorte/Azar (7)
+            4: { type: 'luck' }, 7: { type: 'luck' }, 26: { type: 'luck' }, 43: { type: 'luck' }, 58: { type: 'luck' }, 72: { type: 'luck' }, 78: { type: 'luck' },
+            // Doces (1)
+            9: { type: 'candy' }, 
+            // Porquinhos - Salto (7)
+            28: { type: 'piggy' }, 30: { type: 'piggy' }, 35: { type: 'piggy' }, 48: { type: 'piggy' }, 52: { type: 'piggy' }, 64: { type: 'piggy' }, 71: { type: 'piggy' },
+            // Dado Extra (2)
+            18: { type: 'dice' }, 67: { type: 'dice' }, 
+            // Avanço Direto (1)
+            46: { type: 'arrow' }, 
+            // Mealheiro Partido (1)
+            75: { type: 'redX' }, 
+            // Perguntas (Aumentado para 30 casas)
+            2: { type: 'question' }, 5: { type: 'question' }, 8: { type: 'question' }, 11: { type: 'question' }, 
+            13: { type: 'question' }, 14: { type: 'question' }, 16: { type: 'question' }, 19: { type: 'question' }, 
+            21: { type: 'question' }, 23: { type: 'question' }, 25: { type: 'question' }, 29: { type: 'question' }, 
+            32: { type: 'question' }, 33: { type: 'question' }, 36: { type: 'question' }, 38: { type: 'question' }, 
+            40: { type: 'question' }, 41: { type: 'question' }, 44: { type: 'question' }, 49: { type: 'question' }, 
+            50: { type: 'question' }, 53: { type: 'question' }, 55: { type: 'question' }, 57: { type: 'question' }, 
+            59: { type: 'question' }, 61: { type: 'question' }, 63: { type: 'question' }, 69: { type: 'question' }, 
+            70: { type: 'question' }, 76: { type: 'question' }
         };
 
         function App() {
@@ -223,7 +194,6 @@
                 
                 let updatedPlayers = [...players];
                 let loopCount = 0;
-                // Saltar turnos si el jugador está penalizado en la casilla de dulces
                 while (nextPlayer.skipTurns > 0 && loopCount < players.length) {
                     updatedPlayers[nextIdx].skipTurns -= 1;
                     nextIdx = (nextIdx + 1) % players.length;
@@ -236,7 +206,7 @@
                 setDiceRoll(null);
             };
 
-            // --- ANIMACIÓN DEL DADO ---
+            // --- ANIMAR DADO ---
             const rollDice = () => {
                 if (isRolling || modal.isOpen) return;
                 setIsRolling(true);
@@ -260,15 +230,14 @@
                     newPlayers[idx].pos = newPos;
                     return newPlayers;
                 });
-                // Esperar a que termine la animación antes de activar la casilla especial
                 setTimeout(() => { if (cb) cb(); }, 600);
             };
 
-            // --- REGLA DE LLEGADA EXACTA ---
             const handleMovement = (roll) => {
                 const player = players[currentPlayerIdx];
                 let targetPos = player.pos + roll;
 
+                // REGRA: Chegar exatamente à casa 80
                 if (targetPos >= PATH.length) {
                     targetPos = player.pos; 
                     setModal({ isOpen: true, type: 'info', data: { title: "Quase lá!", text: "Precisas do número exato para chegar à meta. Passa a vez." }});
@@ -277,7 +246,7 @@
                 updatePlayerPosition(currentPlayerIdx, targetPos, () => checkTileEvent(targetPos));
             };
 
-            // --- MANEJADOR DE EVENTOS DE CASILLAS ---
+            // --- AÇÕES DAS CASAS ---
             const checkTileEvent = (pos) => {
                 if (pos === PATH.length - 1) {
                     setGameState('ENDED');
@@ -329,11 +298,22 @@
                 }
             };
 
+            // Processar Popups
             const handleModalAction = (actionData) => {
                 setModal({ isOpen: false, type: '', data: null });
                 if (actionData?.extraTurn) { setDiceRoll(null); return; }
-                if (actionData?.advanceTo !== undefined) { updatePlayerPosition(currentPlayerIdx, actionData.advanceTo, () => checkTileEvent(actionData.advanceTo)); return; }
-                if (actionData?.advance !== undefined) { const newPos = Math.min(PATH.length - 1, players[currentPlayerIdx].pos + actionData.advance); updatePlayerPosition(currentPlayerIdx, newPos, () => checkTileEvent(newPos)); return; }
+                
+                // Salto do Porquinho - Termina o turno imediatamente após viajar para evitar reações em cadeia
+                if (actionData?.advanceTo !== undefined) { 
+                    updatePlayerPosition(currentPlayerIdx, actionData.advanceTo, () => endTurn()); 
+                    return; 
+                }
+                
+                if (actionData?.advance !== undefined) { 
+                    const newPos = Math.min(PATH.length - 1, players[currentPlayerIdx].pos + actionData.advance); 
+                    updatePlayerPosition(currentPlayerIdx, newPos, () => checkTileEvent(newPos)); 
+                    return; 
+                }
                 endTurn();
             };
 
@@ -355,7 +335,7 @@
                 endTurn();
             };
 
-            // --- VISTA DE CONFIGURACIÓN ---
+            // --- VISTA DE CONFIGURAÇÃO ---
             if (gameState === 'SETUP') {
                 return (
                     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 md:p-8 text-white font-sans overflow-y-auto relative">
@@ -397,7 +377,7 @@
                 );
             }
 
-            // --- VISTA DE FIN DEL JUEGO ---
+            // --- VISTA DE FIM DE JOGO ---
             if (gameState === 'ENDED') {
                 return (
                     <div className="min-h-screen bg-emerald-600 flex flex-col items-center justify-center p-8 text-white font-sans text-center">
@@ -412,13 +392,12 @@
                 );
             }
 
-            // --- VISTA PRINCIPAL DEL TABLERO ---
+            // --- VISTA DO TABULEIRO E PAINEL ---
             return (
                 <div className="flex flex-col lg:flex-row h-screen w-full bg-slate-100 font-sans overflow-hidden relative">
                     
-                    {/* TABLERO (IZQUIERDA) */}
+                    {/* TABULEIRO (LADO ESQUERDO) */}
                     <div className="flex-1 h-[55vh] lg:h-full p-2 md:p-8 flex items-center justify-center bg-slate-800 relative z-10 overflow-hidden">
-                        
                         <div className="relative inline-block shadow-2xl rounded border-4 border-slate-700 bg-slate-900">
                             <img 
                                 src={BOARD_IMG} 
@@ -427,7 +406,8 @@
                             />
 
                             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded">
-                                {/* Marcadores Visuais Virtuais para Casas de Pergunta */}
+                                
+                                {/* 1. Renderizar os Marcadores de Pergunta Virtuais (?) */}
                                 {Object.entries(SPECIAL_TILES).map(([posStr, tile]) => {
                                     if (tile.type !== 'question') return null;
                                     const pos = parseInt(posStr);
@@ -451,6 +431,7 @@
                                     );
                                 })}
 
+                                {/* 2. Renderizar os Peões dos Jogadores */}
                                 {players.map((player, idx) => {
                                     const posData = PATH[player.pos];
                                     if(!posData) return null; 
@@ -458,7 +439,6 @@
                                     const playersInSameHouse = players.filter(p => p.pos === player.pos);
                                     const pIndex = playersInSameHouse.findIndex(p => p.id === player.id);
                                     
-                                    // Separación sutil si dos peones caen en la misma casilla
                                     const offsetX = pIndex === 0 ? 0 : pIndex === 1 ? 1.5 : pIndex === 2 ? -1.5 : 0;
                                     const offsetY = pIndex === 0 ? 0 : pIndex === 1 ? 1 : pIndex === 2 ? -1 : -1;
 
@@ -471,7 +451,7 @@
                                                 top: `calc(${posData.y}% + ${offsetY}%)`,
                                                 width: '8%', height: '8%',
                                                 minWidth: '35px', minHeight: '35px',
-                                                transform: 'translate(-50%, -85%)' // Ancla de posicionamiento exacto
+                                                transform: 'translate(-50%, -85%)'
                                             }}
                                         >
                                             <img 
@@ -489,7 +469,7 @@
                         </div>
                     </div>
 
-                    {/* PANEL DE CONTROL (DERECHA) */}
+                    {/* PAINEL DE INFORMAÇÃO E CONTROLOS (LADO DIREITO) */}
                     <div className="w-full lg:w-[350px] xl:w-[400px] h-[45vh] lg:h-full bg-white flex flex-col shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.2)] z-30 overflow-y-auto relative">
                         
                         <div className="text-white p-4 text-center shrink-0 bg-emerald-600 transition-colors">
@@ -546,7 +526,7 @@
                         </div>
                     </div>
 
-                    {/* MODALES DE JUEGO (Popups) */}
+                    {/* MODAIS (Popups de Alerta / Perguntas) */}
                     {modal.isOpen && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4">
                             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transition-all transform scale-100">
@@ -606,7 +586,7 @@
             );
         }
 
-        // --- INICIALIZACIÓN DE REACT EN EL NAVEGADOR ---
+        // --- ARRANQUE DA APLICAÇÃO ---
         const rootElement = document.getElementById('root');
         const root = ReactDOM.createRoot(rootElement);
         root.render(<App />);
