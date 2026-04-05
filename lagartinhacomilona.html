@@ -195,6 +195,23 @@
     box-shadow: 0 6px 16px rgba(76,175,80,0.4); transition: all .25s;
   }
   .next-btn:hover { transform: translateY(-2px); }
+
+  .group-break {
+    display: none; text-align: center; background: white;
+    border-radius: 24px; padding: 36px 28px;
+    box-shadow: var(--shadow); border: 3px solid #ffe082;
+  }
+  .group-break h2 { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--orange); margin-bottom: 10px; }
+  .group-break p { font-size: 1.1rem; color: #555; margin-bottom: 22px; }
+  .group-break .gb-emoji { font-size: 3.5rem; display: block; margin-bottom: 10px; }
+  .continue-btn {
+    background: linear-gradient(135deg, #ff9800, #e65100);
+    color: white; border: none; border-radius: 50px;
+    padding: 14px 38px; font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(255,152,0,0.4); transition: all .25s;
+  }
+  .continue-btn:hover { transform: translateY(-3px); }
   .q-result {
     display: none; text-align: center; background: white;
     border-radius: 24px; padding: 40px 28px;
@@ -249,6 +266,8 @@
   .gbtn.start  { background: #4caf50; color: white; }
   .gbtn.pause  { background: var(--orange); color: white; }
   .gbtn.reload { background: #7b1fa2; color: white; }
+  .gbtn.calm  { background: #0288d1; color: white; }
+  .gbtn.calm.active { background: #01579b; outline: 3px solid #ffeb3b; }
   .gbtn:hover  { transform: translateY(-2px); filter: brightness(1.1); }
   .gbtn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
@@ -307,6 +326,46 @@
   .m-opt.bad { background: #ffebee; border-color: var(--red); color: var(--red); }
   #m-fb { margin-top: 12px; font-family: 'Fredoka One', cursive; font-size: 1.1rem; display: none; }
 
+
+  /* ACCESSIBILITY TOOLBAR */
+  .a11y-bar {
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+    padding: 10px 16px; background: #fff9c4; border-bottom: 2px solid #f9a825;
+    flex-wrap: wrap;
+  }
+  .a11y-bar span { font-size: .9rem; font-weight: 700; color: #555; }
+  .a11y-btn {
+    border: 2px solid #f9a825; background: white; border-radius: 8px;
+    padding: 6px 14px; font-family: 'Fredoka One', cursive; font-size: .95rem;
+    cursor: pointer; transition: all .2s; color: #333;
+  }
+  .a11y-btn:hover, .a11y-btn.active { background: #f9a825; color: white; }
+
+  /* Large text mode */
+  body.large-text .story-text { font-size: 1.4rem !important; line-height: 2.1 !important; }
+  body.large-text .q-text { font-size: 1.7rem !important; }
+  body.large-text .q-opt  { font-size: 1.2rem !important; padding: 18px 20px !important; }
+  body.large-text .day-label { font-size: 1.35rem !important; }
+  body.large-text .m-q   { font-size: 1.4rem !important; }
+  body.large-text .m-opt { font-size: 1.2rem !important; padding: 16px 18px !important; }
+
+  /* High contrast mode */
+  body.high-contrast { background: #000 !important; color: #fff !important; }
+  body.high-contrast .story-card,
+  body.high-contrast .quiz-card,
+  body.high-contrast .quiz-intro,
+  body.high-contrast .game-info { background: #111 !important; border-color: #fff !important; color: #fff !important; }
+  body.high-contrast .story-text,
+  body.high-contrast .story-text p { color: #fff !important; }
+  body.high-contrast .day-block { background: #1a1a1a !important; }
+  body.high-contrast .q-opt { background: #1a1a1a !important; border-color: #fff !important; color: #fff !important; }
+  body.high-contrast .q-opt:hover { background: #333 !important; }
+  body.high-contrast .tabs { background: #111 !important; border-color: #555 !important; }
+  body.high-contrast .a11y-bar { background: #222 !important; border-color: #fff !important; }
+  body.high-contrast .a11y-btn { background: #333 !important; color: #fff !important; border-color: #fff !important; }
+  body.high-contrast .hud-box { background: #111 !important; color: #fff !important; }
+  body.high-contrast .hud-box .lbl { color: #ccc !important; }
+
   footer {
     text-align: center; padding: 20px; color: #888;
     font-size: .82rem; border-top: 2px solid #e0e0e0; margin-top: 40px;
@@ -330,6 +389,13 @@
   <button class="tab-btn" onclick="showTab('quiz')">❓ Perguntas</button>
   <button class="tab-btn" onclick="showTab('game')">🎮 Jogo</button>
 </nav>
+
+
+<div class="a11y-bar">
+  <span>♿ Acessibilidade:</span>
+  <button class="a11y-btn" id="btnFont" onclick="toggleFont()">🔤 Letra Grande</button>
+  <button class="a11y-btn" id="btnContrast" onclick="toggleContrast()">🌓 Alto Contraste</button>
+</div>
 
 <!-- STORY -->
 <section id="story" class="section active">
@@ -387,7 +453,7 @@
 <section id="quiz" class="section">
   <div id="quiz-intro" class="quiz-intro">
     <h2>❓ Perguntas de Interpretação</h2>
-    <p>Leste a história com atenção? 🐛<br>São <strong>15 perguntas</strong> para verificarmos!</p>
+    <p>Leste a história com atenção? 🐛<br>São <strong>15 perguntas</strong> divididas em <strong>3 grupos de 5</strong>.<br>Podes descansar entre cada grupo! 😊</p>
     <button class="start-btn" onclick="startQuiz()">🚀 Começar o Quizz!</button>
   </div>
 
@@ -403,6 +469,12 @@
       <div class="q-feedback" id="q-fb"></div>
       <button class="next-btn" id="next-btn" onclick="nextQ()">Próxima ➡</button>
     </div>
+    <div class="group-break" id="group-break">
+      <span class="gb-emoji">🌟</span>
+      <h2 id="gb-title">Muito bem!</h2>
+      <p id="gb-msg">Fizeste as primeiras 5 perguntas! Descansa um momento e continua quando estiveres pronto.</p>
+      <button class="continue-btn" onclick="continueQuiz()">Continuar ➡</button>
+    </div>
     <div class="q-result" id="q-result">
       <div class="stars" id="r-stars">⭐⭐⭐</div>
       <h2 id="r-title">Parabéns!</h2>
@@ -415,7 +487,7 @@
 <!-- GAME -->
 <section id="game" class="section game-section">
   <h2>🐛 Jogo da Lagartinha Comilona</h2>
-  <p>Come folhas de amoreira 🌿 · Foge dos pássaros 🐦 · Dispara raios ⚡</p>
+  <p>Come folhas de amoreira 🌿 · Foge dos pássaros 🐦 · Dispara raios ⚡<br><small style="color:#888">💡 No Modo Tranquilo os pássaros não aparecem.</small></p>
 
   <div class="game-wrapper">
     <div class="game-hud">
@@ -430,6 +502,7 @@
       <button class="gbtn start" id="gStart" onclick="startGame()">▶ Iniciar</button>
       <button class="gbtn pause" id="gPause" onclick="pauseGame()" disabled>⏸ Pausa</button>
       <button class="gbtn reload" onclick="triggerReload()">🔄 Recarregar [R]</button>
+      <button class="gbtn calm" id="gCalm" onclick="toggleCalm()">🕊️ Modo Tranquilo</button>
     </div>
 
     <div class="dpad">
@@ -449,6 +522,7 @@
         <li>🔄 Carrega em <kbd>R</kbd> para <strong>recarregar munições</strong> — tens de responder a uma pergunta!</li>
         <li>🎮 Usa as <kbd>⬆</kbd> <kbd>⬇</kbd> <kbd>⬅</kbd> <kbd>➡</kbd> ou o D-Pad para mover</li>
         <li>⚠️ Tens 6 munições. Ao disparar todas, usa o botão Recarregar!</li>
+        <li>🕊️ Clica em <strong>Modo Tranquilo</strong> para jogar sem pássaros</li>
       </ul>
     </div>
   </div>
@@ -481,7 +555,17 @@ function showTab(id) {
   if(id !== 'game' && gameRunning) pauseGame();
 }
 
-// ===== AUDIO =====
+
+// ===== ACCESSIBILITY =====
+function toggleFont() {
+  document.body.classList.toggle('large-text');
+  document.getElementById('btnFont').classList.toggle('active');
+}
+function toggleContrast() {
+  document.body.classList.toggle('high-contrast');
+  document.getElementById('btnContrast').classList.toggle('active');
+}
+
 
 // ===== QUIZ =====
 const QS = [
@@ -503,6 +587,7 @@ const QS = [
 ];
 
 let qI=0, qScore=0;
+const GROUP_SIZE=5;
 
 function startQuiz() {
   document.getElementById('quiz-intro').style.display='none';
@@ -512,6 +597,7 @@ function startQuiz() {
   document.getElementById('quiz-card').style.display='block';
   document.querySelector('.quiz-header').style.display='flex';
   document.getElementById('q-result').style.display='none';
+  document.getElementById('group-break').style.display='none';
   renderQ();
 }
 
@@ -550,6 +636,22 @@ function pickQ(sel,ans) {
 function nextQ() {
   qI++;
   if(qI>=QS.length){ showQResult(); return; }
+  // Show group break every GROUP_SIZE questions
+  if(qI % GROUP_SIZE === 0){
+    document.getElementById('quiz-card').style.display='none';
+    const gb=document.getElementById('group-break');
+    gb.style.display='block';
+    const group=qI/GROUP_SIZE;
+    document.getElementById('gb-title').textContent= group===1?'Ótimo! Primeiro grupo terminado! 🌟': group===2?'Fantástico! Já fizeste 10 perguntas! 🎉':'';
+    document.getElementById('gb-msg').textContent=`Já respondeste a ${qI} de ${QS.length} perguntas. Descansa um momento e continua quando estiveres pronto!`;
+    return;
+  }
+  renderQ();
+}
+
+function continueQuiz() {
+  document.getElementById('group-break').style.display='none';
+  document.getElementById('quiz-card').style.display='block';
   renderQ();
 }
 
@@ -579,7 +681,7 @@ const COLS=28,ROWS=21;
 const CW=cv.width/COLS,CH=cv.height/ROWS;
 
 let snake,dir,nextDir,leaves,birds,bullets,score,lives,ammo;
-let gameRunning=false,gamePaused=false,reloadPending=false;
+let gameRunning=false,gamePaused=false,reloadPending=false,calmMode=false;
 let loop=null, birdTimer=null;
 
 const RELOAD_QS=[
@@ -619,7 +721,7 @@ function spawnLeaf() {
 }
 
 function spawnBird() {
-  if(!gameRunning||gamePaused) return;
+  if(!gameRunning||gamePaused||calmMode) return;
   const maxB=2+Math.floor(score/50);
   if(birds.length>=maxB) return;
   const edge=Math.floor(Math.random()*4);
@@ -655,6 +757,14 @@ function pauseGame() {
   gamePaused=!gamePaused;
   document.getElementById('gPause').textContent=gamePaused?'▶ Continuar':'⏸ Pausa';
   if(!gamePaused) draw();
+}
+
+function toggleCalm() {
+  calmMode=!calmMode;
+  const btn=document.getElementById('gCalm');
+  btn.classList.toggle('active',calmMode);
+  btn.textContent=calmMode?'🕊️ Modo Tranquilo ✓':'🕊️ Modo Tranquilo';
+  if(calmMode){ birds=[]; }
 }
 
 function tick() {
