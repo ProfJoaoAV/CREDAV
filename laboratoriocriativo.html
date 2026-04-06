@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório Criativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        .station-card {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .station-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .generator-box {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px dashed #e2e8f0;
+        }
+
+        .card-reveal {
+            animation: reveal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes reveal {
+            0% { opacity: 0; transform: rotateY(90deg); }
+            100% { opacity: 1; transform: rotateY(0deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-slate-900 text-white py-6 px-4 shadow-2xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight">Laboratório Criativo</h1>
+                    <p class="text-slate-400 text-sm font-medium">Oficina de Escrita e Imaginação</p>
+                </div>
+            </div>
+            
+            <div id="timer-container" class="bg-slate-800 px-6 py-3 rounded-2xl border border-slate-700 flex items-center gap-6">
+                <div class="text-right">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Tempo da Estação</p>
+                    <div id="timer-display" class="text-3xl font-mono font-black text-indigo-400">15:00</div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="timer-control" onclick="toggleTimer()" class="bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-indigo-500 transition-all">
+                        <i data-lucide="play" id="play-icon" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-8">
+        
+        <nav class="flex flex-wrap justify-center gap-3 mb-10">
+            <button onclick="showStation('0')" class="nav-btn active flex items-center gap-2 bg-white border-2 border-indigo-600 text-indigo-600 px-6 py-3 rounded-2xl font-bold shadow-md transition-all" id="btn-0">
+                <i data-lucide="home" class="w-5 h-5"></i> Início
+            </button>
+            <button onclick="showStation('A')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-A">
+                <i data-lucide="users" class="w-5 h-5"></i> Personagens
+            </button>
+            <button onclick="showStation('B')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-B">
+                <i data-lucide="map" class="w-5 h-5"></i> Ambientes
+            </button>
+            <button onclick="showStation('C')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-C">
+                <i data-lucide="zap" class="w-5 h-5"></i> O Problema
+            </button>
+            <button onclick="showStation('D')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-D">
+                <i data-lucide="pen-tool" class="w-5 h-5"></i> Regras e Sementes
+            </button>
+        </nav>
+
+        <div class="relative bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100">
+            
+            <!-- Estação 0: Início -->
+            <section id="station-0" class="station-card active p-6 md:p-12">
+                <div class="max-w-4xl mx-auto space-y-12">
+                    <div class="text-center space-y-6">
+                        <div class="p-4 bg-indigo-100 text-indigo-600 rounded-3xl w-20 h-20 mx-auto flex items-center justify-center">
+                            <i data-lucide="scroll-text" class="w-10 h-10"></i>
+                        </div>
+                        <h2 class="text-4xl font-black text-slate-800 uppercase tracking-tight">Oficina Criativa: Instruções</h2>
+                        <p class="text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
+                            Bem-vindo ao laboratório onde as histórias ganham vida. Segue o roteiro abaixo para construíres a tua narrativa:
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">1</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Explora os Elementos</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Passa por cada aba e clica nos botões de sorteio.</p>
+                                <div class="mt-2 bg-white/50 p-3 rounded-xl border border-indigo-100">
+                                    <p class="text-xs font-bold text-indigo-700 uppercase mb-1">Sorteia e regista no caderno:</p>
+                                    <ul class="text-[11px] text-slate-600 grid grid-cols-2 gap-1">
+                                        <li>• 3 Personagens</li>
+                                        <li>• 2 Locais</li>
+                                        <li>• 1 Problema</li>
+                                        <li>• 3 Regras de Escrita</li>
+                                        <li>• 2 Sementes de Ideia</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">2</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Consulta os Guias</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Em cada secção, encontras dicas sobre como descrever melhor as personagens e os espaços. Não ignores estes conselhos!</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">3</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Aceita o Desafio</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">As Regras e Sementes vão forçar a tua criatividade a encontrar caminhos novos e inesperados.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">4</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Começa a Escrever</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Usa o temporizador no topo para te focares. Tenta escrever sem parar durante os 15 minutos previstos.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-900 text-white p-8 rounded-[2rem] text-center shadow-xl">
+                        <p class="text-indigo-200 font-medium mb-2 uppercase tracking-widest text-xs">Dica Principal</p>
+                        <p class="text-lg italic">"Uma história não é apenas o que acontece, mas sim como a personagem reage ao que acontece."</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação A: Personagens + Guia -->
+            <section id="station-A" class="station-card p-6 md:p-12">
+                <div class="grid lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-5 generator-box rounded-[2rem] p-6 text-center flex flex-col items-center min-h-[550px]">
+                        <div id="character-card" class="bg-white rounded-2xl shadow-xl w-full mb-6 border border-slate-100 hidden card-reveal overflow-hidden">
+                            <div class="h-64 overflow-hidden bg-slate-100">
+                                <img id="char-img" src="" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 id="char-name" class="text-2xl font-black text-slate-800 mb-1">...</h3>
+                                <p id="char-role" class="text-indigo-600 font-bold text-sm uppercase tracking-wider mb-4">...</p>
+                                <div class="text-left bg-slate-50 p-4 rounded-xl text-sm border border-slate-100 space-y-2">
+                                    <p class="text-slate-600"><strong>Medo:</strong> <span id="char-fear" class="text-slate-500">...</span></p>
+                                    <p class="text-slate-600"><strong>Desejo:</strong> <span id="char-wish" class="text-slate-500">...</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="char-placeholder" class="py-20 text-slate-400">
+                            <i data-lucide="user-search" class="w-20 h-20 mx-auto mb-4 opacity-20"></i>
+                            <p class="font-medium px-4">Clica abaixo para sortear uma personagem e regista-a no teu caderno (precisas de 3).</p>
+                        </div>
+                        <button onclick="generateCharacter()" class="mt-auto w-full bg-slate-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i> Sortear Personagem
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-2xl">
+                            <h2 class="text-2xl font-black text-amber-900 mb-4">🎨 Guia para Criar Personagens</h2>
+                            <div class="grid md:grid-cols-2 gap-6 text-sm text-amber-900/80">
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-amber-800 uppercase text-xs">1. Retrato Físico</h4>
+                                    <p>• <strong>Traços:</strong> Estatura, postura e rosto.</p>
+                                    <p>• <strong>Vestuário:</strong> Estilo e estado da roupa.</p>
+                                    <p>• <strong>Pormenor:</strong> Cicatriz, tatuagem ou tique.</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-amber-800 uppercase text-xs">2. Retrato Psicológico</h4>
+                                    <p>• <strong>Personalidade:</strong> Introvertida ou extrovertida?</p>
+                                    <p>• <strong>Temperamento:</strong> Calma ou explosiva?</p>
+                                    <p>• <strong>Virtudes e Defeitos:</strong> Ninguém é perfeito.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-2">💡 Dica de Ouro:</h4>
+                            <p class="text-sm text-slate-600 italic">"Mostra a aparência através da ação. Ex: 'O seu cabelo grisalho voava desordenadamente enquanto corria'."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação B: Ambientes + Guia -->
+            <section id="station-B" class="station-card p-6 md:p-12">
+                <div class="grid lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-6 flex flex-col gap-6">
+                        <div id="env-container" class="relative h-96 rounded-[2rem] overflow-hidden shadow-2xl group bg-slate-200 border-4 border-white">
+                            <img id="env-img" src="" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-8 text-white">
+                                <span class="text-emerald-400 text-xs font-bold uppercase mb-2 tracking-widest">Localização Sorteada</span>
+                                <h3 id="env-title" class="font-black text-3xl">Clica para viajar...</h3>
+                            </div>
+                        </div>
+                        <p class="text-center text-slate-400 text-xs italic">Deves sortear e registar 2 locais diferentes.</p>
+                        <button onclick="generateEnvironment()" class="bg-emerald-600 text-white px-8 py-5 rounded-2xl font-bold hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 shadow-lg">
+                            <i data-lucide="map-pin" class="w-6 h-6"></i> Mudar de Cenário
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="bg-emerald-50 border-l-4 border-emerald-400 p-8 rounded-r-2xl">
+                            <h2 class="text-2xl font-black text-emerald-900 mb-4">🖼️ Guia para Pintar Cenários</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-bold text-emerald-800 uppercase text-xs mb-2">A Regra dos 5 Sentidos</h4>
+                                    <div class="grid grid-cols-2 gap-4 text-xs font-medium text-emerald-900/70">
+                                        <span>👁️ Visão: Cores e luz.</span>
+                                        <span>👂 Audição: Sons e ecos.</span>
+                                        <span>👃 Olfato: Cheiros e aromas.</span>
+                                        <span>🖐️ Tato: Clima e texturas.</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-emerald-800 uppercase text-xs mb-2">Do Geral para o Particular</h4>
+                                    <p class="text-sm text-emerald-900/80 italic">Usa a técnica do "Zoom": Plano Geral -> Aproximação -> O Detalhe significativo.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação C: Conflito -->
+            <section id="station-C" class="station-card p-6 md:p-12 text-center">
+                <div class="max-w-2xl mx-auto space-y-8">
+                    <div class="flex items-center justify-center gap-4">
+                        <span class="p-3 bg-rose-100 text-rose-600 rounded-2xl"><i data-lucide="zap"></i></span>
+                        <h2 class="text-3xl font-black text-slate-800">O Problema Central</h2>
+                    </div>
+                    <div id="conflict-display" class="bg-rose-50 p-12 rounded-[2.5rem] border-4 border-white shadow-inner min-h-[200px] flex items-center justify-center">
+                        <p id="conflict-text" class="text-2xl md:text-3xl italic text-rose-800 font-medium leading-relaxed">"Gera o motor que vai impulsionar a tua narrativa (precisas de 1)..."</p>
+                    </div>
+                    <button onclick="generateConflict()" class="bg-rose-600 text-white px-12 py-6 rounded-2xl font-black text-xl hover:bg-rose-500 transition-all shadow-xl">
+                        Sortear Novo Problema
+                    </button>
+                    <p class="text-slate-400 text-sm italic">"Um bom problema obriga a personagem a sair da sua zona de conforto."</p>
+                </div>
+            </section>
+
+            <!-- Estação D: Regras e Sementes -->
+            <section id="station-D" class="station-card p-6 md:p-12">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 bg-indigo-100 text-indigo-600 rounded-lg"><i data-lucide="shield-alert"></i></span>
+                            <h3 class="font-black text-xl text-slate-800">Regras de Escrita</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
+                            <p id="style-text" class="text-slate-600 italic">"Sorteia e regista 3 regras..."</p>
+                        </div>
+                        <button onclick="generateStyle()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800">Sorteia Desafio Criativo</button>
+                    </div>
+                    <div class="bg-indigo-50 p-8 rounded-3xl border border-indigo-100 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 bg-indigo-200 text-indigo-700 rounded-lg"><i data-lucide="leaf"></i></span>
+                            <h3 class="font-black text-xl text-slate-800">Sementes de Ideias</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
+                            <p id="seed-text" class="text-indigo-900 italic">"Sorteia e regista 2 sementes..."</p>
+                        </div>
+                        <button onclick="generateSeed()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-500">Germinar uma Ideia</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const characterProfiles = [
+            { nome: "Cora Mil-Anos", role: "Alquimista de Cores", medo: "Ficar cega", desejo: "Ver uma cor inexistente", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Jonas do Vento", role: "Navegador Errante", medo: "Calmaria total", desejo: "Chegar à borda do mundo", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Beatriz Sombra", role: "Arquivista de Segredos", medo: "A luz do meio-dia", desejo: "Apagar o seu próprio passado", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Elias Ferro", role: "Ferreiro de Memórias", medo: "O ferrugem da mente", desejo: "Criar uma espada inquebrável", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Lia Cristal", role: "Tecelã de Sonhos", medo: "Dormir e nunca mais acordar", desejo: "Fazer o mundo sonhar em conjunto", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Marco Relógio", role: "Consertador de Segundos", medo: "O tempo parar", desejo: "Viver o mesmo dia para sempre", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Íris Eco", role: "Cantora de Cavernas", medo: "O silêncio absoluto", desejo: "Que a sua voz seja ouvida no espaço", img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Silas Brasa", role: "Domador de Fogos", medo: "A água fria", desejo: "Aquecer o coração de uma estátua", img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Vera Raiz", role: "Botânica do Invisível", medo: "Cimento e metal", desejo: "Fazer crescer flores no deserto", img: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Hugo Papel", role: "Escritor de Destinos", medo: "Ficar sem tinta", desejo: "Mudar o final da sua própria história", img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Nora Neve", role: "Escultora de Gelo", medo: "O calor excessivo", desejo: "Congelar um momento de felicidade", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Dante Marfim", role: "Mestre de Xadrez Real", medo: "Perder a rainha", desejo: "Prever todos os movimentos da vida", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Clara Vidro", role: "Espia Transparente", medo: "Ser descoberta", desejo: "Tornar-se totalmente invisível", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Bóris Metal", role: "Cyborg Nostálgico", medo: "Ficar sem bateria", desejo: "Sentir o cheiro de uma flor real", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Zélia Astral", role: "Viajante de Constelações", medo: "Perder-se no vazio", desejo: "Tocar numa estrela cadente", img: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Otávio Sal", role: "Pescador de Nuvens", medo: "Afogar-se em terra firme", desejo: "Trazer a chuva para o seu povo", img: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Maia Tinta", role: "Tatuadora de Almas", medo: "Pele vazia", desejo: "Desenhar a coragem no peito de um cobarde", img: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Artur Chave", role: "Guardião de Portas Erradas", medo: "A porta certa", desejo: "Encontrar o que nunca foi perdido", img: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Eva Engrenagem", role: "Inventora de Inutilidades", medo: "A lógica perfeita", desejo: "Criar uma máquina que faz rir", img: "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Lúcio Farol", role: "Vigia do Deserto", medo: "Miragens reais", desejo: "Ver o oceano pela primeira vez", img: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&q=80&w=800" }
+        ];
+
+        const envs = [
+            { title: "Farol do Fim do Mundo", img: "https://images.unsplash.com/photo-1500390691797-d98973a0d48a?auto=format&fit=crop&w=1000" },
+            { title: "Floresta de Vidro", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1000" },
+            { title: "Cidade nas Nuvens", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000" },
+            { title: "Biblioteca de Poeira", img: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1000" },
+            { title: "Mercado de Sonhos Usados", img: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=1000" },
+            { title: "Gruta dos Ecos Perdidos", img: "https://images.unsplash.com/photo-1509233725247-49e657c54213?auto=format&fit=crop&w=1000" },
+            { title: "Estação de Comboio Abandonada", img: "https://images.unsplash.com/photo-1515165597901-b44c707bbbb5?auto=format&fit=crop&w=1000" },
+            { title: "Jardim de Ferro", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1000" },
+            { title: "Laboratório de Alquimia", img: "https://images.unsplash.com/photo-1532187863486-abf9d3a35263?auto=format&fit=crop&w=1000" },
+            { title: "Vila Submersa", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000" },
+            { title: "Cume da Montanha Roxa", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000" },
+            { title: "Teatro de Marionetas Vivas", img: "https://images.unsplash.com/photo-1505682634904-d7c8d95ccd50?auto=format&fit=crop&w=1000" },
+            { title: "Deserto de Sal Azul", img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1000" },
+            { title: "Castelo de Cartas Gigantes", img: "https://images.unsplash.com/photo-1502700807168-484a3e7889d0?auto=format&fit=crop&w=1000" },
+            { title: "Sótão das Memórias", img: "https://images.unsplash.com/photo-1444837881208-4d46d5c1f127?auto=format&fit=crop&w=1000" }
+        ];
+
+        const conflicts = [
+            "Descobres que és a única pessoa que consegue ver as cores no mundo.",
+            "O tempo parou e tu és a única personagem que se consegue mover.",
+            "Um objeto que estimas muito começa a sussurrar segredos sobre o futuro.",
+            "Toda a gente na cidade esqueceu quem tu és, inclusive a tua família.",
+            "Recebes uma carta que foi escrita por ti, mas datada de daqui a dez anos.",
+            "Um portal abriu-se no meio da praça e algo (ou alguém) está a sair de lá.",
+            "As sombras de todas as pessoas começaram a ganhar vida e a fugir.",
+            "Acordas num local desconhecido com uma chave na mão e nenhuma porta à vista.",
+            "O sol não nasceu e a escuridão parece estar a ficar cada vez mais sólida.",
+            "Perdeste a capacidade de falar, mas agora consegues ouvir os pensamentos dos animais."
+        ];
+
+        const styles = [
+            "Não podes usar a letra 'A' no primeiro parágrafo.",
+            "A história deve começar e terminar com a mesma palavra.",
+            "Usa três onomatopeias ao longo do texto.",
+            "Inclui uma metáfora sobre o mar ou o vento.",
+            "Descreve um cheiro que não exista na realidade.",
+            "Escreve como se fosses um narrador que não entende tecnologia.",
+            "Cada frase do primeiro parágrafo deve ter exatamente 7 palavras.",
+            "Não podes usar o verbo 'ser' ou 'estar' nas primeiras 5 frases.",
+            "Deves incluir o nome de uma flor e de um planeta.",
+            "A personagem principal deve fazer uma pergunta que fica sem resposta.",
+            "Escreve um parágrafo inteiro composto apenas por frases curtas (max 3 palavras).",
+            "Usa a palavra 'efervescente' num contexto inesperado.",
+            "Proibido usar adjetivos na descrição do ambiente.",
+            "Introduz um objeto de col amarela que mude o rumo da cena.",
+            "A primeira palavra de cada parágrafo deve formar uma frase secreta.",
+            "Usa uma aliteração (repetição de sons) em três frases seguidas.",
+            "A história deve passar-se num intervalo de apenas 60 segundos.",
+            "Cria um diálogo onde uma das personagens apenas responde com rimas.",
+            "Descreve o cenário sem usar cores, apenas formas e texturas.",
+            "O texto deve terminar com uma reticência (...)."
+        ];
+
+        const seeds = [
+            "Um mapa cai do céu e aterra no teu colo.",
+            "Encontras uma chave de cristal enterrada no jardim.",
+            "O teu reflexo no espelho pisca-te o olho e sai da moldura.",
+            "Um desconhecido entrega-te um pacote: 'Não abras antes da meia-noite'.",
+            "Ouve-se uma música que parece vir de debaixo do chão.",
+            "Todas as portas da cidade trancaram-se ao mesmo tempo.",
+            "Encontras um sapato de cristal, mas ele é do tamanho de um carro.",
+            "As estrelas começaram a cair como se fossem gotas de chuva.",
+            "O teu gato começa a falar, mas apenas em latim.",
+            "Descobres um túnel secreto atrás do teu guarda-roupa.",
+            "Um corvo traz-te um anel com um bilhete de ajuda.",
+            "Acordas e descobres que tens asas, mas elas são feitas de papel.",
+            "A água do mar tornou-se doce e cor de rosa.",
+            "Encontras uma fotografia tua num lugar onde nunca estiveste.",
+            "As estátuas do parque mudaram de posição durante a noite.",
+            "O vento sopra palavras em vez de ar.",
+            "Uma árvore na tua rua começou a dar livros em vez de frutos.",
+            "Descobres que o teu vizinho é, na verdade, um robô a pilhas.",
+            "Cai um meteorito no teu quintal, mas ele está frio como gelo.",
+            "Apareceu uma porta nova no corredor da tua escola."
+        ];
+
+        let timerInterval = null;
+        let timeLeft = 900;
+
+        function toggleTimer() {
+            const icon = document.getElementById('play-icon');
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                icon.setAttribute('data-lucide', 'play');
+            } else {
+                timerInterval = setInterval(() => {
+                    if(timeLeft > 0) {
+                        timeLeft--;
+                        updateTimerDisplay();
+                    }
+                }, 1000);
+                icon.setAttribute('data-lucide', 'pause');
+            }
+            lucide.createIcons();
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft/60);
+            const s = timeLeft%60;
+            document.getElementById('timer-display').textContent = `${m}:${s < 10 ? '0'+s : s}`;
+        }
+
+        function generateCharacter() {
+            const index = Math.floor(Math.random() * characterProfiles.length);
+            const profile = characterProfiles[index];
+            document.getElementById('char-placeholder').style.display = 'none';
+            document.getElementById('character-card').classList.remove('hidden');
+            document.getElementById('char-img').src = profile.img;
+            document.getElementById('char-name').textContent = profile.nome;
+            document.getElementById('char-role').textContent = profile.role;
+            document.getElementById('char-fear').textContent = profile.medo;
+            document.getElementById('char-wish').textContent = profile.desejo;
+        }
+
+        function generateEnvironment() {
+            const env = envs[Math.floor(Math.random() * envs.length)];
+            const img = document.getElementById('env-img');
+            img.style.opacity = 0;
+            setTimeout(() => {
+                img.src = env.img;
+                img.style.opacity = 1;
+                document.getElementById('env-title').textContent = env.title;
+            }, 300);
+        }
+
+        function generateConflict() {
+            const text = document.getElementById('conflict-text');
+            text.style.opacity = 0;
+            setTimeout(() => {
+                text.textContent = `"${conflicts[Math.floor(Math.random() * conflicts.length)]}"`;
+                text.style.opacity = 1;
+            }, 300);
+        }
+
+        function generateStyle() {
+            document.getElementById('style-text').textContent = styles[Math.floor(Math.random() * styles.length)];
+        }
+
+        function generateSeed() {
+            document.getElementById('seed-text').textContent = seeds[Math.floor(Math.random() * seeds.length)];
+        }
+
+        function showStation(id) {
+            document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('station-' + id).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                b.classList.add('border-transparent', 'text-slate-500');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + id);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+            
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
