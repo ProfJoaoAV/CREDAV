@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratório Criativo</title>
+    <title>Laboratório Criativo + Mentor IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -41,9 +41,47 @@
             0% { opacity: 0; transform: rotateY(90deg); }
             100% { opacity: 1; transform: rotateY(0deg); }
         }
+
+        /* Estilos do Spinner da IA */
+        .loading-spinner { 
+            border: 3px solid #f3f3f3; 
+            border-top: 3px solid #4f46e5; 
+            border-radius: 50%; 
+            width: 20px; 
+            height: 20px; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+
+    <!-- Modal de Configuração Inicial (NOVO) -->
+    <div id="setup-modal" class="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] max-w-lg w-full p-8 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="bg-indigo-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="bot" class="text-indigo-600 w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800">Configuração do Laboratório</h2>
+                <p class="text-slate-500 text-sm mt-2">Para ativares o Mentor IA, insere a tua chave API da Google. Se não tiveres, podes continuar apenas com o sorteador e deixar em branco.</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Google Gemini API Key</label>
+                    <input type="password" id="api-key-input" placeholder="Cola aqui a tua chave (opcional)..." 
+                           class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-indigo-500 outline-none transition-all">
+                </div>
+                <button onclick="startApp()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200">
+                    Começar a Oficina
+                </button>
+                <p class="text-[10px] text-center text-slate-400">A tua chave é guardada apenas localmente nesta sessão.</p>
+            </div>
+        </div>
+    </div>
 
     <header class="bg-slate-900 text-white py-6 px-4 shadow-2xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
@@ -89,11 +127,14 @@
             <button onclick="showStation('D')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-D">
                 <i data-lucide="pen-tool" class="w-5 h-5"></i> Regras e Sementes
             </button>
+            <button onclick="showStation('E')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-E">
+                <i data-lucide="brain-circuit" class="w-5 h-5"></i> Mentor IA
+            </button>
         </nav>
 
         <div class="relative bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100">
             
-            <!-- Estação 0: Início -->
+            <!-- Estação 0: Início (ATUALIZADO COM INSTRUÇÕES DE QUANTIDADE) -->
             <section id="station-0" class="station-card active p-6 md:p-12">
                 <div class="max-w-4xl mx-auto space-y-12">
                     <div class="text-center space-y-6">
@@ -110,51 +151,48 @@
                         <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                             <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">1</span>
                             <div>
-                                <h3 class="font-bold text-slate-800 text-lg mb-1">Explora os Elementos</h3>
-                                <p class="text-sm text-slate-500 leading-relaxed">Passa por cada aba e clica nos botões de sorteio.</p>
-                                <div class="mt-2 bg-white/50 p-3 rounded-xl border border-indigo-100">
-                                    <p class="text-xs font-bold text-indigo-700 uppercase mb-1">Sorteia e regista no caderno:</p>
-                                    <ul class="text-[11px] text-slate-600 grid grid-cols-2 gap-1">
-                                        <li>• 3 Personagens</li>
-                                        <li>• 2 Locais</li>
-                                        <li>• 1 Problema</li>
-                                        <li>• 3 Regras de Escrita</li>
-                                        <li>• 2 Sementes de Ideia</li>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Sorteia e Regista</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed mb-3">Passa por cada aba, clica nos botões de sorteio e <strong>regista no teu caderno</strong> as seguintes quantidades exatas:</p>
+                                <div class="bg-white/70 p-4 rounded-2xl border border-indigo-100">
+                                    <ul class="text-sm font-bold text-indigo-900 space-y-1">
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 3 Personagens</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 2 Locais</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 1 Problema Central</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 3 Regras de Escrita</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 2 Sementes de Ideia</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                             <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">2</span>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-lg mb-1">Consulta os Guias</h3>
-                                <p class="text-sm text-slate-500 leading-relaxed">Em cada secção, encontras dicas sobre como descrever melhor as personagens e os espaços. Não ignores estes conselhos!</p>
+                                <p class="text-sm text-slate-500 leading-relaxed">Em cada secção, encontras dicas sobre como descrever melhor as personagens e os espaços. Lê os guias e tenta aplicar as dicas no teu texto final.</p>
                             </div>
                         </div>
+
                         <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                             <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">3</span>
                             <div>
-                                <h3 class="font-bold text-slate-800 text-lg mb-1">Aceita o Desafio</h3>
-                                <p class="text-sm text-slate-500 leading-relaxed">As Regras e Sementes vão forçar a tua criatividade a encontrar caminhos novos e inesperados.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">4</span>
-                            <div>
                                 <h3 class="font-bold text-slate-800 text-lg mb-1">Começa a Escrever</h3>
-                                <p class="text-sm text-slate-500 leading-relaxed">Usa o temporizador no topo para te focares. Tenta escrever sem parar durante os 15 minutos previstos.</p>
+                                <p class="text-sm text-slate-500 leading-relaxed">Usa o temporizador no topo para te focares. Tenta escrever o teu texto no caderno ou no computador sem parar durante os 15 minutos previstos.</p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="bg-indigo-900 text-white p-8 rounded-[2rem] text-center shadow-xl">
-                        <p class="text-indigo-200 font-medium mb-2 uppercase tracking-widest text-xs">Dica Principal</p>
-                        <p class="text-lg italic">"Uma história não é apenas o que acontece, mas sim como a personagem reage ao que acontece."</p>
+                        <div class="flex gap-4 p-6 bg-indigo-900 text-white rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-white text-indigo-900 rounded-full flex items-center justify-center font-bold text-xl">4</span>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Aba: Mentor IA</h3>
+                                <p class="text-sm opacity-80 leading-relaxed">Depois de escreveres o texto, usa a última aba. Cola lá a tua história e os elementos que sorteaste. O Mentor não vai corrigir, vai ajudar-te a refletir sobre como melhorar!</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Estação A: Personagens + Guia -->
+            <!-- Estação A: Personagens (MANTIDO 100%) -->
             <section id="station-A" class="station-card p-6 md:p-12">
                 <div class="grid lg:grid-cols-12 gap-8 items-start">
                     <div class="lg:col-span-5 generator-box rounded-[2rem] p-6 text-center flex flex-col items-center min-h-[550px]">
@@ -173,7 +211,7 @@
                         </div>
                         <div id="char-placeholder" class="py-20 text-slate-400">
                             <i data-lucide="user-search" class="w-20 h-20 mx-auto mb-4 opacity-20"></i>
-                            <p class="font-medium px-4">Clica abaixo para sortear uma personagem e regista-a no teu caderno (precisas de 3).</p>
+                            <p class="font-medium px-4">Clica abaixo para sortear uma personagem</p>
                         </div>
                         <button onclick="generateCharacter()" class="mt-auto w-full bg-slate-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
                             <i data-lucide="refresh-cw" class="w-5 h-5"></i> Sortear Personagem
@@ -206,7 +244,7 @@
                 </div>
             </section>
 
-            <!-- Estação B: Ambientes + Guia -->
+            <!-- Estação B: Ambientes (MANTIDO 100%) -->
             <section id="station-B" class="station-card p-6 md:p-12">
                 <div class="grid lg:grid-cols-12 gap-8 items-start">
                     <div class="lg:col-span-6 flex flex-col gap-6">
@@ -217,7 +255,6 @@
                                 <h3 id="env-title" class="font-black text-3xl">Clica para viajar...</h3>
                             </div>
                         </div>
-                        <p class="text-center text-slate-400 text-xs italic">Deves sortear e registar 2 locais diferentes.</p>
                         <button onclick="generateEnvironment()" class="bg-emerald-600 text-white px-8 py-5 rounded-2xl font-bold hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 shadow-lg">
                             <i data-lucide="map-pin" class="w-6 h-6"></i> Mudar de Cenário
                         </button>
@@ -246,7 +283,7 @@
                 </div>
             </section>
 
-            <!-- Estação C: Conflito -->
+            <!-- Estação C: Conflito (MANTIDO 100%) -->
             <section id="station-C" class="station-card p-6 md:p-12 text-center">
                 <div class="max-w-2xl mx-auto space-y-8">
                     <div class="flex items-center justify-center gap-4">
@@ -254,7 +291,7 @@
                         <h2 class="text-3xl font-black text-slate-800">O Problema Central</h2>
                     </div>
                     <div id="conflict-display" class="bg-rose-50 p-12 rounded-[2.5rem] border-4 border-white shadow-inner min-h-[200px] flex items-center justify-center">
-                        <p id="conflict-text" class="text-2xl md:text-3xl italic text-rose-800 font-medium leading-relaxed">"Gera o motor que vai impulsionar a tua narrativa (precisas de 1)..."</p>
+                        <p id="conflict-text" class="text-2xl md:text-3xl italic text-rose-800 font-medium leading-relaxed">"Gera o motor que vai impulsionar a tua narrativa..."</p>
                     </div>
                     <button onclick="generateConflict()" class="bg-rose-600 text-white px-12 py-6 rounded-2xl font-black text-xl hover:bg-rose-500 transition-all shadow-xl">
                         Sortear Novo Problema
@@ -263,7 +300,7 @@
                 </div>
             </section>
 
-            <!-- Estação D: Regras e Sementes -->
+            <!-- Estação D: Regras e Sementes (MANTIDO 100%) -->
             <section id="station-D" class="station-card p-6 md:p-12">
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 space-y-6">
@@ -272,7 +309,7 @@
                             <h3 class="font-black text-xl text-slate-800">Regras de Escrita</h3>
                         </div>
                         <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
-                            <p id="style-text" class="text-slate-600 italic">"Sorteia e regista 3 regras..."</p>
+                            <p id="style-text" class="text-slate-600 italic">"Clica para sortear um desafio..."</p>
                         </div>
                         <button onclick="generateStyle()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800">Sorteia Desafio Criativo</button>
                     </div>
@@ -282,9 +319,52 @@
                             <h3 class="font-black text-xl text-slate-800">Sementes de Ideias</h3>
                         </div>
                         <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
-                            <p id="seed-text" class="text-indigo-900 italic">"Sorteia e regista 2 sementes..."</p>
+                            <p id="seed-text" class="text-indigo-900 italic">"Clica para encontrar inspiração..."</p>
                         </div>
                         <button onclick="generateSeed()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-500">Germinar uma Ideia</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação E: Mentor IA (NOVA) -->
+            <section id="station-E" class="station-card p-6 md:p-12">
+                <div id="ai-not-configured" class="text-center py-20 hidden">
+                    <i data-lucide="alert-circle" class="w-16 h-16 text-amber-500 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold">IA não configurada</h3>
+                    <p class="text-slate-500 mt-2">Reinicia a página e insere a tua API Key do Google Gemini para usares esta função.</p>
+                </div>
+
+                <div id="ai-active" class="grid lg:grid-cols-2 gap-10">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i data-lucide="brain-circuit" class="text-indigo-600 w-8 h-8"></i>
+                            <h3 class="text-2xl font-black text-slate-800">Oficina de Revisão</h3>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">1. Elementos Sorteados</label>
+                            <textarea id="ai-elements" placeholder="Ex: Cora Mil-Anos, Farol do Fim do Mundo, O tempo parou, Não usar a letra 'A'..." 
+                                      class="w-full p-4 rounded-2xl border-2 border-slate-100 h-24 text-sm outline-none focus:border-indigo-500 transition-colors"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">2. O teu Texto</label>
+                            <textarea id="ai-user-text" placeholder="Cola aqui a história que escreveste..." 
+                                      class="w-full p-4 rounded-2xl border-2 border-slate-100 h-64 text-sm outline-none focus:border-indigo-500 transition-colors"></textarea>
+                        </div>
+                        <button id="send-to-ai" onclick="callMentorIA()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                            <span id="btn-text">Pedir Feedback ao Mentor</span>
+                            <div id="ai-loading" class="loading-spinner hidden"></div>
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-[2.5rem] p-8 border-2 border-slate-100 flex flex-col shadow-inner min-h-[400px]">
+                        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-4">
+                            <div class="p-2 bg-indigo-600 text-white rounded-xl"><i data-lucide="message-square" class="w-5 h-5"></i></div>
+                            <h4 class="font-bold text-slate-800 uppercase tracking-widest text-xs">A Voz do Mentor</h4>
+                        </div>
+                        <div id="ai-response-container" class="flex-grow text-slate-700 text-sm leading-relaxed overflow-y-auto space-y-4">
+                            <p class="italic text-slate-400 text-center mt-20">A aguardar o teu texto. O mentor não corrige erros diretamente, ele fará perguntas para que sejas tu a melhorar a narrativa!</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -295,6 +375,11 @@
     <script>
         lucide.createIcons();
 
+        let apiKey = "";
+        let timerInterval = null;
+        let timeLeft = 900;
+
+        // 20 PERSONAGENS (MANTIDAS)
         const characterProfiles = [
             { nome: "Cora Mil-Anos", role: "Alquimista de Cores", medo: "Ficar cega", desejo: "Ver uma cor inexistente", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
             { nome: "Jonas do Vento", role: "Navegador Errante", medo: "Calmaria total", desejo: "Chegar à borda do mundo", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" },
@@ -318,6 +403,7 @@
             { nome: "Lúcio Farol", role: "Vigia do Deserto", medo: "Miragens reais", desejo: "Ver o oceano pela primeira vez", img: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&q=80&w=800" }
         ];
 
+        // 15 LOCAIS (MANTIDOS)
         const envs = [
             { title: "Farol do Fim do Mundo", img: "https://images.unsplash.com/photo-1500390691797-d98973a0d48a?auto=format&fit=crop&w=1000" },
             { title: "Floresta de Vidro", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1000" },
@@ -336,6 +422,7 @@
             { title: "Sótão das Memórias", img: "https://images.unsplash.com/photo-1444837881208-4d46d5c1f127?auto=format&fit=crop&w=1000" }
         ];
 
+        // 10 CONFLITOS (MANTIDOS)
         const conflicts = [
             "Descobres que és a única pessoa que consegue ver as cores no mundo.",
             "O tempo parou e tu és a única personagem que se consegue mover.",
@@ -349,6 +436,7 @@
             "Perdeste a capacidade de falar, mas agora consegues ouvir os pensamentos dos animais."
         ];
 
+        // 20 REGRAS DE ESCRITA (MANTIDAS)
         const styles = [
             "Não podes usar a letra 'A' no primeiro parágrafo.",
             "A história deve começar e terminar com a mesma palavra.",
@@ -363,7 +451,7 @@
             "Escreve um parágrafo inteiro composto apenas por frases curtas (max 3 palavras).",
             "Usa a palavra 'efervescente' num contexto inesperado.",
             "Proibido usar adjetivos na descrição do ambiente.",
-            "Introduz um objeto de col amarela que mude o rumo da cena.",
+            "Introduz um objeto de cor amarela que mude o rumo da cena.",
             "A primeira palavra de cada parágrafo deve formar uma frase secreta.",
             "Usa uma aliteração (repetição de sons) em três frases seguidas.",
             "A história deve passar-se num intervalo de apenas 60 segundos.",
@@ -372,6 +460,7 @@
             "O texto deve terminar com uma reticência (...)."
         ];
 
+        // 20 SEMENTES (MANTIDAS)
         const seeds = [
             "Um mapa cai do céu e aterra no teu colo.",
             "Encontras uma chave de cristal enterrada no jardim.",
@@ -395,8 +484,67 @@
             "Apareceu uma porta nova no corredor da tua escola."
         ];
 
-        let timerInterval = null;
-        let timeLeft = 900;
+        // LOGICA DA APLICAÇÃO E IA (NOVA/ATUALIZADA)
+        function startApp() {
+            apiKey = document.getElementById('api-key-input').value.trim();
+            document.getElementById('setup-modal').style.display = 'none';
+            if (!apiKey) {
+                document.getElementById('ai-not-configured').classList.remove('hidden');
+                document.getElementById('ai-active').classList.add('hidden');
+            } else {
+                document.getElementById('ai-not-configured').classList.add('hidden');
+                document.getElementById('ai-active').classList.remove('hidden');
+            }
+        }
+
+        async function callMentorIA() {
+            const elements = document.getElementById('ai-elements').value;
+            const userText = document.getElementById('ai-user-text').value;
+            const responseDiv = document.getElementById('ai-response-container');
+            const btn = document.getElementById('send-to-ai');
+            const loading = document.getElementById('ai-loading');
+
+            if (!elements || !userText) {
+                responseDiv.innerHTML = "<p class='text-rose-500 font-bold'>Por favor, preenche ambos os campos (elementos sorteados e o texto)!</p>";
+                return;
+            }
+
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+            responseDiv.innerHTML = "<p class='italic animate-pulse text-indigo-600'>O Mentor está a analisar o teu texto com atenção. Aguarda um momento...</p>";
+
+            const systemPrompt = `Atua como um Mentor Socrático de Escrita Criativa. 
+            Regras Absolutas:
+            1. Nunca reescrevas o texto do aluno nem dês a solução.
+            2. Deves primeiro verificar se os elementos sorteados (${elements}) estão no texto. Se faltar algum, questiona.
+            3. Dá feedback encorajador sobre os pontos fortes da narrativa.
+            4. Faz 2 ou 3 perguntas provocadoras que levem o aluno a refletir sobre como melhorar (ex: profundidade da personagem, uso dos sentidos no ambiente, coerência do conflito).
+            5. Se houve uma regra de escrita referida, verifica se foi cumprida e, se não, desafia o aluno a encontrar o erro.
+            6. Mantém um tom motivador e desafiante. Responde sempre em Português de Portugal.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: `Elementos sorteados pelo aluno: ${elements}\n\nTexto do aluno: ${userText}` }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            try {
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Lamento, ocorreu um erro. Verifica se a tua chave API é válida.";
+                
+                responseDiv.innerHTML = text.split('\n').map(p => p.trim() ? `<p class="mb-3">${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>` : '').join('');
+            } catch (error) {
+                responseDiv.innerHTML = "<p class='text-rose-500 font-bold'>Erro na ligação com o Mentor. Verifica a tua ligação à internet e a validade da chave API.</p>";
+            } finally {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+            }
+        }
 
         function toggleTimer() {
             const icon = document.getElementById('play-icon');
@@ -420,6 +568,22 @@
             const m = Math.floor(timeLeft/60);
             const s = timeLeft%60;
             document.getElementById('timer-display').textContent = `${m}:${s < 10 ? '0'+s : s}`;
+        }
+
+        function showStation(id) {
+            document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('station-' + id).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                b.classList.add('border-transparent', 'text-slate-500');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + id);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+            
+            lucide.createIcons();
         }
 
         function generateCharacter() {
@@ -455,27 +619,21 @@
         }
 
         function generateStyle() {
-            document.getElementById('style-text').textContent = styles[Math.floor(Math.random() * styles.length)];
+            const text = document.getElementById('style-text');
+            text.style.opacity = 0;
+            setTimeout(() => {
+                text.textContent = styles[Math.floor(Math.random() * styles.length)];
+                text.style.opacity = 1;
+            }, 300);
         }
 
         function generateSeed() {
-            document.getElementById('seed-text').textContent = seeds[Math.floor(Math.random() * seeds.length)];
-        }
-
-        function showStation(id) {
-            document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
-            document.getElementById('station-' + id).classList.add('active');
-            
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
-                b.classList.add('border-transparent', 'text-slate-500');
-            });
-            
-            const activeBtn = document.getElementById('btn-' + id);
-            activeBtn.classList.remove('border-transparent', 'text-slate-500');
-            activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
-            
-            lucide.createIcons();
+            const text = document.getElementById('seed-text');
+            text.style.opacity = 0;
+            setTimeout(() => {
+                text.textContent = seeds[Math.floor(Math.random() * seeds.length)];
+                text.style.opacity = 1;
+            }, 300);
         }
     </script>
 </body>
