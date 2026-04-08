@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório Criativo + Mentor IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        .station-card {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .station-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .generator-box {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px dashed #e2e8f0;
+        }
+
+        .card-reveal {
+            animation: reveal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes reveal {
+            0% { opacity: 0; transform: rotateY(90deg); }
+            100% { opacity: 1; transform: rotateY(0deg); }
+        }
+
+        .loading-spinner { 
+            border: 3px solid #f3f3f3; 
+            border-top: 3px solid #4f46e5; 
+            border-radius: 50%; 
+            width: 20px; 
+            height: 20px; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Modal de Configuração Inicial -->
+    <div id="setup-modal" class="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2.5rem] max-w-lg w-full p-8 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="bg-indigo-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="bot" class="text-indigo-600 w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-black text-slate-800">Configuração do Laboratório</h2>
+                <p class="text-slate-500 text-sm mt-2">Para ativares o Mentor IA, insere a tua chave API da Google. Se não tiveres, podes continuar apenas com o sorteador e deixar em branco.</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">Google Gemini API Key</label>
+                    <input type="password" id="api-key-input" placeholder="Cola aqui a tua chave (opcional)..." 
+                           class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-indigo-500 outline-none transition-all">
+                </div>
+                <button onclick="startApp()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-200">
+                    Começar a Oficina
+                </button>
+                <p class="text-[10px] text-center text-slate-400">A tua chave é guardada apenas localmente nesta sessão.</p>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-slate-900 text-white py-6 px-4 shadow-2xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight">Laboratório Criativo</h1>
+                    <p class="text-slate-400 text-sm font-medium">Oficina de Escrita e Imaginação</p>
+                </div>
+            </div>
+            
+            <div id="timer-container" class="bg-slate-800 px-6 py-3 rounded-2xl border border-slate-700 flex items-center gap-6">
+                <div class="text-right">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Tempo da Estação</p>
+                    <div id="timer-display" class="text-3xl font-mono font-black text-indigo-400">15:00</div>
+                </div>
+                <div class="flex gap-2">
+                    <button id="timer-control" onclick="toggleTimer()" class="bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-indigo-500 transition-all">
+                        <i data-lucide="play" id="play-icon" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-8">
+        
+        <nav class="flex flex-wrap justify-center gap-3 mb-10">
+            <button onclick="showStation('0')" class="nav-btn active flex items-center gap-2 bg-white border-2 border-indigo-600 text-indigo-600 px-6 py-3 rounded-2xl font-bold shadow-md transition-all" id="btn-0">
+                <i data-lucide="home" class="w-5 h-5"></i> Início
+            </button>
+            <button onclick="showStation('A')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-A">
+                <i data-lucide="users" class="w-5 h-5"></i> Personagens
+            </button>
+            <button onclick="showStation('B')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-B">
+                <i data-lucide="map" class="w-5 h-5"></i> Ambientes
+            </button>
+            <button onclick="showStation('C')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-C">
+                <i data-lucide="zap" class="w-5 h-5"></i> O Problema
+            </button>
+            <button onclick="showStation('D')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-D">
+                <i data-lucide="pen-tool" class="w-5 h-5"></i> Regras e Sementes
+            </button>
+            <button onclick="showStation('E')" class="nav-btn flex items-center gap-2 bg-white border-2 border-transparent text-slate-500 px-6 py-3 rounded-2xl font-bold hover:border-slate-200 transition-all" id="btn-E">
+                <i data-lucide="brain-circuit" class="w-5 h-5"></i> Mentor IA
+            </button>
+        </nav>
+
+        <div class="relative bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100">
+            
+            <!-- Estação 0: Início -->
+            <section id="station-0" class="station-card active p-6 md:p-12">
+                <div class="max-w-4xl mx-auto space-y-12">
+                    <div class="text-center space-y-6">
+                        <div class="p-4 bg-indigo-100 text-indigo-600 rounded-3xl w-20 h-20 mx-auto flex items-center justify-center">
+                            <i data-lucide="scroll-text" class="w-10 h-10"></i>
+                        </div>
+                        <h2 class="text-4xl font-black text-slate-800 uppercase tracking-tight">Oficina Criativa: Instruções</h2>
+                        <p class="text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
+                            Bem-vindo ao laboratório onde as histórias ganham vida. Segue o roteiro abaixo para construíres a tua narrativa:
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">1</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Sorteia e Regista</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed mb-3">Passa por cada aba, clica nos botões de sorteio e <strong>regista no teu caderno</strong> as seguintes quantidades exatas:</p>
+                                <div class="bg-white/70 p-4 rounded-2xl border border-indigo-100">
+                                    <ul class="text-sm font-bold text-indigo-900 space-y-1">
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 3 Personagens</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 2 Locais</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 1 Problema Central</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 3 Regras de Escrita</li>
+                                        <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 2 Sementes de Ideia</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">2</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Consulta os Guias</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Em cada secção, encontras dicas sobre como descrever melhor as personagens e os espaços. Lê os guias e tenta aplicar as dicas no teu texto final.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">3</span>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Começa a Escrever</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Usa o temporizador no topo para te focares. Tenta escrever o teu texto no caderno ou no computador sem parar durante os 15 minutos previstos.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-6 bg-indigo-900 text-white rounded-3xl border border-slate-100">
+                            <span class="flex-shrink-0 w-12 h-12 bg-white text-indigo-900 rounded-full flex items-center justify-center font-bold text-xl">4</span>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Aba: Mentor IA</h3>
+                                <p class="text-sm opacity-80 leading-relaxed">Depois de escreveres o texto, usa a última aba. Cola lá a tua história e os elementos que sorteaste nos espaços indicados. O Mentor não vai corrigir, vai ajudar-te a refletir sobre como melhorar!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação A: Personagens -->
+            <section id="station-A" class="station-card p-6 md:p-12">
+                <div class="grid lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-5 generator-box rounded-[2rem] p-6 text-center flex flex-col items-center min-h-[550px]">
+                        <div id="character-card" class="bg-white rounded-2xl shadow-xl w-full mb-6 border border-slate-100 hidden card-reveal overflow-hidden">
+                            <div class="h-64 overflow-hidden bg-slate-100">
+                                <img id="char-img" src="" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-6">
+                                <h3 id="char-name" class="text-2xl font-black text-slate-800 mb-1">...</h3>
+                                <p id="char-role" class="text-indigo-600 font-bold text-sm uppercase tracking-wider mb-4">...</p>
+                                <div class="text-left bg-slate-50 p-4 rounded-xl text-sm border border-slate-100 space-y-2">
+                                    <p class="text-slate-600"><strong>Medo:</strong> <span id="char-fear" class="text-slate-500">...</span></p>
+                                    <p class="text-slate-600"><strong>Desejo:</strong> <span id="char-wish" class="text-slate-500">...</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="char-placeholder" class="py-20 text-slate-400">
+                            <i data-lucide="user-search" class="w-20 h-20 mx-auto mb-4 opacity-20"></i>
+                            <p class="font-medium px-4">Clica abaixo para sortear uma personagem e regista-a no teu caderno (precisas de 3).</p>
+                        </div>
+                        <button onclick="generateCharacter()" class="mt-auto w-full bg-slate-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i> Sortear Personagem
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-2xl">
+                            <h2 class="text-2xl font-black text-amber-900 mb-4">🎨 Guia para Criar Personagens</h2>
+                            <div class="grid md:grid-cols-2 gap-6 text-sm text-amber-900/80">
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-amber-800 uppercase text-xs">1. Retrato Físico</h4>
+                                    <p>• <strong>Traços:</strong> Estatura, postura e rosto.</p>
+                                    <p>• <strong>Vestuário:</strong> Estilo e estado da roupa.</p>
+                                    <p>• <strong>Pormenor:</strong> Cicatriz, tatuagem ou tique.</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-amber-800 uppercase text-xs">2. Retrato Psicológico</h4>
+                                    <p>• <strong>Personalidade:</strong> Introvertida ou extrovertida?</p>
+                                    <p>• <strong>Temperamento:</strong> Calma ou explosiva?</p>
+                                    <p>• <strong>Virtudes e Defeitos:</strong> Ninguém é perfeito.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                            <h4 class="font-bold text-slate-800 mb-2">💡 Dica de Ouro:</h4>
+                            <p class="text-sm text-slate-600 italic">"Mostra a aparência através da ação. Ex: 'O seu cabelo grisalho voava desordenadamente enquanto corria'."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação B: Ambientes -->
+            <section id="station-B" class="station-card p-6 md:p-12">
+                <div class="grid lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-6 flex flex-col gap-6">
+                        <div id="env-container" class="relative h-96 rounded-[2rem] overflow-hidden shadow-2xl group bg-slate-200 border-4 border-white">
+                            <img id="env-img" src="" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-8 text-white">
+                                <span class="text-emerald-400 text-xs font-bold uppercase mb-2 tracking-widest">Localização Sorteada</span>
+                                <h3 id="env-title" class="font-black text-3xl">Clica para viajar...</h3>
+                            </div>
+                        </div>
+                        <p class="text-center text-slate-400 text-xs italic">Deves sortear e registar 2 locais diferentes.</p>
+                        <button onclick="generateEnvironment()" class="bg-emerald-600 text-white px-8 py-5 rounded-2xl font-bold hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 shadow-lg">
+                            <i data-lucide="map-pin" class="w-6 h-6"></i> Mudar de Cenário
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="bg-emerald-50 border-l-4 border-emerald-400 p-8 rounded-r-2xl">
+                            <h2 class="text-2xl font-black text-emerald-900 mb-4">🖼️ Guia para Pintar Cenários</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-bold text-emerald-800 uppercase text-xs mb-2">A Regra dos 5 Sentidos</h4>
+                                    <div class="grid grid-cols-2 gap-4 text-xs font-medium text-emerald-900/70">
+                                        <span>👁️ Visão: Cores e luz.</span>
+                                        <span>👂 Audição: Sons e ecos.</span>
+                                        <span>👃 Olfato: Cheiros e aromas.</span>
+                                        <span>🖐️ Tato: Clima e texturas.</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-emerald-800 uppercase text-xs mb-2">Do Geral para o Particular</h4>
+                                    <p class="text-sm text-emerald-900/80 italic">Usa a técnica do "Zoom": Plano Geral -> Aproximação -> O Detalhe significativo.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação C: Conflito -->
+            <section id="station-C" class="station-card p-6 md:p-12 text-center">
+                <div class="max-w-2xl mx-auto space-y-8">
+                    <div class="flex items-center justify-center gap-4">
+                        <span class="p-3 bg-rose-100 text-rose-600 rounded-2xl"><i data-lucide="zap"></i></span>
+                        <h2 class="text-3xl font-black text-slate-800">O Problema Central</h2>
+                    </div>
+                    <div id="conflict-display" class="bg-rose-50 p-12 rounded-[2.5rem] border-4 border-white shadow-inner min-h-[200px] flex items-center justify-center">
+                        <p id="conflict-text" class="text-2xl md:text-3xl italic text-rose-800 font-medium leading-relaxed">"Gera o motor que vai impulsionar a tua narrativa (precisas de 1)..."</p>
+                    </div>
+                    <button onclick="generateConflict()" class="bg-rose-600 text-white px-12 py-6 rounded-2xl font-black text-xl hover:bg-rose-500 transition-all shadow-xl">
+                        Sortear Novo Problema
+                    </button>
+                    <p class="text-slate-400 text-sm italic">"Um bom problema obriga a personagem a sair da sua zona de conforto."</p>
+                </div>
+            </section>
+
+            <!-- Estação D: Regras e Sementes -->
+            <section id="station-D" class="station-card p-6 md:p-12">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 bg-indigo-100 text-indigo-600 rounded-lg"><i data-lucide="shield-alert"></i></span>
+                            <h3 class="font-black text-xl text-slate-800">Regras de Escrita</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
+                            <p id="style-text" class="text-slate-600 italic">"Sorteia e regista 3 regras..."</p>
+                        </div>
+                        <button onclick="generateStyle()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800">Sorteia Desafio Criativo</button>
+                    </div>
+                    <div class="bg-indigo-50 p-8 rounded-3xl border border-indigo-100 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 bg-indigo-200 text-indigo-700 rounded-lg"><i data-lucide="leaf"></i></span>
+                            <h3 class="font-black text-xl text-slate-800">Sementes de Ideias</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
+                            <p id="seed-text" class="text-indigo-900 italic">"Sorteia e regista 2 sementes..."</p>
+                        </div>
+                        <button onclick="generateSeed()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-500">Germinar uma Ideia</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estação E: Mentor IA -->
+            <section id="station-E" class="station-card p-6 md:p-12">
+                <div id="ai-not-configured" class="text-center py-20 hidden">
+                    <i data-lucide="alert-circle" class="w-16 h-16 text-amber-500 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold">IA não configurada</h3>
+                    <p class="text-slate-500 mt-2">Reinicia a página e insere a tua API Key do Google Gemini para usares esta função.</p>
+                </div>
+
+                <div id="ai-active" class="grid lg:grid-cols-2 gap-10">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i data-lucide="brain-circuit" class="text-indigo-600 w-8 h-8"></i>
+                            <h3 class="text-2xl font-black text-slate-800">Oficina de Revisão</h3>
+                        </div>
+                        
+                        <!-- Campos Separados de Elementos -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-3 tracking-widest">1. Elementos Sorteados</label>
+                            <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border-2 border-slate-100">
+                                <div>
+                                    <span class="text-xs font-bold text-indigo-500 uppercase">3 Personagens</span>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+                                        <input type="text" id="ai-char-1" placeholder="Personagem 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-char-2" placeholder="Personagem 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-char-3" placeholder="Personagem 3" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-indigo-500 uppercase">2 Locais</span>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                                        <input type="text" id="ai-loc-1" placeholder="Local 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-loc-2" placeholder="Local 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-indigo-500 uppercase">1 Problema Central</span>
+                                    <div class="mt-2">
+                                        <input type="text" id="ai-prob" placeholder="Problema Central" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-indigo-500 uppercase">3 Regras de Escrita</span>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+                                        <input type="text" id="ai-rule-1" placeholder="Regra 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-rule-2" placeholder="Regra 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-rule-3" placeholder="Regra 3" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-indigo-500 uppercase">2 Sementes de Ideia</span>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                                        <input type="text" id="ai-seed-1" placeholder="Semente 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-seed-2" placeholder="Semente 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">2. O teu Texto</label>
+                            <textarea id="ai-user-text" placeholder="Cola aqui a história que escreveste..." 
+                                      class="w-full p-4 rounded-2xl border-2 border-slate-100 h-48 text-sm outline-none focus:border-indigo-500 transition-colors"></textarea>
+                        </div>
+                        <button id="send-to-ai" onclick="callMentorIA()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                            <span id="btn-text">Pedir Feedback ao Mentor</span>
+                            <div id="ai-loading" class="loading-spinner hidden"></div>
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-[2.5rem] p-8 border-2 border-slate-100 flex flex-col shadow-inner min-h-[400px]">
+                        <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-4">
+                            <div class="p-2 bg-indigo-600 text-white rounded-xl"><i data-lucide="message-square" class="w-5 h-5"></i></div>
+                            <h4 class="font-bold text-slate-800 uppercase tracking-widest text-xs">A Voz do Mentor</h4>
+                        </div>
+                        <div id="ai-response-container" class="flex-grow text-slate-700 text-sm leading-relaxed overflow-y-auto space-y-4">
+                            <p class="italic text-slate-400 text-center mt-32">A aguardar o teu texto. O mentor não corrige erros diretamente, ele fará perguntas para que sejas tu a melhorar a narrativa!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        let apiKey = "";
+        let timerInterval = null;
+        let timeLeft = 900;
+
+        // 20 PERSONAGENS
+        const characterProfiles = [
+            { nome: "Cora Mil-Anos", role: "Alquimista de Cores", medo: "Ficar cega", desejo: "Ver uma cor inexistente", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Jonas do Vento", role: "Navegador Errante", medo: "Calmaria total", desejo: "Chegar à borda do mundo", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Beatriz Sombra", role: "Arquivista de Segredos", medo: "A luz do meio-dia", desejo: "Apagar o seu próprio passado", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Elias Ferro", role: "Ferreiro de Memórias", medo: "O ferrugem da mente", desejo: "Criar uma espada inquebrável", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Lia Cristal", role: "Tecelã de Sonhos", medo: "Dormir e nunca mais acordar", desejo: "Fazer o mundo sonhar em conjunto", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Marco Relógio", role: "Consertador de Segundos", medo: "O tempo parar", desejo: "Viver o mesmo dia para sempre", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Íris Eco", role: "Cantora de Cavernas", medo: "O silêncio absoluto", desejo: "Que a sua voz seja ouvida no espaço", img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Silas Brasa", role: "Domador de Fogos", medo: "A água fria", desejo: "Aquecer o coração de uma estátua", img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Vera Raiz", role: "Botânica do Invisível", medo: "Cimento e metal", desejo: "Fazer crescer flores no deserto", img: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Hugo Papel", role: "Escritor de Destinos", medo: "Ficar sem tinta", desejo: "Mudar o final da sua própria história", img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Nora Neve", role: "Escultora de Gelo", medo: "O calor excessivo", desejo: "Congelar um momento de felicidade", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Dante Marfim", role: "Mestre de Xadrez Real", medo: "Perder a rainha", desejo: "Prever todos os movimentos da vida", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Clara Vidro", role: "Espia Transparente", medo: "Ser descoberta", desejo: "Tornar-se totalmente invisível", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Bóris Metal", role: "Cyborg Nostálgico", medo: "Ficar sem bateria", desejo: "Sentir o cheiro de uma flor real", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Zélia Astral", role: "Viajante de Constelações", medo: "Perder-se no vazio", desejo: "Tocar numa estrela cadente", img: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Otávio Sal", role: "Pescador de Nuvens", medo: "Afogar-se em terra firme", desejo: "Trazer a chuva para o seu povo", img: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Maia Tinta", role: "Tatuadora de Almas", medo: "Pele vazia", desejo: "Desenhar a coragem no peito de um cobarde", img: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Artur Chave", role: "Guardião de Portas Erradas", medo: "A porta certa", desejo: "Encontrar o que nunca foi perdido", img: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Eva Engrenagem", role: "Inventora de Inutilidades", medo: "A lógica perfeita", desejo: "Criar uma máquina que faz rir", img: "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Lúcio Farol", role: "Vigia do Deserto", medo: "Miragens reais", desejo: "Ver o oceano pela primeira vez", img: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&q=80&w=800" }
+        ];
+
+        // 15 LOCAIS
+        const envs = [
+            { title: "Farol do Fim do Mundo", img: "https://images.unsplash.com/photo-1500390691797-d98973a0d48a?auto=format&fit=crop&w=1000" },
+            { title: "Floresta de Vidro", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1000" },
+            { title: "Cidade nas Nuvens", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000" },
+            { title: "Biblioteca de Poeira", img: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1000" },
+            { title: "Mercado de Sonhos Usados", img: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=1000" },
+            { title: "Gruta dos Ecos Perdidos", img: "https://images.unsplash.com/photo-1509233725247-49e657c54213?auto=format&fit=crop&w=1000" },
+            { title: "Estação de Comboio Abandonada", img: "https://images.unsplash.com/photo-1515165597901-b44c707bbbb5?auto=format&fit=crop&w=1000" },
+            { title: "Jardim de Ferro", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1000" },
+            { title: "Laboratório de Alquimia", img: "https://images.unsplash.com/photo-1532187863486-abf9d3a35263?auto=format&fit=crop&w=1000" },
+            { title: "Vila Submersa", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000" },
+            { title: "Cume da Montanha Roxa", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000" },
+            { title: "Teatro de Marionetas Vivas", img: "https://images.unsplash.com/photo-1505682634904-d7c8d95ccd50?auto=format&fit=crop&w=1000" },
+            { title: "Deserto de Sal Azul", img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1000" },
+            { title: "Castelo de Cartas Gigantes", img: "https://images.unsplash.com/photo-1502700807168-484a3e7889d0?auto=format&fit=crop&w=1000" },
+            { title: "Sótão das Memórias", img: "https://images.unsplash.com/photo-1444837881208-4d46d5c1f127?auto=format&fit=crop&w=1000" }
+        ];
+
+        // 10 CONFLITOS
+        const conflicts = [
+            "Descobres que és a única pessoa que consegue ver as cores no mundo.",
+            "O tempo parou e tu és a única personagem que se consegue mover.",
+            "Um objeto que estimas muito começa a sussurrar segredos sobre o futuro.",
+            "Toda a gente na cidade esqueceu quem tu és, inclusive a tua família.",
+            "Recebes uma carta que foi escrita por ti, mas datada de daqui a dez anos.",
+            "Um portal abriu-se no meio da praça e algo (ou alguém) está a sair de lá.",
+            "As sombras de todas as pessoas começaram a ganhar vida e a fugir.",
+            "Acordas num local desconhecido com uma chave na mão e nenhuma porta à vista.",
+            "O sol não nasceu e a escuridão parece estar a ficar cada vez mais sólida.",
+            "Perdeste a capacidade de falar, mas agora consegues ouvir os pensamentos dos animais."
+        ];
+
+        // 20 REGRAS DE ESCRITA
+        const styles = [
+            "Não podes usar a letra 'A' no primeiro parágrafo.",
+            "A história deve começar e terminar com a mesma palavra.",
+            "Usa três onomatopeias ao longo do texto.",
+            "Inclui uma metáfora sobre o mar ou o vento.",
+            "Descreve um cheiro que não exista na realidade.",
+            "Escreve como se fosses um narrador que não entende tecnologia.",
+            "Cada frase do primeiro parágrafo deve ter exatamente 7 palavras.",
+            "Não podes usar o verbo 'ser' ou 'estar' nas primeiras 5 frases.",
+            "Deves incluir o nome de uma flor e de um planeta.",
+            "A personagem principal deve fazer uma pergunta que fica sem resposta.",
+            "Escreve um parágrafo inteiro composto apenas por frases curtas (max 3 palavras).",
+            "Usa a palavra 'efervescente' num contexto inesperado.",
+            "Proibido usar adjetivos na descrição do ambiente.",
+            "Introduz um objeto de cor amarela que mude o rumo da cena.",
+            "A primeira palavra de cada parágrafo deve formar uma frase secreta.",
+            "Usa uma aliteração (repetição de sons) em três frases seguidas.",
+            "A história deve passar-se num intervalo de apenas 60 segundos.",
+            "Cria um diálogo onde uma das personagens apenas responde com rimas.",
+            "Descreve o cenário sem usar cores, apenas formas e texturas.",
+            "O texto deve terminar com uma reticência (...)."
+        ];
+
+        // 20 SEMENTES DE IDEIAS
+        const seeds = [
+            "Um mapa cai do céu e aterra no teu colo.",
+            "Encontras uma chave de cristal enterrada no jardim.",
+            "O teu reflexo no espelho pisca-te o olho e sai da moldura.",
+            "Um desconhecido entrega-te um pacote: 'Não abras antes da meia-noite'.",
+            "Ouve-se uma música que parece vir de debaixo do chão.",
+            "Todas as portas da cidade trancaram-se ao mesmo tempo.",
+            "Encontras um sapato de cristal, mas ele é do tamanho de um carro.",
+            "As estrelas começaram a cair como se fossem gotas de chuva.",
+            "O teu gato começa a falar, mas apenas em latim.",
+            "Descobres um túnel secreto atrás do teu guarda-roupa.",
+            "Um corvo traz-te um anel com um bilhete de ajuda.",
+            "Acordas e descobres que tens asas, mas elas são feitas de papel.",
+            "A água do mar tornou-se doce e cor de rosa.",
+            "Encontras uma fotografia tua num lugar onde nunca estiveste.",
+            "As estátuas do parque mudaram de posição durante a noite.",
+            "O vento sopra palavras em vez de ar.",
+            "Uma árvore na tua rua começou a dar livros em vez de frutos.",
+            "Descobres que o teu vizinho é, na verdade, um robô a pilhas.",
+            "Cai um meteorito no teu quintal, mas ele está frio como gelo.",
+            "Apareceu uma porta nova no corredor da tua escola."
+        ];
+
+        let lastCharIndex = -1;
+
+        function startApp() {
+            apiKey = document.getElementById('api-key-input').value.trim();
+            document.getElementById('setup-modal').style.display = 'none';
+            if (!apiKey) {
+                document.getElementById('ai-not-configured').classList.remove('hidden');
+                document.getElementById('ai-active').classList.add('hidden');
+            } else {
+                document.getElementById('ai-not-configured').classList.add('hidden');
+                document.getElementById('ai-active').classList.remove('hidden');
+            }
+        }
+
+        async function callMentorIA() {
+            const char1 = document.getElementById('ai-char-1').value.trim();
+            const char2 = document.getElementById('ai-char-2').value.trim();
+            const char3 = document.getElementById('ai-char-3').value.trim();
+            const loc1 = document.getElementById('ai-loc-1').value.trim();
+            const loc2 = document.getElementById('ai-loc-2').value.trim();
+            const prob = document.getElementById('ai-prob').value.trim();
+            const rule1 = document.getElementById('ai-rule-1').value.trim();
+            const rule2 = document.getElementById('ai-rule-2').value.trim();
+            const rule3 = document.getElementById('ai-rule-3').value.trim();
+            const seed1 = document.getElementById('ai-seed-1').value.trim();
+            const seed2 = document.getElementById('ai-seed-2').value.trim();
+            
+            const userText = document.getElementById('ai-user-text').value.trim();
+            const responseDiv = document.getElementById('ai-response-container');
+            const btn = document.getElementById('send-to-ai');
+            const loading = document.getElementById('ai-loading');
+
+            if (!userText) {
+                responseDiv.innerHTML = "<p class='text-rose-500 font-bold text-center mt-32'>⚠️ Por favor, cola o teu texto ou escreve uma mensagem para começar a conversar!</p>";
+                return;
+            }
+
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+            responseDiv.innerHTML = "<p class='italic animate-pulse text-indigo-600 text-center mt-32'>O Mentor está a analisar a tua mensagem com atenção. Aguarda um momento...</p>";
+
+            const elementsStr = `
+            Personagens: 1) ${char1 || 'Não preenchido'}, 2) ${char2 || 'Não preenchido'}, 3) ${char3 || 'Não preenchido'}
+            Locais: 1) ${loc1 || 'Não preenchido'}, 2) ${loc2 || 'Não preenchido'}
+            Problema Central: ${prob || 'Não preenchido'}
+            Regras de Escrita: 1) ${rule1 || 'Não preenchido'}, 2) ${rule2 || 'Não preenchido'}, 3) ${rule3 || 'Não preenchido'}
+            Sementes de Ideia: 1) ${seed1 || 'Não preenchido'}, 2) ${seed2 || 'Não preenchido'}
+            `;
+
+            const systemPrompt = `Atua como um Mentor Socrático de Escrita Criativa. 
+            Regras Absolutas:
+            1. NUNCA reescrevas o texto do aluno nem dês a solução direta. O teu objetivo é fazê-lo pensar por si mesmo.
+            2. Os elementos sorteados pelo aluno são:
+            ${elementsStr}
+            NOTA: O aluno pode ainda não ter preenchido todos os campos (alguns podem indicar "Não preenchido"). Adapta o teu feedback ao que foi preenchido. Se não houver elementos e o texto for apenas uma saudação, sê cordial e incentiva o aluno a preencher a grelha para iniciar o desafio.
+            3. Dá feedback encorajador sobre os pontos fortes da narrativa.
+            4. Faz 2 ou 3 perguntas provocadoras que levem o aluno a refletir sobre como melhorar (ex: explorar mais a profundidade psicológica de uma personagem, uso dos sentidos no ambiente, ou a coerência do conflito).
+            5. Verifica se as Regras de Escrita (caso preenchidas) foram cumpridas. Se alguma não foi, NÃO digas exatamente onde o aluno falhou, apenas diz qual a regra que foi quebrada e desafia-o a encontrar e corrigir o erro no seu texto.
+            6. Mantém um tom motivador, de tutor paciente e entusiasta. Responde sempre em Português de Portugal.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: `Elementos sorteados pelo aluno:\n${elementsStr}\n\nMensagem/Texto do aluno:\n${userText}` }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            try {
+                // AQUI FOI CORRIGIDO: Se for inserida uma chave, usa o 1.5-flash standard. 
+                // Caso contrário (no ambiente nativo sem chave fornecida pelo utilizador) usa o preview do ambiente.
+                const modelName = apiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error?.message || "A API devolveu um erro.");
+                }
+
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error("A IA não devolveu resposta.");
+
+                responseDiv.innerHTML = text.split('\n').map(p => p.trim() ? `<p class="mb-3">${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>` : '').join('');
+            } catch (error) {
+                console.error("Erro da API:", error);
+                
+                let errorMsg = error.message === "Failed to fetch" 
+                    ? "Erro de rede ou bloqueio de CORS. Se for bloqueio, tenta desativar extensões do browser (como o uBlock) ou hospedar o ficheiro online." 
+                    : `Detalhe: ${error.message}`;
+
+                responseDiv.innerHTML = `
+                    <div class="text-center mt-20">
+                        <i data-lucide="alert-triangle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i>
+                        <p class="text-rose-600 font-bold">Não foi possível ligar ao Mentor.</p>
+                        <p class="text-slate-500 text-sm mt-2 max-w-md mx-auto">${errorMsg}</p>
+                    </div>`;
+                
+                lucide.createIcons();
+            } finally {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+            }
+        }
+
+        function toggleTimer() {
+            const icon = document.getElementById('play-icon');
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                icon.setAttribute('data-lucide', 'play');
+            } else {
+                timerInterval = setInterval(() => {
+                    if(timeLeft > 0) {
+                        timeLeft--;
+                        updateTimerDisplay();
+                    }
+                }, 1000);
+                icon.setAttribute('data-lucide', 'pause');
+            }
+            lucide.createIcons();
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft/60);
+            const s = timeLeft%60;
+            document.getElementById('timer-display').textContent = `${m}:${s < 10 ? '0'+s : s}`;
+        }
+
+        function showStation(id) {
+            document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('station-' + id).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                b.classList.add('border-transparent', 'text-slate-500');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + id);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+            
+            lucide.createIcons();
+        }
+
+        function generateCharacter() {
+            let index;
+            do {
+                index = Math.floor(Math.random() * characterProfiles.length);
+            } while (index === lastCharIndex);
+            lastCharIndex = index;
+            
+            const profile = characterProfiles[index];
+            document.getElementById('char-placeholder').style.display = 'none';
+            document.getElementById('character-card').classList.remove('hidden');
+            
+            const img = document.getElementById('char-img');
+            img.style.opacity = 0;
+            setTimeout(() => {
+                img.src = profile.img;
+                img.style.opacity = 1;
+            }, 100);
+            
+            document.getElementById('char-name').textContent = profile.nome;
+            document.getElementById('char-role').textContent = profile.role;
+            document.getElementById('char-fear').textContent = profile.medo;
+            document.getElementById('char-wish').textContent = profile.desejo;
+        }
+
+        function generateEnvironment() {
+            const env = envs[Math.floor(Math.random() * envs.length)];
+            const img = document.getElementById('env-img');
+            img.style.opacity = 0;
+            setTimeout(() => {
+                img.src = env.img;
+                img.style.opacity = 1;
+                document.getElementById('env-title').textContent = env.title;
+            }, 300);
+        }
+
+        function generateConflict() {
+            const text = document.getElementById('conflict-text');
+            text.style.opacity = 0;
+            setTimeout(() => {
+                text.textContent = `"${conflicts[Math.floor(Math.random() * conflicts.length)]}"`;
+                text.style.opacity = 1;
+            }, 300);
+        }
+
+        function generateStyle() {
+            const text = document.getElementById('style-text');
+            text.style.opacity = 0;
+            setTimeout(() => {
+                text.textContent = styles[Math.floor(Math.random() * styles.length)];
+                text.style.opacity = 1;
+            }, 300);
+        }
+
+        function generateSeed() {
+            const text = document.getElementById('seed-text');
+            text.style.opacity = 0;
+            setTimeout(() => {
+                text.textContent = seeds[Math.floor(Math.random() * seeds.length)];
+                text.style.opacity = 1;
+            }, 300);
+        }
+    </script>
+</body>
+</html>
