@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribunal Narrativo — Votação</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --indigo: #4f46e5;
+            --indigo-light: #eef2ff;
+            --amber: #f59e0b;
+            --amber-light: #fffbeb;
+            --rose: #f43f5e;
+            --emerald: #10b981;
+            --slate: #1e293b;
+            --slate-mid: #64748b;
+            --slate-light: #f1f5f9;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #fdf4ff 50%, #fff7ed 100%);
+            min-height: 100vh;
+            padding: 20px 16px 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--indigo);
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            font-size: 13px;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        header h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(26px, 6vw, 38px);
+            color: var(--slate);
+            line-height: 1.1;
+        }
+
+        header p {
+            color: var(--slate-mid);
+            font-size: 14px;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* Painel do grupo em avaliação */
+        #grupo-display {
+            background: var(--indigo);
+            color: white;
+            border-radius: 20px;
+            padding: 16px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        #grupo-display .label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        #grupo-display .grupo-nome {
+            font-family: 'Fredoka One', cursive;
+            font-size: 28px;
+            margin-top: 4px;
+        }
+
+        /* Ecrã de espera */
+        #waiting-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .waiting-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        #waiting-screen h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 24px;
+            color: var(--slate);
+            margin-bottom: 8px;
+        }
+
+        #waiting-screen p {
+            color: var(--slate-mid);
+            font-size: 14px;
+        }
+
+        /* Formulário de votação */
+        #voting-form { display: none; }
+
+        .criterio-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 2px solid transparent;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+
+        .criterio-card.voted {
+            border-color: var(--emerald);
+        }
+
+        .criterio-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .criterio-emoji {
+            font-size: 28px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .criterio-titulo {
+            font-family: 'Fredoka One', cursive;
+            font-size: 18px;
+            color: var(--slate);
+            line-height: 1.2;
+        }
+
+        .criterio-subtitulo {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--slate-mid);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* Botões de votação */
+        .vote-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .vote-btn {
+            border: 2.5px solid #e2e8f0;
+            background: var(--slate-light);
+            border-radius: 14px;
+            padding: 10px 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+        }
+
+        .vote-btn:active { transform: scale(0.95); }
+
+        .vote-btn .btn-icon { font-size: 22px; display: block; margin-bottom: 3px; }
+        .vote-btn .btn-label { font-size: 11px; color: var(--slate-mid); display: block; }
+
+        .vote-btn.selected-1 {
+            background: #fef2f2;
+            border-color: var(--rose);
+        }
+        .vote-btn.selected-1 .btn-label { color: var(--rose); }
+
+        .vote-btn.selected-2 {
+            background: var(--amber-light);
+            border-color: var(--amber);
+        }
+        .vote-btn.selected-2 .btn-label { color: var(--amber); }
+
+        .vote-btn.selected-3 {
+            background: #f0fdf4;
+            border-color: var(--emerald);
+        }
+        .vote-btn.selected-3 .btn-label { color: var(--emerald); }
+
+        /* Barra de progresso */
+        .progress-bar-wrap {
+            background: #e2e8f0;
+            border-radius: 999px;
+            height: 8px;
+            margin: 20px 0 16px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--indigo), #818cf8);
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+
+        .progress-label {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--slate-mid);
+            margin-bottom: 16px;
+        }
+
+        /* Botão de submissão */
+        #btn-submeter {
+            width: 100%;
+            background: var(--indigo);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 20px rgba(79,70,229,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #btn-submeter:disabled {
+            background: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        #btn-submeter:not(:disabled):active { transform: scale(0.97); }
+
+        /* Ecrã de sucesso */
+        #success-screen {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-icon {
+            font-size: 72px;
+            margin-bottom: 16px;
+            animation: bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounce {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        #success-screen h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 28px;
+            color: var(--emerald);
+            margin-bottom: 8px;
+        }
+
+        #success-screen p {
+            color: var(--slate-mid);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* Ecrã já votou */
+        #already-voted-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        #already-voted-screen h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 24px;
+            color: var(--amber);
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="badge">⚖️ Tribunal Narrativo</div>
+        <h1>A tua votação</h1>
+        <p>Avalia a história com honestidade e criatividade!</p>
+    </header>
+
+    <!-- Grupo em avaliação -->
+    <div id="grupo-display">
+        <div class="label">A ser avaliado agora</div>
+        <div class="grupo-nome" id="grupo-nome-txt">—</div>
+    </div>
+
+    <!-- Ecrã de espera -->
+    <div id="waiting-screen">
+        <div class="waiting-icon">⏳</div>
+        <h2>Aguarda o professor...</h2>
+        <p>A votação ainda não começou.<br>O professor irá ativar em breve.</p>
+    </div>
+
+    <!-- Formulário de votação -->
+    <div id="voting-form">
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-label" id="progress-label">0 de 5 critérios avaliados</div>
+
+        <!-- Critério 1 -->
+        <div class="criterio-card" id="card-1">
+            <div class="criterio-header">
+                <span class="criterio-emoji">🧩</span>
+                <div>
+                    <div class="criterio-titulo">"A história faz sentido?"</div>
+                    <div class="criterio-subtitulo">Coerência Narrativa</div>
+                </div>
+            </div>
+            <div class="vote-options">
+                <button class="vote-btn" onclick="votar(1,1)">
+                    <span class="btn-icon">😕</span>
+                    <span class="btn-label">Confuso</span>
+                </button>
+                <button class="vote-btn" onclick="votar(1,2)">
+                    <span class="btn-icon">🙂</span>
+                    <span class="btn-label">Quase lá</span>
+                </button>
+                <button class="vote-btn" onclick="votar(1,3)">
+                    <span class="btn-icon">🤩</span>
+                    <span class="btn-label">Muito claro!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Critério 2 -->
+        <div class="criterio-card" id="card-2">
+            <div class="criterio-header">
+                <span class="criterio-emoji">🎭</span>
+                <div>
+                    <div class="criterio-titulo">"Acreditámos nas personagens?"</div>
+                    <div class="criterio-subtitulo">Construção das Personagens</div>
+                </div>
+            </div>
+            <div class="vote-options">
+                <button class="vote-btn" onclick="votar(2,1)">
+                    <span class="btn-icon">😕</span>
+                    <span class="btn-label">Sem vida</span>
+                </button>
+                <button class="vote-btn" onclick="votar(2,2)">
+                    <span class="btn-icon">🙂</span>
+                    <span class="btn-label">Quase reais</span>
+                </button>
+                <button class="vote-btn" onclick="votar(2,3)">
+                    <span class="btn-icon">🤩</span>
+                    <span class="btn-label">Muito reais!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Critério 3 -->
+        <div class="criterio-card" id="card-3">
+            <div class="criterio-header">
+                <span class="criterio-emoji">🌍</span>
+                <div>
+                    <div class="criterio-titulo">"Sentimos que estávamos lá?"</div>
+                    <div class="criterio-subtitulo">Construção do Ambiente</div>
+                </div>
+            </div>
+            <div class="vote-options">
+                <button class="vote-btn" onclick="votar(3,1)">
+                    <span class="btn-icon">😕</span>
+                    <span class="btn-label">Sem imagem</span>
+                </button>
+                <button class="vote-btn" onclick="votar(3,2)">
+                    <span class="btn-icon">🙂</span>
+                    <span class="btn-label">Quase lá</span>
+                </button>
+                <button class="vote-btn" onclick="votar(3,3)">
+                    <span class="btn-icon">🤩</span>
+                    <span class="btn-label">Estávamos lá!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Critério 4 -->
+        <div class="criterio-card" id="card-4">
+            <div class="criterio-header">
+                <span class="criterio-emoji">⚡</span>
+                <div>
+                    <div class="criterio-titulo">"O problema puxou-nos para a frente?"</div>
+                    <div class="criterio-subtitulo">Força do Conflito</div>
+                </div>
+            </div>
+            <div class="vote-options">
+                <button class="vote-btn" onclick="votar(4,1)">
+                    <span class="btn-icon">😕</span>
+                    <span class="btn-label">Fraco</span>
+                </button>
+                <button class="vote-btn" onclick="votar(4,2)">
+                    <span class="btn-icon">🙂</span>
+                    <span class="btn-label">Interessante</span>
+                </button>
+                <button class="vote-btn" onclick="votar(4,3)">
+                    <span class="btn-icon">🤩</span>
+                    <span class="btn-label">Prendeu-me!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Critério 5 -->
+        <div class="criterio-card" id="card-5">
+            <div class="criterio-header">
+                <span class="criterio-emoji">🎲</span>
+                <div>
+                    <div class="criterio-titulo">"Usaram o que o acaso lhes deu?"</div>
+                    <div class="criterio-subtitulo">Uso Criativo dos Elementos Sorteados</div>
+                </div>
+            </div>
+            <div class="vote-options">
+                <button class="vote-btn" onclick="votar(5,1)">
+                    <span class="btn-icon">😕</span>
+                    <span class="btn-label">Ignoraram</span>
+                </button>
+                <button class="vote-btn" onclick="votar(5,2)">
+                    <span class="btn-icon">🙂</span>
+                    <span class="btn-label">Usaram alguns</span>
+                </button>
+                <button class="vote-btn" onclick="votar(5,3)">
+                    <span class="btn-icon">🤩</span>
+                    <span class="btn-label">Usaram tudo!</span>
+                </button>
+            </div>
+        </div>
+
+        <button id="btn-submeter" disabled onclick="submeterVoto()">
+            ✉️ Enviar Voto
+        </button>
+    </div>
+
+    <!-- Ecrã de sucesso -->
+    <div id="success-screen">
+        <div class="success-icon">🎉</div>
+        <h2>Voto enviado!</h2>
+        <p>Obrigado pela tua avaliação.<br>Aguarda a próxima ronda!</p>
+    </div>
+
+    <!-- Ecrã já votou neste grupo -->
+    <div id="already-voted-screen">
+        <div class="waiting-icon">✅</div>
+        <h2>Já votaste!</h2>
+        <p style="color:#64748b;font-size:15px;font-weight:600;">O teu voto neste grupo já foi registado.<br>Aguarda a próxima ronda.</p>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDR6EiTdMY-b0rXYnlF1InasK4AbRPRc2E",
+        authDomain: "gen-lang-client-0341373088.firebaseapp.com",
+        databaseURL: "https://gen-lang-client-0341373088-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "gen-lang-client-0341373088",
+        storageBucket: "gen-lang-client-0341373088.firebasestorage.app",
+        messagingSenderId: "1041014242212",
+        appId: "1:1041014242212:web:a3211763bb87f351a71f31"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ID único para este aluno nesta sessão
+    const alunoId = 'aluno_' + Math.random().toString(36).substr(2, 9);
+    
+    let votos = {};
+    let grupoAtual = null;
+    let votadosNestaSessao = {};
+
+    // Ouvir o estado da sessão (qual grupo está ativo)
+    onValue(ref(db, 'sessao'), (snap) => {
+        const sessao = snap.val();
+
+        if (!sessao || !sessao.ativa) {
+            // Sem sessão ativa
+            mostrarEcra('waiting');
+            grupoAtual = null;
+            return;
+        }
+
+        const novoGrupo = sessao.grupoAtual;
+
+        if (novoGrupo !== grupoAtual) {
+            grupoAtual = novoGrupo;
+            votos = {};
+            atualizarProgresso();
+
+            // Verificar se já votou neste grupo
+            if (votadosNestaSessao[grupoAtual]) {
+                mostrarEcra('already-voted');
+            } else {
+                mostrarEcra('voting');
+            }
+
+            // Atualizar nome do grupo
+            document.getElementById('grupo-nome-txt').textContent = grupoAtual;
+            document.getElementById('grupo-display').style.display = 'block';
+
+            // Limpar seleções visuais
+            document.querySelectorAll('.vote-btn').forEach(b => {
+                b.className = 'vote-btn';
+            });
+            document.querySelectorAll('.criterio-card').forEach(c => {
+                c.classList.remove('voted');
+            });
+        }
+    });
+
+    function mostrarEcra(tipo) {
+        document.getElementById('waiting-screen').style.display = tipo === 'waiting' ? 'block' : 'none';
+        document.getElementById('voting-form').style.display = tipo === 'voting' ? 'block' : 'none';
+        document.getElementById('success-screen').style.display = tipo === 'success' ? 'block' : 'none';
+        document.getElementById('already-voted-screen').style.display = tipo === 'already-voted' ? 'block' : 'none';
+        if (tipo === 'waiting') {
+            document.getElementById('grupo-display').style.display = 'none';
+        }
+    }
+
+    function atualizarProgresso() {
+        const total = Object.keys(votos).length;
+        const pct = (total / 5) * 100;
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = `${total} de 5 critérios avaliados`;
+        document.getElementById('btn-submeter').disabled = total < 5;
+    }
+
+    // Expor funções para os botões HTML
+    window.votar = function(criterio, valor) {
+        votos[criterio] = valor;
+
+        // Atualizar visual
+        const card = document.getElementById('card-' + criterio);
+        card.classList.add('voted');
+        const btns = card.querySelectorAll('.vote-btn');
+        btns.forEach((b, i) => {
+            b.className = 'vote-btn';
+            if (i + 1 === valor) b.classList.add('selected-' + valor);
+        });
+
+        atualizarProgresso();
+    };
+
+    window.submeterVoto = async function() {
+        if (Object.keys(votos).length < 5) return;
+
+        const btn = document.getElementById('btn-submeter');
+        btn.disabled = true;
+        btn.textContent = 'A enviar...';
+
+        try {
+            const grupoRef = ref(db, `votos/${grupoAtual}/${alunoId}`);
+            await set(grupoRef, {
+                c1: votos[1],
+                c2: votos[2],
+                c3: votos[3],
+                c4: votos[4],
+                c5: votos[5],
+                timestamp: Date.now()
+            });
+
+            votadosNestaSessao[grupoAtual] = true;
+            mostrarEcra('success');
+            document.getElementById('grupo-display').style.display = 'none';
+        } catch (e) {
+            btn.disabled = false;
+            btn.textContent = '✉️ Enviar Voto';
+            alert('Erro ao enviar. Verifica a ligação e tenta novamente.');
+        }
+    };
+</script>
+
+</body>
+</html>
