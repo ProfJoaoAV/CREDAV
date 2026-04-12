@@ -9,7 +9,419 @@
         .board-container {
             position: relative;
             display: inline-block;
-            width: 100%;
+            width: 100%;<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Que Sabe a Lua - Edição Colecionador de Insígnias</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .board-container { position: relative; display: inline-block; width: 100%; max-width: fit-content; }
+        #board-img { display: block; width: 100%; height: auto; max-height: 75vh; border-radius: 12px; }
+        .pawn {
+            position: absolute; width: 4%; aspect-ratio: 1/1; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+            color: white; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 50; transform: translate(-50%, -50%); font-size: 1.2vw;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .pawn-afonso { background-color: #ef4444; border: 0.2vw solid white; }
+        .pawn-filipe { background-color: #3b82f6; border: 0.2vw solid white; }
+        .modal-overlay { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); }
+        .option-btn { transition: all 0.2s; border: 2px solid #334155; text-align: left; padding: 1rem; border-radius: 0.75rem; background: #1e293b; }
+        .option-btn:hover { border-color: #3b82f6; }
+        .option-correct { border-color: #10b981 !important; background-color: #064e3b !important; }
+        .option-wrong { border-color: #ef4444 !important; background-color: #7f1d1d !important; }
+        .badge-slot { filter: grayscale(1) opacity(0.3); transition: all 0.5s; }
+        .badge-earned { filter: grayscale(0) opacity(1); transform: scale(1.1); }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen font-sans overflow-hidden">
+
+    <!-- Ecrã de Início -->
+    <div id="setup-screen" class="flex flex-col items-center justify-center h-screen space-y-6">
+        <h1 class="text-5xl font-black text-yellow-400 uppercase tracking-tighter text-center px-4">A Que Sabe a Lua?</h1>
+        <p class="text-slate-400 italic">Coleciona as 8 insígnias dos animais para chegar à Lua!</p>
+        <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 w-80 shadow-2xl">
+            <h2 class="mb-6 font-semibold text-center text-white">Selecionar Jogadores</h2>
+            <div class="space-y-4 mb-6">
+                <label class="flex items-center gap-3 p-3 bg-slate-800 rounded-lg cursor-pointer border-2 border-transparent has-[:checked]:border-red-500">
+                    <input type="checkbox" id="check-afonso" class="w-5 h-5"> Afonso (Vermelho)
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-slate-800 rounded-lg cursor-pointer border-2 border-transparent has-[:checked]:border-blue-500">
+                    <input type="checkbox" id="check-filipe" class="w-5 h-5"> Filipe (Azul)
+                </label>
+            </div>
+            <button onclick="startGame()" class="w-full py-4 bg-yellow-500 text-slate-950 font-black rounded-xl hover:bg-yellow-400 transition-colors">JOGAR</button>
+        </div>
+    </div>
+
+    <!-- Interface do Jogo -->
+    <div id="game-screen" class="hidden flex flex-col lg:flex-row h-screen p-4 gap-4 overflow-hidden">
+        
+        <!-- Tabuleiro -->
+        <div id="board-wrapper" class="flex-grow flex flex-col items-center justify-center bg-slate-900 rounded-2xl border-4 border-slate-800 relative p-2">
+            <div class="board-container">
+                <img id="board-img" src="https://profjoaoav.github.io/CREDAV/tabuleiro2.png">
+                <div id="pawns-container"></div>
+            </div>
+        </div>
+
+        <!-- Painel Lateral -->
+        <div class="lg:w-96 flex flex-col gap-4 shrink-0 overflow-y-auto">
+            
+            <!-- Turno e Dado -->
+            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
+                <div class="mb-4 p-4 bg-slate-800 rounded-xl text-center border-b-4 border-yellow-500">
+                    <p class="text-xs text-slate-500 uppercase font-bold">Vez de:</p>
+                    <span id="current-player-name" class="text-2xl font-black text-yellow-400">-</span>
+                </div>
+                <button id="roll-btn" class="w-full py-6 bg-yellow-500 text-slate-950 font-black text-3xl rounded-2xl shadow-[0_4px_0_rgb(202,138,4)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50">LANÇAR DADO 🎲</button>
+                <div id="dice-result" class="text-center h-12 text-4xl font-black text-white mt-2"></div>
+            </div>
+
+            <!-- Painel de Insígnias -->
+            <div id="badges-panel" class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
+                <h3 class="text-center text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Insígnias Colecionadas</h3>
+                <div id="player-badges-container" class="grid grid-cols-4 gap-3">
+                    <!-- Gerado via JS -->
+                </div>
+                <p id="win-condition-msg" class="mt-4 text-[10px] text-center text-red-400 font-bold uppercase hidden">⚠️ Precisas de todas as insígnias para entrar na reta final!</p>
+            </div>
+            
+            <!-- Legenda -->
+            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex-grow text-xs text-slate-400">
+                <h3 class="text-blue-400 font-bold mb-2 uppercase">Regras de Ouro:</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-white border border-slate-400 rounded-full"></span> <b>Casas Animais:</b> Paragem obrigatória! Ganha a insígnia.</li>
+                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-blue-500 rounded-full"></span> <b>Casas ?:</b> Perguntas da história.</li>
+                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-yellow-500 rounded-full"></span> <b>Estrelas:</b> Desafios físicos.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Eventos -->
+    <div id="event-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-slate-900 border-2 border-blue-500 p-8 rounded-3xl max-w-lg w-full shadow-2xl text-center">
+            <div id="modal-icon" class="text-6xl mb-4"></div>
+            <h3 id="modal-title" class="text-blue-400 font-bold uppercase text-sm mb-2 tracking-widest"></h3>
+            <p id="modal-text" class="text-xl font-medium mb-8 italic leading-relaxed"></p>
+            <div id="modal-options" class="flex flex-col gap-3"></div>
+        </div>
+    </div>
+
+    <script>
+        const gameCoordinates = [
+            {"x": 16.28, "y": 82.82}, {"x": 25.38, "y": 82.65}, {"x": 32.73, "y": 81.97},
+            {"x": 41.55, "y": 82.98}, {"x": 52.76, "y": 82.48}, {"x": 59.92, "y": 82.98},
+            {"x": 68.38, "y": 81.8}, {"x": 78.21, "y": 75.07}, {"x": 74.17, "y": 56.87},
+            {"x": 65.25, "y": 56.87}, {"x": 56.8, "y": 55.69}, {"x": 47.79, "y": 57.38},
+            {"x": 38.24, "y": 56.7}, {"x": 31.35, "y": 56.2}, {"x": 19.77, "y": 52.66},
+            {"x": 12.24, "y": 50.64}, {"x": 7.64, "y": 33.96}, {"x": 18.76, "y": 29.92},
+            {"x": 25.56, "y": 29.41}, {"x": 35.3, "y": 35.82}, {"x": 44.85, "y": 34.64},
+            {"x": 52.48, "y": 33.96}, {"x": 64.7, "y": 31.77}, {"x": 72.33, "y": 27.39},
+            {"x": 79.4, "y": 19.14}, {"x": 90.06, "y": 13.75}
+        ];
+
+        const animalInfo = {
+            1: { name: "Tartaruga", emoji: "🐢" },
+            4: { name: "Elefante", emoji: "🐘" },
+            7: { name: "Girafa", emoji: "🦒" },
+            10: { name: "Zebra", emoji: "🦓" },
+            13: { name: "Leão", emoji: "🦁" },
+            16: { name: "Raposa", emoji: "🦊" },
+            19: { name: "Macaco", emoji: "🐒" },
+            22: { name: "Rato", emoji: "🐭" }
+        };
+
+        const animalCuriosities = {
+            1: [
+                { q: "Quanto tempo pode viver uma tartaruga marinha?", options: ["Cerca de 20 anos", "Mais de 100 anos", "Apenas 50 anos"], correct: 1 },
+                { q: "As tartarugas têm dentes?", options: ["Sim, muitos", "Não, têm um bico rígido", "Só no inverno"], correct: 1 },
+                { q: "De que é feita a carapaça da tartaruga?", options: ["Apenas de pele", "Ossos e queratina", "De pedra"], correct: 1 },
+                { q: "Onde as tartarugas marinhas põem os ovos?", options: ["No mar", "Na areia da praia", "Em árvores"], correct: 1 },
+                { q: "As tartarugas conseguem sair da sua carapaça?", options: ["Sim, para dormir", "Não, faz parte do esqueleto", "Sim, quando crescem"], correct: 1 }
+            ],
+            4: [
+                { q: "Para que serve a tromba do elefante?", options: ["Só para beber", "Respirar, agarrar e cheirar", "Para se equilibrar"], correct: 1 },
+                { q: "Quantos quilos de comida come um elefante adulto?", options: ["Cerca de 150 kg", "Apenas 10 kg", "5 kg"], correct: 0 },
+                { q: "Como se cumprimentam os elefantes?", options: ["Com um rugido", "Cruzando as trombas", "Dando marradas"], correct: 1 },
+                { q: "Os elefantes têm medo de ratos?", options: ["Sim, muito", "Não, é um mito", "Só os elefantes bebés"], correct: 1 },
+                { q: "Como comunicam a longas distâncias?", options: ["Aos gritos", "Pelas vibrações no chão", "Por sinais de fumo"], correct: 1 }
+            ],
+            7: [
+                { q: "De que cor é a língua da girafa?", options: ["Rosa", "Roxa ou Preta", "Azul"], correct: 1 },
+                { q: "Quantas horas dorme uma girafa por dia?", options: ["10 horas", "30 min a 2 horas", "Dorme o dia todo"], correct: 1 },
+                { q: "Como costumam dormir as girafas?", options: ["Deitadas", "De pé", "Penduradas"], correct: 1 },
+                { q: "Quantos ossos tem o pescoço da girafa?", options: ["Mais de 50", "7 (como o nosso)", "Nenhum"], correct: 1 },
+                { q: "O que a girafa faz para beber água?", options: ["Abaixa-se logo", "Abre muito as pernas", "Bebe com a tromba"], correct: 1 }
+            ],
+            10: [
+                { q: "As zebras são brancas com riscas pretas ou pretas com riscas brancas?", options: ["Brancas com riscas pretas", "Pretas com riscas brancas", "Cinzentas"], correct: 1 },
+                { q: "Para que servem as riscas da zebra?", options: ["Estética", "Confundir predadores e moscas", "Esconder-se na neve"], correct: 1 },
+                { q: "Existem duas zebras com riscas iguais?", options: ["Sim, gémeas", "Não, são únicas", "Sim, todas"], correct: 1 },
+                { q: "Como dormem as zebras?", options: ["Sempre deitadas", "De pé", "Debaixo de água"], correct: 1 },
+                { q: "Quem são os primos mais próximos da zebra?", options: ["O gato", "O cavalo e o burro", "O elefante"], correct: 1 }
+            ],
+            13: [
+                { q: "Quem caça mais no grupo de leões?", options: ["O Leão", "As Leoas", "Os filhotes"], correct: 1 },
+                { q: "A que distância se ouve o rugido de um leão?", options: ["Até 8 km", "100 metros", "Só ao lado"], correct: 0 },
+                { q: "Para que serve a juba do leão?", options: ["Para aquecer", "Proteção e parecer maior", "Para voar"], correct: 1 },
+                { q: "Quanto tempo dorme um leão por dia?", options: ["2 horas", "Até 20 horas", "Não dorme"], correct: 1 },
+                { q: "Como se chama um grupo de leões?", options: ["Alcatreia / Bando", "Enxame", "Cardume"], correct: 0 }
+            ],
+            16: [
+                { q: "As raposas caçam em grupo ou sozinhas?", options: ["Em grandes grupos", "Sozinhas (como gatos)", "Não caçam"], correct: 1 },
+                { q: "Onde vivem as raposas?", options: ["Em ninhos", "Em tocas no chão", "Nas nuvens"], correct: 1 },
+                { q: "Para que serve a cauda da raposa no inverno?", options: ["Para sinalizar", "Para se aquecer", "Para nadar"], correct: 1 },
+                { q: "Como é a audição da raposa?", options: ["Muito má", "Excelente", "Normal"], correct: 1 },
+                { q: "O que comem as raposas?", options: ["Só carne", "Omnívoras (frutos, ovos...)", "Só folhas"], correct: 1 }
+            ],
+            19: [
+                { q: "Para que serve a cauda de alguns macacos?", options: ["Para nada", "Como uma 5ª mão", "Para defesa"], correct: 1 },
+                { q: "Por que se catam os macacos?", options: ["Estão com fome", "Fortalecer a amizade", "Para brigar"], correct: 1 },
+                { q: "O que gostam de comer além de bananas?", options: ["Pedras", "Insetos, folhas e flores", "Apenas gelados"], correct: 1 },
+                { q: "Os macacos usam ferramentas?", options: ["Sim, pedras e paus", "Não, são animais", "Só os de circo"], correct: 0 },
+                { q: "Onde costumam dormir os macacos?", options: ["No chão", "No topo das árvores", "Dentro de água"], correct: 1 }
+            ],
+            22: [
+                { q: "Os dentes do rato param de crescer?", options: ["Sim", "Não, crescem sempre", "Só no primeiro ano"], correct: 1 },
+                { q: "Para que servem os bigodes do rato?", options: ["Sentir o caminho no escuro", "Equilíbrio na água", "Para cheirar"], correct: 0 },
+                { q: "Como é o olfato do rato?", options: ["Muito apurado", "Não tem olfato", "Igual ao humano"], correct: 0 },
+                { q: "Onde gostam de fazer ninhos?", options: ["No frio", "Lugares apertados e quentes", "Em cima de mesas"], correct: 1 },
+                { q: "Um rato consegue saltar?", options: ["Não", "Sim, saltos altos", "Só se tiver asas"], correct: 1 }
+            ]
+        };
+
+        const storyQuestions = [
+            { q: "Quem foi o primeiro animal a tentar chegar à lua?", options: ["A Tartaruga", "O Elefante", "A Girafa"], correct: 0 },
+            { q: "Qual animal subiu para as costas da tartaruga?", options: ["Zebra", "Elefante", "Leão"], correct: 1 },
+            { q: "O que a lua fazia quando os animais se aproximavam?", options: ["Ficava maior", "Subia um pouco mais", "Caía no mar"], correct: 1 },
+            { q: "Qual animal deu a trinca final na lua?", options: ["Leão", "Rato", "Macaco"], correct: 1 },
+            { q: "Onde é que o peixe estava a ver tudo?", options: ["Na árvore", "Dentro de água", "Na própria lua"], correct: 1 },
+            { q: "A que sabia o pedaço de lua?", options: ["A queijo fresco", "Ao que cada um mais gostava", "A chocolate amargo"], correct: 1 },
+            { q: "Quem ficou na base da torre?", options: ["O Elefante", "A Tartaruga", "O Leão"], correct: 1 },
+            { q: "Quem foi o penúltimo animal a subir?", options: ["O Macaco", "A Raposa", "A Zebra"], correct: 0 },
+            { q: "Os animais ajudaram-se uns aos outros?", options: ["Não, competiram", "Sim, colaboraram todos", "Só os maiores"], correct: 1 },
+            { q: "Como se sentiam os animais quando não alcançavam a lua?", options: ["Cansados mas persistentes", "Zangados", "Felizes"], correct: 0 },
+            { q: "O que fizeram depois de comer a lua?", options: ["Foram caçar", "Dormiram todos juntos", "Foram nadar"], correct: 1 },
+            { q: "A lua parecia estar longe ou perto?", options: ["Muito longe", "Perto", "Invisível"], correct: 1 },
+            { q: "Quem foi o último animal a subir?", options: ["O Rato", "A Raposa", "O Peixe"], correct: 0 },
+            { q: "O que o peixe pensou no final?", options: ["A lua era feita de água", "Havia outra lua no rio", "Os animais eram tolos"], correct: 1 },
+            { q: "Qual o valor principal desta história?", options: ["A força física", "A cooperação", "A velocidade"], correct: 1 }
+        ];
+
+        const challengeData = [
+            "Imita o rugido de um leão!", "Dá 3 saltos de coelho!", "Estica o pescoço como uma girafa!",
+            "Anda como a tartaruga!", "Faz tromba de elefante!", "Coça-te como um macaco!",
+            "Faz de conta que és um peixe!", "Diz 'A Lua sabe a queijo' sem rir!",
+            "Equilibra-te num pé só (5s)!", "Dá uma volta sobre ti mesmo!",
+            "Faz uma careta engraçada!", "Bate as asas como um pássaro!",
+            "Imita o som de um rato!", "Toca na ponta dos pés!", "Dá um abraço de amizade!"
+        ];
+
+        let players = [], currentPlayerIndex = 0;
+        let playerState = { 
+            'Afonso': { pos: 0, lastPos: 0, color: 'pawn-afonso', badges: [] }, 
+            'Filipe': { pos: 0, lastPos: 0, color: 'pawn-filipe', badges: [] } 
+        };
+
+        function startGame() {
+            if (document.getElementById('check-afonso').checked) players.push('Afonso');
+            if (document.getElementById('check-filipe').checked) players.push('Filipe');
+            if (!players.length) return;
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').classList.remove('hidden');
+            players.forEach(p => movePawn(p));
+            updateUI();
+        }
+
+        function updateUI() { 
+            const name = players[currentPlayerIndex];
+            document.getElementById('current-player-name').innerText = name;
+            
+            // Atualizar visualização das insígnias
+            const container = document.getElementById('player-badges-container');
+            container.innerHTML = '';
+            
+            Object.keys(animalInfo).forEach(id => {
+                const info = animalInfo[id];
+                const hasBadge = playerState[name].badges.includes(parseInt(id));
+                const div = document.createElement('div');
+                div.className = `badge-slot aspect-square bg-slate-800 rounded-xl flex items-center justify-center text-2xl border-2 ${hasBadge ? 'badge-earned border-yellow-500' : 'border-slate-700'}`;
+                div.innerHTML = info.emoji;
+                div.title = info.name;
+                container.appendChild(div);
+            });
+
+            // Verificar se pode vencer
+            const canWin = playerState[name].badges.length === 8;
+            document.getElementById('win-condition-msg').classList.toggle('hidden', canWin);
+        }
+
+        document.getElementById('roll-btn').onclick = function() {
+            this.disabled = true;
+            const die = Math.floor(Math.random() * 3) + 1;
+            document.getElementById('dice-result').innerText = die;
+            
+            const name = players[currentPlayerIndex];
+            const state = playerState[name];
+            state.lastPos = state.pos;
+            
+            // Lógica de paragem obrigatória em animais
+            let nextPos = state.pos;
+            for (let i = 1; i <= die; i++) {
+                nextPos++;
+                if (nextPos > 25) { nextPos = 25; break; }
+                if (animalInfo[nextPos]) break; // Paragem obrigatória se passar por animal
+            }
+
+            // Bloqueio da Lua se não tiver todas as insígnias
+            if (nextPos >= 23 && state.badges.length < 8) {
+                nextPos = 22; // Fica preso antes da reta final
+            }
+
+            state.pos = nextPos;
+            movePawn(name);
+            setTimeout(() => checkAction(state.pos, name), 900);
+        };
+
+        function checkAction(pos, name) {
+            if (pos === 25) { 
+                showModal("🏆", "Vitória!", `${name} tem todas as insígnias e provou a Lua!`, [{ text: "Recomeçar", action: () => location.reload() }]);
+                return; 
+            }
+            
+            // Casa de Animal (Insígnia)
+            if (animalInfo[pos]) {
+                const info = animalInfo[pos];
+                const alreadyHas = playerState[name].badges.includes(pos);
+                const list = animalCuriosities[pos];
+                const q = list[Math.floor(Math.random() * list.length)];
+                
+                showQ(q, `Desafio da Insígnia: ${info.name}`, (correct) => {
+                    if (correct) {
+                        if (!alreadyHas) playerState[name].badges.push(pos);
+                        showModal(info.emoji, "Insígnia Ganha!", `Acertaste! Ganhaste a insígnia da ${info.name}.`, [{ text: "Continuar", action: closeM }]);
+                    } else {
+                        failMove();
+                    }
+                });
+                return;
+            }
+
+            // Casas ? e Estrelas (Mantêm-se iguais)
+            const qHouses = [2, 6, 9, 11, 15, 17, 21, 23];
+            if (qHouses.includes(pos)) {
+                showQ(storyQuestions[Math.floor(Math.random() * storyQuestions.length)], "Pergunta da História", (correct) => {
+                    correct ? setTimeout(closeM, 1000) : failMove();
+                });
+                return;
+            }
+
+            const cHouses = [3, 5, 8, 12, 14, 18, 20, 24];
+            if (cHouses.includes(pos)) {
+                showC(challengeData[Math.floor(Math.random() * challengeData.length)]);
+                return;
+            }
+
+            nextTurn();
+        }
+
+        function showQ(data, title, callback) {
+            const container = document.getElementById('modal-options'); container.innerHTML = '';
+            document.getElementById('modal-icon').innerText = title.includes("Insígnia") ? "🏅" : "📖";
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = data.q;
+            
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button'); btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    const btns = container.querySelectorAll('button');
+                    btns.forEach(b => b.onclick = null);
+                    if (idx === data.correct) { 
+                        btn.classList.add('option-correct'); 
+                        callback(true);
+                    } else { 
+                        btn.classList.add('option-wrong'); 
+                        btns[data.correct].classList.add('option-correct');
+                        callback(false);
+                    }
+                };
+                container.appendChild(btn);
+            });
+            document.getElementById('event-modal').classList.remove('hidden');
+        }
+
+        function showC(txt) {
+            const container = document.getElementById('modal-options'); container.innerHTML = '';
+            document.getElementById('modal-icon').innerText = "⭐";
+            document.getElementById('modal-title').innerText = "Desafio!";
+            document.getElementById('modal-text').innerText = txt;
+            
+            const b1 = document.createElement('button'); b1.className = "p-4 bg-green-600 rounded-xl font-bold";
+            b1.innerText = "Consegui! ✅"; b1.onclick = closeM;
+            const b2 = document.createElement('button'); b2.className = "p-4 bg-red-900 rounded-xl font-bold";
+            b2.innerText = "Não consegui... ❌"; b2.onclick = failMove;
+            container.append(b1, b2);
+            document.getElementById('event-modal').classList.remove('hidden');
+        }
+
+        function failMove() {
+            const p = players[currentPlayerIndex]; 
+            playerState[p].pos = playerState[p].lastPos;
+            movePawn(p); 
+            setTimeout(closeM, 1500);
+        }
+
+        function showModal(icon, title, text, buttons) {
+            const container = document.getElementById('modal-options'); container.innerHTML = '';
+            document.getElementById('modal-icon').innerText = icon;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            buttons.forEach(b => {
+                const btn = document.createElement('button'); btn.className = "p-4 bg-blue-600 rounded-xl font-bold";
+                btn.innerText = b.text; btn.onclick = b.action;
+                container.appendChild(btn);
+            });
+            document.getElementById('event-modal').classList.remove('hidden');
+        }
+
+        function closeM() { document.getElementById('event-modal').classList.add('hidden'); nextTurn(); }
+        
+        function nextTurn() { 
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length; 
+            document.getElementById('roll-btn').disabled = false; 
+            updateUI(); 
+        }
+
+        function movePawn(n) {
+            let p = document.getElementById('pawn-'+n);
+            if (!p) { 
+                p = document.createElement('div'); p.id = 'pawn-'+n; 
+                p.className = 'pawn '+playerState[n].color; 
+                p.innerText = n[0]; 
+                document.getElementById('pawns-container').appendChild(p); 
+            }
+            p.style.left = gameCoordinates[playerState[n].pos].x + '%';
+            p.style.top = gameCoordinates[playerState[n].pos].y + '%';
+            
+            const afonso = document.getElementById('pawn-Afonso');
+            const filipe = document.getElementById('pawn-Filipe');
+            if (afonso && filipe && playerState['Afonso'].pos === playerState['Filipe'].pos) {
+                afonso.style.marginLeft = "-10px";
+                filipe.style.marginLeft = "10px";
+            } else {
+                if(afonso) afonso.style.marginLeft = "0";
+                if(filipe) filipe.style.marginLeft = "0";
+            }
+        }
+    </script>
+</body>
+</html>
             max-width: fit-content;
         }
         #board-img {
