@@ -3,18 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Que Sabe a Lua - Edição Especial</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .board-container {
-            position: relative;
-            display: inline-block;
-            width: 100%;<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Que Sabe a Lua - Edição Colecionador de Insígnias</title>
+    <title>A Que Sabe a Lua - Edição Valores e Colaboração</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .board-container { position: relative; display: inline-block; width: 100%; max-width: fit-content; }
@@ -29,22 +18,22 @@
         .pawn-afonso { background-color: #ef4444; border: 0.2vw solid white; }
         .pawn-filipe { background-color: #3b82f6; border: 0.2vw solid white; }
         .modal-overlay { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); }
-        .option-btn { transition: all 0.2s; border: 2px solid #334155; text-align: left; padding: 1rem; border-radius: 0.75rem; background: #1e293b; }
-        .option-btn:hover { border-color: #3b82f6; }
-        .option-correct { border-color: #10b981 !important; background-color: #064e3b !important; }
-        .option-wrong { border-color: #ef4444 !important; background-color: #7f1d1d !important; }
+        .option-btn { transition: all 0.2s; border: 2px solid #334155; text-align: left; padding: 1rem; border-radius: 0.75rem; background: #1e293b; color: #cbd5e1; }
+        .option-btn:hover { border-color: #3b82f6; background: #1e293b; }
+        .option-correct { border-color: #10b981 !important; background-color: #064e3b !important; color: white !important; }
+        .option-wrong { border-color: #ef4444 !important; background-color: #7f1d1d !important; color: white !important; }
         .badge-slot { filter: grayscale(1) opacity(0.3); transition: all 0.5s; }
         .badge-earned { filter: grayscale(0) opacity(1); transform: scale(1.1); }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans overflow-hidden">
 
-    <!-- Ecrã de Início -->
+    <!-- Setup -->
     <div id="setup-screen" class="flex flex-col items-center justify-center h-screen space-y-6">
         <h1 class="text-5xl font-black text-yellow-400 uppercase tracking-tighter text-center px-4">A Que Sabe a Lua?</h1>
-        <p class="text-slate-400 italic">Coleciona as 8 insígnias dos animais para chegar à Lua!</p>
+        <p class="text-slate-400 italic">Uma aventura sobre amizade e cooperação.</p>
         <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 w-80 shadow-2xl">
-            <h2 class="mb-6 font-semibold text-center text-white">Selecionar Jogadores</h2>
+            <h2 class="mb-6 font-semibold text-center text-white text-lg">Quem vai jogar?</h2>
             <div class="space-y-4 mb-6">
                 <label class="flex items-center gap-3 p-3 bg-slate-800 rounded-lg cursor-pointer border-2 border-transparent has-[:checked]:border-red-500">
                     <input type="checkbox" id="check-afonso" class="w-5 h-5"> Afonso (Vermelho)
@@ -53,25 +42,21 @@
                     <input type="checkbox" id="check-filipe" class="w-5 h-5"> Filipe (Azul)
                 </label>
             </div>
-            <button onclick="startGame()" class="w-full py-4 bg-yellow-500 text-slate-950 font-black rounded-xl hover:bg-yellow-400 transition-colors">JOGAR</button>
+            <button onclick="startGame()" class="w-full py-4 bg-yellow-500 text-slate-950 font-black rounded-xl hover:bg-yellow-400 transition-colors">COMEÇAR JOGO</button>
         </div>
     </div>
 
-    <!-- Interface do Jogo -->
+    <!-- Main Game -->
     <div id="game-screen" class="hidden flex flex-col lg:flex-row h-screen p-4 gap-4 overflow-hidden">
         
-        <!-- Tabuleiro -->
-        <div id="board-wrapper" class="flex-grow flex flex-col items-center justify-center bg-slate-900 rounded-2xl border-4 border-slate-800 relative p-2">
+        <div id="board-wrapper" class="flex-grow flex flex-col items-center justify-center bg-slate-900 rounded-2xl border-4 border-slate-800 relative p-2 shadow-inner">
             <div class="board-container">
-                <img id="board-img" src="https://profjoaoav.github.io/CREDAV/tabuleiro2.png">
+                <img id="board-img" src="https://profjoaoav.github.io/CREDAV/tabuleiro2.png" alt="Tabuleiro do Jogo">
                 <div id="pawns-container"></div>
             </div>
         </div>
 
-        <!-- Painel Lateral -->
         <div class="lg:w-96 flex flex-col gap-4 shrink-0 overflow-y-auto">
-            
-            <!-- Turno e Dado -->
             <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
                 <div class="mb-4 p-4 bg-slate-800 rounded-xl text-center border-b-4 border-yellow-500">
                     <p class="text-xs text-slate-500 uppercase font-bold">Vez de:</p>
@@ -81,28 +66,24 @@
                 <div id="dice-result" class="text-center h-12 text-4xl font-black text-white mt-2"></div>
             </div>
 
-            <!-- Painel de Insígnias -->
             <div id="badges-panel" class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
-                <h3 class="text-center text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Insígnias Colecionadas</h3>
-                <div id="player-badges-container" class="grid grid-cols-4 gap-3">
-                    <!-- Gerado via JS -->
-                </div>
-                <p id="win-condition-msg" class="mt-4 text-[10px] text-center text-red-400 font-bold uppercase hidden">⚠️ Precisas de todas as insígnias para entrar na reta final!</p>
+                <h3 class="text-center text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Insígnias dos Animais</h3>
+                <div id="player-badges-container" class="grid grid-cols-4 gap-3"></div>
+                <p id="win-condition-msg" class="mt-4 text-[10px] text-center text-red-400 font-bold uppercase hidden">⚠️ Precisas de todas as insígnias para vencer!</p>
             </div>
             
-            <!-- Legenda -->
             <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex-grow text-xs text-slate-400">
-                <h3 class="text-blue-400 font-bold mb-2 uppercase">Regras de Ouro:</h3>
+                <h3 class="text-blue-400 font-bold mb-2 uppercase">Legenda:</h3>
                 <ul class="space-y-2">
-                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-white border border-slate-400 rounded-full"></span> <b>Casas Animais:</b> Paragem obrigatória! Ganha a insígnia.</li>
-                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-blue-500 rounded-full"></span> <b>Casas ?:</b> Perguntas da história.</li>
-                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-yellow-500 rounded-full"></span> <b>Estrelas:</b> Desafios físicos.</li>
+                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-white border border-slate-400 rounded-full"></span> <b>Animal:</b> Paragem obrigatória e pergunta específica.</li>
+                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-blue-500 rounded-full"></span> <b>Casas ?:</b> Perguntas sobre a história.</li>
+                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-yellow-500 rounded-full"></span> <b>Estrelas:</b> Desafios de reflexão e valores.</li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Eventos -->
+    <!-- Modal -->
     <div id="event-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-overlay">
         <div class="bg-slate-900 border-2 border-blue-500 p-8 rounded-3xl max-w-lg w-full shadow-2xl text-center">
             <div id="modal-icon" class="text-6xl mb-4"></div>
@@ -136,90 +117,32 @@
             22: { name: "Rato", emoji: "🐭" }
         };
 
-        const animalCuriosities = {
-            1: [
-                { q: "Quanto tempo pode viver uma tartaruga marinha?", options: ["Cerca de 20 anos", "Mais de 100 anos", "Apenas 50 anos"], correct: 1 },
-                { q: "As tartarugas têm dentes?", options: ["Sim, muitos", "Não, têm um bico rígido", "Só no inverno"], correct: 1 },
-                { q: "De que é feita a carapaça da tartaruga?", options: ["Apenas de pele", "Ossos e queratina", "De pedra"], correct: 1 },
-                { q: "Onde as tartarugas marinhas põem os ovos?", options: ["No mar", "Na areia da praia", "Em árvores"], correct: 1 },
-                { q: "As tartarugas conseguem sair da sua carapaça?", options: ["Sim, para dormir", "Não, faz parte do esqueleto", "Sim, quando crescem"], correct: 1 }
-            ],
-            4: [
-                { q: "Para que serve a tromba do elefante?", options: ["Só para beber", "Respirar, agarrar e cheirar", "Para se equilibrar"], correct: 1 },
-                { q: "Quantos quilos de comida come um elefante adulto?", options: ["Cerca de 150 kg", "Apenas 10 kg", "5 kg"], correct: 0 },
-                { q: "Como se cumprimentam os elefantes?", options: ["Com um rugido", "Cruzando as trombas", "Dando marradas"], correct: 1 },
-                { q: "Os elefantes têm medo de ratos?", options: ["Sim, muito", "Não, é um mito", "Só os elefantes bebés"], correct: 1 },
-                { q: "Como comunicam a longas distâncias?", options: ["Aos gritos", "Pelas vibrações no chão", "Por sinais de fumo"], correct: 1 }
-            ],
-            7: [
-                { q: "De que cor é a língua da girafa?", options: ["Rosa", "Roxa ou Preta", "Azul"], correct: 1 },
-                { q: "Quantas horas dorme uma girafa por dia?", options: ["10 horas", "30 min a 2 horas", "Dorme o dia todo"], correct: 1 },
-                { q: "Como costumam dormir as girafas?", options: ["Deitadas", "De pé", "Penduradas"], correct: 1 },
-                { q: "Quantos ossos tem o pescoço da girafa?", options: ["Mais de 50", "7 (como o nosso)", "Nenhum"], correct: 1 },
-                { q: "O que a girafa faz para beber água?", options: ["Abaixa-se logo", "Abre muito as pernas", "Bebe com a tromba"], correct: 1 }
-            ],
-            10: [
-                { q: "As zebras são brancas com riscas pretas ou pretas com riscas brancas?", options: ["Brancas com riscas pretas", "Pretas com riscas brancas", "Cinzentas"], correct: 1 },
-                { q: "Para que servem as riscas da zebra?", options: ["Estética", "Confundir predadores e moscas", "Esconder-se na neve"], correct: 1 },
-                { q: "Existem duas zebras com riscas iguais?", options: ["Sim, gémeas", "Não, são únicas", "Sim, todas"], correct: 1 },
-                { q: "Como dormem as zebras?", options: ["Sempre deitadas", "De pé", "Debaixo de água"], correct: 1 },
-                { q: "Quem são os primos mais próximos da zebra?", options: ["O gato", "O cavalo e o burro", "O elefante"], correct: 1 }
-            ],
-            13: [
-                { q: "Quem caça mais no grupo de leões?", options: ["O Leão", "As Leoas", "Os filhotes"], correct: 1 },
-                { q: "A que distância se ouve o rugido de um leão?", options: ["Até 8 km", "100 metros", "Só ao lado"], correct: 0 },
-                { q: "Para que serve a juba do leão?", options: ["Para aquecer", "Proteção e parecer maior", "Para voar"], correct: 1 },
-                { q: "Quanto tempo dorme um leão por dia?", options: ["2 horas", "Até 20 horas", "Não dorme"], correct: 1 },
-                { q: "Como se chama um grupo de leões?", options: ["Alcatreia / Bando", "Enxame", "Cardume"], correct: 0 }
-            ],
-            16: [
-                { q: "As raposas caçam em grupo ou sozinhas?", options: ["Em grandes grupos", "Sozinhas (como gatos)", "Não caçam"], correct: 1 },
-                { q: "Onde vivem as raposas?", options: ["Em ninhos", "Em tocas no chão", "Nas nuvens"], correct: 1 },
-                { q: "Para que serve a cauda da raposa no inverno?", options: ["Para sinalizar", "Para se aquecer", "Para nadar"], correct: 1 },
-                { q: "Como é a audição da raposa?", options: ["Muito má", "Excelente", "Normal"], correct: 1 },
-                { q: "O que comem as raposas?", options: ["Só carne", "Omnívoras (frutos, ovos...)", "Só folhas"], correct: 1 }
-            ],
-            19: [
-                { q: "Para que serve a cauda de alguns macacos?", options: ["Para nada", "Como uma 5ª mão", "Para defesa"], correct: 1 },
-                { q: "Por que se catam os macacos?", options: ["Estão com fome", "Fortalecer a amizade", "Para brigar"], correct: 1 },
-                { q: "O que gostam de comer além de bananas?", options: ["Pedras", "Insetos, folhas e flores", "Apenas gelados"], correct: 1 },
-                { q: "Os macacos usam ferramentas?", options: ["Sim, pedras e paus", "Não, são animais", "Só os de circo"], correct: 0 },
-                { q: "Onde costumam dormir os macacos?", options: ["No chão", "No topo das árvores", "Dentro de água"], correct: 1 }
-            ],
-            22: [
-                { q: "Os dentes do rato param de crescer?", options: ["Sim", "Não, crescem sempre", "Só no primeiro ano"], correct: 1 },
-                { q: "Para que servem os bigodes do rato?", options: ["Sentir o caminho no escuro", "Equilíbrio na água", "Para cheirar"], correct: 0 },
-                { q: "Como é o olfato do rato?", options: ["Muito apurado", "Não tem olfato", "Igual ao humano"], correct: 0 },
-                { q: "Onde gostam de fazer ninhos?", options: ["No frio", "Lugares apertados e quentes", "Em cima de mesas"], correct: 1 },
-                { q: "Um rato consegue saltar?", options: ["Não", "Sim, saltos altos", "Só se tiver asas"], correct: 1 }
-            ]
+        const animalQuestions = {
+            1: [{ q: "De que é feita a carapaça da tartaruga?", options: ["Pele", "Ossos e queratina", "Pedra"], correct: 1 }],
+            4: [{ q: "Quantos quilos de comida come um elefante adulto?", options: ["Cerca de 150 kg", "10 kg", "5 kg"], correct: 0 }],
+            7: [{ q: "Quantos ossos tem o pescoço da girafa?", options: ["Mais de 50", "7 (como o nosso)", "Nenhum"], correct: 1 }],
+            10: [{ q: "As zebras são brancas ou pretas?", options: ["Brancas com riscas pretas", "Pretas com riscas brancas", "Cinzentas"], correct: 1 }],
+            13: [{ q: "Quem caça mais no grupo de leões?", options: ["O Leão", "As Leoas", "Os filhotes"], correct: 1 }],
+            16: [{ q: "Onde vivem as raposas?", options: ["Em ninhos", "Em tocas no chão", "Nas nuvens"], correct: 1 }],
+            19: [{ q: "Os macacos usam ferramentas?", options: ["Sim, pedras e paus", "Não, nunca", "Só em filmes"], correct: 0 }],
+            22: [{ q: "Os dentes do rato param de crescer?", options: ["Sim", "Não, crescem sempre", "Só no inverno"], correct: 1 }]
         };
 
         const storyQuestions = [
-            { q: "Quem foi o primeiro animal a tentar chegar à lua?", options: ["A Tartaruga", "O Elefante", "A Girafa"], correct: 0 },
-            { q: "Qual animal subiu para as costas da tartaruga?", options: ["Zebra", "Elefante", "Leão"], correct: 1 },
-            { q: "O que a lua fazia quando os animais se aproximavam?", options: ["Ficava maior", "Subia um pouco mais", "Caía no mar"], correct: 1 },
-            { q: "Qual animal deu a trinca final na lua?", options: ["Leão", "Rato", "Macaco"], correct: 1 },
-            { q: "Onde é que o peixe estava a ver tudo?", options: ["Na árvore", "Dentro de água", "Na própria lua"], correct: 1 },
-            { q: "A que sabia o pedaço de lua?", options: ["A queijo fresco", "Ao que cada um mais gostava", "A chocolate amargo"], correct: 1 },
-            { q: "Quem ficou na base da torre?", options: ["O Elefante", "A Tartaruga", "O Leão"], correct: 1 },
-            { q: "Quem foi o penúltimo animal a subir?", options: ["O Macaco", "A Raposa", "A Zebra"], correct: 0 },
-            { q: "Os animais ajudaram-se uns aos outros?", options: ["Não, competiram", "Sim, colaboraram todos", "Só os maiores"], correct: 1 },
-            { q: "Como se sentiam os animais quando não alcançavam a lua?", options: ["Cansados mas persistentes", "Zangados", "Felizes"], correct: 0 },
-            { q: "O que fizeram depois de comer a lua?", options: ["Foram caçar", "Dormiram todos juntos", "Foram nadar"], correct: 1 },
-            { q: "A lua parecia estar longe ou perto?", options: ["Muito longe", "Perto", "Invisível"], correct: 1 },
-            { q: "Quem foi o último animal a subir?", options: ["O Rato", "A Raposa", "O Peixe"], correct: 0 },
-            { q: "O que o peixe pensou no final?", options: ["A lua era feita de água", "Havia outra lua no rio", "Os animais eram tolos"], correct: 1 },
-            { q: "Qual o valor principal desta história?", options: ["A força física", "A cooperação", "A velocidade"], correct: 1 }
+            { q: "Quem subiu primeiro para as costas da tartaruga?", options: ["Zebra", "Elefante", "Leão"], correct: 1 },
+            { q: "A que sabia o pedaço de lua?", options: ["A queijo", "Ao que cada um mais gostava", "A chocolate"], correct: 1 },
+            { q: "Qual animal deu a dentada final?", options: ["Leão", "Rato", "Macaco"], correct: 1 }
         ];
 
-        const challengeData = [
-            "Imita o rugido de um leão!", "Dá 3 saltos de coelho!", "Estica o pescoço como uma girafa!",
-            "Anda como a tartaruga!", "Faz tromba de elefante!", "Coça-te como um macaco!",
-            "Faz de conta que és um peixe!", "Diz 'A Lua sabe a queijo' sem rir!",
-            "Equilibra-te num pé só (5s)!", "Dá uma volta sobre ti mesmo!",
-            "Faz uma careta engraçada!", "Bate as asas como um pássaro!",
-            "Imita o som de um rato!", "Toca na ponta dos pés!", "Dá um abraço de amizade!"
+        // Novos Desafios de Reflexão/Valores solicitados
+        const reflectionQuestions = [
+            { q: "A tartaruga conseguiu chegar à Lua sozinha? Porquê?", options: ["Sim, porque foi persistente.", "Não, sozinha não conseguia chegar tão alto.", "Sim, porque a Lua desceu."], correct: 1 },
+            { q: "O que aconteceu quando os animais começaram a ajudar-se?", options: ["Ficaram mais confusos.", "Conseguiram chegar à Lua juntos.", "Cada um tentou à sua maneira."], correct: 1 },
+            { q: "Se um animal tivesse ido embora, o que mudava?", options: ["Nada mudava.", "Podiam não conseguir chegar à Lua.", "A Lua ficava mais perto."], correct: 1 },
+            { q: "Ajudar os outros torna o grupo mais forte ou mais fraco?", options: ["Mais fraco, demora mais tempo.", "Mais forte, porque todos contribuem.", "Não muda nada."], correct: 1 },
+            { q: "Na história todos eram diferentes. Isso ajudou ou atrapalhou?", options: ["Atrapalhou, eram muito diferentes.", "Ajudou, cada um tinha uma capacidade diferente.", "Não teve importância."], correct: 1 },
+            { q: "Achas que pedir ajuda é fácil ou difícil?", options: ["É sempre fácil.", "Às vezes é difícil, mas é importante.", "Nunca é necessário."], correct: 1 },
+            { q: "Se a Lua fosse um objetivo difícil, o que ela representaria na vida real?", options: ["Uma coisa sem importância.", "Um objetivo difícil que quero alcançar.", "Apenas um objeto no céu."], correct: 1 }
         ];
 
         let players = [], currentPlayerIndex = 0;
@@ -241,22 +164,16 @@
         function updateUI() { 
             const name = players[currentPlayerIndex];
             document.getElementById('current-player-name').innerText = name;
-            
-            // Atualizar visualização das insígnias
             const container = document.getElementById('player-badges-container');
             container.innerHTML = '';
-            
             Object.keys(animalInfo).forEach(id => {
                 const info = animalInfo[id];
                 const hasBadge = playerState[name].badges.includes(parseInt(id));
                 const div = document.createElement('div');
                 div.className = `badge-slot aspect-square bg-slate-800 rounded-xl flex items-center justify-center text-2xl border-2 ${hasBadge ? 'badge-earned border-yellow-500' : 'border-slate-700'}`;
                 div.innerHTML = info.emoji;
-                div.title = info.name;
                 container.appendChild(div);
             });
-
-            // Verificar se pode vencer
             const canWin = playerState[name].badges.length === 8;
             document.getElementById('win-condition-msg').classList.toggle('hidden', canWin);
         }
@@ -265,23 +182,18 @@
             this.disabled = true;
             const die = Math.floor(Math.random() * 3) + 1;
             document.getElementById('dice-result').innerText = die;
-            
             const name = players[currentPlayerIndex];
             const state = playerState[name];
             state.lastPos = state.pos;
             
-            // Lógica de paragem obrigatória em animais
             let nextPos = state.pos;
             for (let i = 1; i <= die; i++) {
                 nextPos++;
                 if (nextPos > 25) { nextPos = 25; break; }
-                if (animalInfo[nextPos]) break; // Paragem obrigatória se passar por animal
+                if (animalInfo[nextPos]) break; // Paragem obrigatória
             }
 
-            // Bloqueio da Lua se não tiver todas as insígnias
-            if (nextPos >= 23 && state.badges.length < 8) {
-                nextPos = 22; // Fica preso antes da reta final
-            }
+            if (nextPos >= 23 && state.badges.length < 8) { nextPos = 22; }
 
             state.pos = nextPos;
             movePawn(name);
@@ -290,52 +202,45 @@
 
         function checkAction(pos, name) {
             if (pos === 25) { 
-                showModal("🏆", "Vitória!", `${name} tem todas as insígnias e provou a Lua!`, [{ text: "Recomeçar", action: () => location.reload() }]);
+                showModal("🌕", "Vitória!", `Parabéns ${name}! Com a ajuda de todos e todas as insígnias, chegaste à Lua!`, [{ text: "Recomeçar", action: () => location.reload() }]);
                 return; 
             }
             
-            // Casa de Animal (Insígnia)
             if (animalInfo[pos]) {
                 const info = animalInfo[pos];
-                const alreadyHas = playerState[name].badges.includes(pos);
-                const list = animalCuriosities[pos];
-                const q = list[Math.floor(Math.random() * list.length)];
-                
-                showQ(q, `Desafio da Insígnia: ${info.name}`, (correct) => {
+                const q = animalQuestions[pos][0];
+                showQ(q, `Insígnia: ${info.name}`, (correct) => {
                     if (correct) {
-                        if (!alreadyHas) playerState[name].badges.push(pos);
-                        showModal(info.emoji, "Insígnia Ganha!", `Acertaste! Ganhaste a insígnia da ${info.name}.`, [{ text: "Continuar", action: closeM }]);
-                    } else {
-                        failMove();
-                    }
+                        if (!playerState[name].badges.includes(pos)) playerState[name].badges.push(pos);
+                        showModal(info.emoji, "Boa!", `Acertaste e ganhaste a insígnia da ${info.name}!`, [{ text: "Continuar", action: closeM }]);
+                    } else { failMove(); }
                 });
                 return;
             }
 
-            // Casas ? e Estrelas (Mantêm-se iguais)
             const qHouses = [2, 6, 9, 11, 15, 17, 21, 23];
             if (qHouses.includes(pos)) {
-                showQ(storyQuestions[Math.floor(Math.random() * storyQuestions.length)], "Pergunta da História", (correct) => {
+                showQ(storyQuestions[Math.floor(Math.random() * storyQuestions.length)], "História", (correct) => {
                     correct ? setTimeout(closeM, 1000) : failMove();
                 });
                 return;
             }
 
-            const cHouses = [3, 5, 8, 12, 14, 18, 20, 24];
-            if (cHouses.includes(pos)) {
-                showC(challengeData[Math.floor(Math.random() * challengeData.length)]);
+            const rHouses = [3, 5, 8, 12, 14, 18, 20, 24];
+            if (rHouses.includes(pos)) {
+                showQ(reflectionQuestions[Math.floor(Math.random() * reflectionQuestions.length)], "Reflexão e Valores", (correct) => {
+                    correct ? setTimeout(closeM, 1000) : failMove();
+                });
                 return;
             }
-
             nextTurn();
         }
 
         function showQ(data, title, callback) {
             const container = document.getElementById('modal-options'); container.innerHTML = '';
-            document.getElementById('modal-icon').innerText = title.includes("Insígnia") ? "🏅" : "📖";
+            document.getElementById('modal-icon').innerText = title.includes("Insígnia") ? "🏅" : "✨";
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-text').innerText = data.q;
-            
             data.options.forEach((opt, idx) => {
                 const btn = document.createElement('button'); btn.className = "option-btn";
                 btn.innerText = opt;
@@ -343,8 +248,7 @@
                     const btns = container.querySelectorAll('button');
                     btns.forEach(b => b.onclick = null);
                     if (idx === data.correct) { 
-                        btn.classList.add('option-correct'); 
-                        callback(true);
+                        btn.classList.add('option-correct'); callback(true);
                     } else { 
                         btn.classList.add('option-wrong'); 
                         btns[data.correct].classList.add('option-correct');
@@ -353,20 +257,6 @@
                 };
                 container.appendChild(btn);
             });
-            document.getElementById('event-modal').classList.remove('hidden');
-        }
-
-        function showC(txt) {
-            const container = document.getElementById('modal-options'); container.innerHTML = '';
-            document.getElementById('modal-icon').innerText = "⭐";
-            document.getElementById('modal-title').innerText = "Desafio!";
-            document.getElementById('modal-text').innerText = txt;
-            
-            const b1 = document.createElement('button'); b1.className = "p-4 bg-green-600 rounded-xl font-bold";
-            b1.innerText = "Consegui! ✅"; b1.onclick = closeM;
-            const b2 = document.createElement('button'); b2.className = "p-4 bg-red-900 rounded-xl font-bold";
-            b2.innerText = "Não consegui... ❌"; b2.onclick = failMove;
-            container.append(b1, b2);
             document.getElementById('event-modal').classList.remove('hidden');
         }
 
@@ -383,7 +273,7 @@
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-text').innerText = text;
             buttons.forEach(b => {
-                const btn = document.createElement('button'); btn.className = "p-4 bg-blue-600 rounded-xl font-bold";
+                const btn = document.createElement('button'); btn.className = "p-4 bg-yellow-500 text-slate-900 rounded-xl font-bold hover:bg-yellow-400";
                 btn.innerText = b.text; btn.onclick = b.action;
                 container.appendChild(btn);
             });
@@ -391,7 +281,6 @@
         }
 
         function closeM() { document.getElementById('event-modal').classList.add('hidden'); nextTurn(); }
-        
         function nextTurn() { 
             currentPlayerIndex = (currentPlayerIndex + 1) % players.length; 
             document.getElementById('roll-btn').disabled = false; 
@@ -412,353 +301,12 @@
             const afonso = document.getElementById('pawn-Afonso');
             const filipe = document.getElementById('pawn-Filipe');
             if (afonso && filipe && playerState['Afonso'].pos === playerState['Filipe'].pos) {
-                afonso.style.marginLeft = "-10px";
-                filipe.style.marginLeft = "10px";
+                afonso.style.marginLeft = "-8px";
+                filipe.style.marginLeft = "8px";
             } else {
                 if(afonso) afonso.style.marginLeft = "0";
                 if(filipe) filipe.style.marginLeft = "0";
             }
-        }
-    </script>
-</body>
-</html>
-            max-width: fit-content;
-        }
-        #board-img {
-            display: block;
-            width: 100%;
-            height: auto;
-            max-height: 80vh;
-            object-fit: contain;
-            border-radius: 12px;
-        }
-        .pawn {
-            position: absolute;
-            width: 4%;
-            aspect-ratio: 1/1;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 50;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-            transform: translate(-50%, -50%);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            font-size: 1.2vw;
-            pointer-events: none;
-        }
-        .pawn-afonso { background-color: #ef4444; border: 0.2vw solid #ffffff; }
-        .pawn-filipe { background-color: #3b82f6; border: 0.2vw solid #ffffff; }
-        
-        .modal-overlay {
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(8px);
-        }
-        
-        .option-btn {
-            transition: all 0.2s;
-            border: 2px solid #334155;
-        }
-        .option-btn:hover {
-            border-color: #3b82f6;
-            background-color: #1e293b;
-        }
-        .option-correct {
-            border-color: #10b981 !important;
-            background-color: #064e3b !important;
-        }
-        .option-wrong {
-            border-color: #ef4444 !important;
-            background-color: #7f1d1d !important;
-        }
-    </style>
-</head>
-<body class="bg-slate-950 text-white min-h-screen font-sans overflow-hidden">
-
-    <div id="setup-screen" class="flex flex-col items-center justify-center h-screen space-y-6">
-        <h1 class="text-5xl font-black text-yellow-400 tracking-tighter text-center px-4 uppercase">A Que Sabe a Lua?</h1>
-        <div class="bg-slate-900 p-8 rounded-2xl shadow-2xl border border-slate-800 w-full max-w-md text-center">
-            <h2 class="text-xl mb-6 font-semibold">Escolher Jogadores</h2>
-            <div class="space-y-4 mb-6">
-                <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-700 rounded-lg border-2 border-transparent has-[:checked]:border-red-500">
-                    <span class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center font-bold">A</span>
-                        <span>Afonso</span>
-                    </span>
-                    <input type="checkbox" id="check-afonso" class="w-6 h-6 rounded text-red-500">
-                </label>
-                <label class="flex items-center justify-between cursor-pointer p-3 bg-slate-700 rounded-lg border-2 border-transparent has-[:checked]:border-blue-500">
-                    <span class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold">F</span>
-                        <span>Filipe</span>
-                    </span>
-                    <input type="checkbox" id="check-filipe" class="w-6 h-6 rounded text-blue-500">
-                </label>
-            </div>
-            <button onclick="startGame()" class="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-lg rounded-xl shadow-xl">
-                COMEÇAR JOGO
-            </button>
-        </div>
-    </div>
-
-    <div id="game-screen" class="hidden flex flex-col lg:flex-row h-screen p-4 gap-4 overflow-hidden">
-        <div id="board-wrapper" class="flex-grow flex items-center justify-center overflow-auto bg-slate-900 rounded-2xl border-4 border-slate-800 relative p-2">
-            <div class="board-container" id="board-container">
-                <img id="board-img" src="https://profjoaoav.github.io/CREDAV/tabuleiro2.png" alt="Tabuleiro">
-                <div id="pawns-container"></div>
-            </div>
-        </div>
-
-        <div class="lg:w-80 flex flex-col gap-4 h-full shrink-0">
-            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl">
-                <div id="turn-info" class="mb-4 p-4 bg-slate-800 rounded-xl text-center">
-                    <p class="text-xs uppercase text-slate-500 font-bold">Vez de:</p>
-                    <span id="current-player-name" class="text-2xl font-black text-white">-</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div id="card-afonso" class="p-2 bg-slate-800 border rounded-lg text-center">
-                        <p class="text-[10px] text-slate-400">Afonso</p>
-                        <p id="pos-afonso" class="font-bold text-xs">Casa 0</p>
-                    </div>
-                    <div id="card-filipe" class="p-2 bg-slate-800 border rounded-lg text-center">
-                        <p class="text-[10px] text-slate-400">Filipe</p>
-                        <p id="pos-filipe" class="font-bold text-xs">Casa 0</p>
-                    </div>
-                </div>
-                <button id="roll-btn" class="w-full py-6 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-3xl rounded-2xl shadow-[0_4px_0_rgb(202,138,4)] active:translate-y-1 active:shadow-none transition-all">
-                    DADO 🎲
-                </button>
-                <div id="dice-result" class="text-center h-12 text-4xl font-black text-yellow-400 mt-2"></div>
-            </div>
-            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex-grow text-sm">
-                <h3 class="font-bold text-blue-400 mb-2">REGRAS:</h3>
-                <ul class="text-slate-400 space-y-1">
-                    <li>• Dado de 3 faces (1-2-3).</li>
-                    <li>• Errou Pergunta? Volta à casa anterior.</li>
-                    <li>• Falhou Desafio? Volta à casa anterior.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div id="event-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-overlay">
-        <div class="bg-slate-900 border-2 border-blue-500 p-8 rounded-3xl max-w-lg w-full shadow-2xl text-center">
-            <div id="modal-icon" class="text-5xl mb-4">❓</div>
-            <h3 id="modal-title" class="text-blue-400 font-bold uppercase text-sm mb-2"></h3>
-            <p id="modal-text" class="text-xl font-medium mb-8 leading-relaxed italic"></p>
-            <div id="modal-options" class="flex flex-col gap-3"></div>
-        </div>
-    </div>
-
-    <script>
-        const gameCoordinates = [
-            {"x": 16.28, "y": 82.82}, {"x": 25.38, "y": 82.65}, {"x": 32.73, "y": 81.97},
-            {"x": 41.55, "y": 82.98}, {"x": 52.76, "y": 82.48}, {"x": 59.92, "y": 82.98},
-            {"x": 68.38, "y": 81.8}, {"x": 78.21, "y": 75.07}, {"x": 74.17, "y": 56.87},
-            {"x": 65.25, "y": 56.87}, {"x": 56.8, "y": 55.69}, {"x": 47.79, "y": 57.38},
-            {"x": 38.24, "y": 56.7}, {"x": 31.35, "y": 56.2}, {"x": 19.77, "y": 52.66},
-            {"x": 12.24, "y": 50.64}, {"x": 7.64, "y": 33.96}, {"x": 18.76, "y": 29.92},
-            {"x": 25.56, "y": 29.41}, {"x": 35.3, "y": 35.82}, {"x": 44.85, "y": 34.64},
-            {"x": 52.48, "y": 33.96}, {"x": 64.7, "y": 31.77}, {"x": 72.33, "y": 27.39},
-            {"x": 79.4, "y": 19.14}, {"x": 90.06, "y": 13.75}
-        ];
-
-        const questionHouses = [2, 6, 9, 11, 15, 17, 21, 23];
-        const challengeHouses = [3, 5, 8, 12, 14, 18, 20, 24];
-        
-        const questionsData = [
-            { q: "Quem foi o primeiro animal a tentar chegar à lua?", options: ["Tartaruga", "Peixe", "Leão"], correct: 0 },
-            { q: "Qual animal subiu para as costas da tartaruga?", options: ["Zebra", "Elefante", "Girafa"], correct: 1 },
-            { q: "Qual animal tem o pescoço mais comprido?", options: ["Girafa", "Zebra", "Rato"], correct: 0 },
-            { q: "Qual animal deu a trinca final na lua?", options: ["Leão", "Rato", "Macaco"], correct: 1 },
-            { q: "Quem ficou na base da torre de animais?", options: ["Elefante", "Girafa", "Tartaruga"], correct: 2 },
-            { q: "Quem foi o último animal a subir?", options: ["Rato", "Zebra", "Peixe"], correct: 0 },
-            { q: "Os animais ajudaram-se uns aos outros?", options: ["Sim", "Não", "Só às vezes"], correct: 0 },
-            { q: "Como se sentiam os animais quando não chegavam à lua?", options: ["Zangados", "Cansados", "Assustados"], correct: 1 },
-            { q: "Todos os animais provaram a lua?", options: ["Só o rato", "Só a tartaruga", "Sim, todos provaram"], correct: 2 },
-            { q: "O que fizeram os animais depois de comer a lua?", options: ["Foram correr", "Dormiram todos juntos", "Foram nadar"], correct: 1 },
-            { q: "O que nos ensina esta história?", options: ["União e Cooperação", "Comer depressa", "Ser o mais forte"], correct: 0 },
-            { q: "Onde é que o peixe estava a ver tudo?", options: ["Na árvore", "Na água/rio", "Na lua"], correct: 1 },
-            { q: "A lua parecia estar perto ou longe?", options: ["Muito longe", "Perto", "Invisível"], correct: 1 },
-            { q: "O que a lua fazia quando os animais se aproximavam?", options: ["Afastava-se um pouco", "Ficava maior", "Caía"], correct: 0 },
-            { q: "O pedacinho de lua sabia ao quê?", options: ["A queijo", "Ao que cada animal mais gostava", "A chocolate"], correct: 1 }
-        ];
-
-        const challengesData = [
-            "Imita o rugido de um leão!",
-            "Dá 3 saltos de coelho!",
-            "Estica o pescoço como uma girafa!",
-            "Anda devagarinho como a tartaruga!",
-            "Faz uma tromba de elefante com o braço!",
-            "Coça-te como um macaco!",
-            "Faz de conta que és um peixe a nadar!",
-            "Diz 'A Lua sabe a queijo' sem rir!",
-            "Equilibra-te num pé só durante 5 segundos!",
-            "Dá uma volta sobre ti mesmo sem cair!",
-            "Faz uma careta de animal engraçado!",
-            "Bate as asas como um pássaro!",
-            "Imita o som de um rato (pi-pi!)",
-            "Tenta tocar na ponta dos pés sem dobrar os joelhos!",
-            "Dá um abraço de amizade ao outro jogador!"
-        ];
-
-        let players = [];
-        let currentPlayerIndex = 0;
-        let playerState = {
-            'Afonso': { pos: 0, lastPos: 0, color: 'pawn-afonso', label: 'A' },
-            'Filipe': { pos: 0, lastPos: 0, color: 'pawn-filipe', label: 'F' }
-        };
-
-        function startGame() {
-            const isAfonso = document.getElementById('check-afonso').checked;
-            const isFilipe = document.getElementById('check-filipe').checked;
-            if (isAfonso) players.push('Afonso');
-            if (isFilipe) players.push('Filipe');
-            if (players.length === 0) return alert("Escolha um jogador!");
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('game-screen').classList.remove('hidden');
-            players.forEach(p => movePawn(p));
-            updateUI();
-        }
-
-        function updateUI() {
-            const pName = players[currentPlayerIndex];
-            document.getElementById('current-player-name').innerText = pName;
-            document.getElementById('pos-afonso').innerText = `Casa ${playerState['Afonso'].pos}`;
-            document.getElementById('pos-filipe').innerText = `Casa ${playerState['Filipe'].pos}`;
-            document.getElementById('card-afonso').style.borderColor = (pName === 'Afonso') ? '#ef4444' : '#334155';
-            document.getElementById('card-filipe').style.borderColor = (pName === 'Filipe') ? '#3b82f6' : '#334155';
-        }
-
-        document.getElementById('roll-btn').onclick = function() {
-            this.disabled = true;
-            const die = Math.floor(Math.random() * 3) + 1; // DADO 1-3
-            const diceDiv = document.getElementById('dice-result');
-            diceDiv.innerText = "🎲";
-            setTimeout(() => {
-                diceDiv.innerText = die;
-                const pName = players[currentPlayerIndex];
-                playerState[pName].lastPos = playerState[pName].pos;
-                playerState[pName].pos = Math.min(25, playerState[pName].pos + die);
-                movePawn(pName);
-                setTimeout(() => checkCellAction(playerState[pName].pos, pName), 900);
-            }, 500);
-        };
-
-        function checkCellAction(pos, name) {
-            if (pos === 25) {
-                showModal("🏆", "Vitória!", `${name} chegou à Lua!`, [{ text: "Recomeçar", action: () => location.reload() }]);
-                return;
-            }
-            if (questionHouses.includes(pos)) {
-                showQuestionModal(questionsData[Math.floor(Math.random() * questionsData.length)]);
-            } else if (challengeHouses.includes(pos)) {
-                showChallengeModal(challengesData[Math.floor(Math.random() * challengesData.length)]);
-            } else {
-                nextTurn();
-            }
-        }
-
-        function showQuestionModal(data) {
-            const container = document.getElementById('modal-options');
-            container.innerHTML = '';
-            document.getElementById('modal-icon').innerText = "❓";
-            document.getElementById('modal-title').innerText = "Pergunta da História";
-            document.getElementById('modal-text').innerText = data.q;
-            data.options.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = "option-btn p-4 rounded-xl font-bold text-left bg-slate-800";
-                btn.innerText = opt;
-                btn.onclick = () => {
-                    const all = container.querySelectorAll('button');
-                    all.forEach(b => b.onclick = null);
-                    if (idx === data.correct) {
-                        btn.classList.add('option-correct');
-                        setTimeout(closeModal, 1500);
-                    } else {
-                        btn.classList.add('option-wrong');
-                        all[data.correct].classList.add('option-correct');
-                        setTimeout(() => {
-                            const p = players[currentPlayerIndex];
-                            playerState[p].pos = playerState[p].lastPos;
-                            movePawn(p);
-                            closeModal();
-                        }, 2000);
-                    }
-                };
-                container.appendChild(btn);
-            });
-            document.getElementById('event-modal').classList.remove('hidden');
-        }
-
-        function showChallengeModal(text) {
-            const container = document.getElementById('modal-options');
-            container.innerHTML = '';
-            document.getElementById('modal-icon').innerText = "⭐";
-            document.getElementById('modal-title').innerText = "Desafio!";
-            document.getElementById('modal-text').innerText = text;
-            
-            const b1 = document.createElement('button');
-            b1.className = "p-4 bg-green-600 rounded-xl font-bold";
-            b1.innerText = "Consegui! ✅";
-            b1.onclick = closeModal;
-
-            const b2 = document.createElement('button');
-            b2.className = "p-4 bg-red-900 rounded-xl font-bold";
-            b2.innerText = "Não consegui... ❌";
-            b2.onclick = () => {
-                const p = players[currentPlayerIndex];
-                playerState[p].pos = playerState[p].lastPos;
-                movePawn(p);
-                closeModal();
-            };
-
-            container.append(b1, b2);
-            document.getElementById('event-modal').classList.remove('hidden');
-        }
-
-        function showModal(icon, title, text, buttons) {
-            const container = document.getElementById('modal-options');
-            container.innerHTML = '';
-            document.getElementById('modal-icon').innerText = icon;
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-text').innerText = text;
-            buttons.forEach(b => {
-                const btn = document.createElement('button');
-                btn.className = "p-4 bg-blue-600 rounded-xl font-bold";
-                btn.innerText = b.text;
-                btn.onclick = b.action;
-                container.appendChild(btn);
-            });
-            document.getElementById('event-modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('event-modal').classList.add('hidden');
-            nextTurn();
-        }
-
-        function nextTurn() {
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-            document.getElementById('roll-btn').disabled = false;
-            updateUI();
-        }
-
-        function movePawn(name) {
-            const pos = playerState[name].pos;
-            let pawn = document.getElementById('pawn-' + name);
-            if (!pawn) {
-                pawn = document.createElement('div');
-                pawn.id = 'pawn-' + name;
-                pawn.className = 'pawn ' + playerState[name].color;
-                pawn.innerText = playerState[name].label;
-                document.getElementById('pawns-container').appendChild(pawn);
-            }
-            pawn.style.left = gameCoordinates[pos].x + '%';
-            pawn.style.top = gameCoordinates[pos].y + '%';
         }
     </script>
 </body>
