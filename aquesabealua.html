@@ -62,7 +62,8 @@
                     <p class="text-xs text-slate-500 uppercase font-bold">Vez de:</p>
                     <span id="current-player-name" class="text-2xl font-black text-yellow-400">-</span>
                 </div>
-                <button id="roll-btn" class="w-full py-6 bg-yellow-500 text-slate-950 font-black text-3xl rounded-2xl shadow-[0_4px_0_rgb(202,138,4)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50">LANÇAR DADO 🎲</button>
+                <!-- Nota: O dado agora dá apenas 1 ou 2 -->
+                <button id="roll-btn" class="w-full py-6 bg-yellow-500 text-slate-950 font-black text-3xl rounded-2xl shadow-[0_4px_0_rgb(202,138,4)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50">LANÇAR DADO (1-2) 🎲</button>
                 <div id="dice-result" class="text-center h-12 text-4xl font-black text-white mt-2"></div>
             </div>
 
@@ -120,7 +121,7 @@
         const animalQuestions = {
             1: [{ q: "De que é feita a carapaça da tartaruga?", options: ["Pele", "Ossos e queratina", "Pedra"], correct: 1 }],
             4: [{ q: "Quantos quilos de comida come um elefante adulto?", options: ["Cerca de 150 kg", "10 kg", "5 kg"], correct: 0 }],
-            7: [{ q: "Quantos ossos tem o pescoço da girafa?", options: ["Mais de 50", "7 (como o nosso)", "Nenhum"], correct: 1 }],
+            7: [{ q: "Quantos ossos tem o pescoço da girafa?", options: ["7 (como o nosso)", "Mais de 50", "Nenhum"], correct: 0 }],
             10: [{ q: "As zebras são brancas ou pretas?", options: ["Brancas com riscas pretas", "Pretas com riscas brancas", "Cinzentas"], correct: 1 }],
             13: [{ q: "Quem caça mais no grupo de leões?", options: ["O Leão", "As Leoas", "Os filhotes"], correct: 1 }],
             16: [{ q: "Onde vivem as raposas?", options: ["Em ninhos", "Em tocas no chão", "Nas nuvens"], correct: 1 }],
@@ -134,7 +135,6 @@
             { q: "Qual animal deu a dentada final?", options: ["Leão", "Rato", "Macaco"], correct: 1 }
         ];
 
-        // Novos Desafios de Reflexão/Valores solicitados
         const reflectionQuestions = [
             { q: "A tartaruga conseguiu chegar à Lua sozinha? Porquê?", options: ["Sim, porque foi persistente.", "Não, sozinha não conseguia chegar tão alto.", "Sim, porque a Lua desceu."], correct: 1 },
             { q: "O que aconteceu quando os animais começaram a ajudar-se?", options: ["Ficaram mais confusos.", "Conseguiram chegar à Lua juntos.", "Cada um tentou à sua maneira."], correct: 1 },
@@ -180,7 +180,8 @@
 
         document.getElementById('roll-btn').onclick = function() {
             this.disabled = true;
-            const die = Math.floor(Math.random() * 3) + 1;
+            // ALTERAÇÃO: Agora o dado dá apenas 1 ou 2
+            const die = Math.floor(Math.random() * 2) + 1;
             document.getElementById('dice-result').innerText = die;
             const name = players[currentPlayerIndex];
             const state = playerState[name];
