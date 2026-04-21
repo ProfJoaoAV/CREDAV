@@ -2,7 +2,7 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aura Master: Formação de Palavras</title>
     
     <!-- Tailwind CSS -->
@@ -31,7 +31,10 @@
                         aura: {
                             cyan: '#00f3ff',
                             purple: '#bc13fe',
-                            blue: '#1300ff'
+                            blue: '#1300ff',
+                            gold: '#ffd700',
+                            silver: '#c0c0c0',
+                            bronze: '#cd7f32'
                         }
                     }
                 }
@@ -47,6 +50,7 @@
             background-attachment: fixed;
             min-height: 100vh;
             overflow-x: hidden;
+            touch-action: pan-y; /* Previne zooms indesejados no mobile */
         }
 
         .glass-card {
@@ -59,7 +63,6 @@
         }
 
         .glass-card:hover {
-            transform: translateY(-5px);
             box-shadow: 0 0 20px rgba(188, 19, 254, 0.4);
             border-color: rgba(188, 19, 254, 0.5);
         }
@@ -117,7 +120,6 @@
             box-shadow: 0 0 15px rgba(255, 0, 85, 0.5) !important;
         }
 
-        /* Animações Flutuantes */
         @keyframes floatText {
             0% { transform: translateY(0) scale(1); opacity: 1; }
             100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
@@ -133,11 +135,9 @@
             text-shadow: 0 0 10px currentColor;
         }
 
-        /* Árvore de síntese */
         .tree-line { width: 2px; background: rgba(255,255,255,0.2); margin: 0 auto; }
         .tree-branch { border-top: 2px solid rgba(255,255,255,0.2); border-left: 2px solid rgba(255,255,255,0.2); border-right: 2px solid rgba(255,255,255,0.2); height: 20px; }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0a0a0f; }
         ::-webkit-scrollbar-thumb { background: #bc13fe; border-radius: 4px; }
@@ -146,7 +146,6 @@
         .hidden-section { display: none !important; }
         .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
 
-        /* Animação do Combo */
         .combo-text { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn {
             0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
@@ -154,7 +153,6 @@
             100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
         }
 
-        /* Animação Screen Shake (Boss Hit) */
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -170,7 +168,36 @@
         }
         .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
-        /* Cartões Interativos Estudo */
+        /* Estilos do Canvas e Controlos Mobile */
+        #gameCanvas {
+            background-color: #111827; /* Fundo escuro */
+            border-radius: 1rem;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 0 20px rgba(0, 243, 255, 0.2);
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            display: block;
+            margin: 0 auto;
+            image-rendering: pixelated;
+        }
+        
+        .mobile-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .mobile-btn:active { background: rgba(0, 243, 255, 0.3); }
+        .action-btn { width: 70px; height: 70px; font-size: 1.2rem; font-weight: bold; }
+
+        /* Flashcards Interativos */
         .interactive-word { cursor: pointer; display: inline-flex; gap: 4px; user-select: none; }
         .word-part { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
         .interactive-word:hover .word-part { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
@@ -178,7 +205,6 @@
         .interactive-word.active .part-base { background: rgba(255, 255, 255, 0.2); font-weight: bold; transform: scale(1.1); border-color: white; box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3); }
         .interactive-word.active .part-suffix { background: rgba(188, 19, 254, 0.2); color: #bc13fe; border-color: #bc13fe; transform: translateY(5px) rotate(2deg); box-shadow: 0 4px 10px rgba(188, 19, 254, 0.3); }
         .interactive-word.active .part-word { background: rgba(255, 165, 0, 0.2); color: #ffa500; border-color: #ffa500; transform: translateY(-5px); box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3); }
-
     </style>
 </head>
 <body class="text-gray-100 font-sans antialiased flex flex-col h-screen">
@@ -189,30 +215,31 @@
                 <i class="fa-solid fa-bolt text-3xl aura-text"></i>
                 <h1 class="text-2xl font-aura font-bold aura-text tracking-wider">AURA MASTER</h1>
             </div>
-            <!-- Exibição do Rank do Jogador -->
-            <div class="text-xs mt-1 ml-10 text-gray-400 font-bold uppercase tracking-widest">
-                Rank: <span id="player-rank" class="text-gray-300">Iniciante</span>
+            <div class="text-xs mt-1 md:ml-10 text-gray-400 font-bold uppercase tracking-widest text-center md:text-left">
+                Rank: <span id="player-rank" class="text-gray-300">Iniciado</span>
             </div>
         </div>
         
-        <div class="flex gap-2 md:gap-4 flex-wrap justify-center">
-            <button onclick="switchTab('study')" id="nav-study" class="px-4 py-2 rounded-lg font-semibold transition-all bg-white/10 hover:bg-white/20 text-aura-cyan border border-aura-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]">
-                <i class="fa-solid fa-book-open mr-2"></i>Aura da Sabedoria
+        <div class="flex gap-2 flex-wrap justify-center">
+            <button onclick="switchTab('study')" id="nav-study" class="px-3 py-2 rounded-lg font-semibold transition-all bg-white/10 text-aura-cyan border border-aura-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)] text-sm md:text-base">
+                <i class="fa-solid fa-book-open mr-1"></i>Sabedoria
             </button>
-            <button onclick="switchTab('train')" id="nav-train" class="px-4 py-2 rounded-lg font-semibold transition-all bg-transparent hover:bg-white/10 text-gray-400">
-                <i class="fa-solid fa-gamepad mr-2"></i>Farmar Aura
+            <button onclick="switchTab('train')" id="nav-train" class="px-3 py-2 rounded-lg font-semibold transition-all bg-transparent hover:bg-white/10 text-gray-400 text-sm md:text-base">
+                <i class="fa-solid fa-gamepad mr-1"></i>Treino
             </button>
-            <button onclick="switchTab('test')" id="nav-test" class="px-4 py-2 rounded-lg font-semibold transition-all bg-transparent hover:bg-white/10 text-gray-400">
-                <i class="fa-solid fa-skull mr-2"></i>Boss Final
+            <button onclick="switchTab('adventure')" id="nav-adventure" class="px-3 py-2 rounded-lg font-semibold transition-all bg-transparent hover:bg-white/10 text-gray-400 text-sm md:text-base">
+                <i class="fa-solid fa-khanda mr-1"></i>Aventura
+            </button>
+            <button onclick="switchTab('test')" id="nav-test" class="px-3 py-2 rounded-lg font-semibold transition-all bg-transparent hover:bg-white/10 text-gray-400 text-sm md:text-base">
+                <i class="fa-solid fa-skull mr-1"></i>Boss
             </button>
         </div>
 
-        <div class="mt-4 md:mt-0 font-aura font-bold text-xl flex items-center gap-2 border border-aura-purple px-4 py-2 rounded-full shadow-[0_0_15px_rgba(188,19,254,0.4)] relative bg-black/50">
+        <div class="mt-4 md:mt-0 font-aura font-bold text-lg md:text-xl flex items-center gap-2 border border-aura-purple px-4 py-2 rounded-full shadow-[0_0_15px_rgba(188,19,254,0.4)] relative bg-black/50">
             <i class="fa-solid fa-fire text-aura-purple"></i>
             <span>Aura:</span>
             <span id="aura-score" class="text-aura-cyan transition-all duration-300">0</span>
             
-            <!-- Mostrador de Combo -->
             <div id="combo-display" class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm text-yellow-400 font-bold hidden combo-text whitespace-nowrap drop-shadow-[0_0_5px_rgba(250,204,21,0.8)] bg-black/80 px-3 py-1 rounded-full border border-yellow-500/50">
                 Combo x<span id="combo-count">2</span>!
             </div>
@@ -221,7 +248,7 @@
 
     <main class="flex-grow container mx-auto px-4 pb-12 overflow-y-auto">
         
-        <!-- SECÇÃO: ESTUDO -->
+        <!-- SECÇÃO: ESTUDO (MANTIDA NA ÍNTEGRA) -->
         <section id="study-section" class="space-y-8 animate-[fadeIn_0.5s_ease-out]">
             <div class="text-center mt-4">
                 <h2 class="text-3xl font-aura font-bold mb-2">Desbloqueia a tua <span class="aura-text">Sabedoria</span></h2>
@@ -235,7 +262,7 @@
                     <div class="space-y-4">
                         <div class="bg-white/5 p-4 rounded-lg border-l-4 border-green-400 hover:bg-white/10 transition">
                             <h4 class="font-bold text-green-400 text-lg mb-1">Palavras Simples</h4>
-                            <p class="text-sm text-gray-300">A semente mágica. Não nascem de nenhuma outra palavra.</p>
+                            <p class="text-sm text-gray-300">A semente mágica original. Não nascem de nenhuma outra palavra (ex: não dá para reduzir mais).</p>
                             <div class="mt-3 flex gap-2 flex-wrap">
                                 <span class="bg-black/50 px-3 py-1 rounded text-sm text-gray-200 border border-white/10">cereja</span>
                                 <span class="bg-black/50 px-3 py-1 rounded text-sm text-gray-200 border border-white/10">atar</span>
@@ -244,9 +271,8 @@
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg border-l-4 border-aura-purple">
                             <h4 class="font-bold text-aura-purple text-lg mb-1">Palavras Complexas</h4>
-                            <p class="text-sm text-gray-300 mb-3">Evoluções criadas ao juntar peças (Derivação ou Composição).</p>
+                            <p class="text-sm text-gray-300 mb-3">Feitiços evoluídos! Criados ao juntar várias peças (Derivação ou Composição).</p>
                             
-                            <!-- Flashcards Interativos -->
                             <div class="space-y-3">
                                 <div class="flex items-center gap-3 bg-black/40 p-2 rounded border border-white/5">
                                     <span class="text-xs text-gray-500 uppercase tracking-wider w-20 text-right">Derivação</span>
@@ -277,7 +303,7 @@
                         <div class="bg-blue-900/30 p-3 rounded text-sm mt-2 flex items-start gap-2 border border-blue-500/20">
                             <i class="fa-solid fa-lightbulb text-yellow-400 mt-1"></i>
                             <div>
-                                <strong class="text-blue-300">O que é o Radical?</strong> É a raiz da palavra, que contém a sua essência. Ex: <span class="text-green-400 font-bold">cerej</span>-eira.
+                                <strong class="text-blue-300">O que é o Radical?</strong> É a raiz da palavra, o seu poder central. Ex: <span class="text-green-400 font-bold">cerej</span>-eira.
                             </div>
                         </div>
                     </div>
@@ -321,10 +347,10 @@
                 <!-- Derivação -->
                 <div class="glass-card p-6 md:col-span-2">
                     <h3 class="text-xl font-bold text-aura-purple mb-4 border-b border-aura-purple/30 pb-2">2. Feitiços de Derivação</h3>
-                    <p class="text-sm mb-4 text-gray-300">Fundir uma base com <strong>Prefixos</strong> (encantamento inicial) ou <strong>Sufixos</strong> (encantamento final).</p>
+                    <p class="text-sm mb-4 text-gray-300">Fundir uma base com <strong>Prefixos</strong> (encantamento antes) ou <strong>Sufixos</strong> (encantamento depois).</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-white/5 p-4 rounded-lg hover:bg-white/10 transition border border-transparent hover:border-cyan-500/30">
+                        <div class="bg-white/5 p-4 rounded-lg border border-transparent hover:border-cyan-500/30">
                             <h4 class="font-bold text-cyan-400 text-center mb-4"><i class="fa-solid fa-arrow-left mr-2"></i>Prefixos</h4>
                             <ul class="text-sm space-y-3">
                                 <li class="flex items-start"><span class="bg-cyan-900/50 text-cyan-200 px-2 rounded mr-2 font-mono">i-, in-, im-, ir-</span> <span class="text-gray-400 text-xs mt-1">Negação ➔ ilegal, impossível</span></li>
@@ -334,10 +360,10 @@
                                 <li class="flex items-start"><span class="bg-cyan-900/50 text-cyan-200 px-2 rounded mr-2 font-mono">sub-</span> <span class="text-gray-400 text-xs mt-1">Inferior ➔ subdelegado</span></li>
                             </ul>
                             <div class="mt-4 bg-red-900/30 p-2 rounded text-xs border border-red-500/30 text-red-200">
-                                <i class="fa-solid fa-fire text-red-500 mr-1"></i> <strong>Ataque NeGativo:</strong> Lembra-te dos 4 "I"s (I, In, Im, Ir) e do "Des" para destruir o significado original!
+                                <i class="fa-solid fa-shield-halved text-red-500 mr-1"></i> <strong>Escudo Anti-Esquecimento:</strong> Fixa os 4 "I"s (I, In, Im, Ir) e o "Des" para reverter poderes!
                             </div>
                         </div>
-                        <div class="bg-white/5 p-4 rounded-lg hover:bg-white/10 transition border border-transparent hover:border-pink-500/30">
+                        <div class="bg-white/5 p-4 rounded-lg border border-transparent hover:border-pink-500/30">
                             <h4 class="font-bold text-pink-400 text-center mb-4">Sufixos <i class="fa-solid fa-arrow-right ml-2"></i></h4>
                             <ul class="text-sm space-y-3">
                                 <li class="flex items-start"><span class="bg-pink-900/50 text-pink-200 px-2 rounded mr-2 font-mono">-ão, -zão, -aço</span> <span class="text-gray-400 text-xs mt-1">Aumento ➔ carrão, ricaço</span></li>
@@ -359,41 +385,42 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-white/5 p-4 rounded text-center border border-white/10 hover:border-orange-500/50 hover:bg-orange-900/10 transition group">
+                        <div class="bg-white/5 p-4 rounded text-center border border-white/10 hover:border-orange-500/50 transition group">
                             <div class="font-bold text-sm mb-1 text-white group-hover:text-orange-400">Palavra + Palavra</div>
                             <div class="text-xs text-gray-400 mb-3 h-8">Duas palavras que já existem sozinhas.</div>
-                            <div class="text-orange-300 bg-orange-900/40 py-2 rounded font-mono text-sm border border-orange-500/20">saca-rolhas</div>
+                            <div class="text-orange-300 bg-orange-900/40 py-2 rounded font-mono text-sm">saca-rolhas</div>
                         </div>
-                        <div class="bg-white/5 p-4 rounded text-center border border-white/10 hover:border-orange-500/50 hover:bg-orange-900/10 transition group">
+                        <div class="bg-white/5 p-4 rounded text-center border border-white/10 hover:border-orange-500/50 transition group">
                             <div class="font-bold text-sm mb-1 text-white group-hover:text-orange-400">Radical + Palavra</div>
                             <div class="text-xs text-gray-400 mb-3 h-8">Um radical funde-se a uma palavra.</div>
-                            <div class="text-orange-300 bg-orange-900/40 py-2 rounded font-mono text-sm border border-orange-500/20">hidroavião</div>
+                            <div class="text-orange-300 bg-orange-900/40 py-2 rounded font-mono text-sm">hidroavião</div>
                         </div>
-                        <div class="bg-white/5 p-4 rounded text-center border border-white/10 hover:border-orange-500/50 hover:bg-orange-900/10 transition group">
+                        <div class="bg-white/5 p-4 rounded text-center border border-white/10 hover:border-orange-500/50 transition group">
                             <div class="font-bold text-sm mb-1 text-white group-hover:text-orange-400">Radical + Radical</div>
                             <div class="text-xs text-gray-400 mb-3 h-8">Dois radicais antigos juntos.</div>
-                            <div class="text-orange-300 bg-orange-900/40 py-2 rounded font-mono text-sm border border-orange-500/20">cronómetro</div>
+                            <div class="text-orange-300 bg-orange-900/40 py-2 rounded font-mono text-sm">cronómetro</div>
                         </div>
                     </div>
 
                     <h4 class="font-bold text-center text-sm text-gray-300 mb-4 bg-white/5 py-2 rounded"><i class="fa-solid fa-scroll text-yellow-500 mr-2"></i>Pergaminho dos Radicais (Cheat Sheet)</h4>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">aero-</span> (ar) ➔ aeroporto</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">arqueo-</span> (antigo) ➔ arqueologia</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">biblio-</span> (livro) ➔ biblioteca</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">bio-</span> (vida) ➔ biologia</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">crono-</span> (tempo) ➔ cronómetro</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">deca-</span> (dez) ➔ decassílabo</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-purple/50 transition"><span class="text-aura-purple font-bold">-fobia</span> (medo) ➔ claustrofobia</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-purple/50 transition"><span class="text-aura-purple font-bold">-grafia</span> (escrita) ➔ disgrafia</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">hidro-</span> (água) ➔ hidromassagem</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">mono-</span> (único) ➔ monovolume</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">octo-</span> (oito) ➔ octógono</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">omni-</span> (todo) ➔ omnisciente</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">penta-</span> (cinco) ➔ pentacampeão</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">quilo-</span> (mil) ➔ quilómetro</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">tele-</span> (longe) ➔ teletrabalho</div>
-                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50 transition"><span class="text-aura-cyan font-bold">tetra-</span> (quatro) ➔ tetraneto</div>
+                        <!-- Radicais mantidos da original -->
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">aero-</span> (ar) ➔ aeroporto</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">arqueo-</span> (antigo) ➔ arqueologia</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">biblio-</span> (livro) ➔ biblioteca</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">bio-</span> (vida) ➔ biologia</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">crono-</span> (tempo) ➔ cronómetro</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">deca-</span> (dez) ➔ decassílabo</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-purple/50"><span class="text-aura-purple font-bold">-fobia</span> (medo) ➔ claustrofobia</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-purple/50"><span class="text-aura-purple font-bold">-grafia</span> (escrita) ➔ disgrafia</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">hidro-</span> (água) ➔ hidromassagem</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">mono-</span> (único) ➔ monovolume</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">octo-</span> (oito) ➔ octógono</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">omni-</span> (todo) ➔ omnisciente</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">penta-</span> (cinco) ➔ pentacampeão</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">quilo-</span> (mil) ➔ quilómetro</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">tele-</span> (longe) ➔ teletrabalho</div>
+                        <div class="bg-black/40 p-2 rounded border border-white/5 hover:border-aura-cyan/50"><span class="text-aura-cyan font-bold">tetra-</span> (quatro) ➔ tetraneto</div>
                     </div>
                 </div>
             </div>
@@ -405,6 +432,7 @@
             </div>
         </section>
 
+        <!-- SECÇÃO: TREINO (MANTIDA NA ÍNTEGRA) -->
         <section id="train-section" class="hidden-section max-w-3xl mx-auto mt-8 animate-[fadeIn_0.3s_ease-out]">
             <div class="glass-card p-8 text-center relative overflow-hidden">
                 <div class="absolute -top-10 -right-10 w-32 h-32 bg-aura-purple rounded-full blur-[80px] opacity-30 pointer-events-none"></div>
@@ -415,9 +443,8 @@
                         <div class="bg-white/10 px-4 py-1 rounded-full text-sm font-bold border border-white/20">
                             Nível: <span id="train-level" class="text-aura-cyan">Iniciante</span>
                         </div>
-                        <!-- Botão de Poção/Dica -->
                         <button id="btn-hint" onclick="useHint()" title="Custa 20 de Aura. Remove 2 opções erradas." class="bg-purple-900/50 hover:bg-purple-800 border border-purple-500/50 text-purple-300 text-xs px-3 py-1.5 rounded-full transition-all flex items-center gap-2 shadow-[0_0_10px_rgba(188,19,254,0.3)]">
-                            <i class="fa-solid fa-flask"></i> Dica (-20 Aura)
+                            <i class="fa-solid fa-flask"></i> Poção de Dica (-20 Aura)
                         </button>
                     </div>
                     <div class="font-aura text-gray-400">
@@ -430,7 +457,7 @@
                 </div>
 
                 <div id="train-question-container" class="relative z-10">
-                    <h3 id="train-question-text" class="text-xl md:text-2xl font-bold mb-8 min-h-[80px] flex items-center justify-center bg-black/30 p-4 rounded-xl border border-white/5">Carregando pergunta...</h3>
+                    <h3 id="train-question-text" class="text-xl md:text-2xl font-bold mb-8 min-h-[80px] flex items-center justify-center bg-black/30 p-4 rounded-xl border border-white/5">Carregando...</h3>
                     
                     <div id="train-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Botões injetados via JS -->
@@ -449,14 +476,152 @@
                 <div id="train-end-screen" class="hidden relative z-10 py-10">
                     <i class="fa-solid fa-gem text-6xl text-aura-cyan mb-4 drop-shadow-[0_0_20px_#00f3ff] animate-pulse"></i>
                     <h2 class="text-3xl font-aura font-bold mb-4">Treino Concluído!</h2>
-                    <p class="text-gray-300 mb-6 text-lg">Acumulaste Aura suficiente. O selo do Guardião das Palavras quebrou-se.</p>
-                    <button onclick="switchTab('test')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-4 rounded-full text-lg shadow-[0_0_20px_rgba(255,0,0,0.6)] transition-all hover:scale-105">
-                        Enfrentar o Boss Final <i class="fa-solid fa-khanda ml-2"></i>
-                    </button>
+                    <p class="text-gray-300 mb-6 text-lg">Aura máxima atingida no campo de treino.</p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button onclick="switchTab('adventure')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-4 rounded-full text-lg transition-all hover:scale-105 shadow-[0_0_15px_rgba(188,19,254,0.5)]">
+                            Modo Aventura <i class="fa-solid fa-gamepad ml-2"></i>
+                        </button>
+                        <button onclick="switchTab('test')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-4 rounded-full text-lg shadow-[0_0_20px_rgba(255,0,0,0.6)] transition-all hover:scale-105">
+                            Boss Final <i class="fa-solid fa-khanda ml-2"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
 
+        <!-- SECÇÃO: AVENTURA (NOVO) -->
+        <section id="adventure-section" class="hidden-section max-w-4xl mx-auto mt-4 animate-[fadeIn_0.3s_ease-out]">
+            <div class="glass-card p-4 md:p-6 border-aura-cyan shadow-[0_0_30px_rgba(0,243,255,0.1)] relative overflow-hidden">
+                
+                <!-- Menu Principal da Aventura -->
+                <div id="adventure-menu" class="text-center py-10">
+                    <i class="fa-solid fa-meteor text-6xl text-aura-cyan mb-4 animate-bounce drop-shadow-[0_0_15px_#00f3ff]"></i>
+                    <h2 class="text-3xl md:text-4xl font-aura font-bold text-aura-cyan mb-2">SOBREVIVÊNCIA DA AURA</h2>
+                    <p class="text-gray-300 mb-6 text-sm md:text-base max-w-xl mx-auto">
+                        Controla o teu Mago 🧙‍♂️ e sobrevive às hordas inimigas! <br>
+                        Usa as <strong class="text-white">Setas</strong> (ou W,A,S,D) para mover e <strong class="text-white">Espaço</strong> para atirar.<br>
+                        Se a tua Energia/Mana acabar, pressiona <strong class="text-aura-purple text-lg">'R'</strong> para responder a uma pergunta e invocar a <strong>Explosão Sagrada</strong>!
+                    </p>
+                    <div class="flex justify-center gap-4">
+                        <button onclick="startAdventure()" class="btn-aura px-8 py-3 text-lg">
+                            <i class="fa-solid fa-play mr-2"></i> Jogar Agora
+                        </button>
+                        <button onclick="showHallOfFame()" class="bg-yellow-600 hover:bg-yellow-500 px-6 py-3 rounded-full font-bold shadow-[0_0_15px_rgba(202,138,4,0.5)] transition">
+                            <i class="fa-solid fa-trophy mr-2"></i> Hall of Fame
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Arena de Jogo -->
+                <div id="adventure-arena" class="hidden relative">
+                    <!-- HUD do Jogo -->
+                    <div class="absolute top-2 left-2 z-10 flex flex-col gap-2 pointer-events-none">
+                        <div class="bg-black/60 px-3 py-1 rounded-full border border-white/20 text-sm font-bold flex items-center">
+                            <i class="fa-solid fa-heart text-red-500 mr-2"></i> 
+                            <div class="flex" id="adv-hp-display">❤️❤️❤️</div>
+                        </div>
+                        <div class="bg-black/60 px-3 py-1 rounded-full border border-white/20 text-sm font-bold flex items-center w-40">
+                            <i class="fa-solid fa-bolt text-blue-400 mr-2"></i>
+                            <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                                <div id="adv-mana-bar" class="bg-blue-500 h-full w-full transition-all"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute top-2 right-2 z-10 pointer-events-none">
+                        <div class="bg-black/60 px-3 py-1 rounded-full border border-yellow-500/50 text-yellow-400 font-bold font-aura shadow-[0_0_10px_rgba(250,204,21,0.3)]">
+                            Score: <span id="adv-score">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Mensagem de Recarga Visual -->
+                    <div id="adv-recharge-hint" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-center pointer-events-none hidden">
+                        <p class="text-aura-purple font-bold text-2xl animate-pulse bg-black/60 px-4 py-2 rounded-xl border border-aura-purple/50">PRESSIONA 'R' PARA RECARREGAR!</p>
+                    </div>
+
+                    <!-- Canvas onde corre o jogo -->
+                    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+                    <!-- Controlos Mobile (Visíveis apenas em ecrãs pequenos e touch) -->
+                    <div class="flex justify-between items-center w-full mt-4 md:hidden px-2">
+                        <!-- D-Pad Base -->
+                        <div class="grid grid-cols-3 gap-1 relative w-32 h-32 bg-white/5 rounded-full p-2 border border-white/10">
+                            <div></div>
+                            <button id="btn-up" class="mobile-btn hover:bg-white/20 active:bg-aura-cyan/50"><i class="fa-solid fa-arrow-up"></i></button>
+                            <div></div>
+                            <button id="btn-left" class="mobile-btn hover:bg-white/20 active:bg-aura-cyan/50"><i class="fa-solid fa-arrow-left"></i></button>
+                            <div></div>
+                            <button id="btn-right" class="mobile-btn hover:bg-white/20 active:bg-aura-cyan/50"><i class="fa-solid fa-arrow-right"></i></button>
+                            <div></div>
+                            <button id="btn-down" class="mobile-btn hover:bg-white/20 active:bg-aura-cyan/50"><i class="fa-solid fa-arrow-down"></i></button>
+                        </div>
+                        
+                        <!-- Ações -->
+                        <div class="flex gap-4">
+                            <button id="btn-recharge" class="mobile-btn action-btn bg-purple-900/60 border-purple-500 text-purple-200 active:bg-purple-500/80 shadow-[0_0_10px_rgba(188,19,254,0.5)]">R</button>
+                            <button id="btn-shoot" class="mobile-btn action-btn bg-cyan-900/60 border-cyan-500 text-cyan-200 active:bg-cyan-500/80 shadow-[0_0_10px_rgba(0,243,255,0.5)]"><i class="fa-solid fa-crosshairs"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal: Pergunta de Recarga (Aventura) -->
+        <div id="adv-question-modal" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center">
+            <div class="bg-dark border-2 border-aura-purple shadow-[0_0_40px_rgba(188,19,254,0.4)] rounded-2xl p-6 md:p-8 max-w-2xl w-full mx-4">
+                <div class="text-center mb-6">
+                    <i class="fa-solid fa-book-sparkles text-4xl text-aura-purple mb-2 animate-pulse"></i>
+                    <h3 class="text-2xl font-bold font-aura text-aura-purple">Meditação Rápida!</h3>
+                    <p class="text-sm text-gray-400">Acerta para recarregar mana a 100% e destruir todos os inimigos!</p>
+                </div>
+                
+                <h4 id="adv-q-text" class="text-xl font-bold text-center mb-6 bg-white/5 p-4 rounded-xl border border-white/10">Pergunta</h4>
+                
+                <div id="adv-q-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Opções geradas por JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Game Over Aventura -->
+        <div id="adv-gameover-modal" class="fixed inset-0 modal-overlay z-[70] hidden flex items-center justify-center">
+            <div class="bg-dark border-2 border-red-500 shadow-[0_0_50px_rgba(255,0,0,0.5)] rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+                <i class="fa-solid fa-skull-crossbones text-6xl text-red-500 mb-4 animate-bounce"></i>
+                <h3 class="text-4xl font-aura font-bold text-white mb-2">GAME OVER</h3>
+                <p class="text-xl text-gray-300 mb-6">Sobreviveste muito tempo. Score: <span id="adv-final-score" class="font-bold text-yellow-400 text-3xl">0</span></p>
+                
+                <div id="adv-submit-box" class="mb-6 bg-black/50 p-4 rounded-xl border border-white/10">
+                    <label class="block text-sm font-bold text-gray-300 mb-2">Gravar no Hall of Fame?</label>
+                    <input type="text" id="adv-player-name" placeholder="O teu nome épico..." class="w-full bg-black/80 border border-yellow-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-yellow-400 mb-3 text-center uppercase tracking-wider" maxlength="15">
+                    <button onclick="submitScoreToFirebase()" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-800 text-white font-bold py-2 rounded-lg shadow-[0_0_10px_rgba(250,204,21,0.4)] hover:scale-105 transition">Gravar Pontuação</button>
+                </div>
+
+                <div class="flex gap-3 justify-center">
+                    <button onclick="closeAdvGameOver()" class="bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded-full font-bold transition">Voltar</button>
+                    <button onclick="startAdventure()" class="btn-aura px-6 py-2">Tentar de Novo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Hall of Fame -->
+        <div id="hall-of-fame-modal" class="fixed inset-0 modal-overlay z-[80] hidden flex items-center justify-center">
+            <div class="bg-dark border-2 border-yellow-500 shadow-[0_0_40px_rgba(250,204,21,0.4)] rounded-2xl p-6 md:p-8 max-w-md w-full mx-4 relative max-h-[90vh] flex flex-col">
+                <button onclick="closeHallOfFame()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+                
+                <div class="text-center mb-6">
+                    <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-2 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]"></i>
+                    <h3 class="text-3xl font-aura font-bold text-white uppercase tracking-widest">Hall of Fame</h3>
+                    <p class="text-xs text-gray-400">Os maiores Magos da Sobrevivência (Global)</p>
+                </div>
+                
+                <div class="overflow-y-auto flex-grow pr-2 custom-scrollbar">
+                    <ul id="hof-list" class="space-y-2">
+                        <li class="text-center text-gray-400 py-4"><i class="fa-solid fa-spinner fa-spin mr-2"></i>A carregar pergaminhos antigos...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECÇÃO: TESTE/BOSS (MANTIDA NA ÍNTEGRA) -->
         <section id="test-section" class="hidden-section max-w-3xl mx-auto mt-8 animate-[fadeIn_0.3s_ease-out]">
             <div id="test-card" class="glass-card p-8 border-red-500/30 shadow-[0_0_30px_rgba(255,0,0,0.1)] relative overflow-hidden transition-all duration-100">
                 <div class="absolute -top-20 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-red-600 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
@@ -466,23 +631,23 @@
                     <h2 class="text-4xl font-aura font-bold text-red-400 mb-2">O GUARDIÃO DAS PALAVRAS</h2>
                     <p class="text-gray-300 mb-6 text-lg max-w-lg mx-auto bg-black/40 p-4 rounded-xl border border-red-900/50">
                         "Pretendes o Certificado? Mostra-me o que vales!"<br><br>
-                        <span class="text-sm text-gray-400">30 ataques seguidos (baralhados). Sem poções. Sem ajuda. <br>Derrota-o para gravar o teu nome na história.</span>
+                        <span class="text-sm text-gray-400">30 ataques seguidos (ordem aleatória). Sem poções. Sem ajuda. <br>A tua pontuação define o título no teu diploma.</span>
                     </p>
                     
                     <div class="max-w-xs mx-auto mb-8 text-left bg-black/60 p-4 rounded-xl border border-white/10">
                         <label class="block text-sm font-bold text-gray-300 mb-2"><i class="fa-solid fa-signature mr-2"></i>Nome para o Certificado:</label>
-                        <input type="text" id="student-name" placeholder="O teu nome épico..." class="w-full bg-black/50 border border-red-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition">
+                        <input type="text" id="student-name" placeholder="Ex: Mago Afonso..." class="w-full bg-black/50 border border-red-500/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-red-400 transition">
                     </div>
 
                     <button onclick="startTest()" class="bg-gradient-to-r from-red-600 to-red-900 text-white font-bold px-10 py-4 rounded-full text-xl hover:scale-105 transition shadow-[0_0_25px_rgba(255,0,0,0.6)]">
-                        INICIAR COMBATE <i class="fa-solid fa-fire ml-2"></i>
+                        INICIAR COMBATE FINAL <i class="fa-solid fa-fire ml-2"></i>
                     </button>
                 </div>
 
                 <div id="test-arena" class="hidden relative z-10">
                     <div class="flex justify-between items-center mb-6">
                         <div class="text-red-400 font-bold border border-red-500/50 px-3 py-1 rounded-lg bg-red-900/20 shadow-[0_0_10px_rgba(255,0,0,0.2)]">
-                            <i class="fa-solid fa-heart-crack mr-2"></i> Boss HP
+                            <i class="fa-solid fa-heart-crack mr-2"></i> HP do Boss
                         </div>
                         <div class="font-aura text-gray-400">
                             Ataque <span id="test-progress" class="text-white font-bold">1</span>/30
@@ -496,31 +661,31 @@
                     <h3 id="test-question-text" class="text-xl md:text-2xl font-bold mb-8 min-h-[80px] flex items-center justify-center text-center bg-black/40 p-6 rounded-xl border border-white/5">...</h3>
                     
                     <div id="test-options" class="grid grid-cols-1 gap-3">
-                        <!-- Opções -->
+                        <!-- Opções injetadas -->
                     </div>
                 </div>
 
                 <div id="test-result" class="hidden text-center py-10 relative z-10">
                     <div id="result-icon" class="text-8xl mb-4 animate-bounce"></div>
                     <h2 id="result-title" class="text-5xl font-aura font-bold mb-2 uppercase tracking-widest">...</h2>
-                    <p class="text-xl mb-2">Dano causado: <span id="result-score" class="font-bold text-aura-cyan text-3xl mx-2">0</span> / 30 ataques.</p>
-                    <p class="text-md text-gray-400 mb-8">Rank Final: <span id="result-rank" class="font-bold text-white uppercase">...</span></p>
+                    <p class="text-xl mb-2">Dano causado: <span id="result-score" class="font-bold text-aura-cyan text-3xl mx-2">0</span> / 30 acertos.</p>
+                    <p class="text-md text-gray-400 mb-8">Título Desbloqueado: <span id="result-rank" class="font-bold text-white uppercase text-lg bg-white/10 px-3 py-1 rounded">...</span></p>
                     
                     <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
                         <button onclick="switchTab('study')" class="px-6 py-3 rounded-full bg-gray-800 hover:bg-gray-700 transition border border-gray-600 font-bold">
-                            <i class="fa-solid fa-book mr-2"></i> Voltar ao Estudo
+                            <i class="fa-solid fa-book mr-2"></i> Estudar Mais
                         </button>
                         <button id="btn-download-cert" onclick="downloadCertificate()" class="btn-aura px-8 py-3 hidden text-lg animate-pulse">
-                            <i class="fa-solid fa-file-pdf mr-2"></i> Descarregar Certificado
+                            <i class="fa-solid fa-file-pdf mr-2"></i> Descarregar Certificado PDF
                         </button>
                     </div>
 
-                    <!-- Revisão de Erros -->
+                    <!-- Revisão Pedagógica dos Erros -->
                     <div id="test-review" class="mt-12 hidden bg-black/50 border border-gray-700 rounded-2xl p-6 text-left max-w-2xl mx-auto shadow-[0_0_20px_rgba(0,0,0,0.8)]">
                         <h3 class="text-2xl font-bold text-red-400 mb-4 border-b border-red-500/30 pb-3 flex items-center gap-3">
-                            <i class="fa-solid fa-magnifying-glass-chart"></i> Análise de Combate (O que falhou)
+                            <i class="fa-solid fa-magnifying-glass-chart"></i> Análise de Combate (Erros)
                         </h3>
-                        <p class="text-sm text-gray-400 mb-6">Os verdadeiros mestres aprendem com os golpes que sofrem. Revê os teus erros:</p>
+                        <p class="text-sm text-gray-400 mb-6">Os mestres aprendem com as falhas. Vê onde os teus feitiços falharam o alvo:</p>
                         <ul id="test-review-list" class="space-y-4 text-sm">
                             <!-- Injetado via JS -->
                         </ul>
@@ -531,6 +696,7 @@
 
     </main>
 
+    <!-- Modal de Aviso Simples -->
     <div id="custom-alert" class="fixed inset-0 modal-overlay z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
         <div class="bg-dark border-2 border-aura-cyan shadow-[0_0_40px_rgba(0,243,255,0.3)] rounded-2xl p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300" id="custom-alert-box">
             <div class="text-center">
@@ -542,8 +708,153 @@
         </div>
     </div>
 
+    <!-- FIREBASE IMPORT (Utilizando Configurações Standard/User) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuração do ambiente Canvas com fallback para a config do utilizador
+        let fbConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            fbConfig = JSON.parse(__firebase_config);
+        } else {
+            fbConfig = {
+                apiKey: "AIzaSyDR6EiTdMY-b0rXYnlF1InasK4AbRPRc2E",
+                authDomain: "gen-lang-client-0341373088.firebaseapp.com",
+                databaseURL: "https://gen-lang-client-0341373088-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "gen-lang-client-0341373088",
+                storageBucket: "gen-lang-client-0341373088.firebasestorage.app",
+                messagingSenderId: "1041014242212",
+                appId: "1:1041014242212:web:18cebefb3b40bbdaa71f31"
+            };
+        }
+        const currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'auramaster-v1';
+
+        const app = initializeApp(fbConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let currentUser = null;
+
+        // Exportar para o escopo global do Window para serem chamadas nos botões
+        window.db = db;
+        window.currentAppId = currentAppId;
+
+        async function initFirebaseAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined') {
+                    const cred = await signInWithCustomToken(auth, __initial_auth_token);
+                    currentUser = cred.user;
+                } else {
+                    const cred = await signInAnonymously(auth);
+                    currentUser = cred.user;
+                }
+                window.currentUser = currentUser;
+            } catch (error) {
+                console.error("Aviso: Auth falhou (Ignorar se em Test Mode sem Anonymous ativado)", error);
+                // Mesmo se falhar, permitimos que a app continue (para suportar o Test Mode do Firestore sem Auth ativado no console)
+                window.currentUser = { uid: 'anonymous-fallback' };
+            }
+        }
+        
+        initFirebaseAuth();
+
+        window.submitScoreToFirebase = async function() {
+            const nameInput = document.getElementById('adv-player-name').value.trim();
+            const score = parseInt(document.getElementById('adv-final-score').innerText);
+            
+            if (!nameInput) {
+                showMessage("Falta o Nome!", "Escreve um nome épico para gravar a pontuação.");
+                return;
+            }
+            if (score <= 0) {
+                showMessage("Sem Pontos", "Tens de derrotar inimigos para entrares no Hall of Fame!");
+                return;
+            }
+
+            try {
+                const recordId = "score_" + Date.now().toString() + Math.floor(Math.random()*1000);
+                // REGRA 1 ESTRITA: Path de Public Data
+                const path = `artifacts/${window.currentAppId}/public/data/halloffame`;
+                
+                const btn = event.target;
+                btn.innerText = "A gravar...";
+                btn.disabled = true;
+
+                await setDoc(doc(window.db, path, recordId), {
+                    name: nameInput.substring(0, 15),
+                    score: score,
+                    date: new Date().toISOString()
+                });
+                
+                closeAdvGameOver();
+                showHallOfFame();
+            } catch (error) {
+                console.error("Erro a gravar pontuação:", error);
+                showMessage("Erro de Conexão", "Não foi possível gravar na nuvem. A tua magia não alcançou os servidores.");
+                event.target.innerText = "Tentar Novamente";
+                event.target.disabled = false;
+            }
+        };
+
+        window.loadHallOfFame = async function() {
+            const listEl = document.getElementById('hof-list');
+            listEl.innerHTML = '<li class="text-center text-gray-400 py-4"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Lendo as estrelas...</li>';
+            
+            try {
+                const path = `artifacts/${window.currentAppId}/public/data/halloffame`;
+                const querySnapshot = await getDocs(collection(window.db, path));
+                
+                let scores = [];
+                querySnapshot.forEach((doc) => {
+                    scores.push(doc.data());
+                });
+
+                // REGRA 2 ESTRITA: Ordenar em memória (evitar erros de index composto)
+                scores.sort((a, b) => b.score - a.score);
+                const top10 = scores.slice(0, 10);
+
+                listEl.innerHTML = '';
+                
+                if (top10.length === 0) {
+                    listEl.innerHTML = '<li class="text-center text-gray-500 py-4">Tabela vazia. Sê o primeiro Mago a registar a tua força!</li>';
+                    return;
+                }
+
+                top10.forEach((record, index) => {
+                    let styleClass = "bg-white/5 border-white/10 text-gray-300";
+                    let icon = `<span class="font-bold text-gray-500 mr-3 w-6 text-right">${index + 1}º</span>`;
+                    
+                    if (index === 0) {
+                        styleClass = "bg-yellow-900/40 border-yellow-500/50 text-yellow-400 font-bold transform scale-105";
+                        icon = `<i class="fa-solid fa-trophy text-yellow-400 mr-3 drop-shadow-[0_0_5px_#facc15]"></i>`;
+                    } else if (index === 1) {
+                        styleClass = "bg-gray-800/80 border-gray-400/50 text-gray-300 font-bold";
+                        icon = `<i class="fa-solid fa-medal text-gray-400 mr-3"></i>`;
+                    } else if (index === 2) {
+                        styleClass = "bg-amber-900/30 border-amber-600/50 text-amber-500 font-bold";
+                        icon = `<i class="fa-solid fa-award text-amber-600 mr-3"></i>`;
+                    }
+
+                    listEl.innerHTML += `
+                        <li class="flex justify-between items-center p-3 rounded-lg border ${styleClass} mb-2 shadow-sm transition hover:bg-white/10">
+                            <div class="flex items-center">
+                                ${icon}
+                                <span class="uppercase tracking-wide">${record.name}</span>
+                            </div>
+                            <span class="font-mono text-lg">${record.score}</span>
+                        </li>
+                    `;
+                });
+            } catch (error) {
+                console.error("Erro ao carregar Hall of Fame:", error);
+                listEl.innerHTML = '<li class="text-center text-red-400 py-4"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Erro ao ler pergaminhos. (Base de dados inacessível)</li>';
+            }
+        };
+    </script>
+
     <script>
-        // --- BASE DE DADOS DAS PERGUNTAS ---
+        // --- BASE DE DADOS DAS PERGUNTAS (COMPLETAS) ---
         const trainingQuestions = [
             { q: "A palavra 'sapato' é uma palavra...", options: ["Simples", "Complexa derivada", "Complexa composta", "Radical"], correct: 0, exp: "Não provém de nenhuma outra palavra." },
             { q: "A palavra 'cerejeira' é formada por:", options: ["Prefixo + Base", "Base + Sufixo", "Palavra + Palavra", "Radical + Radical"], correct: 1, exp: "Formada pela base (radical 'cerej-') e o sufixo '-eira'." },
@@ -610,22 +921,22 @@
             { q: "A palavra 'escola' é:", options: ["Derivada", "Composta", "Complexa", "Simples"], correct: 3 }
         ];
 
-        let activeTestQuestions = []; // Para guardar a ordem baralhada
+        let activeTestQuestions = []; 
 
         // --- SISTEMA DE RANKS ---
         const ranks = [
             { threshold: 0, title: "Iniciado", color: "text-gray-400" },
             { threshold: 100, title: "Estudioso", color: "text-green-400" },
-            { threshold: 300, title: "Caçador de Palavras", color: "text-blue-400" },
-            { threshold: 600, title: "Mestre da Aura", color: "text-aura-cyan" },
-            { threshold: 1200, title: "Lenda Gramatical", color: "text-aura-purple text-shadow-glow font-black" }
+            { threshold: 300, title: "Caçador", color: "text-blue-400" },
+            { threshold: 600, title: "Mestre", color: "text-aura-cyan" },
+            { threshold: 1200, title: "Lenda", color: "text-aura-purple text-shadow-glow font-black" }
         ];
         let currentRankTitle = "Iniciado";
 
         // --- SISTEMA DE ÁUDIO (Tone.js) ---
         let audioInitialized = false;
         const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-        synth.volume.value = -10; 
+        synth.volume.value = -12; 
         
         async function initAudio() {
             if (!audioInitialized) {
@@ -638,55 +949,35 @@
             if (!audioInitialized) return;
             const now = Tone.now();
             switch(type) {
-                case 'correct':
-                    synth.triggerAttackRelease(["C5", "E5"], "8n", now);
-                    break;
-                case 'wrong':
-                    synth.triggerAttackRelease(["C3", "D#3"], "8n", now);
-                    break;
-                case 'combo':
-                    synth.triggerAttackRelease(["G5", "B5", "D6"], "8n", now);
-                    break;
-                case 'bossHit':
-                    // Som de impacto rápido e grave
-                    synth.triggerAttackRelease(["C2", "G2"], "16n", now);
-                    break;
-                case 'bossDamage':
-                    // Som agudo quando erramos no boss
-                    synth.triggerAttackRelease(["A4", "D#4"], "8n", now);
-                    break;
-                case 'win':
-                    // Fanfarra de vitória
+                case 'correct': synth.triggerAttackRelease(["C5", "E5"], "8n", now); break;
+                case 'wrong': synth.triggerAttackRelease(["C3", "D#3"], "8n", now); break;
+                case 'combo': synth.triggerAttackRelease(["G5", "B5", "D6"], "8n", now); break;
+                case 'bossHit': synth.triggerAttackRelease(["C2", "G2"], "16n", now); break;
+                case 'bossDamage': synth.triggerAttackRelease(["A4", "D#4"], "8n", now); break;
+                case 'win': 
                     synth.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
                     synth.triggerAttackRelease(["C5", "E5", "G5"], "2n", now + 0.3);
                     break;
-                case 'lose':
-                    // Descida triste
-                    synth.triggerAttackRelease(["G3", "D#3", "C3"], "1n", now);
-                    break;
-                case 'hint':
-                    // Som mágico ao gastar Aura
-                    synth.triggerAttackRelease(["E5", "A5", "C6"], "16n", now);
-                    break;
+                case 'lose': synth.triggerAttackRelease(["G3", "D#3", "C3"], "1n", now); break;
+                case 'hint': synth.triggerAttackRelease(["E5", "A5", "C6"], "16n", now); break;
+                case 'shoot': synth.triggerAttackRelease("C5", "32n", now, 0.1); break;
+                case 'explosion': synth.triggerAttackRelease(["C2", "E2", "G2"], "8n", now, 0.5); break;
+                case 'gameover': synth.triggerAttackRelease(["E3", "C3", "G2"], "2n", now); break;
             }
         }
 
+        // --- STREAMING_CHUNK:Lógica Principal de Estado e Treino ---
         // --- ESTADO DA APLICAÇÃO ---
         let auraPoints = 0;
         let currentTab = 'study';
         let currentCombo = 0;
         
-        // Estado do Treino
         let trainIndex = 0;
-        let trainScore = 0;
-        
-        // Estado do Teste
         let testIndex = 0;
         let testScore = 0;
         let testActive = false;
         let wrongTestAnswers = [];
 
-        // Carregar dados guardados no Browser
         if (localStorage.getItem('auraMaster_points')) {
             auraPoints = parseInt(localStorage.getItem('auraMaster_points'));
         }
@@ -716,7 +1007,7 @@
             const rankEl = document.getElementById('player-rank');
             if(rankEl) {
                 rankEl.innerText = rank.title;
-                rankEl.className = rank.color; // Aplica a cor do rank
+                rankEl.className = rank.color; 
             }
         }
 
@@ -727,12 +1018,9 @@
             if (currentCombo >= 2) {
                 comboCountEl.innerText = currentCombo;
                 comboEl.classList.remove('hidden');
-                
-                // Forçar o recomeço da animação CSS
                 comboEl.classList.remove('combo-text');
                 void comboEl.offsetWidth; 
                 comboEl.classList.add('combo-text');
-                
                 if(currentCombo % 5 === 0) playSound('combo');
             } else {
                 comboEl.classList.add('hidden');
@@ -750,7 +1038,6 @@
             setTimeout(() => el.remove(), 1000);
         }
 
-        // Utils
         function shuffleArray(array) {
             let currentIndex = array.length, randomIndex;
             while (currentIndex !== 0) {
@@ -765,9 +1052,7 @@
             var duration = 3 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
-
             function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-
             var interval = setInterval(function() {
                 var timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return clearInterval(interval);
@@ -777,7 +1062,6 @@
             }, 250);
         }
 
-        // UI Modals
         function showMessage(title, message) {
             document.getElementById('alert-title').innerText = title;
             document.getElementById('alert-message').innerText = message;
@@ -802,20 +1086,24 @@
 
         function switchTab(tabId) {
             initAudio();
-
             if (testActive && tabId !== 'test') {
-                showMessage("Arena Trancada!", "O Guardião bloqueou as saídas! Não podes fugir a meio do Boss Final.");
+                showMessage("Arena Trancada!", "O Guardião bloqueou as portas! Termina o combate.");
                 return;
             }
 
-            // Esconder todas
-            ['study', 'train', 'test'].forEach(id => {
+            // Parar modo aventura se sair da tab
+            if(tabId !== 'adventure' && advGameLoop) {
+                advIsRunning = false;
+                cancelAnimationFrame(advGameLoop);
+            }
+
+            ['study', 'train', 'adventure', 'test'].forEach(id => {
                 document.getElementById(id + '-section').classList.add('hidden-section');
-                document.getElementById('nav-' + id).classList.remove('text-aura-cyan', 'border', 'border-aura-cyan', 'shadow-[0_0_10px_rgba(0,243,255,0.3)]', 'bg-white/10');
-                document.getElementById('nav-' + id).classList.add('text-gray-400', 'bg-transparent');
+                const navBtn = document.getElementById('nav-' + id);
+                navBtn.classList.remove('text-aura-cyan', 'text-red-500', 'border', 'border-aura-cyan', 'border-red-500', 'shadow-[0_0_10px_rgba(0,243,255,0.3)]', 'shadow-[0_0_10px_rgba(255,0,0,0.3)]', 'bg-white/10');
+                navBtn.classList.add('text-gray-400', 'bg-transparent');
             });
 
-            // Mostrar ativa
             document.getElementById(tabId + '-section').classList.remove('hidden-section');
             const activeNav = document.getElementById('nav-' + tabId);
             activeNav.classList.remove('text-gray-400', 'bg-transparent');
@@ -827,21 +1115,18 @@
             }
 
             currentTab = tabId;
-
-            if (tabId === 'train' && trainIndex === 0) {
-                loadTrainQuestion();
-            }
+            if (tabId === 'train' && trainIndex === 0) loadTrainQuestion();
         }
 
         function toggleFlashcard(element) {
             element.classList.toggle('active');
-            initAudio(); // só para garantir
-            if(element.classList.contains('active')) {
-                // pequeno som ao abrir cartões
-                if(audioInitialized) synth.triggerAttackRelease("C6", "32n", Tone.now(), 0.1); 
+            initAudio();
+            if(element.classList.contains('active') && audioInitialized) {
+                synth.triggerAttackRelease("C6", "32n", Tone.now(), 0.1); 
             }
         }
 
+        // --- STREAMING_CHUNK:Lógica do Modo Treino... ---
         function loadTrainQuestion() {
             if (trainIndex >= trainingQuestions.length) {
                 document.getElementById('train-question-container').classList.add('hidden');
@@ -849,7 +1134,6 @@
                 document.getElementById('train-end-screen').classList.remove('hidden');
                 document.getElementById('train-progress-bar').style.width = '100%';
                 
-                // Dar um mega bónus de conclusão de treino
                 auraPoints += 200;
                 updateAuraDisplay();
                 triggerConfetti();
@@ -860,7 +1144,6 @@
             document.getElementById('train-progress').innerText = trainIndex + 1;
             document.getElementById('train-progress-bar').style.width = ((trainIndex) / trainingQuestions.length * 100) + '%';
             
-            // Reativar botão de dica
             document.getElementById('btn-hint').disabled = false;
             document.getElementById('btn-hint').classList.remove('opacity-50', 'cursor-not-allowed');
 
@@ -888,7 +1171,7 @@
         function useHint() {
             initAudio();
             if (auraPoints < 20) { 
-                showMessage("Aura Insuficiente", "Precisas de pelo menos 20 de Aura para invocar esta magia de ajuda."); 
+                showMessage("Aura Insuficiente", "Precisas de 20 de Aura para a poção."); 
                 return; 
             }
             
@@ -896,12 +1179,9 @@
             const buttons = document.getElementById('train-options').querySelectorAll('button');
             let toHide = [];
             
-            // Encontrar erradas que ainda não estão escondidas
             for(let i=0; i<buttons.length; i++) {
                 if(i !== q.correct && !buttons[i].disabled) toHide.push(i);
             }
-            
-            // Baralhar e escolher 2
             toHide = shuffleArray(toHide);
             
             if(toHide.length > 0) {
@@ -909,7 +1189,6 @@
                  updateAuraDisplay();
                  playSound('hint');
                  
-                 // Efeito visual no botão de hint
                  const btnHint = document.getElementById('btn-hint');
                  const rect = btnHint.getBoundingClientRect();
                  spawnFloatingText('-20 Aura', rect.left + rect.width/2, rect.top, '#bc13fe');
@@ -919,8 +1198,6 @@
                      buttons[toHide[i]].classList.add('opacity-30', 'cursor-not-allowed', 'bg-black/50');
                      buttons[toHide[i]].querySelector('span').classList.add('line-through', 'text-gray-600');
                  }
-                 
-                 // Desativar dica para esta pergunta
                  btnHint.disabled = true;
                  btnHint.classList.add('opacity-50', 'cursor-not-allowed');
             }
@@ -931,7 +1208,6 @@
             const q = trainingQuestions[trainIndex];
             const isCorrect = selectedIdx === q.correct;
             
-            // Desativar todos os botões e a dica
             const buttons = document.getElementById('train-options').querySelectorAll('button');
             buttons.forEach(b => { b.disabled = true; b.classList.add('opacity-50', 'cursor-not-allowed'); b.classList.remove('hover:scale-[1.02]'); });
             document.getElementById('btn-hint').disabled = true;
@@ -996,6 +1272,7 @@
             }
         }
 
+        // --- STREAMING_CHUNK:Lógica do Modo Boss (Final Test) ---
         function startTest() {
             initAudio();
             const nameInput = document.getElementById('student-name').value.trim();
@@ -1010,8 +1287,6 @@
             currentCombo = 0;
             wrongTestAnswers = []; 
             
-            // Fazer uma cópia e baralhar (Shuffle) as perguntas do Boss
-            // O uso de stringify e parse serve para deep copy simples
             activeTestQuestions = shuffleArray(JSON.parse(JSON.stringify(baseTestQuestions)));
             
             document.getElementById('test-intro').classList.add('hidden');
@@ -1049,7 +1324,7 @@
         function triggerScreenShake() {
             const arena = document.getElementById('test-card');
             arena.classList.remove('shake');
-            void arena.offsetWidth; // trigger reflow
+            void arena.offsetWidth; 
             arena.classList.add('shake');
         }
 
@@ -1059,9 +1334,8 @@
                 testScore++;
                 currentCombo++;
                 playSound('bossHit');
-                triggerScreenShake(); // Tremor épico!
+                triggerScreenShake(); 
                 
-                // Flash vermelho rápido
                 const arena = document.getElementById('test-arena');
                 arena.classList.add('bg-red-900/20');
                 setTimeout(()=>arena.classList.remove('bg-red-900/20'), 150);
@@ -1100,7 +1374,7 @@
                 titleEl.className = "text-4xl md:text-5xl font-aura font-bold mb-2 text-aura-cyan drop-shadow-[0_0_20px_#00f3ff]";
                 iconEl.innerHTML = '<i class="fa-solid fa-crown text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.8)]"></i>';
                 btnCert.classList.remove('hidden');
-                auraPoints += 500; // Grande bónus
+                auraPoints += 500; 
             } else if (testScore >= 15) {
                 playSound('win');
                 titleEl.innerText = "BOSS DERROTADO!";
@@ -1115,10 +1389,9 @@
                 iconEl.innerHTML = '<i class="fa-solid fa-skull text-gray-600"></i>';
             }
             
-            updateAuraDisplay(); // Atualiza para o bónus novo contar para o Rank exibido a seguir
+            updateAuraDisplay(); 
             document.getElementById('result-rank').innerText = currentRankTitle;
 
-            // Gerar lista de erros
             const reviewDiv = document.getElementById('test-review');
             const reviewList = document.getElementById('test-review-list');
             
@@ -1141,19 +1414,12 @@
 
         function downloadCertificate() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'landscape',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const studentName = document.getElementById('student-name').value.trim() || "Mestre Anónimo";
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+            const studentName = document.getElementById('student-name').value.trim() || "Mago Anónimo";
             const date = new Date().toLocaleDateString('pt-PT');
 
             doc.setFillColor(10, 10, 15); 
             doc.rect(0, 0, 297, 210, 'F');
-
-            // Bordas
             doc.setDrawColor(0, 243, 255);
             doc.setLineWidth(2);
             doc.rect(10, 10, 277, 190);
@@ -1161,11 +1427,10 @@
             doc.setLineWidth(0.5);
             doc.rect(12, 12, 273, 186);
 
-            // Título
             doc.setTextColor(0, 243, 255);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(36);
-            doc.text("CERTIFICADO DO GUARDIÃO DAS PALAVRAS", 148.5, 40, { align: "center" });
+            doc.text("CERTIFICADO DO GUARDIÃO", 148.5, 40, { align: "center" });
             
             doc.setTextColor(188, 19, 254);
             doc.setFontSize(20);
@@ -1176,20 +1441,17 @@
             doc.setFontSize(14);
             doc.text("Atesta-se por este documento mágico que o aluno", 148.5, 80, { align: "center" });
 
-            // Nome
             doc.setTextColor(255, 215, 0); 
             doc.setFont("helvetica", "bold");
             doc.setFontSize(32);
             doc.text(studentName, 148.5, 100, { align: "center" });
 
-            // Detalhes
             doc.setTextColor(200, 200, 200);
             doc.setFont("helvetica", "normal");
             doc.setFontSize(14);
-            doc.text("Demonstrou domínio absoluto na Formação de Palavras do 6º Ano,", 148.5, 125, { align: "center" });
+            doc.text("Demonstrou domínio na Formação de Palavras do 6º Ano,", 148.5, 125, { align: "center" });
             doc.text(`Derrotando o Boss Final com um ataque letal de ${testScore} / 30 acertos.`, 148.5, 135, { align: "center" });
 
-            // Rodapé
             doc.setDrawColor(100, 100, 100);
             doc.setLineWidth(0.5);
             doc.line(98.5, 160, 198.5, 160);
@@ -1200,6 +1462,331 @@
             doc.text(`Registado a: ${date}`, 148.5, 180, { align: "center" });
 
             doc.save(`Certificado_Aura_${studentName.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        // --- STREAMING_CHUNK:Lógica Completa do Jogo Aventura (Engine) ---
+        // Variáveis do Jogo Aventura
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let advGameLoop;
+        let advIsRunning = false;
+        let advIsPaused = false; // Pausa para a pergunta
+        let advScore = 0;
+        let advFrameCount = 0;
+
+        const player = { x: 50, y: 180, w: 40, h: 40, speed: 4, hp: 3, maxHp: 3, mana: 100, maxMana: 100, emoji: '🧙‍♂️' };
+        let enemies = [];
+        let projectiles = [];
+        let particles = [];
+        
+        const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, " ": false, r: false };
+        let canShoot = true;
+
+        // Ouvintes de Teclado
+        window.addEventListener('keydown', (e) => {
+            if(advIsRunning && !advIsPaused && keys.hasOwnProperty(e.key)) {
+                keys[e.key] = true;
+                if(e.key === 'r' || e.key === 'R') triggerRechargeModal();
+                if(e.key === ' ' && canShoot) { shootProjectile(); canShoot = false; }
+                e.preventDefault();
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            if(keys.hasOwnProperty(e.key)) {
+                keys[e.key] = false;
+                if(e.key === ' ') canShoot = true;
+            }
+        });
+
+        // Ouvintes Mobile
+        const btnMap = { 'btn-up': 'ArrowUp', 'btn-down': 'ArrowDown', 'btn-left': 'ArrowLeft', 'btn-right': 'ArrowRight' };
+        for(let id in btnMap) {
+            const el = document.getElementById(id);
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[btnMap[id]] = true; });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); keys[btnMap[id]] = false; });
+            el.addEventListener('mousedown', () => keys[btnMap[id]] = true);
+            el.addEventListener('mouseup', () => keys[btnMap[id]] = false);
+            el.addEventListener('mouseleave', () => keys[btnMap[id]] = false);
+        }
+        const btnShoot = document.getElementById('btn-shoot');
+        btnShoot.addEventListener('touchstart', (e) => { e.preventDefault(); if(canShoot){shootProjectile(); canShoot=false;} });
+        btnShoot.addEventListener('touchend', (e) => { e.preventDefault(); canShoot=true; });
+        btnShoot.addEventListener('mousedown', () => { if(canShoot){shootProjectile(); canShoot=false;} });
+        btnShoot.addEventListener('mouseup', () => canShoot=true);
+
+        const btnRecharge = document.getElementById('btn-recharge');
+        btnRecharge.addEventListener('click', () => { if(advIsRunning && !advIsPaused) triggerRechargeModal(); });
+
+        function startAdventure() {
+            initAudio();
+            document.getElementById('adventure-menu').classList.add('hidden');
+            document.getElementById('adv-gameover-modal').classList.add('hidden');
+            document.getElementById('adventure-arena').classList.remove('hidden');
+            
+            player.x = 50; player.y = canvas.height/2 - 20;
+            player.hp = 3; player.mana = 100;
+            advScore = 0;
+            enemies = []; projectiles = []; particles = [];
+            advFrameCount = 0;
+            advIsPaused = false;
+            advIsRunning = true;
+            
+            updateAdvHUD();
+            
+            if(advGameLoop) cancelAnimationFrame(advGameLoop);
+            advGameLoop = requestAnimationFrame(gameLoop);
+        }
+
+        function spawnEnemy() {
+            const types = ['👹', '🦇', '🐉'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const size = type === '🐉' ? 50 : 40;
+            const speed = type === '🦇' ? 3 : (type === '🐉' ? 1 : 2);
+            const hp = type === '🐉' ? 3 : 1;
+            
+            enemies.push({
+                x: canvas.width + 20,
+                y: Math.random() * (canvas.height - size - 20) + 10,
+                w: size, h: size, speed: speed, emoji: type, hp: hp
+            });
+        }
+
+        function shootProjectile() {
+            if(player.mana >= 5) {
+                player.mana -= 5;
+                projectiles.push({ x: player.x + player.w, y: player.y + player.h/2 - 10, w: 20, h: 20, speed: 8 });
+                playSound('shoot');
+                updateAdvHUD();
+            } else {
+                document.getElementById('adv-recharge-hint').classList.remove('hidden');
+                setTimeout(()=>document.getElementById('adv-recharge-hint').classList.add('hidden'), 2000);
+            }
+        }
+
+        function createParticles(x, y, color) {
+            for(let i=0; i<10; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1.0, color: color
+                });
+            }
+        }
+
+        function updateAdvHUD() {
+            let hearts = "";
+            for(let i=0; i<player.hp; i++) hearts += "❤️";
+            for(let i=player.hp; i<player.maxHp; i++) hearts += "🖤";
+            document.getElementById('adv-hp-display').innerHTML = hearts;
+            document.getElementById('adv-mana-bar').style.width = player.mana + '%';
+            document.getElementById('adv-score').innerText = advScore;
+        }
+
+        function triggerRechargeModal() {
+            advIsPaused = true;
+            const allQ = [...trainingQuestions, ...baseTestQuestions];
+            const q = allQ[Math.floor(Math.random() * allQ.length)];
+            
+            document.getElementById('adv-q-text').innerText = q.q;
+            const optsContainer = document.getElementById('adv-q-options');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full p-3 rounded-lg text-left font-semibold text-sm md:text-base border border-aura-purple/50 bg-black/60 hover:bg-aura-purple/40 hover:border-aura-cyan transition-all group';
+                btn.innerHTML = `<span class="inline-block w-6 h-6 bg-aura-purple/50 text-center rounded-full mr-2 text-white text-xs leading-6 font-mono">${['A','B','C','D'][idx]}</span> ${opt}`;
+                btn.onclick = () => answerRecharge(idx === q.correct);
+                optsContainer.appendChild(btn);
+            });
+            
+            document.getElementById('adv-question-modal').classList.remove('hidden');
+        }
+
+        function answerRecharge(isCorrect) {
+            document.getElementById('adv-question-modal').classList.add('hidden');
+            
+            if(isCorrect) {
+                playSound('win');
+                player.mana = 100;
+                advScore += 50;
+                // Explosão Sagrada! Limpa ecrã
+                enemies.forEach(e => createParticles(e.x, e.y, '#ffd700'));
+                enemies = [];
+                
+                // Animação Ecrã de Choque
+                ctx.fillStyle = 'rgba(0, 243, 255, 0.5)';
+                ctx.fillRect(0,0, canvas.width, canvas.height);
+                setTimeout(()=> advIsPaused = false, 300);
+                
+            } else {
+                playSound('wrong');
+                player.mana = Math.max(player.mana, 20); // Dá um bocadinho só para tentar sobreviver
+                player.hp -= 1;
+                
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.fillRect(0,0, canvas.width, canvas.height);
+                
+                if(player.hp <= 0) {
+                    gameOver();
+                } else {
+                    setTimeout(()=> advIsPaused = false, 300);
+                }
+            }
+            updateAdvHUD();
+        }
+
+        function gameOver() {
+            advIsRunning = false;
+            playSound('gameover');
+            document.getElementById('adv-final-score').innerText = advScore;
+            document.getElementById('adv-gameover-modal').classList.remove('hidden');
+            document.getElementById('adv-player-name').value = '';
+            document.getElementById('adv-submit-box').querySelector('button').innerText = "Gravar Pontuação";
+            document.getElementById('adv-submit-box').querySelector('button').disabled = false;
+        }
+
+        function closeAdvGameOver() {
+            document.getElementById('adv-gameover-modal').classList.add('hidden');
+            document.getElementById('adventure-menu').classList.remove('hidden');
+            document.getElementById('adventure-arena').classList.add('hidden');
+        }
+
+        function showHallOfFame() {
+            document.getElementById('hall-of-fame-modal').classList.remove('hidden');
+            if(window.loadHallOfFame) window.loadHallOfFame();
+        }
+
+        function closeHallOfFame() {
+            document.getElementById('hall-of-fame-modal').classList.add('hidden');
+        }
+
+        function update() {
+            if(!advIsRunning || advIsPaused) return;
+            
+            let isMoving = false;
+            if((keys.w || keys.ArrowUp) && player.y > 0) { player.y -= player.speed; isMoving=true; }
+            if((keys.s || keys.ArrowDown) && player.y < canvas.height - player.h) { player.y += player.speed; isMoving=true; }
+            if((keys.a || keys.ArrowLeft) && player.x > 0) { player.x -= player.speed; isMoving=true; }
+            if((keys.d || keys.ArrowRight) && player.x < canvas.width - player.w) { player.x += player.speed; isMoving=true; }
+
+            if(isMoving && advFrameCount % 10 === 0 && player.mana > 0) {
+                player.mana = Math.max(0, player.mana - 0.5);
+                updateAdvHUD();
+            }
+
+            if(player.mana === 0 && advFrameCount % 60 === 0) {
+                document.getElementById('adv-recharge-hint').classList.remove('hidden');
+                setTimeout(()=>document.getElementById('adv-recharge-hint').classList.add('hidden'), 1000);
+            }
+
+            for(let i = projectiles.length -1; i >= 0; i--) {
+                let p = projectiles[i];
+                p.x += p.speed;
+                if(p.x > canvas.width) projectiles.splice(i, 1);
+            }
+
+            let spawnRate = Math.max(30, 100 - Math.floor(advScore/100)*10);
+            if(advFrameCount % spawnRate === 0) spawnEnemy();
+
+            for(let i = enemies.length -1; i >= 0; i--) {
+                let e = enemies[i];
+                e.x -= e.speed;
+                
+                // Colisão Jogador-Inimigo
+                if(e.x < player.x + player.w - 10 && e.x + e.w > player.x + 10 &&
+                   e.y < player.y + player.h - 10 && e.y + e.h > player.y + 10) {
+                    player.hp -= 1;
+                    playSound('bossDamage');
+                    updateAdvHUD();
+                    createParticles(player.x, player.y, '#ff0000');
+                    enemies.splice(i, 1);
+                    if(player.hp <= 0) gameOver();
+                    continue;
+                }
+
+                if(e.x + e.w < 0) {
+                    enemies.splice(i, 1);
+                    continue;
+                }
+
+                // Colisão Projétil-Inimigo
+                for(let j = projectiles.length -1; j >= 0; j--) {
+                    let p = projectiles[j];
+                    if(p.x < e.x + e.w && p.x + p.w > e.x && p.y < e.y + e.h && p.y + p.h > e.y) {
+                        e.hp -= 1;
+                        projectiles.splice(j, 1);
+                        if(e.hp <= 0) {
+                            advScore += (e.emoji === '🐉' ? 30 : 10);
+                            playSound('bossHit');
+                            createParticles(e.x, e.y, '#00f3ff');
+                            enemies.splice(i, 1);
+                            updateAdvHUD();
+                        }
+                        break;
+                    }
+                }
+            }
+
+            for(let i = particles.length -1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.05;
+                if(p.life <= 0) particles.splice(i, 1);
+            }
+
+            advFrameCount++;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Chão Grid Retro
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
+            for(let i=0; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
+
+            // Partículas
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Jogador
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(player.emoji, player.x + player.w/2, player.y + player.h/2);
+
+            // Inimigos
+            enemies.forEach(e => {
+                ctx.fillText(e.emoji, e.x + e.w/2, e.y + e.h/2);
+                if(e.hp > 1) {
+                    ctx.fillStyle = 'red';
+                    ctx.fillRect(e.x, e.y - 10, e.w * (e.hp/3), 4);
+                }
+            });
+
+            // Projéteis
+            projectiles.forEach(p => {
+                ctx.fillText('⚡', p.x + p.w/2, p.y + p.h/2);
+            });
+            
+            if(advIsPaused) {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(0,0, canvas.width, canvas.height);
+            }
+        }
+
+        function gameLoop() {
+            if(advIsRunning) {
+                update();
+                draw();
+                advGameLoop = requestAnimationFrame(gameLoop);
+            }
         }
 
         // Initialize UI
