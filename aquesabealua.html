@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Que Sabe a Lua - Edição Valores e Colaboração</title>
+    <title>A Que Sabe a Lua - Edição Alargada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .board-container { position: relative; display: inline-block; width: 100%; max-width: fit-content; }
@@ -18,7 +18,7 @@
         .pawn-afonso { background-color: #ef4444; border: 0.2vw solid white; }
         .pawn-filipe { background-color: #3b82f6; border: 0.2vw solid white; }
         .modal-overlay { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); }
-        .option-btn { transition: all 0.2s; border: 2px solid #334155; text-align: left; padding: 1rem; border-radius: 0.75rem; background: #1e293b; color: #cbd5e1; }
+        .option-btn { transition: all 0.2s; border: 2px solid #334155; text-align: left; padding: 1rem; border-radius: 0.75rem; background: #1e293b; color: #cbd5e1; width: 100%; }
         .option-btn:hover { border-color: #3b82f6; background: #1e293b; }
         .option-correct { border-color: #10b981 !important; background-color: #064e3b !important; color: white !important; }
         .option-wrong { border-color: #ef4444 !important; background-color: #7f1d1d !important; color: white !important; }
@@ -62,7 +62,6 @@
                     <p class="text-xs text-slate-500 uppercase font-bold">Vez de:</p>
                     <span id="current-player-name" class="text-2xl font-black text-yellow-400">-</span>
                 </div>
-                <!-- Nota: O dado agora dá apenas 1 ou 2 -->
                 <button id="roll-btn" class="w-full py-6 bg-yellow-500 text-slate-950 font-black text-3xl rounded-2xl shadow-[0_4px_0_rgb(202,138,4)] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50">LANÇAR DADO (1-2) 🎲</button>
                 <div id="dice-result" class="text-center h-12 text-4xl font-black text-white mt-2"></div>
             </div>
@@ -76,7 +75,7 @@
             <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 flex-grow text-xs text-slate-400">
                 <h3 class="text-blue-400 font-bold mb-2 uppercase">Legenda:</h3>
                 <ul class="space-y-2">
-                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-white border border-slate-400 rounded-full"></span> <b>Animal:</b> Paragem obrigatória e pergunta específica.</li>
+                    <li class="flex items-center gap-2"><span class="w-3 h-3 bg-white border border-slate-400 rounded-full"></span> <b>Animal:</b> Paragem obrigatória.</li>
                     <li class="flex items-center gap-2"><span class="w-3 h-3 bg-blue-500 rounded-full"></span> <b>Casas ?:</b> Perguntas sobre a história.</li>
                     <li class="flex items-center gap-2"><span class="w-3 h-3 bg-yellow-500 rounded-full"></span> <b>Estrelas:</b> Desafios de reflexão e valores.</li>
                 </ul>
@@ -119,20 +118,80 @@
         };
 
         const animalQuestions = {
-            1: [{ q: "De que é feita a carapaça da tartaruga?", options: ["Pele", "Ossos e queratina", "Pedra"], correct: 1 }],
-            4: [{ q: "Quantos quilos de comida come um elefante adulto?", options: ["Cerca de 150 kg", "10 kg", "5 kg"], correct: 0 }],
-            7: [{ q: "Quantos ossos tem o pescoço da girafa?", options: ["7 (como o nosso)", "Mais de 50", "Nenhum"], correct: 0 }],
-            10: [{ q: "As zebras são brancas ou pretas?", options: ["Brancas com riscas pretas", "Pretas com riscas brancas", "Cinzentas"], correct: 1 }],
-            13: [{ q: "Quem caça mais no grupo de leões?", options: ["O Leão", "As Leoas", "Os filhotes"], correct: 1 }],
-            16: [{ q: "Onde vivem as raposas?", options: ["Em ninhos", "Em tocas no chão", "Nas nuvens"], correct: 1 }],
-            19: [{ q: "Os macacos usam ferramentas?", options: ["Sim, pedras e paus", "Não, nunca", "Só em filmes"], correct: 0 }],
-            22: [{ q: "Os dentes do rato param de crescer?", options: ["Sim", "Não, crescem sempre", "Só no inverno"], correct: 1 }]
+            1: [
+                { q: "De que é feita a carapaça da tartaruga?", options: ["Pele", "Ossos e queratina", "Pedra"], correct: 1 },
+                { q: "Quanto tempo pode viver uma tartaruga gigante?", options: ["10 anos", "50 anos", "Mais de 100 anos"], correct: 2 },
+                { q: "As tartarugas marinhas têm dentes?", options: ["Sim, muito afiados", "Não, têm um bico", "Só quando são bebés"], correct: 1 },
+                { q: "Onde é que as tartarugas põem os ovos?", options: ["Na água", "Na areia ou terra", "Nas árvores"], correct: 1 },
+                { q: "As tartarugas são animais de que tipo?", options: ["Mamíferos", "Anfíbios", "Répteis"], correct: 2 }
+            ],
+            4: [
+                { q: "Quantos quilos de comida come um elefante adulto?", options: ["Cerca de 150 kg", "10 kg", "5 kg"], correct: 0 },
+                { q: "Para que serve a tromba do elefante?", options: ["Só para respirar", "Como uma mão e para beber", "Para lutar"], correct: 1 },
+                { q: "Como comunicam os elefantes a longa distância?", options: ["Aos gritos", "Através de vibrações no chão", "Com sinais de fumo"], correct: 1 },
+                { q: "Qual é o maior animal terrestre?", options: ["Girafa", "Elefante Africano", "Rinoceronte"], correct: 1 },
+                { q: "Os elefantes têm boa memória?", options: ["Sim, excelente", "Não, esquecem tudo", "Só se lembram da comida"], correct: 0 }
+            ],
+            7: [
+                { q: "Quantos ossos tem o pescoço da girafa?", options: ["7 (como o nosso)", "Mais de 50", "Nenhum"], correct: 0 },
+                { q: "Quanto tempo dorme uma girafa por dia?", options: ["12 horas", "Cerca de 30 minutos a 2 horas", "8 horas"], correct: 1 },
+                { q: "De que cor é a língua da girafa?", options: ["Rosa", "Azul/Roxa escura", "Branca"], correct: 1 },
+                { q: "As girafas conseguem emitir sons?", options: ["Não, são mudas", "Sim, mas são inaudíveis para humanos", "Sim, ladram"], correct: 1 },
+                { q: "Como são as manchas de cada girafa?", options: ["Iguais em todas", "Únicas, como impressões digitais", "Mudam com a idade"], correct: 1 }
+            ],
+            10: [
+                { q: "As zebras são brancas ou pretas?", options: ["Brancas com riscas pretas", "Pretas com riscas brancas", "Cinzentas"], correct: 1 },
+                { q: "Para que servem as riscas da zebra?", options: ["Para beleza", "Para confundir predadores e insetos", "Para aquecer"], correct: 1 },
+                { q: "Como dormem as zebras?", options: ["Sempre deitadas", "De pé", "Penduradas"], correct: 1 },
+                { q: "As zebras pertencem a que família de animais?", options: ["Felinos", "Equídeos (cavalos)", "Bovinos"], correct: 1 },
+                { q: "Onde vivem as zebras em estado selvagem?", options: ["Florestas geladas", "Savanas africanas", "Desertos de areia"], correct: 1 }
+            ],
+            13: [
+                { q: "Quem caça mais no grupo de leões?", options: ["O Leão", "As Leoas", "Os filhotes"], correct: 1 },
+                { q: "A que distância se pode ouvir o rugido de um leão?", options: ["100 metros", "Até 8 quilómetros", "500 metros"], correct: 1 },
+                { q: "O que significa a juba do leão?", options: ["Indica saúde e protege o pescoço", "Serve para camuflagem", "Não serve para nada"], correct: 0 },
+                { q: "Quantas horas dorme um leão por dia?", options: ["5 horas", "Cerca de 20 horas", "10 horas"], correct: 1 },
+                { q: "Como se chama um grupo de leões?", options: ["Alcateia", "Bando", "Orgulho ou Manada"], correct: 2 }
+            ],
+            16: [
+                { q: "Onde vivem as raposas?", options: ["Em ninhos", "Em tocas no chão", "Nas nuvens"], correct: 1 },
+                { q: "As raposas são parentes de que animal?", options: ["Gatos", "Cães", "Ursos"], correct: 1 },
+                { q: "As raposas conseguem subir às árvores?", options: ["Sim, algumas espécies", "Não, nunca", "Só se houver escadas"], correct: 0 },
+                { q: "O que comem as raposas?", options: ["Só erva", "São omnívoras (fruta, insetos, pequenos animais)", "Só peixe"], correct: 1 },
+                { q: "Como é a cauda da raposa?", options: ["Curta e fina", "Comprida e felpuda", "Não tem cauda"], correct: 1 }
+            ],
+            19: [
+                { q: "Os macacos usam ferramentas?", options: ["Sim, pedras e paus", "Não, nunca", "Só em filmes"], correct: 0 },
+                { q: "Qual é o sentido mais importante para os macacos?", options: ["Olfato", "Visão", "Audição"], correct: 1 },
+                { q: "Todos os primatas têm cauda?", options: ["Sim, todos", "Não, os grandes símios (como o chimpanzé) não têm", "Só as fêmeas"], correct: 1 },
+                { q: "Como é que os macacos demonstram afeto?", options: ["Dão apertos de mão", "Limpam o pelo uns dos outros", "Fazem caretas"], correct: 1 },
+                { q: "Onde vivem a maioria dos macacos?", options: ["No mar", "Nas florestas tropicais", "No deserto"], correct: 1 }
+            ],
+            22: [
+                { q: "Os dentes do rato param de crescer?", options: ["Sim", "Não, crescem sempre", "Só no inverno"], correct: 1 },
+                { q: "Como é o olfato dos ratos?", options: ["Muito fraco", "Muito apurado", "Não têm olfato"], correct: 1 },
+                { q: "Os ratos conseguem nadar?", options: ["Não, têm medo de água", "Sim, são ótimos nadadores", "Só com boias"], correct: 1 },
+                { q: "Quanto tempo vive em média um rato doméstico?", options: ["10 anos", "1 a 3 anos", "20 anos"], correct: 1 },
+                { q: "O que usam os ratos para se orientar no escuro?", options: ["Lanterna", "Os bigodes", "As orelhas"], correct: 1 }
+            ]
         };
 
         const storyQuestions = [
-            { q: "Quem subiu primeiro para as costas da tartaruga?", options: ["Zebra", "Elefante", "Leão"], correct: 1 },
-            { q: "A que sabia o pedaço de lua?", options: ["A queijo", "Ao que cada um mais gostava", "A chocolate"], correct: 1 },
-            { q: "Qual animal deu a dentada final?", options: ["Leão", "Rato", "Macaco"], correct: 1 }
+            { q: "Quem foi o primeiro animal a tentar chegar à lua?", options: ["Elefante", "Girafa", "Tartaruga"], correct: 2 },
+            { q: "Qual animal subiu para as costas da tartaruga?", options: ["Elefante", "Zebra", "Rato"], correct: 0 },
+            { q: "Qual animal tem o pescoço mais comprido para tentar chegar à lua?", options: ["Leão", "Girafa", "Avestruz"], correct: 1 },
+            { q: "Qual animal deu a trinca final na lua?", options: ["Macaco", "Raposa", "Rato"], correct: 2 },
+            { q: "Quem ficou na base da “torre” de animais?", options: ["Rato", "Tartaruga", "Elefante"], correct: 1 },
+            { q: "Quem foi o último animal a subir?", options: ["Macaco", "Leão", "Rato"], correct: 2 },
+            { q: "Os animais ajudaram-se uns aos outros?", options: ["Sim, todos colaboraram", "Não, cada um tentou sozinho", "Só os maiores ajudaram"], correct: 0 },
+            { q: "Como se sentiam os animais quando não conseguiam alcançar a lua?", options: ["Felizes", "Cansados", "Zangados"], correct: 1 },
+            { q: "Todos os animais provaram a lua ou só um?", options: ["Só o rato comeu tudo", "Todos provaram, o rato partiu pedaços", "Nenhum animal conseguiu comer"], correct: 1 },
+            { q: "O que fizeram os animais depois de provar a lua?", options: ["Foram procurar mais comida", "Dormiram todos juntos", "Foram nadar no rio"], correct: 1 },
+            { q: "O que nos ensina esta história?", options: ["União, amizade e cooperação", "Que ser grande é o mais importante", "Que não devemos partilhar nada"], correct: 0 },
+            { q: "Onde é que o peixe estava a ver tudo o que se passava?", options: ["No topo de uma árvore", "Na água/rio", "Atrás de uma nuvem"], correct: 1 },
+            { q: "A lua parecia estar perto ou longe dos animais?", options: ["Perto", "Muito longe, no infinito", "Escondida no sol"], correct: 0 },
+            { q: "O que a lua fazia quando os animais se aproximavam?", options: ["Ficava parada a rir", "Afastava-se um pouco/subia mais alto", "Caía para o chão"], correct: 1 },
+            { q: "O pedacinho de lua sabia ao quê?", options: ["A queijo fresco", "A gelado de baunilha", "Ao que cada animal mais gostava"], correct: 2 }
         ];
 
         const reflectionQuestions = [
@@ -142,8 +201,42 @@
             { q: "Ajudar os outros torna o grupo mais forte ou mais fraco?", options: ["Mais fraco, demora mais tempo.", "Mais forte, porque todos contribuem.", "Não muda nada."], correct: 1 },
             { q: "Na história todos eram diferentes. Isso ajudou ou atrapalhou?", options: ["Atrapalhou, eram muito diferentes.", "Ajudou, cada um tinha uma capacidade diferente.", "Não teve importância."], correct: 1 },
             { q: "Achas que pedir ajuda é fácil ou difícil?", options: ["É sempre fácil.", "Às vezes é difícil, mas é importante.", "Nunca é necessário."], correct: 1 },
-            { q: "Se a Lua fosse um objetivo difícil, o que ela representaria na vida real?", options: ["Uma coisa sem importância.", "Um objetivo difícil que quero alcançar.", "Apenas um objeto no céu."], correct: 1 }
+            { q: "Se a Lua fosse um objetivo difícil, o que ela representaria na vida real?", options: ["Uma coisa sem importância.", "Um objetivo difícil que quero alcançar.", "Apenas um objeto no céu."], correct: 1 },
+            { q: "Como te sentes quando ajudas um amigo?", options: ["Mal, perco tempo", "Bem, sinto-me útil e feliz", "Indiferente"], correct: 1 },
+            { q: "O peixe achou estranho os animais subirem uns aos outros. Porquê?", options: ["Porque ele não gostava de animais", "Porque ele via a Lua refletida na água ali perto", "Porque ele queria subir também"], correct: 1 },
+            { q: "A união faz a força? Dá um exemplo do jogo.", options: ["Não, cada um joga por si", "Sim, precisamos de todos para ganhar insígnias", "Talvez"], correct: 1 },
+            { q: "O que aprendemos com o Rato ser o que tocou na Lua?", options: ["Que os pequenos não servem para nada", "Que todos, independentemente do tamanho, são importantes", "Que ele teve sorte"], correct: 1 },
+            { q: "Ouvir os outros é importante para trabalhar em equipa?", options: ["Não, eu sei tudo", "Sim, para entendermos como ajudar melhor", "Só às vezes"], correct: 1 },
+            { q: "O que é a empatia?", options: ["Gostar de chocolate", "Colocar-se no lugar do outro", "Ganhar sempre"], correct: 1 },
+            { q: "Partilhar o que conseguimos (como a Lua) é bom?", options: ["Não, quero tudo para mim", "Sim, torna a conquista mais especial", "Não sei"], correct: 1 },
+            { q: "Qual é o valor mais importante desta história?", options: ["A pressa", "A amizade e cooperação", "A força física"], correct: 1 }
         ];
+
+        // Lógica de Sorteio sem Repetição
+        const pools = {
+            animals: {},
+            story: [...storyQuestions],
+            reflection: [...reflectionQuestions]
+        };
+
+        function getQuestion(type, animalId = null) {
+            let selectedList;
+            if (type === 'animal') {
+                if (!pools.animals[animalId] || pools.animals[animalId].length === 0) {
+                    pools.animals[animalId] = [...animalQuestions[animalId]];
+                }
+                selectedList = pools.animals[animalId];
+            } else if (type === 'story') {
+                if (pools.story.length === 0) pools.story = [...storyQuestions];
+                selectedList = pools.story;
+            } else {
+                if (pools.reflection.length === 0) pools.reflection = [...reflectionQuestions];
+                selectedList = pools.reflection;
+            }
+
+            const index = Math.floor(Math.random() * selectedList.length);
+            return selectedList.splice(index, 1)[0];
+        }
 
         let players = [], currentPlayerIndex = 0;
         let playerState = { 
@@ -180,7 +273,6 @@
 
         document.getElementById('roll-btn').onclick = function() {
             this.disabled = true;
-            // ALTERAÇÃO: Agora o dado dá apenas 1 ou 2
             const die = Math.floor(Math.random() * 2) + 1;
             document.getElementById('dice-result').innerText = die;
             const name = players[currentPlayerIndex];
@@ -191,7 +283,7 @@
             for (let i = 1; i <= die; i++) {
                 nextPos++;
                 if (nextPos > 25) { nextPos = 25; break; }
-                if (animalInfo[nextPos]) break; // Paragem obrigatória
+                if (animalInfo[nextPos]) break;
             }
 
             if (nextPos >= 23 && state.badges.length < 8) { nextPos = 22; }
@@ -203,13 +295,13 @@
 
         function checkAction(pos, name) {
             if (pos === 25) { 
-                showModal("🌕", "Vitória!", `Parabéns ${name}! Com a ajuda de todos e todas as insígnias, chegaste à Lua!`, [{ text: "Recomeçar", action: () => location.reload() }]);
+                showModal("🌕", "Vitória!", `Parabéns ${name}! Chegaste à Lua!`, [{ text: "Recomeçar", action: () => location.reload() }]);
                 return; 
             }
             
             if (animalInfo[pos]) {
                 const info = animalInfo[pos];
-                const q = animalQuestions[pos][0];
+                const q = getQuestion('animal', pos);
                 showQ(q, `Insígnia: ${info.name}`, (correct) => {
                     if (correct) {
                         if (!playerState[name].badges.includes(pos)) playerState[name].badges.push(pos);
@@ -221,7 +313,7 @@
 
             const qHouses = [2, 6, 9, 11, 15, 17, 21, 23];
             if (qHouses.includes(pos)) {
-                showQ(storyQuestions[Math.floor(Math.random() * storyQuestions.length)], "História", (correct) => {
+                showQ(getQuestion('story'), "História", (correct) => {
                     correct ? setTimeout(closeM, 1000) : failMove();
                 });
                 return;
@@ -229,7 +321,7 @@
 
             const rHouses = [3, 5, 8, 12, 14, 18, 20, 24];
             if (rHouses.includes(pos)) {
-                showQ(reflectionQuestions[Math.floor(Math.random() * reflectionQuestions.length)], "Reflexão e Valores", (correct) => {
+                showQ(getQuestion('reflection'), "Reflexão e Valores", (correct) => {
                     correct ? setTimeout(closeM, 1000) : failMove();
                 });
                 return;
@@ -274,7 +366,7 @@
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-text').innerText = text;
             buttons.forEach(b => {
-                const btn = document.createElement('button'); btn.className = "p-4 bg-yellow-500 text-slate-900 rounded-xl font-bold hover:bg-yellow-400";
+                const btn = document.createElement('button'); btn.className = "w-full p-4 bg-yellow-500 text-slate-900 rounded-xl font-bold hover:bg-yellow-400";
                 btn.innerText = b.text; btn.onclick = b.action;
                 container.appendChild(btn);
             });
