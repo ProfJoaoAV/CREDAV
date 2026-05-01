@@ -55,7 +55,6 @@
             100% { transform: rotate(360deg); } 
         }
 
-        /* Animação para quando o tempo acaba */
         @keyframes timerBlink {
             0%, 100% { color: #f87171; }
             50% { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
@@ -64,12 +63,19 @@
             animation: timerBlink 1s infinite;
         }
 
-        /* Placeholder para elementos contenteditable */
         [contenteditable]:empty:before {
             content: attr(placeholder);
             color: #94a3b8;
             pointer-events: none;
             display: block;
+        }
+
+        /* Estilo para a caixa de seleção de destino */
+        .selection-panel {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 0 0 1rem 1rem;
         }
     </style>
 </head>
@@ -93,7 +99,6 @@
                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 focus:border-indigo-500 outline-none transition-all">
                 </div>
 
-                <!-- Guia Sintético de como obter a chave -->
                 <details class="group bg-slate-50 rounded-xl border border-slate-200">
                     <summary class="flex items-center justify-between cursor-pointer p-3 text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">
                         <span>Como obter uma chave gratuita?</span>
@@ -117,7 +122,7 @@
         </div>
     </div>
 
-    <!-- Overlay do Modo de Concentração (Zen Mode) -->
+    <!-- Zen Mode Overlay -->
     <div id="zen-mode-overlay" class="fixed inset-0 bg-slate-900 z-[200] hidden flex-col transition-opacity duration-500">
         <div class="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-900/90 backdrop-blur">
             <div class="flex items-center gap-4">
@@ -209,8 +214,8 @@
                         <div class="flex gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                             <span class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl">1</span>
                             <div>
-                                <h3 class="font-bold text-slate-800 text-lg mb-1">Sorteia e Regista</h3>
-                                <p class="text-sm text-slate-500 leading-relaxed mb-3">Passa por cada aba e clica nos botões de sorteio. Os elementos serão <strong>guardados automaticamente</strong> na aba do Mentor, mas podes registar no teu caderno as seguintes quantidades:</p>
+                                <h3 class="font-bold text-slate-800 text-lg mb-1">Sorteia e Escolhe</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed mb-3">Passa por cada aba e clica nos botões de sorteio. Quando gostares de um resultado, <strong>seleciona para onde o queres enviar</strong> no Mentor IA.</p>
                                 <div class="bg-white/70 p-4 rounded-2xl border border-indigo-100">
                                     <ul class="text-sm font-bold text-indigo-900 space-y-1">
                                         <li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-500"></i> 3 Personagens</li>
@@ -253,23 +258,37 @@
             <!-- Estação A: Personagens -->
             <section id="station-A" class="station-card p-6 md:p-12">
                 <div class="grid lg:grid-cols-12 gap-8 items-start">
-                    <div class="lg:col-span-5 generator-box rounded-[2rem] p-6 text-center flex flex-col items-center min-h-[550px]">
+                    <div class="lg:col-span-5 generator-box rounded-[2rem] p-6 text-center flex flex-col items-center min-h-[600px]">
                         <div id="character-card" class="bg-white rounded-2xl shadow-xl w-full mb-6 border border-slate-100 hidden card-reveal overflow-hidden">
-                            <div class="h-64 overflow-hidden bg-slate-100">
+                            <div class="h-48 overflow-hidden bg-slate-100">
                                 <img id="char-img" src="" class="w-full h-full object-cover" alt="Personagem sorteada">
                             </div>
                             <div class="p-6">
                                 <h3 id="char-name" class="text-2xl font-black text-slate-800 mb-1">...</h3>
                                 <p id="char-role" class="text-indigo-600 font-bold text-sm uppercase tracking-wider mb-4">...</p>
-                                <div class="text-left bg-slate-50 p-4 rounded-xl text-sm border border-slate-100 space-y-2">
+                                <div class="text-left bg-slate-50 p-4 rounded-xl text-sm border border-slate-100 space-y-2 mb-4">
                                     <p class="text-slate-600"><strong>Medo:</strong> <span id="char-fear" class="text-slate-500">...</span></p>
                                     <p class="text-slate-600"><strong>Desejo:</strong> <span id="char-wish" class="text-slate-500">...</span></p>
+                                </div>
+                                <!-- Interface de Atribuição -->
+                                <div class="selection-panel flex flex-col gap-2">
+                                    <label class="text-[10px] uppercase font-bold text-slate-400 tracking-widest text-left">Onde colocar?</label>
+                                    <div class="flex gap-2">
+                                        <select id="char-target" class="flex-grow p-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                            <option value="0">Personagem 1</option>
+                                            <option value="1">Personagem 2</option>
+                                            <option value="2">Personagem 3</option>
+                                        </select>
+                                        <button onclick="confirmCharacterSelection()" class="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-500 transition-colors" title="Confirmar Seleção">
+                                            <i data-lucide="check" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div id="char-placeholder" class="py-20 text-slate-400">
                             <i data-lucide="user-search" class="w-20 h-20 mx-auto mb-4 opacity-20"></i>
-                            <p class="font-medium px-4">Clica abaixo para sortear uma personagem e regista-a no teu caderno (precisas de 3).</p>
+                            <p class="font-medium px-4">Clica abaixo para sortear uma personagem e, se gostares, escolhe onde a queres colocar.</p>
                         </div>
                         <button onclick="generateCharacter()" class="mt-auto w-full bg-slate-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
                             <i data-lucide="refresh-cw" class="w-5 h-5"></i> Sortear Personagem
@@ -311,9 +330,22 @@
                             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-8 text-white">
                                 <span class="text-emerald-400 text-xs font-bold uppercase mb-2 tracking-widest">Localização Sorteada</span>
                                 <h3 id="env-title" class="font-black text-3xl">Clica para viajar...</h3>
+                                
+                                <!-- Interface de Atribuição de Ambiente (Só aparece se houver imagem) -->
+                                <div id="env-selection" class="mt-4 bg-white/20 backdrop-blur-md p-3 rounded-xl border border-white/30 hidden">
+                                    <label class="text-[10px] uppercase font-bold text-white tracking-widest mb-2 block">Usar este local para:</label>
+                                    <div class="flex gap-2">
+                                        <select id="env-target" class="flex-grow p-2 rounded-lg bg-white/90 text-slate-900 text-sm outline-none">
+                                            <option value="0">Local 1</option>
+                                            <option value="1">Local 2</option>
+                                        </select>
+                                        <button onclick="confirmEnvironmentSelection()" class="bg-emerald-500 text-white p-2 rounded-lg hover:bg-emerald-400 transition-colors">
+                                            <i data-lucide="check" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <p class="text-center text-slate-400 text-xs italic">Deves sortear 2 locais diferentes.</p>
                         <button onclick="generateEnvironment()" class="bg-emerald-600 text-white px-8 py-5 rounded-2xl font-bold hover:bg-emerald-500 transition-all flex items-center justify-center gap-2 shadow-lg">
                             <i data-lucide="map-pin" class="w-6 h-6"></i> Mudar de Cenário
                         </button>
@@ -349,13 +381,19 @@
                         <span class="p-3 bg-rose-100 text-rose-600 rounded-2xl"><i data-lucide="zap"></i></span>
                         <h2 class="text-3xl font-black text-slate-800">O Problema Central</h2>
                     </div>
-                    <div id="conflict-display" class="bg-rose-50 p-12 rounded-[2.5rem] border-4 border-white shadow-inner min-h-[200px] flex items-center justify-center">
-                        <p id="conflict-text" class="text-2xl md:text-3xl italic text-rose-800 font-medium leading-relaxed">"Gera o motor que vai impulsionar a tua narrativa (precisas de 1)..."</p>
+                    <div id="conflict-display" class="bg-rose-50 p-12 rounded-[2.5rem] border-4 border-white shadow-inner min-h-[200px] flex flex-col items-center justify-center gap-6">
+                        <p id="conflict-text" class="text-2xl md:text-3xl italic text-rose-800 font-medium leading-relaxed">"Gera o motor que vai impulsionar a tua narrativa..."</p>
+                        
+                        <!-- Interface de Atribuição de Conflito -->
+                        <div id="conflict-selection" class="hidden animate-bounce">
+                            <button onclick="confirmConflictSelection()" class="bg-rose-600 text-white px-6 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-rose-500 shadow-lg">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i> Usar este Problema
+                            </button>
+                        </div>
                     </div>
                     <button onclick="generateConflict()" class="bg-rose-600 text-white px-12 py-6 rounded-2xl font-black text-xl hover:bg-rose-500 transition-all shadow-xl">
                         Sortear Novo Problema
                     </button>
-                    <p class="text-slate-400 text-sm italic">"Um bom problema obriga a personagem a sair da sua zona de conforto."</p>
                 </div>
             </section>
 
@@ -367,8 +405,16 @@
                             <span class="p-2 bg-indigo-100 text-indigo-600 rounded-lg"><i data-lucide="shield-alert"></i></span>
                             <h3 class="font-black text-xl text-slate-800">Regras de Escrita</h3>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
-                            <p id="style-text" class="text-slate-600 italic">"Sorteia 3 regras..."</p>
+                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex flex-col items-center justify-center text-center shadow-sm gap-4">
+                            <p id="style-text" class="text-slate-600 italic">"Sorteia uma regra..."</p>
+                            <div id="style-selection" class="hidden flex gap-2 w-full">
+                                <select id="style-target" class="flex-grow p-2 rounded-lg border border-slate-200 text-xs">
+                                    <option value="0">Regra 1</option>
+                                    <option value="1">Regra 2</option>
+                                    <option value="2">Regra 3</option>
+                                </select>
+                                <button onclick="confirmStyleSelection()" class="bg-indigo-600 text-white p-2 rounded-lg"><i data-lucide="check" class="w-4 h-4"></i></button>
+                            </div>
                         </div>
                         <button onclick="generateStyle()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800">Sorteia Desafio Criativo</button>
                     </div>
@@ -377,8 +423,15 @@
                             <span class="p-2 bg-indigo-200 text-indigo-700 rounded-lg"><i data-lucide="leaf"></i></span>
                             <h3 class="font-black text-xl text-slate-800">Sementes de Ideias</h3>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex items-center justify-center text-center shadow-sm">
-                            <p id="seed-text" class="text-indigo-900 italic">"Sorteia 2 sementes..."</p>
+                        <div class="bg-white p-6 rounded-2xl min-h-[120px] flex flex-col items-center justify-center text-center shadow-sm gap-4">
+                            <p id="seed-text" class="text-indigo-900 italic">"Sorteia uma semente..."</p>
+                            <div id="seed-selection" class="hidden flex gap-2 w-full">
+                                <select id="seed-target" class="flex-grow p-2 rounded-lg border border-slate-200 text-xs">
+                                    <option value="0">Semente 1</option>
+                                    <option value="1">Semente 2</option>
+                                </select>
+                                <button onclick="confirmSeedSelection()" class="bg-indigo-600 text-white p-2 rounded-lg"><i data-lucide="check" class="w-4 h-4"></i></button>
+                            </div>
                         </div>
                         <button onclick="generateSeed()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-500">Germinar uma Ideia</button>
                     </div>
@@ -394,55 +447,52 @@
                             <h3 class="text-2xl font-black text-slate-800">Oficina de Revisão</h3>
                         </div>
                         
-                        <!-- Campos Separados de Elementos -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-3 tracking-widest">1. Elementos Sorteados (Preenchimento Automático)</label>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-3 tracking-widest">1. Elementos Selecionados (Atribuídos por ti)</label>
                             <div class="space-y-4 bg-slate-50 p-5 rounded-2xl border-2 border-slate-100">
                                 <div>
                                     <span class="text-xs font-bold text-indigo-500 uppercase">3 Personagens</span>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-                                        <input type="text" id="ai-char-1" placeholder="Personagem 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-                                        <input type="text" id="ai-char-2" placeholder="Personagem 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-                                        <input type="text" id="ai-char-3" placeholder="Personagem 3" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-char-1" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
+                                        <input type="text" id="ai-char-2" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
+                                        <input type="text" id="ai-char-3" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
                                     </div>
                                 </div>
                                 <div>
                                     <span class="text-xs font-bold text-indigo-500 uppercase">2 Locais</span>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                                        <input type="text" id="ai-loc-1" placeholder="Local 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-                                        <input type="text" id="ai-loc-2" placeholder="Local 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-loc-1" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
+                                        <input type="text" id="ai-loc-2" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
                                     </div>
                                 </div>
                                 <div>
                                     <span class="text-xs font-bold text-indigo-500 uppercase">1 Problema Central</span>
                                     <div class="mt-2">
-                                        <input type="text" id="ai-prob" placeholder="Problema Central" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-prob" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
                                     </div>
                                 </div>
                                 <div>
                                     <span class="text-xs font-bold text-indigo-500 uppercase">3 Regras de Escrita</span>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-                                        <input type="text" id="ai-rule-1" placeholder="Regra 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-                                        <input type="text" id="ai-rule-2" placeholder="Regra 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-                                        <input type="text" id="ai-rule-3" placeholder="Regra 3" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-rule-1" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
+                                        <input type="text" id="ai-rule-2" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
+                                        <input type="text" id="ai-rule-3" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
                                     </div>
                                 </div>
                                 <div>
                                     <span class="text-xs font-bold text-indigo-500 uppercase">2 Sementes de Ideia</span>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                                        <input type="text" id="ai-seed-1" placeholder="Semente 1" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
-                                        <input type="text" id="ai-seed-2" placeholder="Semente 2" class="w-full p-2 rounded-xl border border-slate-200 text-sm outline-none focus:border-indigo-500">
+                                        <input type="text" id="ai-seed-1" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
+                                        <input type="text" id="ai-seed-2" placeholder="Vazio" readonly class="w-full p-2 rounded-xl border border-slate-200 bg-white/50 text-sm outline-none">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Secção do Caderno Digital com Rich Text e Zen Mode -->
                         <div>
                             <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-widest">2. O teu Caderno Digital</label>
                             
                             <div class="border-2 border-slate-200 rounded-2xl overflow-hidden focus-within:border-indigo-500 transition-colors bg-white">
-                                <!-- Barra de Ferramentas -->
                                 <div class="bg-slate-50 border-b border-slate-200 p-2 flex flex-wrap gap-2 items-center justify-between">
                                     <div class="flex gap-1">
                                         <button onclick="document.execCommand('bold',false,null)" class="p-1.5 text-slate-600 hover:bg-slate-200 rounded transition-colors" title="Negrito"><i data-lucide="bold" class="w-4 h-4"></i></button>
@@ -453,11 +503,9 @@
                                         <i data-lucide="maximize-2" class="w-4 h-4"></i> Modo Concentração
                                     </button>
                                 </div>
-                                <!-- Editor principal -->
                                 <div id="ai-user-text" contenteditable="true" class="w-full p-4 h-64 overflow-y-auto text-sm outline-none leading-relaxed" placeholder="Escreve aqui a tua história..."></div>
                             </div>
 
-                            <!-- Botões de Exportação -->
                             <div class="flex gap-3 mt-4">
                                 <button onclick="downloadStory()" id="btn-download" class="flex-1 bg-white border border-slate-200 text-slate-700 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all text-xs md:text-sm">
                                     <i data-lucide="download" class="w-4 h-4 text-slate-500"></i> Descarregar (.txt)
@@ -480,9 +528,6 @@
                                 <div class="p-2 bg-indigo-600 text-white rounded-xl"><i data-lucide="message-square" class="w-5 h-5"></i></div>
                                 <h4 class="font-bold text-slate-800 uppercase tracking-widest text-xs">A Voz do Mentor</h4>
                             </div>
-                            <button onclick="document.getElementById('ai-response-container').innerHTML = '<p class=\'italic text-slate-400 text-center mt-32\'>A aguardar o teu texto.</p>'" class="text-slate-400 hover:text-slate-600" title="Limpar resposta">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
                         </div>
                         <div id="ai-response-container" class="flex-grow text-slate-700 text-sm leading-relaxed overflow-y-auto space-y-4">
                             <p class="italic text-slate-400 text-center mt-32">A aguardar o teu texto. O mentor não corrige erros diretamente, ele fará perguntas para que sejas tu a melhorar a narrativa!</p>
@@ -499,14 +544,24 @@
 
         let apiKey = "";
         let timerInterval = null;
-        let timeLeft = 900; // 15 minutos
+        let timeLeft = 900; 
 
+        // Estado centralizado para os elementos que o aluno ATRIBUIU
         const appState = {
-            chars: [],
-            locs: [],
-            conflict: "",
-            rules: [],
-            seeds: []
+            chars: [null, null, null],
+            locs: [null, null],
+            conflict: null,
+            rules: [null, null, null],
+            seeds: [null, null]
+        };
+
+        // Memória do último sorteio (antes de ser atribuído)
+        let lastDraft = {
+            char: null,
+            env: null,
+            conflict: null,
+            rule: null,
+            seed: null
         };
 
         const characterProfiles = [
@@ -531,15 +586,15 @@
             { nome: "Eva Engrenagem", role: "Inventora de Inutilidades", medo: "A lógica perfeita", desejo: "Criar uma máquina que faz rir", img: "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?auto=format&fit=crop&q=80&w=800" },
             { nome: "Lúcio Farol", role: "Vigia do Deserto", medo: "Miragens reais", desejo: "Ver o oceano pela primeira vez", img: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&q=80&w=800" },
             { nome: "Sofia Voo", role: "Treinadora de Pássaros Mecânicos", medo: "Asas partidas", desejo: "Voar sem a ajuda de máquinas", img: "https://images.unsplash.com/photo-1518558997970-4fdc4ecdfce9?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Tito Âncora", role: "Mergulhador de Nuvens", medo: "Alturas terrenas", desejo: "Encontrar o fundo do céu", img: "https://images.unsplash.com/photo-1503443207922-d09d0816c297?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Olívia Ponto", role: "Costureira de Destinos", medo: "Um fio cortado acidentalmente", desejo: "Remendar o coração partido de um deus", img: "https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Ruben Lupa", role: "Caçador de Micro-Universos", medo: "O infinito", desejo: "Descobrir uma galáxia numa gota de água", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Nina Oculta", role: "Colecionadora de Sombras", medo: "Um mundo sem sol", desejo: "Dar vida à sua própria sombra", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Félix Leme", role: "Capitão de Navios Fantasma", medo: "Ser esquecido pelos vivos", desejo: "Transportar almas perdidas para a luz", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Inês Rima", role: "Poetisa de Feitiços", medo: "Esquecer a palavra mágica", desejo: "Curar o mundo com um único poema", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Gael Bússola", role: "Mapeador de Labirintos", medo: "Linhas retas", desejo: "Mapear o coração humano", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Diana Fio", role: "Equilibrista do Caos", medo: "A gravidade", desejo: "Caminhar sobre um raio de luar", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Xavier Pedra", role: "Ouvinte de Montanhas", medo: "Deslizamentos de terra", desejo: "Aprender a língua das rochas antigas", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" }
+            { nome: "Tito Âncora", role: "Mergulhador de Nuvens", medo: "Alturas terrenas", desejo: "Encontrar o fundo do céu", img: "https://images.unsplash.com/photo-1503443207922-d09d0816c297?auto=format&fit=crop&q=80&w=1000" },
+            { nome: "Olívia Ponto", role: "Costureira de Destinos", medo: "Um fio cortado acidentalmente", desejo: "Remendar o coração partido de um deus", img: "https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?auto=format&fit=crop&w=1000" },
+            { nome: "Ruben Lupa", role: "Caçador de Micro-Universos", medo: "O infinito", desejo: "Descobrir uma galáxia numa gota de água", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1000" },
+            { nome: "Nina Oculta", role: "Colecionadora de Sombras", medo: "Um mundo sem sol", desejo: "Dar vida à sua própria sombra", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=1000" },
+            { nome: "Félix Leme", role: "Capitão de Navios Fantasma", medo: "Ser esquecido pelos vivos", desejo: "Transportar almas perdidas para a luz", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1000" },
+            { nome: "Inês Rima", role: "Poetisa de Feitiços", medo: "Esquecer a palavra mágica", desejo: "Curar o mundo com um único poema", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1000" },
+            { nome: "Gael Bússola", role: "Mapeador de Labirintos", medo: "Linhas retas", desejo: "Mapear o coração humano", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=1000" },
+            { nome: "Diana Fio", role: "Equilibrista do Caos", medo: "A gravidade", desejo: "Caminhar sobre um raio de luar", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1000" },
+            { nome: "Xavier Pedra", role: "Ouvinte de Montanhas", medo: "Deslizamentos de terra", desejo: "Aprender a língua das rochas antigas", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1000" }
         ];
 
         const envs = [
@@ -573,7 +628,7 @@
             "A pessoa que mais ama foi raptada por uma criatura das sombras",
             "O tempo começou a andar para trás apenas para ele/ela",
             "Tudo o que desenha ganha vida, mas de forma descontrolada",
-            "Encontrou uma porta que não deveria existir na sua house",
+            "Encontrou uma porta que não deveria existir na sua casa",
             "As pessoas em seu redor começam a esquecer quem ele/ela é",
             "Não consegue dormir há uma semana devido a visões assustadoras",
             "Foi forçado(a) a participar num jogo mortífero",
@@ -676,21 +731,13 @@
             }
 
             let content = "=== O MEU LABORATÓRIO CRIATIVO ===\n\n";
-            content += "ELEMENTOS SORTEADOS:\n";
+            content += "ELEMENTOS ESCOLHIDOS:\n";
             
-            const p = appState.chars.filter(Boolean);
-            if(p.length) content += "Personagens: " + p.join(' | ') + "\n";
-            
-            const l = appState.locs.filter(Boolean);
-            if(l.length) content += "Locais: " + l.join(' | ') + "\n";
-            
-            if(appState.conflict) content += "Problema Central: " + appState.conflict + "\n";
-            
-            const r = appState.rules.filter(Boolean);
-            if(r.length) content += "Regras de Escrita: " + r.join(' | ') + "\n";
-            
-            const s = appState.seeds.filter(Boolean);
-            if(s.length) content += "Sementes de Ideia: " + s.join(' | ') + "\n";
+            appState.chars.forEach((c, i) => { if(c) content += `Personagem ${i+1}: ${c}\n`; });
+            appState.locs.forEach((l, i) => { if(l) content += `Local ${i+1}: ${l}\n`; });
+            if(appState.conflict) content += `Problema: ${appState.conflict}\n`;
+            appState.rules.forEach((r, i) => { if(r) content += `Regra ${i+1}: ${r}\n`; });
+            appState.seeds.forEach((s, i) => { if(s) content += `Semente ${i+1}: ${s}\n`; });
 
             content += "\n====================================\n\n";
             content += "A MINHA HISTÓRIA:\n\n";
@@ -730,20 +777,18 @@
             printWindow.document.write('body { font-family: "Plus Jakarta Sans", sans-serif; padding: 40px; color: #1e293b; line-height: 1.8; max-width: 800px; margin: 0 auto; }');
             printWindow.document.write('h1 { font-size: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 30px; }');
             printWindow.document.write('.meta { background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 30px; font-size: 14px; border: 1px solid #e2e8f0; }');
+            printWindow.document.write('.meta div { margin-bottom: 5px; }');
             printWindow.document.write('.meta strong { color: #4f46e5; }');
             printWindow.document.write('.content { font-size: 16px; white-space: pre-wrap; }');
             printWindow.document.write('</style></head><body>');
             
             printWindow.document.write('<h1>Laboratório Criativo</h1>');
             
-            const hasMeta = appState.chars.length || appState.locs.length || appState.conflict;
-            if (hasMeta) {
-                printWindow.document.write('<div class="meta">');
-                if(appState.chars.length) printWindow.document.write('<div><strong>Personagens:</strong> ' + appState.chars.join(' | ') + '</div>');
-                if(appState.locs.length) printWindow.document.write('<div><strong>Locais:</strong> ' + appState.locs.join(' | ') + '</div>');
-                if(appState.conflict) printWindow.document.write('<div><strong>Problema:</strong> ' + appState.conflict + '</div>');
-                printWindow.document.write('</div>');
-            }
+            printWindow.document.write('<div class="meta">');
+            appState.chars.forEach((c, i) => { if(c) printWindow.document.write(`<div><strong>Personagem ${i+1}:</strong> ${c}</div>`); });
+            appState.locs.forEach((l, i) => { if(l) printWindow.document.write(`<div><strong>Local ${i+1}:</strong> ${l}</div>`); });
+            if(appState.conflict) printWindow.document.write(`<div><strong>Problema:</strong> ${appState.conflict}</div>`);
+            printWindow.document.write('</div>');
 
             printWindow.document.write('<div class="content">' + htmlText + '</div>');
             printWindow.document.write('</body></html>');
@@ -755,29 +800,23 @@
             }, 300);
         }
 
-        function updateStateArray(array, newItem, maxLen) {
-            if (array.length >= maxLen) {
-                array.shift(); 
-            }
-            array.push(newItem);
-        }
-
+        // Lógica de Sincronização: Reflete o appState nos inputs do Mentor IA
         function syncUI() {
-            if(appState.chars[0]) document.getElementById('ai-char-1').value = appState.chars[0];
-            if(appState.chars[1]) document.getElementById('ai-char-2').value = appState.chars[1];
-            if(appState.chars[2]) document.getElementById('ai-char-3').value = appState.chars[2];
+            document.getElementById('ai-char-1').value = appState.chars[0] || "";
+            document.getElementById('ai-char-2').value = appState.chars[1] || "";
+            document.getElementById('ai-char-3').value = appState.chars[2] || "";
             
-            if(appState.locs[0]) document.getElementById('ai-loc-1').value = appState.locs[0];
-            if(appState.locs[1]) document.getElementById('ai-loc-2').value = appState.locs[1];
+            document.getElementById('ai-loc-1').value = appState.locs[0] || "";
+            document.getElementById('ai-loc-2').value = appState.locs[1] || "";
             
-            if(appState.conflict) document.getElementById('ai-prob').value = appState.conflict;
+            document.getElementById('ai-prob').value = appState.conflict || "";
             
-            if(appState.rules[0]) document.getElementById('ai-rule-1').value = appState.rules[0];
-            if(appState.rules[1]) document.getElementById('ai-rule-2').value = appState.rules[1];
-            if(appState.rules[2]) document.getElementById('ai-rule-3').value = appState.rules[2];
+            document.getElementById('ai-rule-1').value = appState.rules[0] || "";
+            document.getElementById('ai-rule-2').value = appState.rules[1] || "";
+            document.getElementById('ai-rule-3').value = appState.rules[2] || "";
             
-            if(appState.seeds[0]) document.getElementById('ai-seed-1').value = appState.seeds[0];
-            if(appState.seeds[1]) document.getElementById('ai-seed-2').value = appState.seeds[1];
+            document.getElementById('ai-seed-1').value = appState.seeds[0] || "";
+            document.getElementById('ai-seed-2').value = appState.seeds[1] || "";
         }
 
         async function callMentorIA() {
@@ -836,7 +875,11 @@
             3. Dá feedback encorajador sobre os pontos fortes da narrativa.
             4. Faz 2 ou 3 perguntas provocadoras que levem o aluno a refletir sobre como melhorar.
             5. Verifica se as Regras de Escrita foram cumpridas. Se alguma não foi, NÃO digas exatamente onde o aluno falhou, apenas diz qual a regra que foi quebrada.
-            6. Mantém um tom motivador. Responde sempre em Português de Portugal (pt-PT).`;
+            6. Mantém um tom motivador e direto. Responde sempre em Português de Portugal (pt-PT) adequado a crianças de 10 anos.
+            7. Verifica se as Regras de Escrita e as normas da língua portuguesa foram cumpridas. Se houver erros ortográficos, menciona a sua existência de forma subtil, incentivando o aluno a reler determinadas passagens do texto com atenção.
+            8. Se houver erros de ortografia, identifica a palavra errada e desafia o aluno a corrigi-la (ex: "Cuidado com a palavra 'ezemplo', será que se escreve com 'z'?")
+            9. Se detetares erros ortográficos ou gramaticais, não os corrijas. Indica apenas que 'existem passagens que precisam de uma revisão gramatical' e desafia o aluno a encontrar o deslize em determinada secção.
+            10. Apoio à Continuidade: Se o aluno não souber como continuar, apresenta duas ou três opções de caminhos possíveis em forma de pergunta, para o ajudar a desbloquear a imaginação, sem nunca escrever a história por ele.`;
 
             const payload = {
                 contents: [{ parts: [{ text: `Elementos sorteados pelo aluno:\n${elementsStr}\n\nTexto do aluno:\n${userText}` }] }],
@@ -934,11 +977,17 @@
             lucide.createIcons();
         }
 
+        // --- LÓGICA DE GERAÇÃO (Apenas rascunho) ---
+
         function generateCharacter() {
             let index;
             do { index = Math.floor(Math.random() * characterProfiles.length); } while (index === lastCharIndex);
             lastCharIndex = index;
             const profile = characterProfiles[index];
+            
+            // Guardar no rascunho, mas não no appState ainda
+            lastDraft.char = `${profile.nome} (${profile.role})`;
+
             document.getElementById('char-placeholder').style.display = 'none';
             document.getElementById('character-card').classList.remove('hidden');
             const img = document.getElementById('char-img');
@@ -948,48 +997,123 @@
             document.getElementById('char-role').textContent = profile.role;
             document.getElementById('char-fear').textContent = profile.medo;
             document.getElementById('char-wish').textContent = profile.desejo;
-            updateStateArray(appState.chars, `${profile.nome} (${profile.role})`, 3);
-            syncUI();
+        }
+
+        function confirmCharacterSelection() {
+            const targetIndex = document.getElementById('char-target').value;
+            if(lastDraft.char) {
+                appState.chars[targetIndex] = lastDraft.char;
+                syncUI();
+                // Feedback visual de sucesso
+                const btn = document.querySelector('#station-A button[onclick="confirmCharacterSelection()"]');
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i>';
+                btn.classList.replace('bg-indigo-600', 'bg-emerald-500');
+                lucide.createIcons();
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.classList.replace('bg-emerald-500', 'bg-indigo-600');
+                    lucide.createIcons();
+                }, 1500);
+            }
         }
 
         function generateEnvironment() {
             const env = envs[Math.floor(Math.random() * envs.length)];
+            lastDraft.env = env.title;
+
             const img = document.getElementById('env-img');
             img.style.opacity = 0;
             setTimeout(() => {
                 img.src = env.img;
                 img.style.opacity = 1;
                 document.getElementById('env-title').textContent = env.title;
+                document.getElementById('env-selection').classList.remove('hidden');
             }, 300);
-            updateStateArray(appState.locs, env.title, 2);
-            syncUI();
+        }
+
+        function confirmEnvironmentSelection() {
+            const targetIndex = document.getElementById('env-target').value;
+            if(lastDraft.env) {
+                appState.locs[targetIndex] = lastDraft.env;
+                syncUI();
+                const btn = document.querySelector('#station-B button[onclick="confirmEnvironmentSelection()"]');
+                btn.classList.replace('bg-emerald-500', 'bg-white');
+                btn.classList.add('text-emerald-500');
+                setTimeout(() => {
+                    btn.classList.replace('bg-white', 'bg-emerald-500');
+                    btn.classList.remove('text-emerald-500');
+                }, 1000);
+            }
         }
 
         function generateConflict() {
             const problem = conflicts[Math.floor(Math.random() * conflicts.length)];
+            lastDraft.conflict = problem;
+            
             const text = document.getElementById('conflict-text');
             text.style.opacity = 0;
-            setTimeout(() => { text.textContent = `"${problem}"`; text.style.opacity = 1; }, 300);
-            appState.conflict = problem;
-            syncUI();
+            setTimeout(() => { 
+                text.textContent = `"${problem}"`; 
+                text.style.opacity = 1; 
+                document.getElementById('conflict-selection').classList.remove('hidden');
+            }, 300);
+        }
+
+        function confirmConflictSelection() {
+            if(lastDraft.conflict) {
+                appState.conflict = lastDraft.conflict;
+                syncUI();
+                const sel = document.getElementById('conflict-selection');
+                sel.innerHTML = '<span class="text-emerald-600 font-bold flex items-center gap-2"><i data-lucide="check" class="w-5 h-5"></i> Adicionado ao Mentor!</span>';
+                lucide.createIcons();
+                setTimeout(() => {
+                    sel.innerHTML = `<button onclick="confirmConflictSelection()" class="bg-rose-600 text-white px-6 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-rose-500 shadow-lg">
+                                <i data-lucide="check-circle" class="w-5 h-5"></i> Usar este Problema
+                            </button>`;
+                    lucide.createIcons();
+                }, 2000);
+            }
         }
 
         function generateStyle() {
             const rule = styles[Math.floor(Math.random() * styles.length)];
+            lastDraft.rule = rule;
             const text = document.getElementById('style-text');
             text.style.opacity = 0;
-            setTimeout(() => { text.textContent = rule; text.style.opacity = 1; }, 300);
-            updateStateArray(appState.rules, rule, 3);
-            syncUI();
+            setTimeout(() => { 
+                text.textContent = rule; 
+                text.style.opacity = 1; 
+                document.getElementById('style-selection').classList.remove('hidden');
+            }, 300);
+        }
+
+        function confirmStyleSelection() {
+            const targetIndex = document.getElementById('style-target').value;
+            if(lastDraft.rule) {
+                appState.rules[targetIndex] = lastDraft.rule;
+                syncUI();
+            }
         }
 
         function generateSeed() {
             const seed = seeds[Math.floor(Math.random() * seeds.length)];
+            lastDraft.seed = seed;
             const text = document.getElementById('seed-text');
             text.style.opacity = 0;
-            setTimeout(() => { text.textContent = seed; text.style.opacity = 1; }, 300);
-            updateStateArray(appState.seeds, seed, 2);
-            syncUI();
+            setTimeout(() => { 
+                text.textContent = seed; 
+                text.style.opacity = 1; 
+                document.getElementById('seed-selection').classList.remove('hidden');
+            }, 300);
+        }
+
+        function confirmSeedSelection() {
+            const targetIndex = document.getElementById('seed-target').value;
+            if(lastDraft.seed) {
+                appState.seeds[targetIndex] = lastDraft.seed;
+                syncUI();
+            }
         }
     </script>
 </body>
