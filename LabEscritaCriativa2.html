@@ -886,26 +886,41 @@
                 systemInstruction: { parts: [{ text: systemPrompt }] }
             };
 
-            const modelName = "gemini-1.5-flash";
+            const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash"];
+            let success = false;
+            let finalData = null;
+            let lastErrorMsg = "";
+
+            for (let modelName of modelsToTry) {
+                try {
+                    let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.candidates) {
+                        success = true;
+                        finalData = data;
+                        break; 
+                    } else {
+                        lastErrorMsg = data.error?.message || "Erro na resposta da API.";
+                    }
+                } catch (error) { lastErrorMsg = error.message; }
+            }
+
             try {
-                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                if (response.ok && data.candidates) {
-                    const text = data.candidates[0].content.parts[0].text;
-                    responseDiv.innerHTML = text.split('\n').map(p => p.trim() ? `<p class="mb-3">${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>` : '').join('');
-                } else {
-                    throw new Error(data.error?.message || "Erro na API.");
-                }
+                if (!success) throw new Error(lastErrorMsg);
+                const text = finalData.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error("A IA não devolveu resposta.");
+                responseDiv.innerHTML = text.split('\n').map(p => p.trim() ? `<p class="mb-3">${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>` : '').join('');
             } catch (error) {
-                responseDiv.innerHTML = `<p class="text-rose-500">Erro: ${error.message}</p>`;
+                let errorMsg = error.message === "Failed to fetch" ? "Erro de rede. Verifica a ligação." : `Detalhe: ${error.message}`;
+                responseDiv.innerHTML = `<div class="text-center mt-20"><i data-lucide="alert-triangle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i><p class="text-rose-600 font-bold">Erro de ligação.</p><p class="text-slate-500 text-sm mt-2">${errorMsg}</p></div>`;
+                lucide.createIcons();
             } finally {
                 btn.disabled = false;
                 loading.classList.add('hidden');
-                lucide.createIcons();
             }
         }
 
