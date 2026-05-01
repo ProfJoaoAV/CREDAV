@@ -387,7 +387,6 @@
 
             <!-- Estação E: Mentor IA -->
             <section id="station-E" class="station-card p-6 md:p-12">
-                <!-- A secção inteira agora fica SEMPRE visível, independentemente de ter a API Key ou não -->
                 <div id="ai-active" class="grid lg:grid-cols-2 gap-10">
                     <div class="space-y-6">
                         <div class="flex items-center gap-3 mb-2">
@@ -481,7 +480,6 @@
                                 <div class="p-2 bg-indigo-600 text-white rounded-xl"><i data-lucide="message-square" class="w-5 h-5"></i></div>
                                 <h4 class="font-bold text-slate-800 uppercase tracking-widest text-xs">A Voz do Mentor</h4>
                             </div>
-                            <!-- Botão para limpar reposta -->
                             <button onclick="document.getElementById('ai-response-container').innerHTML = '<p class=\'italic text-slate-400 text-center mt-32\'>A aguardar o teu texto.</p>'" class="text-slate-400 hover:text-slate-600" title="Limpar resposta">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
@@ -503,7 +501,6 @@
         let timerInterval = null;
         let timeLeft = 900; // 15 minutos
 
-        // Estado da Aplicação para Auto-Fill
         const appState = {
             chars: [],
             locs: [],
@@ -512,7 +509,6 @@
             seeds: []
         };
 
-        // Bases de Dados
         const characterProfiles = [
            { nome: "Cora Mil-Anos", role: "Alquimista de Cores", medo: "Ficar cega", desejo: "Ver uma cor inexistente", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
             { nome: "Jonas do Vento", role: "Navegador Errante", medo: "Calmaria total", desejo: "Chegar à borda do mundo", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" },
@@ -577,7 +573,7 @@
             "A pessoa que mais ama foi raptada por uma criatura das sombras",
             "O tempo começou a andar para trás apenas para ele/ela",
             "Tudo o que desenha ganha vida, mas de forma descontrolada",
-            "Encontrou uma porta que não deveria existir na sua casa",
+            "Encontrou uma porta que não deveria existir na sua house",
             "As pessoas em seu redor começam a esquecer quem ele/ela é",
             "Não consegue dormir há uma semana devido a visões assustadoras",
             "Foi forçado(a) a participar num jogo mortífero",
@@ -632,30 +628,25 @@
             "Cai um meteorito no teu quintal, mas ele está frio como gelo.",
             "Apareceu uma porta nova no corredor da tua escola."
         ];
-        ];
 
         let lastCharIndex = -1;
 
         function startApp() {
             apiKey = document.getElementById('api-key-input').value.trim();
             document.getElementById('setup-modal').style.display = 'none';
-            // Agora não ocultamos nada baseado na chave API! Deixamos o Caderno sempre visível.
         }
 
-        // --- Funções do Modo de Concentração (Zen Mode) ---
         function toggleZenMode() {
             const overlay = document.getElementById('zen-mode-overlay');
             const mainEditor = document.getElementById('ai-user-text');
             const zenEditor = document.getElementById('zen-editor');
 
             if (overlay.classList.contains('hidden')) {
-                // Entrar no Zen Mode
                 zenEditor.innerHTML = mainEditor.innerHTML;
                 overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.add('flex'), 10); // Animação
+                setTimeout(() => overlay.classList.add('flex'), 10);
                 zenEditor.focus();
             } else {
-                // Sair do Zen Mode
                 mainEditor.innerHTML = zenEditor.innerHTML;
                 overlay.classList.remove('flex');
                 overlay.classList.add('hidden');
@@ -663,9 +654,7 @@
             }
         }
 
-        // --- Funções de Exportação ---
         function getRawText() {
-            // Obter texto sem as tags de formatação HTML do editor
             const el = document.getElementById('ai-user-text');
             return el.innerText || el.textContent;
         }
@@ -747,7 +736,6 @@
             
             printWindow.document.write('<h1>Laboratório Criativo</h1>');
             
-            // Compila os metadados se existirem
             const hasMeta = appState.chars.length || appState.locs.length || appState.conflict;
             if (hasMeta) {
                 printWindow.document.write('<div class="meta">');
@@ -758,18 +746,15 @@
             }
 
             printWindow.document.write('<div class="content">' + htmlText + '</div>');
-            
             printWindow.document.write('</body></html>');
             printWindow.document.close();
             printWindow.focus();
             
-            // Permite um atraso ligeiro para o browser renderizar antes de chamar o print dialog
             setTimeout(() => { 
                 printWindow.print(); 
             }, 300);
         }
 
-        // Funções Auxiliares para Auto-Fill
         function updateStateArray(array, newItem, maxLen) {
             if (array.length >= maxLen) {
                 array.shift(); 
@@ -798,7 +783,6 @@
         async function callMentorIA() {
             const responseDiv = document.getElementById('ai-response-container');
             
-            // Verifica se a chave da API está configurada antes de prosseguir
             if (!apiKey) {
                 responseDiv.innerHTML = `
                     <div class="text-center mt-12">
@@ -822,7 +806,6 @@
             const seed1 = document.getElementById('ai-seed-1').value.trim();
             const seed2 = document.getElementById('ai-seed-2').value.trim();
             
-            // Usar o texto limpo do editor HTML
             const userText = getRawText().trim();
             const btn = document.getElementById('send-to-ai');
             const loading = document.getElementById('ai-loading');
@@ -849,23 +832,18 @@
             1. NUNCA reescrevas o texto do aluno nem dês a solução direta. O teu objetivo é fazê-lo pensar por si mesmo.
             2. Os elementos sorteados pelo aluno são:
             ${elementsStr}
-            NOTA: O aluno pode ainda não ter preenchido todos os campos (alguns podem indicar "Não preenchido"). Adapta o teu feedback ao que foi preenchido. Se não houver elementos e o texto for apenas uma saudação, sê cordial e incentiva o aluno a preencher a grelha para iniciar o desafio.
+            NOTA: O aluno pode ainda não ter preenchido todos os campos. Adapta o teu feedback ao que foi preenchido.
             3. Dá feedback encorajador sobre os pontos fortes da narrativa.
-            4. Faz 2 ou 3 perguntas provocadoras que levem o aluno a refletir sobre como melhorar (ex: explorar mais a profundidade psicológica de uma personagem, uso dos sentidos no ambiente, ou a coerência do conflito).
-            5. Verifica se as Regras de Escrita (caso preenchidas) foram cumpridas. Se alguma não foi, NÃO digas exatamente onde o aluno falhou, apenas diz qual a regra que foi quebrada e desafia-o a encontrar e corrigir o erro no seu texto.
-            6. Mantém um tom motivador, de tutor paciente e entusiasta. Responde sempre em Português de Portugal (pt-PT).`;
+            4. Faz 2 ou 3 perguntas provocadoras que levem o aluno a refletir sobre como melhorar.
+            5. Verifica se as Regras de Escrita foram cumpridas. Se alguma não foi, NÃO digas exatamente onde o aluno falhou, apenas diz qual a regra que foi quebrada.
+            6. Mantém um tom motivador. Responde sempre em Português de Portugal (pt-PT).`;
 
             const payload = {
                 contents: [{ parts: [{ text: `Elementos sorteados pelo aluno:\n${elementsStr}\n\nTexto do aluno:\n${userText}` }] }],
                 systemInstruction: { parts: [{ text: systemPrompt }] }
             };
 
-            const modelsToTry = [
-                "gemini-2.5-flash",
-                "gemini-2.5-flash-preview-09-2025", 
-                "gemini-1.5-flash"
-            ];
-            
+            const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash"];
             let success = false;
             let finalData = null;
             let lastErrorMsg = "";
@@ -877,9 +855,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-
                     const data = await response.json();
-                    
                     if (response.ok && data.candidates) {
                         success = true;
                         finalData = data;
@@ -887,32 +863,17 @@
                     } else {
                         lastErrorMsg = data.error?.message || "Erro na resposta da API.";
                     }
-                } catch (error) {
-                    lastErrorMsg = error.message;
-                }
+                } catch (error) { lastErrorMsg = error.message; }
             }
 
             try {
-                if (!success) {
-                    throw new Error(lastErrorMsg);
-                }
-
+                if (!success) throw new Error(lastErrorMsg);
                 const text = finalData.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!text) throw new Error("A IA não devolveu resposta.");
-
                 responseDiv.innerHTML = text.split('\n').map(p => p.trim() ? `<p class="mb-3">${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>` : '').join('');
             } catch (error) {
-                console.error("Erro da API:", error);
-                let errorMsg = error.message === "Failed to fetch" 
-                    ? "Erro de rede ou bloqueio. Tenta desativar extensões de bloqueio de anúncios (adblockers) ou verifica a tua ligação." 
-                    : `Detalhe: ${error.message}`;
-
-                responseDiv.innerHTML = `
-                    <div class="text-center mt-20">
-                        <i data-lucide="alert-triangle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i>
-                        <p class="text-rose-600 font-bold">Não foi possível ligar ao Mentor.</p>
-                        <p class="text-slate-500 text-sm mt-2 max-w-md mx-auto">${errorMsg}</p>
-                    </div>`;
+                let errorMsg = error.message === "Failed to fetch" ? "Erro de rede. Verifica a ligação." : `Detalhe: ${error.message}`;
+                responseDiv.innerHTML = `<div class="text-center mt-20"><i data-lucide="alert-triangle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i><p class="text-rose-600 font-bold">Erro de ligação.</p><p class="text-slate-500 text-sm mt-2">${errorMsg}</p></div>`;
                 lucide.createIcons();
             } finally {
                 btn.disabled = false;
@@ -935,7 +896,6 @@
                     display.classList.remove('timer-ended');
                     zenDisplay.classList.remove('timer-ended');
                 }
-
                 timerInterval = setInterval(() => {
                     if(timeLeft > 0) {
                         timeLeft--;
@@ -964,42 +924,30 @@
         function showStation(id) {
             document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
             document.getElementById('station-' + id).classList.add('active');
-            
             document.querySelectorAll('.nav-btn').forEach(b => {
                 b.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
                 b.classList.add('border-transparent', 'text-slate-500');
             });
-            
             const activeBtn = document.getElementById('btn-' + id);
             activeBtn.classList.remove('border-transparent', 'text-slate-500');
             activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
-            
             lucide.createIcons();
         }
 
         function generateCharacter() {
             let index;
-            do {
-                index = Math.floor(Math.random() * characterProfiles.length);
-            } while (index === lastCharIndex);
+            do { index = Math.floor(Math.random() * characterProfiles.length); } while (index === lastCharIndex);
             lastCharIndex = index;
-            
             const profile = characterProfiles[index];
             document.getElementById('char-placeholder').style.display = 'none';
             document.getElementById('character-card').classList.remove('hidden');
-            
             const img = document.getElementById('char-img');
             img.style.opacity = 0;
-            setTimeout(() => {
-                img.src = profile.img;
-                img.style.opacity = 1;
-            }, 100);
-            
+            setTimeout(() => { img.src = profile.img; img.style.opacity = 1; }, 100);
             document.getElementById('char-name').textContent = profile.nome;
             document.getElementById('char-role').textContent = profile.role;
             document.getElementById('char-fear').textContent = profile.medo;
             document.getElementById('char-wish').textContent = profile.desejo;
-
             updateStateArray(appState.chars, `${profile.nome} (${profile.role})`, 3);
             syncUI();
         }
@@ -1013,7 +961,6 @@
                 img.style.opacity = 1;
                 document.getElementById('env-title').textContent = env.title;
             }, 300);
-
             updateStateArray(appState.locs, env.title, 2);
             syncUI();
         }
@@ -1022,11 +969,7 @@
             const problem = conflicts[Math.floor(Math.random() * conflicts.length)];
             const text = document.getElementById('conflict-text');
             text.style.opacity = 0;
-            setTimeout(() => {
-                text.textContent = `"${problem}"`;
-                text.style.opacity = 1;
-            }, 300);
-
+            setTimeout(() => { text.textContent = `"${problem}"`; text.style.opacity = 1; }, 300);
             appState.conflict = problem;
             syncUI();
         }
@@ -1035,11 +978,7 @@
             const rule = styles[Math.floor(Math.random() * styles.length)];
             const text = document.getElementById('style-text');
             text.style.opacity = 0;
-            setTimeout(() => {
-                text.textContent = rule;
-                text.style.opacity = 1;
-            }, 300);
-
+            setTimeout(() => { text.textContent = rule; text.style.opacity = 1; }, 300);
             updateStateArray(appState.rules, rule, 3);
             syncUI();
         }
@@ -1048,11 +987,7 @@
             const seed = seeds[Math.floor(Math.random() * seeds.length)];
             const text = document.getElementById('seed-text');
             text.style.opacity = 0;
-            setTimeout(() => {
-                text.textContent = seed;
-                text.style.opacity = 1;
-            }, 300);
-
+            setTimeout(() => { text.textContent = seed; text.style.opacity = 1; }, 300);
             updateStateArray(appState.seeds, seed, 2);
             syncUI();
         }
