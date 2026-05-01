@@ -387,7 +387,6 @@
 
             <!-- Estação E: Mentor IA -->
             <section id="station-E" class="station-card p-6 md:p-12">
-                <!-- A secção inteira agora fica SEMPRE visível, independentemente de ter a API Key ou não -->
                 <div id="ai-active" class="grid lg:grid-cols-2 gap-10">
                     <div class="space-y-6">
                         <div class="flex items-center gap-3 mb-2">
@@ -481,7 +480,6 @@
                                 <div class="p-2 bg-indigo-600 text-white rounded-xl"><i data-lucide="message-square" class="w-5 h-5"></i></div>
                                 <h4 class="font-bold text-slate-800 uppercase tracking-widest text-xs">A Voz do Mentor</h4>
                             </div>
-                            <!-- Botão para limpar reposta -->
                             <button onclick="document.getElementById('ai-response-container').innerHTML = '<p class=\'italic text-slate-400 text-center mt-32\'>A aguardar o teu texto.</p>'" class="text-slate-400 hover:text-slate-600" title="Limpar resposta">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
@@ -503,7 +501,6 @@
         let timerInterval = null;
         let timeLeft = 900; // 15 minutos
 
-        // Estado da Aplicação para Auto-Fill
         const appState = {
             chars: [],
             locs: [],
@@ -512,9 +509,8 @@
             seeds: []
         };
 
-        // Bases de Dados
         const characterProfiles = [
-            { nome: "Cora Mil-Anos", role: "Alquimista de Cores", medo: "Ficar cega", desejo: "Ver uma cor inexistente", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
+           { nome: "Cora Mil-Anos", role: "Alquimista de Cores", medo: "Ficar cega", desejo: "Ver uma cor inexistente", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
             { nome: "Jonas do Vento", role: "Navegador Errante", medo: "Calmaria total", desejo: "Chegar à borda do mundo", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" },
             { nome: "Beatriz Sombra", role: "Arquivista de Segredos", medo: "A luz do meio-dia", desejo: "Apagar o seu próprio passado", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800" },
             { nome: "Elias Ferro", role: "Ferreiro de Memórias", medo: "O ferrugem da mente", desejo: "Criar uma espada inquebrável", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800" },
@@ -523,39 +519,114 @@
             { nome: "Íris Eco", role: "Cantora de Cavernas", medo: "O silêncio absoluto", desejo: "Que a sua voz seja ouvida no espaço", img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=800" },
             { nome: "Silas Brasa", role: "Domador de Fogos", medo: "A água fria", desejo: "Aquecer o coração de uma estátua", img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800" },
             { nome: "Vera Raiz", role: "Botânica do Invisível", medo: "Cimento e metal", desejo: "Fazer crescer flores no deserto", img: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&q=80&w=800" },
-            { nome: "Hugo Papel", role: "Escritor de Destinos", medo: "Ficar sem tinta", desejo: "Mudar o final da sua própria história", img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=800" }
+            { nome: "Hugo Papel", role: "Escritor de Destinos", medo: "Ficar sem tinta", desejo: "Mudar o final da sua própria história", img: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Nora Neve", role: "Escultora de Gelo", medo: "O calor excessivo", desejo: "Congelar um momento de felicidade", img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Dante Marfim", role: "Mestre de Xadrez Real", medo: "Perder a rainha", desejo: "Prever todos os movimentos da vida", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Clara Vidro", role: "Espia Transparente", medo: "Ser descoberta", desejo: "Tornar-se totalmente invisível", img: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Bóris Metal", role: "Cyborg Nostálgico", medo: "Ficar sem bateria", desejo: "Sentir o cheiro de uma flor real", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Zélia Astral", role: "Viajante de Constelações", medo: "Perder-se no vazio", desejo: "Tocar numa estrela cadente", img: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Otávio Sal", role: "Pescador de Nuvens", medo: "Afogar-se em terra firme", desejo: "Trazer a chuva para o seu povo", img: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Maia Tinta", role: "Tatuadora de Almas", medo: "Pele vazia", desejo: "Desenhar a coragem no peito de um cobarde", img: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Artur Chave", role: "Guardião de Portas Erradas", medo: "A porta certa", desejo: "Encontrar o que nunca foi perdido", img: "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Eva Engrenagem", role: "Inventora de Inutilidades", medo: "A lógica perfeita", desejo: "Criar uma máquina que faz rir", img: "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Lúcio Farol", role: "Vigia do Deserto", medo: "Miragens reais", desejo: "Ver o oceano pela primeira vez", img: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Sofia Voo", role: "Treinadora de Pássaros Mecânicos", medo: "Asas partidas", desejo: "Voar sem a ajuda de máquinas", img: "https://images.unsplash.com/photo-1518558997970-4fdc4ecdfce9?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Tito Âncora", role: "Mergulhador de Nuvens", medo: "Alturas terrenas", desejo: "Encontrar o fundo do céu", img: "https://images.unsplash.com/photo-1503443207922-d09d0816c297?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Olívia Ponto", role: "Costureira de Destinos", medo: "Um fio cortado acidentalmente", desejo: "Remendar o coração partido de um deus", img: "https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Ruben Lupa", role: "Caçador de Micro-Universos", medo: "O infinito", desejo: "Descobrir uma galáxia numa gota de água", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Nina Oculta", role: "Colecionadora de Sombras", medo: "Um mundo sem sol", desejo: "Dar vida à sua própria sombra", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Félix Leme", role: "Capitão de Navios Fantasma", medo: "Ser esquecido pelos vivos", desejo: "Transportar almas perdidas para a luz", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Inês Rima", role: "Poetisa de Feitiços", medo: "Esquecer a palavra mágica", desejo: "Curar o mundo com um único poema", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Gael Bússola", role: "Mapeador de Labirintos", medo: "Linhas retas", desejo: "Mapear o coração humano", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Diana Fio", role: "Equilibrista do Caos", medo: "A gravidade", desejo: "Caminhar sobre um raio de luar", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=800" },
+            { nome: "Xavier Pedra", role: "Ouvinte de Montanhas", medo: "Deslizamentos de terra", desejo: "Aprender a língua das rochas antigas", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" }
         ];
 
         const envs = [
-            { title: "Farol do Fim do Mundo", img: "https://images.unsplash.com/photo-1500390691797-d98973a0d48a?auto=format&fit=crop&w=1000" },
+          { title: "Farol do Fim do Mundo", img: "https://images.unsplash.com/photo-1500390691797-d98973a0d48a?auto=format&fit=crop&w=1000" },
             { title: "Floresta de Vidro", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1000" },
             { title: "Cidade nas Nuvens", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000" },
             { title: "Biblioteca de Poeira", img: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1000" },
-            { title: "Mercado de Sonhos Usados", img: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=1000" }
+            { title: "Mercado de Sonhos Usados", img: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=1000" },
+            { title: "Gruta dos Ecos Perdidos", img: "https://images.unsplash.com/photo-1509233725247-49e657c54213?auto=format&fit=crop&w=1000" },
+            { title: "Estação de Comboio Abandonada", img: "https://images.unsplash.com/photo-1515165597901-b44c707bbbb5?auto=format&fit=crop&w=1000" },
+            { title: "Jardim de Ferro", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1000" },
+            { title: "Laboratório de Alquimia", img: "https://images.unsplash.com/photo-1532187863486-abf9d3a35263?auto=format&fit=crop&w=1000" },
+            { title: "Vila Submersa", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000" },
+            { title: "Cume da Montanha Roxa", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000" },
+            { title: "Teatro de Marionetas Vivas", img: "https://images.unsplash.com/photo-1505682634904-d7c8d95ccd50?auto=format&fit=crop&w=1000" },
+            { title: "Deserto de Sal Azul", img: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1000" },
+            { title: "Castelo de Cartas Gigantes", img: "https://images.unsplash.com/photo-1502700807168-484a3e7889d0?auto=format&fit=crop&w=1000" },
+            { title: "Sótão das Memórias", img: "https://images.unsplash.com/photo-1444837881208-4d46d5c1f127?auto=format&fit=crop&w=1000" }
         ];
 
         const conflicts = [
-            "Descobres que és a única pessoa que consegue ver as cores no mundo.",
-            "O tempo parou e tu és a única personagem que se consegue mover.",
-            "Um objeto que estimas muito começa a sussurrar segredos sobre o futuro.",
-            "Toda a gente na cidade esqueceu quem tu és, inclusive a tua família.",
-            "Recebes uma carta que foi escrita por ti, mas datada de daqui a dez anos."
+            "Perdeu algo insubstituível na noite passada",
+            "Foi amaldiçoado(a) a dizer sempre a verdade",
+            "Tem exatamente 24 horas para sair da cidade",
+            "Foi confundido(a) com um criminoso procurado",
+            "Alguém apagou todas as suas memórias de infância",
+            "Encontrou um mapa que leva a um segredo terrível",
+            "A sua própria sombra ganhou vida e quer matá-lo(a)",
+            "Descobre que não é humano(a), mas sim uma criação mecânica",
+            "A voz de um deus antigo ressoa constantemente na sua mente",
+            "A pessoa que mais ama foi raptada por uma criatura das sombras",
+            "O tempo começou a andar para trás apenas para ele/ela",
+            "Tudo o que desenha ganha vida, mas de forma descontrolada",
+            "Encontrou uma porta que não deveria existir na sua house",
+            "As pessoas em seu redor começam a esquecer quem ele/ela é",
+            "Não consegue dormir há uma semana devido a visões assustadoras",
+            "Foi forçado(a) a participar num jogo mortífero",
+            "Descobriu que a sua vida é um livro e o autor está a matá-lo",
+            "Um impostor está a viver a sua vida melhor do que ele/ela",
+            "Adquiriu o poder de ouvir os pensamentos dos animais, e eles odeiam-no",
+            "Deve escolher entre salvar o seu melhor amigo ou a sua cidade natal"
         ];
 
         const styles = [
-            "Não podes usar a letra 'A' no primeiro parágrafo.",
+           "Não podes usar a letra 'A' no primeiro parágrafo.",
             "A história deve começar e terminar com a mesma palavra.",
             "Usa três onomatopeias ao longo do texto.",
             "Inclui uma metáfora sobre o mar ou o vento.",
-            "Descreve um cheiro que não exista na realidade."
+            "Descreve um cheiro que não exista na realidade.",
+            "Escreve como se fosses um narrador que não entende tecnologia.",
+            "Cada frase do primeiro parágrafo deve ter exatamente 7 palavras.",
+            "Não podes usar o verbo 'ser' ou 'estar' nas primeiras 5 frases.",
+            "Deves incluir o nome de uma flor e de um planeta.",
+            "A personagem principal deve fazer uma pergunta que fica sem resposta.",
+            "Escreve um parágrafo inteiro composto apenas por frases curtas (max 3 palavras).",
+            "Usa a palavra 'efervescente' num contexto inesperado.",
+            "Proibido usar adjetivos na descrição do ambiente.",
+            "Introduz um objeto de cor amarela que mude o rumo da cena.",
+            "A primeira palavra de cada parágrafo deve formar uma frase secreta.",
+            "Usa uma aliteração (repetição de sons) em três frases seguidas.",
+            "A história deve passar-se num intervalo de apenas 60 segundos.",
+            "Cria um diálogo onde uma das personagens apenas responde com rimas.",
+            "Descreve o cenário sem usar cores, apenas formas e texturas.",
+            "O texto deve terminar com uma reticência (...)."
         ];
 
         const seeds = [
-            "Um mapa cai do céu e aterra no teu colo.",
+           "Um mapa cai do céu e aterra no teu colo.",
             "Encontras uma chave de cristal enterrada no jardim.",
             "O teu reflexo no espelho pisca-te o olho e sai da moldura.",
             "Um desconhecido entrega-te um pacote: 'Não abras antes da meia-noite'.",
-            "Ouve-se uma música que parece vir de debaixo do chão."
+            "Ouve-se uma música que parece vir de debaixo do chão.",
+            "Todas as portas da cidade trancaram-se ao mesmo tempo.",
+            "Encontras um sapato de cristal, mas ele é do tamanho de um carro.",
+            "As estrelas começaram a cair como se fossem gotas de chuva.",
+            "O teu gato começa a falar, mas apenas em latim.",
+            "Descobres um túnel secreto atrás do teu guarda-roupa.",
+            "Um corvo traz-te um anel com um bilhete de ajuda.",
+            "Acordas e descobres que tens asas, mas elas são feitas de papel.",
+            "A água do mar tornou-se doce e cor de rosa.",
+            "Encontras uma fotografia tua num lugar onde nunca estiveste.",
+            "As estátuas do parque mudaram de posição durante a noite.",
+            "O vento sopra palavras em vez de ar.",
+            "Uma árvore na tua rua começou a dar livros em vez de frutos.",
+            "Descobres que o teu vizinho é, na verdade, um robô a pilhas.",
+            "Cai um meteorito no teu quintal, mas ele está frio como gelo.",
+            "Apareceu uma porta nova no corredor da tua escola."
         ];
 
         let lastCharIndex = -1;
@@ -563,23 +634,19 @@
         function startApp() {
             apiKey = document.getElementById('api-key-input').value.trim();
             document.getElementById('setup-modal').style.display = 'none';
-            // Agora não ocultamos nada baseado na chave API! Deixamos o Caderno sempre visível.
         }
 
-        // --- Funções do Modo de Concentração (Zen Mode) ---
         function toggleZenMode() {
             const overlay = document.getElementById('zen-mode-overlay');
             const mainEditor = document.getElementById('ai-user-text');
             const zenEditor = document.getElementById('zen-editor');
 
             if (overlay.classList.contains('hidden')) {
-                // Entrar no Zen Mode
                 zenEditor.innerHTML = mainEditor.innerHTML;
                 overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.add('flex'), 10); // Animação
+                setTimeout(() => overlay.classList.add('flex'), 10);
                 zenEditor.focus();
             } else {
-                // Sair do Zen Mode
                 mainEditor.innerHTML = zenEditor.innerHTML;
                 overlay.classList.remove('flex');
                 overlay.classList.add('hidden');
@@ -587,9 +654,7 @@
             }
         }
 
-        // --- Funções de Exportação ---
         function getRawText() {
-            // Obter texto sem as tags de formatação HTML do editor
             const el = document.getElementById('ai-user-text');
             return el.innerText || el.textContent;
         }
@@ -671,7 +736,6 @@
             
             printWindow.document.write('<h1>Laboratório Criativo</h1>');
             
-            // Compila os metadados se existirem
             const hasMeta = appState.chars.length || appState.locs.length || appState.conflict;
             if (hasMeta) {
                 printWindow.document.write('<div class="meta">');
@@ -682,18 +746,15 @@
             }
 
             printWindow.document.write('<div class="content">' + htmlText + '</div>');
-            
             printWindow.document.write('</body></html>');
             printWindow.document.close();
             printWindow.focus();
             
-            // Permite um atraso ligeiro para o browser renderizar antes de chamar o print dialog
             setTimeout(() => { 
                 printWindow.print(); 
             }, 300);
         }
 
-        // Funções Auxiliares para Auto-Fill
         function updateStateArray(array, newItem, maxLen) {
             if (array.length >= maxLen) {
                 array.shift(); 
@@ -722,7 +783,6 @@
         async function callMentorIA() {
             const responseDiv = document.getElementById('ai-response-container');
             
-            // Verifica se a chave da API está configurada antes de prosseguir
             if (!apiKey) {
                 responseDiv.innerHTML = `
                     <div class="text-center mt-12">
@@ -746,7 +806,6 @@
             const seed1 = document.getElementById('ai-seed-1').value.trim();
             const seed2 = document.getElementById('ai-seed-2').value.trim();
             
-            // Usar o texto limpo do editor HTML
             const userText = getRawText().trim();
             const btn = document.getElementById('send-to-ai');
             const loading = document.getElementById('ai-loading');
@@ -773,23 +832,18 @@
             1. NUNCA reescrevas o texto do aluno nem dês a solução direta. O teu objetivo é fazê-lo pensar por si mesmo.
             2. Os elementos sorteados pelo aluno são:
             ${elementsStr}
-            NOTA: O aluno pode ainda não ter preenchido todos os campos (alguns podem indicar "Não preenchido"). Adapta o teu feedback ao que foi preenchido. Se não houver elementos e o texto for apenas uma saudação, sê cordial e incentiva o aluno a preencher a grelha para iniciar o desafio.
+            NOTA: O aluno pode ainda não ter preenchido todos os campos. Adapta o teu feedback ao que foi preenchido.
             3. Dá feedback encorajador sobre os pontos fortes da narrativa.
-            4. Faz 2 ou 3 perguntas provocadoras que levem o aluno a refletir sobre como melhorar (ex: explorar mais a profundidade psicológica de uma personagem, uso dos sentidos no ambiente, ou a coerência do conflito).
-            5. Verifica se as Regras de Escrita (caso preenchidas) foram cumpridas. Se alguma não foi, NÃO digas exatamente onde o aluno falhou, apenas diz qual a regra que foi quebrada e desafia-o a encontrar e corrigir o erro no seu texto.
-            6. Mantém um tom motivador, de tutor paciente e entusiasta. Responde sempre em Português de Portugal (pt-PT).`;
+            4. Faz 2 ou 3 perguntas provocadoras que levem o aluno a refletir sobre como melhorar.
+            5. Verifica se as Regras de Escrita foram cumpridas. Se alguma não foi, NÃO digas exatamente onde o aluno falhou, apenas diz qual a regra que foi quebrada.
+            6. Mantém um tom motivador. Responde sempre em Português de Portugal (pt-PT).`;
 
             const payload = {
                 contents: [{ parts: [{ text: `Elementos sorteados pelo aluno:\n${elementsStr}\n\nTexto do aluno:\n${userText}` }] }],
                 systemInstruction: { parts: [{ text: systemPrompt }] }
             };
 
-            const modelsToTry = [
-                "gemini-2.5-flash",
-                "gemini-2.5-flash-preview-09-2025", 
-                "gemini-1.5-flash"
-            ];
-            
+            const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-flash"];
             let success = false;
             let finalData = null;
             let lastErrorMsg = "";
@@ -801,9 +855,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-
                     const data = await response.json();
-                    
                     if (response.ok && data.candidates) {
                         success = true;
                         finalData = data;
@@ -811,32 +863,17 @@
                     } else {
                         lastErrorMsg = data.error?.message || "Erro na resposta da API.";
                     }
-                } catch (error) {
-                    lastErrorMsg = error.message;
-                }
+                } catch (error) { lastErrorMsg = error.message; }
             }
 
             try {
-                if (!success) {
-                    throw new Error(lastErrorMsg);
-                }
-
+                if (!success) throw new Error(lastErrorMsg);
                 const text = finalData.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (!text) throw new Error("A IA não devolveu resposta.");
-
                 responseDiv.innerHTML = text.split('\n').map(p => p.trim() ? `<p class="mb-3">${p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>` : '').join('');
             } catch (error) {
-                console.error("Erro da API:", error);
-                let errorMsg = error.message === "Failed to fetch" 
-                    ? "Erro de rede ou bloqueio. Tenta desativar extensões de bloqueio de anúncios (adblockers) ou verifica a tua ligação." 
-                    : `Detalhe: ${error.message}`;
-
-                responseDiv.innerHTML = `
-                    <div class="text-center mt-20">
-                        <i data-lucide="alert-triangle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i>
-                        <p class="text-rose-600 font-bold">Não foi possível ligar ao Mentor.</p>
-                        <p class="text-slate-500 text-sm mt-2 max-w-md mx-auto">${errorMsg}</p>
-                    </div>`;
+                let errorMsg = error.message === "Failed to fetch" ? "Erro de rede. Verifica a ligação." : `Detalhe: ${error.message}`;
+                responseDiv.innerHTML = `<div class="text-center mt-20"><i data-lucide="alert-triangle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i><p class="text-rose-600 font-bold">Erro de ligação.</p><p class="text-slate-500 text-sm mt-2">${errorMsg}</p></div>`;
                 lucide.createIcons();
             } finally {
                 btn.disabled = false;
@@ -859,7 +896,6 @@
                     display.classList.remove('timer-ended');
                     zenDisplay.classList.remove('timer-ended');
                 }
-
                 timerInterval = setInterval(() => {
                     if(timeLeft > 0) {
                         timeLeft--;
@@ -888,42 +924,30 @@
         function showStation(id) {
             document.querySelectorAll('.station-card').forEach(c => c.classList.remove('active'));
             document.getElementById('station-' + id).classList.add('active');
-            
             document.querySelectorAll('.nav-btn').forEach(b => {
                 b.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
                 b.classList.add('border-transparent', 'text-slate-500');
             });
-            
             const activeBtn = document.getElementById('btn-' + id);
             activeBtn.classList.remove('border-transparent', 'text-slate-500');
             activeBtn.classList.add('active', 'border-indigo-600', 'text-indigo-600');
-            
             lucide.createIcons();
         }
 
         function generateCharacter() {
             let index;
-            do {
-                index = Math.floor(Math.random() * characterProfiles.length);
-            } while (index === lastCharIndex);
+            do { index = Math.floor(Math.random() * characterProfiles.length); } while (index === lastCharIndex);
             lastCharIndex = index;
-            
             const profile = characterProfiles[index];
             document.getElementById('char-placeholder').style.display = 'none';
             document.getElementById('character-card').classList.remove('hidden');
-            
             const img = document.getElementById('char-img');
             img.style.opacity = 0;
-            setTimeout(() => {
-                img.src = profile.img;
-                img.style.opacity = 1;
-            }, 100);
-            
+            setTimeout(() => { img.src = profile.img; img.style.opacity = 1; }, 100);
             document.getElementById('char-name').textContent = profile.nome;
             document.getElementById('char-role').textContent = profile.role;
             document.getElementById('char-fear').textContent = profile.medo;
             document.getElementById('char-wish').textContent = profile.desejo;
-
             updateStateArray(appState.chars, `${profile.nome} (${profile.role})`, 3);
             syncUI();
         }
@@ -937,7 +961,6 @@
                 img.style.opacity = 1;
                 document.getElementById('env-title').textContent = env.title;
             }, 300);
-
             updateStateArray(appState.locs, env.title, 2);
             syncUI();
         }
@@ -946,11 +969,7 @@
             const problem = conflicts[Math.floor(Math.random() * conflicts.length)];
             const text = document.getElementById('conflict-text');
             text.style.opacity = 0;
-            setTimeout(() => {
-                text.textContent = `"${problem}"`;
-                text.style.opacity = 1;
-            }, 300);
-
+            setTimeout(() => { text.textContent = `"${problem}"`; text.style.opacity = 1; }, 300);
             appState.conflict = problem;
             syncUI();
         }
@@ -959,11 +978,7 @@
             const rule = styles[Math.floor(Math.random() * styles.length)];
             const text = document.getElementById('style-text');
             text.style.opacity = 0;
-            setTimeout(() => {
-                text.textContent = rule;
-                text.style.opacity = 1;
-            }, 300);
-
+            setTimeout(() => { text.textContent = rule; text.style.opacity = 1; }, 300);
             updateStateArray(appState.rules, rule, 3);
             syncUI();
         }
@@ -972,11 +987,7 @@
             const seed = seeds[Math.floor(Math.random() * seeds.length)];
             const text = document.getElementById('seed-text');
             text.style.opacity = 0;
-            setTimeout(() => {
-                text.textContent = seed;
-                text.style.opacity = 1;
-            }, 300);
-
+            setTimeout(() => { text.textContent = seed; text.style.opacity = 1; }, 300);
             updateStateArray(appState.seeds, seed, 2);
             syncUI();
         }
