@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mestre da Gramática | 6.º Ano</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            bg: '#0a0a0f',
+                            card: '#1a1a24',
+                            border: '#2a2a35'
+                        },
+                        brand: {
+                            blue: '#3b82f6',
+                            green: '#10b981',
+                            orange: '#f97316'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons & html2pdf -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            background-color: #0a0a0f;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+        .glass-card {
+            background: rgba(26, 26, 36, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+        .glow-orange { box-shadow: 0 0 20px rgba(249, 115, 22, 0.15); }
+
+        .tab-active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #certificado-container {
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+            background-color: white;
+            color: black;
+        }
+
+        .correct-answer {
+            border-color: #10b981 !important;
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            color: #10b981 !important;
+        }
+
+        .wrong-answer {
+            border-color: #ef4444 !important;
+            background-color: rgba(239, 68, 68, 0.1) !important;
+            color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-50 glass-card border-b border-dark-border">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="book-open" class="text-brand-blue w-6 h-6"></i>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+                    Mestre da Gramática
+                </h1>
+            </div>
+            <nav class="flex gap-1 md:gap-4 bg-dark-bg p-1 rounded-lg border border-dark-border">
+                <button onclick="navigate('estudo')" id="nav-estudo" class="px-4 py-1.5 text-sm font-medium rounded-md bg-dark-card text-white transition-all">Estudar</button>
+                <button onclick="navigate('treino')" id="nav-treino" class="px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 hover:text-white transition-all">Treinar</button>
+                <button onclick="navigate('teste')" id="nav-teste" class="px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 hover:text-white transition-all">Testar</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-8 relative">
+        
+        <!-- SECÇÃO: ESTUDAR -->
+        <section id="sec-estudo" class="block fade-in">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold mb-2">Hora de Aprender! 🧠</h2>
+                <p class="text-gray-400">Domina as frases e as orações com este guia completo.</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row border-b border-dark-border mb-8 overflow-x-auto">
+                <button onclick="switchTab('tab-frase')" id="btn-tab-frase" class="flex-1 min-w-[120px] py-4 text-center font-semibold tab-active transition-colors duration-300 rounded-t-lg">
+                    1. Frase
+                </button>
+                <button onclick="switchTab('tab-coord')" id="btn-tab-coord" class="flex-1 min-w-[120px] py-4 text-center font-semibold text-gray-400 hover:text-gray-200 hover:bg-dark-card/50 transition-colors duration-300 rounded-t-lg">
+                    2. Coordenadas
+                </button>
+                <button onclick="switchTab('tab-subord')" id="btn-tab-subord" class="flex-1 min-w-[120px] py-4 text-center font-semibold text-gray-400 hover:text-gray-200 hover:bg-dark-card/50 transition-colors duration-300 rounded-t-lg">
+                    3. Subordinadas
+                </button>
+                <button onclick="switchTab('tab-resumo')" id="btn-tab-resumo" class="flex-1 min-w-[120px] py-4 text-center font-semibold text-gray-400 hover:text-gray-200 hover:bg-dark-card/50 transition-colors duration-300 rounded-t-lg">
+                    4. Resumo Visual
+                </button>
+            </div>
+
+            <div id="tab-frase" class="block fade-in">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-2xl p-6 glow-blue border-t-4 border-t-brand-blue">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-2 bg-blue-500/20 rounded-lg text-blue-400"><i data-lucide="align-left"></i></div>
+                            <h3 class="text-2xl font-bold text-white">Frase Simples</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4 leading-relaxed">Contém apenas <strong>um verbo conjugado</strong> (sozinho ou em locução verbal).</p>
+                        <div class="bg-dark-bg p-4 rounded-xl border border-dark-border">
+                            <p class="italic text-gray-400">Exemplos:</p>
+                            <p class="mt-2 text-white">Eles <span class="text-blue-400 font-bold underline">viram</span> um ninho.</p>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 glow-orange border-t-4 border-t-brand-orange">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="p-2 bg-orange-500/20 rounded-lg text-orange-400"><i data-lucide="layers"></i></div>
+                            <h3 class="text-2xl font-bold text-white">Frase Complexa</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4 leading-relaxed">Contém <strong>mais do que um verbo conjugado</strong>. Constituída por várias orações.</p>
+                        <div class="bg-dark-bg p-4 rounded-xl border border-dark-border">
+                            <p class="italic text-gray-400">Exemplo:</p>
+                            <p class="mt-2 text-white">Eles <span class="text-orange-400 font-bold underline">viram</span> o ninho, mas não lhe <span class="text-orange-400 font-bold underline">mexeram</span>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outras Tabs mantidas -->
+            <div id="tab-coord" class="hidden fade-in">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-2xl p-6 border border-green-500/20">
+                        <h3 class="text-xl font-bold text-green-400 mb-2">Coordenada Copulativa</h3>
+                        <p class="text-gray-300 text-sm mb-4">Ideia de <strong>ligação / adição</strong>.</p>
+                        <p class="text-green-300 font-mono text-sm mb-4">e, nem, não só... mas também</p>
+                        <div class="bg-dark-bg p-3 rounded-lg text-sm border border-dark-border">Comprei um telescópio <span class="text-green-400 font-bold underline">e</span> observei as estrelas.</div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 border border-orange-500/20">
+                        <h3 class="text-xl font-bold text-orange-400 mb-2">Coordenada Adversativa</h3>
+                        <p class="text-gray-300 text-sm mb-4">Ideia de <strong>oposição / contraste</strong>.</p>
+                        <p class="text-orange-300 font-mono text-sm mb-4">mas</p>
+                        <div class="bg-dark-bg p-3 rounded-lg text-sm border border-dark-border">Descobri a Ursa Maior<span class="text-white font-bold">,</span> <span class="text-orange-400 font-bold underline">mas</span> precisei de ajuda.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-subord" class="hidden fade-in">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-2xl p-6 border border-blue-500/20">
+                        <h3 class="text-xl font-bold text-blue-400 mb-2">Subordinada Causal</h3>
+                        <p class="text-gray-300 text-sm mb-4">Exprime <strong>causa ou motivo</strong>.</p>
+                        <p class="text-blue-300 font-mono text-xs mb-4">porque, como, visto que, já que</p>
+                        <div class="bg-dark-bg p-3 rounded-lg text-sm border border-dark-border">Prefiro mangas, <span class="text-blue-400 font-bold underline">porque</span> são doces.</div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 border border-purple-500/20">
+                        <h3 class="text-xl font-bold text-purple-400 mb-2">Subordinada Temporal</h3>
+                        <p class="text-gray-300 text-sm mb-4">Exprime <strong>tempo</strong>.</p>
+                        <p class="text-purple-300 font-mono text-xs mb-4">quando, enquanto, mal, logo que</p>
+                        <div class="bg-dark-bg p-3 rounded-lg text-sm border border-dark-border">As crias chilreiam <span class="text-purple-400 font-bold underline">quando</span> têm fome.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-resumo" class="hidden fade-in">
+                <div class="glass-card rounded-2xl p-4 md:p-8 flex flex-col items-center">
+                    <h3 class="text-2xl font-bold text-brand-blue mb-6">Mapa Mental das Orações</h3>
+                    <div class="w-full max-w-4xl bg-white rounded-xl overflow-hidden shadow-2xl">
+                        <img src="https://profjoaoav.github.io/CREDAV/oracoes.png" alt="Resumo de Orações" class="w-full h-auto block">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECÇÃO: TREINAR -->
+        <section id="sec-treino" class="hidden fade-in">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-2">Ginásio da Gramática 💪</h2>
+                <p class="text-gray-400">Pratica livremente em cada categoria.</p>
+            </div>
+            <div id="treino-menu" class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <button onclick="iniciarTreino('coordenadas')" class="glass-card p-8 rounded-2xl hover:scale-105 transition-transform text-center group border-green-500/30">
+                    <i data-lucide="link" class="text-green-400 w-8 h-8 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Coordenadas</h3>
+                </button>
+                <button onclick="iniciarTreino('subordinadas')" class="glass-card p-8 rounded-2xl hover:scale-105 transition-transform text-center group border-blue-500/30">
+                    <i data-lucide="git-pull-request" class="text-blue-400 w-8 h-8 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Subordinadas</h3>
+                </button>
+                <button onclick="iniciarTreino('mistura')" class="glass-card p-8 rounded-2xl hover:scale-105 transition-transform text-center group border-purple-500/30">
+                    <i data-lucide="shuffle" class="text-purple-400 w-8 h-8 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Mistura</h3>
+                </button>
+            </div>
+            <div id="treino-area" class="hidden max-w-2xl mx-auto glass-card rounded-2xl p-8 relative">
+                <button onclick="voltarMenuTreino()" class="absolute top-4 left-4 text-gray-400 hover:text-white flex items-center gap-1 text-sm"><i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar</button>
+                <div class="mt-8">
+                    <span id="treino-progresso" class="text-xs font-bold uppercase text-blue-400 mb-2 block"></span>
+                    <h3 id="treino-pergunta" class="text-xl text-white font-medium mb-6"></h3>
+                    <div id="treino-opcoes" class="flex flex-col gap-3"></div>
+                    <div id="treino-feedback" class="hidden mt-6 p-4 rounded-xl text-sm font-medium"></div>
+                    <button id="btn-proximo-treino" onclick="proximaPerguntaTreino()" class="hidden mt-6 w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold">Próxima</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECÇÃO: TESTE FINAL (Com Feedback Imediato) -->
+        <section id="sec-teste" class="hidden fade-in">
+            <div id="teste-intro" class="text-center max-w-2xl mx-auto">
+                <h2 class="text-4xl font-black mb-4 bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Desafio Final 🏆</h2>
+                <p class="text-gray-300 text-lg mb-8">Agora o teste é a sério! Responde a todas as perguntas. Vais saber imediatamente se acertaste em cada uma.</p>
+                <button onclick="iniciarTeste()" class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white text-lg font-bold rounded-xl shadow-lg transform hover:scale-105">Começar o Teste Completo</button>
+            </div>
+
+            <div id="teste-area" class="hidden max-w-3xl mx-auto">
+                <div class="flex items-center justify-between mb-6 bg-dark-card p-4 rounded-xl border border-dark-border">
+                    <span class="font-bold text-gray-300">Questão <span id="teste-atual" class="text-blue-400 text-xl">1</span> de <span id="teste-total-pergs" class="text-gray-400 text-xl">...</span></span>
+                    <div class="w-1/2 bg-gray-800 rounded-full h-2">
+                        <div id="teste-barra" class="bg-blue-500 h-2 rounded-full transition-all duration-300"></div>
+                    </div>
+                </div>
+                <div class="glass-card p-8 rounded-2xl mb-6">
+                    <h3 id="teste-pergunta" class="text-xl text-white font-medium mb-6"></h3>
+                    <div id="teste-opcoes" class="flex flex-col gap-3"></div>
+                    <div id="teste-feedback" class="hidden mt-6 p-4 rounded-xl text-sm font-bold flex items-center gap-2"></div>
+                </div>
+                <div class="flex justify-end">
+                    <button id="btn-confirmar-teste" onclick="confirmarRespostaTeste()" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 opacity-50 cursor-not-allowed text-white rounded-xl font-bold" disabled>Confirmar Resposta</button>
+                    <button id="btn-proximo-teste" onclick="proximaPerguntaTeste()" class="hidden px-8 py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold">Próxima Pergunta <i data-lucide="chevron-right" class="inline w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <div id="teste-resultados" class="hidden text-center max-w-2xl mx-auto glass-card p-10 rounded-3xl glow-blue">
+                <div id="resultado-icone" class="flex justify-center mb-6"></div>
+                <h2 id="resultado-titulo" class="text-3xl font-bold mb-2"></h2>
+                <p class="text-gray-300 mb-6">Acertaste em <span id="resultado-pontos" class="text-2xl font-bold text-white"></span> de <span id="resultado-total" class="text-2xl font-bold"></span> perguntas.</p>
+                <div id="resultado-acao" class="flex justify-center mt-4"></div>
+            </div>
+        </section>
+
+        <!-- SECÇÃO: CERTIFICADO -->
+        <section id="sec-certificado" class="hidden fade-in">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-green-400 mb-2">Parabéns! Ganhaste o Diploma! 🎉</h2>
+                    <p class="text-gray-400 mb-6">Escreve o teu nome como queres que apareça no certificado.</p>
+                    <div class="flex max-w-md mx-auto gap-2">
+                        <input type="text" id="nome-aluno" placeholder="Nome do Mestre..." class="flex-1 bg-dark-card border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
+                        <button onclick="gerarCertificado()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">Gerar</button>
+                    </div>
+                </div>
+                <div id="wrapper-certificado" class="hidden">
+                    <div id="certificado-container" class="relative overflow-hidden flex flex-col items-center justify-center p-12">
+                        <div class="absolute inset-0 border-[16px] border-[#1e3a8a] m-4 rounded-lg"></div>
+                        <div class="relative z-10 text-center">
+                            <h1 class="text-4xl font-black text-[#1e3a8a] mb-2 uppercase tracking-widest">Certificado de Excelência</h1>
+                            <p class="text-lg text-gray-600 mb-6 italic">Certifica-se que</p>
+                            <h2 id="nome-impresso" class="text-3xl font-bold text-gray-800 border-b-2 border-gray-300 pb-2 mb-6"></h2>
+                            <p class="text-md text-gray-700 max-w-xl mb-10">Concluiu com êxito o Desafio de Gramática (6.º Ano), provando ser um <strong>Mestre das Orações</strong>.</p>
+                            <p id="data-cert" class="text-sm text-gray-700 font-medium"></p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-8">
+                        <button onclick="descarregarPDF()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transform hover:scale-105">Descarregar em PDF</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function navigate(sec) {
+            document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`sec-${sec}`).classList.remove('hidden');
+            ['estudo', 'treino', 'teste'].forEach(id => {
+                const btn = document.getElementById(`nav-${id}`);
+                btn.className = (id === sec) ? 'px-4 py-1.5 text-sm font-medium rounded-md bg-dark-card text-white' : 'px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 hover:text-white';
+            });
+        }
+
+        function switchTab(tabId) {
+            ['tab-frase', 'tab-coord', 'tab-subord', 'tab-resumo'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById(`btn-${id}`).classList.remove('tab-active', 'text-white');
+                document.getElementById(`btn-${id}`).classList.add('text-gray-400');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(`btn-${tabId}`).classList.add('tab-active', 'text-white');
+        }
+
+        const bdBanco = {
+            coordenadas: [
+                { p: 'A oração coordenada copulativa exprime uma ideia de...', o: ['Oposição', 'Ligação / Adição', 'Tempo'], a: 1 },
+                { p: 'A oração coordenada adversativa exprime uma ideia de...', o: ['Oposição', 'Ligação / Adição', 'Causa'], a: 0 },
+                { p: 'Completa: "Comprei um telescópio ___ observei as estrelas." (Ação que adiciona)', o: ['e', 'mas', 'porque'], a: 0 },
+                { p: 'Completa: "Descobri a Ursa Maior, ___ precisei de ajuda." (Oposição)', o: ['quando', 'e', 'mas'], a: 2 },
+                { p: 'Completa: "Em Marte ___ há montanhas, ___ há vales."', o: ['não só ... mas também', 'nem ... nem', 'assim que ... logo que'], a: 0 },
+                { p: 'Qual a pontuação correta antes da conjunção "mas"?', o: ['Nunca leva vírgula', 'Vírgula opcional', 'A vírgula é obrigatória antes do "mas"'], a: 2 },
+                { p: 'Identifica a frase corretamente pontuada:', o: ['Sei pouco sobre astronomia mas, vou aprender.', 'Sei pouco sobre astronomia, mas vou aprender.', 'Sei pouco sobre astronomia mas vou aprender.'], a: 1 },
+                { p: 'Qual é a regra da vírgula antes da conjunção "e"?', o: ['É sempre obrigatória.', 'Não se usa se o sujeito for o mesmo.', 'Põe-se sempre depois do "e".'], a: 1 },
+                { p: '"O astronauta não saiu da nave ___ pisou a Lua." Qual a conjunção correta?', o: ['mas', 'nem', 'como'], a: 1 },
+                { p: '"Não só fez os trabalhos, mas também ajudou em casa." Temos aqui...', o: ['Oração subordinada temporal', 'Oração coordenada copulativa', 'Oração subordinada causal'], a: 1 },
+                { p: '"A noite é densa, mas o brilho persiste." A oração iniciada por "mas" é...', o: ['Coordenada Adversativa', 'Coordenada Copulativa', 'Subordinada Causal'], a: 0 },
+                { p: 'As orações coordenadas dependem uma da outra?', o: ['Sim, não fazem sentido sozinhas.', 'Não, têm sentido completo se separadas.'], a: 1 }
+            ],
+            subordinadas: [
+                { p: 'Na subordinação, uma oração depende da outra para ter sentido completo.', o: ['Verdadeiro', 'Falso'], a: 0 },
+                { p: '"Prefiro mangas, porque são doces." Que tipo de oração subordinada temos?', o: ['Adverbial Temporal', 'Adverbial Causal', 'Coordenada Copulativa'], a: 1 },
+                { p: '"Sempre que posso, provo um fruto diferente." Que tipo de oração subordinada temos?', o: ['Adverbial Causal', 'Adverbial Temporal', 'Coordenada Adversativa'], a: 1 },
+                { p: 'Qual destas é uma conjunção / locução subordinativa temporal?', o: ['Visto que', 'Mal', 'Mas'], a: 1 },
+                { p: 'Qual destas é uma conjunção / locução subordinativa causal?', o: ['Logo que', 'Enquanto', 'Já que'], a: 2 },
+                { p: 'Regra de Ouro: Se a oração subordinada surgir ANTES da subordinante...', o: ['A vírgula é proibida.', 'A vírgula é opcional.', 'A vírgula é obrigatória.'], a: 2 },
+                { p: 'Regra de Ouro: Se a oração subordinada surgir DEPOIS da subordinante...', o: ['A vírgula é opcional.', 'A vírgula é obrigatória.', 'Tem de levar ponto final.'], a: 0 },
+                { p: 'Completa: "___ chego a casa, como uma maçã." (Ideia de tempo)', o: ['Mal', 'Porque', 'Já que'], a: 0 },
+                { p: 'Substitui "já que": "A banana é saudável, já que contém potássio."', o: ['A banana é saudável, mal contém potássio.', 'A banana é saudável, visto que contém potássio.', 'A banana é saudável, mas contém potássio.'], a: 1 },
+                { p: 'Atenção! A conjunção "como" com valor CAUSAL coloca-se sempre...', o: ['No início da frase.', 'No fim da frase.', 'No meio da frase.'], a: 0 },
+                { p: 'Identifica a frase corretamente pontuada:', o: ['Como tinha sono fui para a cama.', 'Como tinha sono, fui para a cama.', 'Fui para a cama, como tinha sono.'], a: 1 },
+                { p: '"Vou fazer um sumo enquanto espero." Qual é a oração subordinada?', o: ['Vou fazer um sumo', 'enquanto espero', 'um sumo enquanto'], a: 1 }
+            ],
+            mistura: [
+                { p: '"Eles viram um ninho." Classifica esta frase.', o: ['Frase Complexa', 'Frase Simples'], a: 1 },
+                { p: '"Eles viram um ninho, mas não mexeram." Classifica esta frase.', o: ['Frase Simples', 'Frase Complexa com coordenação', 'Frase Complexa com subordinação'], a: 1 },
+                { p: '"Gostava de ser astronauta, mas poucos o conseguem." A segunda oração é...', o: ['Subordinada Temporal', 'Coordenada Adversativa', 'Coordenada Copulativa'], a: 1 },
+                { p: '"Não desistirei do sonho nem mudarei de ideias." A segunda oração é...', o: ['Coordenada Copulativa', 'Coordenada Adversativa', 'Subordinada Causal'], a: 0 },
+                { p: '"Ontem não comi fruta, porque me esqueci." A oração iniciada por "porque" é...', o: ['Subordinada Adverbial Temporal', 'Coordenada Adversativa', 'Subordinada Adverbial Causal'], a: 2 },
+                { p: '"Desde que me lembro, como fruta todos os dias." Qual o valor da primeira oração?', o: ['Oposição', 'Causa', 'Tempo'], a: 2 },
+                { p: 'Frase BEM pontuada (Atenção ao sujeito igual no "e"):', o: ['A Leonor conheceu um astronauta, e conversou com ele.', 'A Leonor conheceu um astronauta e conversou com ele.'], a: 1 },
+                { p: 'Completa: "O Francisco nem foi ao Planetário ___ visitou a exposição."', o: ['mas', 'e', 'nem'], a: 2 },
+                { p: 'Completa: "A D. Maria só vende fruta da época ___ é mais saborosa."', o: ['porque', 'mas', 'quando'], a: 0 },
+                { p: '"O foguetão ergue-se, mas pode falhar." O que exprime a segunda oração?', o: ['Adição/Ligação', 'Oposição', 'Tempo'], a: 1 },
+                { p: 'As frases simples têm...', o: ['Dois ou mais verbos', 'Apenas um verbo conjugado', 'Apenas conjunções'], a: 1 },
+                { p: 'Que relação existe quando uma oração NÃO faz sentido sozinha?', o: ['Coordenação', 'Subordinação'], a: 1 },
+                { p: 'Completa: "Fico feliz ___ a sopa é de cenoura."', o: ['sempre que', 'dado que', 'mas'], a: 0 },
+                { p: '"Como choveu, não fomos à praia." Por que razão a vírgula está lá?', o: ['Oração subordinada surge antes.', 'Oração subordinada surge depois.', 'Nas subordinadas é sempre obrigatória.'], a: 0 },
+                { p: '"Ele não só correu, mas também nadou." Identifica a relação.', o: ['Causal', 'Copulativa', 'Adversativa'], a: 1 }
+            ]
+        };
+
+        // Lógica de Treino
+        let treinoAtual = [];
+        let treinoIndex = 0;
+        function iniciarTreino(tipo) {
+            treinoAtual = [...bdBanco[tipo]].sort(() => Math.random() - 0.5).slice(0, 10);
+            treinoIndex = 0;
+            document.getElementById('treino-menu').classList.add('hidden');
+            document.getElementById('treino-area').classList.remove('hidden');
+            renderizarTreino();
+        }
+        function voltarMenuTreino() {
+            document.getElementById('treino-menu').classList.remove('hidden');
+            document.getElementById('treino-area').classList.add('hidden');
+        }
+        function renderizarTreino() {
+            if (treinoIndex >= treinoAtual.length) {
+                document.getElementById('treino-pergunta').innerText = 'Treino Concluído! 🔥';
+                document.getElementById('treino-opcoes').innerHTML = '';
+                document.getElementById('btn-proximo-treino').classList.add('hidden');
+                return;
+            }
+            const q = treinoAtual[treinoIndex];
+            document.getElementById('treino-progresso').innerText = `Questão ${treinoIndex+1}/10`;
+            document.getElementById('treino-pergunta').innerText = q.p;
+            const div = document.getElementById('treino-opcoes');
+            div.innerHTML = '';
+            q.o.forEach((o, i) => {
+                const b = document.createElement('button');
+                b.className = 'w-full text-left p-4 rounded-xl border border-gray-600 bg-dark-bg text-gray-200';
+                b.innerText = o;
+                b.onclick = () => {
+                    const fb = document.getElementById('treino-feedback');
+                    fb.classList.remove('hidden');
+                    fb.className = (i === q.a) ? 'mt-6 p-4 rounded-xl text-green-400 bg-green-500/10 border border-green-500/20' : 'mt-6 p-4 rounded-xl text-red-400 bg-red-500/10 border border-red-500/20';
+                    fb.innerText = (i === q.a) ? 'Correto!' : `Errado. A resposta era: ${q.o[q.a]}`;
+                    Array.from(div.children).forEach(btn => btn.onclick = null);
+                    document.getElementById('btn-proximo-treino').classList.remove('hidden');
+                };
+                div.appendChild(b);
+            });
+            document.getElementById('treino-feedback').classList.add('hidden');
+            document.getElementById('btn-proximo-treino').classList.add('hidden');
+        }
+        function proximaPerguntaTreino() { treinoIndex++; renderizarTreino(); }
+
+        // Lógica de Teste com Feedback Imediato
+        let bancoTeste = [];
+        let testeIndex = 0;
+        let testeRespostasCertas = 0;
+        let testeSelecaoTemp = null;
+        let respondido = false;
+
+        function iniciarTeste() {
+            bancoTeste = [
+                ...bdBanco.coordenadas, 
+                ...bdBanco.subordinadas, 
+                ...bdBanco.mistura
+            ].sort(() => Math.random() - 0.5);
+            
+            document.getElementById('teste-intro').classList.add('hidden');
+            document.getElementById('teste-resultados').classList.add('hidden');
+            document.getElementById('teste-area').classList.remove('hidden');
+            document.getElementById('teste-total-pergs').innerText = bancoTeste.length;
+            
+            testeIndex = 0;
+            testeRespostasCertas = 0;
+            renderizarPerguntaTeste();
+        }
+
+        function renderizarPerguntaTeste() {
+            const q = bancoTeste[testeIndex];
+            respondido = false;
+            testeSelecaoTemp = null;
+
+            document.getElementById('teste-atual').innerText = testeIndex + 1;
+            document.getElementById('teste-barra').style.width = `${((testeIndex + 1) / bancoTeste.length) * 100}%`;
+            document.getElementById('teste-pergunta').innerText = q.p;
+            document.getElementById('teste-feedback').classList.add('hidden');
+            
+            document.getElementById('btn-confirmar-teste').classList.remove('hidden');
+            document.getElementById('btn-confirmar-teste').disabled = true;
+            document.getElementById('btn-confirmar-teste').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('btn-proximo-teste').classList.add('hidden');
+
+            const div = document.getElementById('teste-opcoes');
+            div.innerHTML = '';
+            q.o.forEach((o, i) => {
+                const b = document.createElement('button');
+                b.className = 'w-full text-left p-4 rounded-xl border border-gray-600 bg-dark-bg text-gray-200 t-option-btn transition-all';
+                b.innerText = o;
+                b.onclick = () => {
+                    if(respondido) return;
+                    testeSelecaoTemp = i;
+                    document.querySelectorAll('.t-option-btn').forEach(btn => btn.classList.remove('border-blue-500', 'bg-blue-500/20'));
+                    b.classList.add('border-blue-500', 'bg-blue-500/20');
+                    const btnConf = document.getElementById('btn-confirmar-teste');
+                    btnConf.disabled = false;
+                    btnConf.classList.remove('opacity-50', 'cursor-not-allowed');
+                };
+                div.appendChild(b);
+            });
+        }
+
+        function confirmarRespostaTeste() {
+            if(testeSelecaoTemp === null || respondido) return;
+            
+            respondido = true;
+            const q = bancoTeste[testeIndex];
+            const feedback = document.getElementById('teste-feedback');
+            const options = document.querySelectorAll('.t-option-btn');
+            
+            feedback.classList.remove('hidden');
+            
+            if(testeSelecaoTemp === q.a) {
+                testeRespostasCertas++;
+                feedback.className = 'mt-6 p-4 rounded-xl text-green-400 bg-green-500/10 border border-green-500/20 font-bold flex items-center gap-2';
+                feedback.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i> Correto! Excelente domínio.';
+                options[testeSelecaoTemp].classList.add('correct-answer');
+            } else {
+                feedback.className = 'mt-6 p-4 rounded-xl text-red-400 bg-red-500/10 border border-red-500/20 font-bold flex items-center gap-2';
+                feedback.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5"></i> Errado. A resposta correta é: "${q.o[q.a]}"`;
+                options[testeSelecaoTemp].classList.add('wrong-answer');
+                options[q.a].classList.add('correct-answer');
+            }
+
+            document.getElementById('btn-confirmar-teste').classList.add('hidden');
+            document.getElementById('btn-proximo-teste').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function proximaPerguntaTeste() {
+            testeIndex++;
+            if(testeIndex < bancoTeste.length) renderizarPerguntaTeste();
+            else mostrarResultadosTeste();
+        }
+
+        function mostrarResultadosTeste() {
+            document.getElementById('teste-area').classList.add('hidden');
+            const res = document.getElementById('teste-resultados');
+            res.classList.remove('hidden');
+            document.getElementById('resultado-pontos').innerText = testeRespostasCertas;
+            document.getElementById('resultado-total').innerText = bancoTeste.length;
+            const perc = (testeRespostasCertas / bancoTeste.length) * 100;
+            
+            const icone = document.getElementById('resultado-icone');
+            const titulo = document.getElementById('resultado-titulo');
+            const acao = document.getElementById('resultado-acao');
+
+            if(perc >= 50) {
+                icone.innerHTML = '<i data-lucide="award" class="w-16 h-16 text-yellow-400"></i>';
+                titulo.innerText = "Objetivo Cumprido!";
+                acao.innerHTML = `<button onclick="irParaCertificado()" class="px-8 py-3 bg-green-600 text-white font-bold rounded-xl shadow-lg hover:bg-green-500">Reivindicar Certificado</button>`;
+            } else {
+                icone.innerHTML = '<i data-lucide="frown" class="w-16 h-16 text-red-400"></i>';
+                titulo.innerText = "Precisas de mais estudo!";
+                acao.innerHTML = `<button onclick="iniciarTeste()" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-500">Tentar Novamente</button>`;
+            }
+            lucide.createIcons();
+        }
+
+        function irParaCertificado() {
+            navigate('certificado');
+            document.getElementById('data-cert').innerText = new Date().toLocaleDateString('pt-PT', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function gerarCertificado() {
+            const n = document.getElementById('nome-aluno').value.trim();
+            if(!n) return;
+            document.getElementById('nome-impresso').innerText = n;
+            document.getElementById('wrapper-certificado').classList.remove('hidden');
+        }
+
+        function descarregarPDF() {
+            const e = document.getElementById('certificado-container');
+            const opt = { 
+                margin: 0, 
+                filename: 'Certificado_Mestre_Gramatica.pdf', 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2 }, 
+                jsPDF: { unit: 'px', format: [800, 600], orientation: 'landscape' }
+            };
+            html2pdf().set(opt).from(e).save();
+        }
+    </script>
+</body>
+</html>
