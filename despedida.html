@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade de Português: A Última Viagem</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Fredoka e Press Start 2P para o aspeto Arcade -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Press+Start+2P&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050814;
+        }
+        .font-friendly {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .font-arcade {
+            font-family: 'Press Start 2P', monospace;
+        }
+        .neon-border {
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5), inset 0 0 15px rgba(56, 189, 248, 0.3);
+            border: 2px solid #38bdf8;
+        }
+        .neon-text {
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+        }
+        .page-section {
+            display: none;
+            animation: glitchFade 0.4s ease-in-out forwards;
+        }
+        .page-section.active {
+            display: block;
+        }
+        @keyframes glitchFade {
+            0% { opacity: 0; transform: scale(0.98); filter: hue-rotate(90deg); }
+            100% { opacity: 1; transform: scale(1); filter: hue-rotate(0deg); }
+        }
+        /* Efeito de Scanline retro nos ecrãs de jogo */
+        .scanlines {
+            position: relative;
+            overflow: hidden;
+        }
+        .scanlines::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+
+    <!-- Cabeçalho Principal (Cabinet Top) -->
+    <header class="bg-[#0a0f24] border-b-2 border-blue-900 sticky top-0 z-50 shadow-lg shadow-blue-950/50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Logótipo / Título Arcade -->
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-2xl shadow-md shadow-blue-500/50 animate-pulse">
+                    <i data-lucide="gamepad-2" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-arcade text-xs md:text-sm font-bold text-blue-400 tracking-wide neon-text">PORTUGUÊS ARCADE</h1>
+                    <p class="text-[10px] text-blue-300 font-mono uppercase tracking-widest mt-0.5">Nível 5.º e 6.º Ano • Fim de Ano</p>
+                </div>
+            </div>
+
+            <!-- Navegação Cabina -->
+            <nav class="flex flex-wrap justify-center gap-1.5 bg-slate-950/80 p-1.5 rounded-2xl border border-blue-950 w-full md:w-auto">
+                <button onclick="switchTab('inicio')" id="btn-inicio" class="nav-btn px-3 py-2 rounded-xl text-xs font-arcade transition-all duration-300 flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-500/50">
+                    <i data-lucide="heart" class="w-3 h-3"></i>
+                    <span>DESPEDIDA</span>
+                </button>
+                <button onclick="switchTab('jogo1')" id="btn-jogo1" class="nav-btn px-3 py-2 rounded-xl text-xs font-arcade text-blue-400 hover:bg-blue-950/50 transition-all duration-300 flex items-center gap-2">
+                    <i data-lucide="play" class="w-3 h-3"></i>
+                    <span>PAC-GRAM</span>
+                </button>
+                <button onclick="switchTab('jogo2')" id="btn-jogo2" class="nav-btn px-3 py-2 rounded-xl text-xs font-arcade text-blue-400 hover:bg-blue-950/50 transition-all duration-300 flex items-center gap-2">
+                    <i data-lucide="shield" class="w-3 h-3"></i>
+                    <span>LÉXICO</span>
+                </button>
+                <button onclick="switchTab('jogo3')" id="btn-jogo3" class="nav-btn px-3 py-2 rounded-xl text-xs font-arcade text-blue-400 hover:bg-blue-950/50 transition-all duration-300 flex items-center gap-2">
+                    <i data-lucide="zap" class="w-3 h-3"></i>
+                    <span>COBRA NÉON</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6">
+
+        <!-- ================= MENSAGEM DE DESPEDIDA ================= -->
+        <section id="inicio" class="page-section active">
+            <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
+                <!-- Banner Arcade Retro -->
+                <div class="bg-gradient-to-r from-blue-950 via-blue-900 to-blue-950 p-8 text-white relative overflow-hidden border-b border-blue-800">
+                    <div class="absolute -right-10 -bottom-10 opacity-5">
+                        <i data-lucide="feather" class="w-64 h-64"></i>
+                    </div>
+                    <span class="bg-blue-500/20 text-blue-300 border border-blue-500/40 text-xs font-arcade px-3 py-1 rounded-full uppercase tracking-wider">CRÉDITOS: 99</span>
+                    <h2 class="font-arcade text-lg md:text-2xl font-bold mt-4 text-white neon-text">ATÉ BREVE, JOVENS HEROÍNAS E HERÓIS! 🌟</h2>
+                    <p class="text-blue-200 mt-2 font-friendly text-base md:text-lg max-w-2xl">O ano letivo de Português chega ao fim da sua temporada. Parabéns por completarem esta fantástica campanha!</p>
+                </div>
+
+                <!-- Conteúdo Emotivo Estilo Retro -->
+                <div class="p-6 md:p-10 space-y-6 text-slate-300 leading-relaxed text-base md:text-lg bg-slate-950/40">
+                    <p class="font-bold text-blue-400 text-xl font-friendly neon-text">Caros Jogadores da Língua Portuguesa,</p>
+                    <p>
+                        Parece que foi ontem que iniciámos o nível 1 desta grande jornada. Enfrentámos juntos masmorras de gramática, decifrámos enigmas de verbos complexos e escalámos montanhas de textos líricos, dramáticos e narrativos. Formámos uma verdadeira guilda!
+                    </p>
+                    <p>
+                        Vimos o vosso vocabulário expandir-se a cada capítulo, a vossa escrita ganhar o poder de "fogo" e a vossa imaginação ultrapassar todos os limites do ecrã. Sei bem que as regras de acentuação pareceram chefes difíceis de derrotar e as subclasses dos nomes às vezes faziam perder algumas vidas. Mas sabem de uma coisa? <strong class="text-blue-400">Vocês nunca carregaram no "Game Over".</strong> Continuaram a tentar e ganharam o jogo!
+                    </p>
+                    <div class="bg-blue-950/40 border-l-4 border-blue-500 p-5 rounded-r-xl my-6">
+                        <p class="italic text-blue-200 text-base font-friendly">
+                            "Ler é carregar no botão 'Continuar' da imaginação." Continuem a explorar novos livros como quem descobre mapas secretos e a escrever o vosso percurso com as palavras mais fortes e honradas que encontrarem.
+                        </p>
+                    </div>
+                    <p>
+                        Antes de guardarem o vosso progresso para as merecidas férias de verão, convido-vos a enfrentar os três derradeiros mini-jogos de revisão em modo Arcade. Mostrem que são verdadeiros mestres! 🚀
+                    </p>
+
+                    <div class="pt-6 border-t border-blue-950 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-blue-950/80 border border-blue-700 text-blue-400 flex items-center justify-center font-arcade text-xs">P2</div>
+                            <div>
+                                <p class="font-bold text-slate-200 text-sm">Com orgulho e saudades,</p>
+                                <p class="text-blue-400 text-xs font-mono">O Vosso Professor de Português (Player 1)</p>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('jogo1')" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-arcade text-xs tracking-wider transition-all duration-300 shadow-lg shadow-blue-500/30 flex items-center gap-2 group w-full sm:w-auto justify-center">
+                            <span>JOGAR PAC-GRAM</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= JOGO 1: PAC-GRAMÁTICA ================= -->
+        <section id="jogo1" class="page-section">
+            <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
+                <div class="bg-slate-950 p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-blue-900">
+                    <div>
+                        <span class="bg-blue-950 text-blue-400 border border-blue-700 text-[10px] font-arcade px-3 py-1 rounded-full uppercase tracking-wider">DESAFIO 01</span>
+                        <h2 class="font-arcade text-sm md:text-base font-bold text-white mt-2 neon-text">PAC-GRAMÁTICA: CORRIDA DA ENERGIA ⚡</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Energia</span>
+                            <div class="w-24 bg-slate-900 h-3 rounded-full overflow-hidden mt-1 border border-blue-800">
+                                <div id="pac-energy" class="bg-blue-400 h-full transition-all duration-100" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Score</span>
+                            <span id="score-pac" class="font-arcade text-xs font-bold text-white">0000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel do Jogo -->
+                <div class="p-4 md:p-6 bg-slate-950">
+                    
+                    <!-- Menu Inicial do Jogo -->
+                    <div id="pac-intro" class="text-center py-10 space-y-6">
+                        <div class="w-20 h-20 bg-blue-950 border border-blue-500 rounded-full flex items-center justify-center mx-auto text-blue-400 animate-bounce">
+                            <i data-lucide="zap" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="font-arcade text-xs md:text-sm font-bold text-blue-300">A Bateria do Herói vai esgotando!</h3>
+                        <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
+                            Move o herói néon com as <strong class="text-white">setas do teclado</strong> para apanhar as Estrelas. 
+                            Cada movimento gasta bateria! Se a bateria chegar a 0%, ficas congelado!
+                            Desvia-te do <strong class="text-red-500">Fantasma do Erro</strong>! Se ele te apanhar perdes 25% de bateria!
+                            Clica em <strong class="text-blue-400">Recarregar (R)</strong> a qualquer momento para responder a questões gramaticais e encher a bateria!
+                        </p>
+                        <button onclick="startPacGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
+                            INICIAR JOGO
+                        </button>
+                    </div>
+
+                    <!-- Ecrã de Jogo Ativo -->
+                    <div id="pac-active-area" class="hidden flex flex-col lg:flex-row gap-6 items-center justify-center">
+                        <div class="relative scanlines bg-[#030611] p-2 rounded-2xl border-2 border-blue-900/50">
+                            <canvas id="pacCanvas" width="400" height="400" class="max-w-full block bg-slate-950 rounded-lg"></canvas>
+                        </div>
+
+                        <!-- Painel Lateral de Controlos / Ajuda -->
+                        <div class="w-full lg:w-72 space-y-4">
+                            <!-- Alerta de bateria e botão R -->
+                            <div class="bg-blue-950/40 border-2 border-blue-900 p-4 rounded-2xl text-center space-y-3">
+                                <p class="text-xs font-arcade text-blue-300">Bateria Crítica?</p>
+                                <button onclick="triggerPacQuestion()" class="w-full bg-blue-600 hover:bg-blue-500 font-arcade text-[10px] text-white py-3 rounded-xl shadow-md transition-all uppercase animate-pulse border border-blue-400">
+                                    [R] Recarregar Bateria
+                                </button>
+                                <p class="text-[9px] text-slate-400">Carrega no botão ou prime a tecla R para responder a uma pergunta de Português.</p>
+                            </div>
+
+                            <!-- Comando Virtual Móvel -->
+                            <div class="bg-slate-900/50 p-4 rounded-2xl border border-blue-950 flex flex-col items-center">
+                                <p class="text-[9px] font-arcade text-slate-500 mb-3 uppercase">Controlo Tátil</p>
+                                <div class="grid grid-cols-3 gap-2 w-32">
+                                    <div></div>
+                                    <button onclick="movePac('UP')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-up"></i></button>
+                                    <div></div>
+                                    <button onclick="movePac('LEFT')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-left"></i></button>
+                                    <div class="bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center text-[10px] font-arcade font-bold text-blue-400">🤖</div>
+                                    <button onclick="movePac('RIGHT')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-right"></i></button>
+                                    <div></div>
+                                    <button onclick="movePac('DOWN')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-down"></i></button>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal de Pergunta de Recarga (Pac-Gram) -->
+                    <div id="pac-question-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
+                        <div class="bg-[#0a0f24] border-2 border-blue-500 rounded-3xl p-6 max-w-lg w-full space-y-6 shadow-2xl shadow-blue-500/30 scanlines">
+                            <div class="text-center">
+                                <span class="bg-blue-950 border border-blue-700 text-[10px] font-arcade px-3 py-1 rounded-full text-blue-400">SISTEMA DE RECARGA</span>
+                                <h4 class="font-arcade text-xs text-white mt-4 leading-relaxed" id="pac-modal-question">Carregando pergunta...</h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-3" id="pac-modal-options">
+                                <!-- Opções geradas dinamicamente -->
+                            </div>
+
+                            <div id="pac-modal-feedback" class="hidden p-3 rounded-xl text-center text-xs font-semibold"></div>
+                        </div>
+                    </div>
+
+                    <!-- Resultados do Jogo 1 -->
+                    <div id="pac-results" class="hidden text-center py-10 space-y-6">
+                        <div class="w-20 h-20 bg-blue-950 text-blue-400 border border-blue-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                            <i data-lucide="trophy" class="w-10 h-10"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="font-arcade text-xs md:text-sm font-bold text-white">Nível Concluído! 🏆</h3>
+                            <p class="text-slate-400 text-xs">Apanhaste todas as estrelas de gramática!</p>
+                            <span id="final-pac-score" class="font-arcade text-lg font-bold text-blue-400 block">SCORE: 0000</span>
+                        </div>
+                        <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+                            <button onclick="startPacGame()" class="border border-blue-800 text-blue-400 hover:bg-blue-950/50 font-arcade text-[10px] px-6 py-3 rounded-xl transition-all">
+                                REJOGAR
+                            </button>
+                            <button onclick="switchTab('jogo2')" class="bg-blue-600 hover:bg-blue-500 text-white font-arcade text-[10px] px-6 py-3 rounded-xl transition-all shadow-md">
+                                IR PARA JOGO 2 (LÉXICO)
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= JOGO 2: LÉXICO DEFENDER ================= -->
+        <section id="jogo2" class="page-section">
+            <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
+                <div class="bg-slate-950 p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-blue-900">
+                    <div>
+                        <span class="bg-blue-950 text-blue-400 border border-blue-700 text-[10px] font-arcade px-3 py-1 rounded-full uppercase tracking-wider">DESAFIO 02</span>
+                        <h2 class="font-arcade text-sm md:text-base font-bold text-white mt-2 neon-text">LÉXICO DEFENDER: ASTEROIDES SEMÂNTICOS 🚀</h2>
+                    </div>
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Munições</span>
+                            <span id="ammo-defender" class="font-arcade text-xs font-bold text-emerald-400">⚡ 6/6</span>
+                        </div>
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Escudos</span>
+                            <span id="shields-defender" class="font-arcade text-xs font-bold text-blue-400">█████</span>
+                        </div>
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Score</span>
+                            <span id="score-defender" class="font-arcade text-xs font-bold text-white">0000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 md:p-6 bg-slate-950">
+                    <!-- Introdução Defender -->
+                    <div id="defender-intro" class="text-center py-10 space-y-6">
+                        <div class="w-20 h-20 bg-blue-950 border border-blue-500 rounded-full flex items-center justify-center mx-auto text-blue-400 animate-bounce">
+                            <i data-lucide="shield-alert" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="font-arcade text-xs md:text-sm font-bold text-blue-300">Protege os Escudos Planetários!</h3>
+                        <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
+                            Clica ou toca no asteroide correto para o destruir com o teu laser!
+                            Cada disparo consome <strong class="text-emerald-400">1 munição</strong>. Se ficares sem munição, deves premir <strong class="text-blue-400">R</strong> ou o botão <strong class="text-blue-400">Recarregar</strong> para responder a uma questão lexical e repor as energias do canhão!
+                        </p>
+                        <button onclick="startDefenderGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
+                            ATIVAR DEFESAS
+                        </button>
+                    </div>
+
+                    <!-- Ecrã de Jogo Ativo -->
+                    <div id="defender-active" class="hidden flex flex-col lg:flex-row gap-6 items-center justify-center">
+                        <div class="flex-grow flex flex-col items-center">
+                            <!-- Alvo da Missão -->
+                            <div class="w-full max-w-xl bg-blue-950/50 border-2 border-blue-900 p-4 rounded-2xl text-center space-y-2 mb-4">
+                                <span class="text-[9px] font-arcade text-blue-400 uppercase tracking-widest">Alvo da Defesa</span>
+                                <h3 id="defender-target-title" class="font-arcade text-xs md:text-sm text-white font-bold">MISSÃO: SINÓNIMO de "ALEGRE"</h3>
+                            </div>
+
+                            <!-- Canvas do Jogo -->
+                            <div class="relative scanlines bg-[#030611] p-2 rounded-2xl border-2 border-blue-900/50 max-w-full">
+                                <canvas id="defenderCanvas" width="500" height="350" class="max-w-full block bg-slate-950 rounded-lg"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Painel lateral do Defender -->
+                        <div class="w-full lg:w-64 space-y-4">
+                            <div class="bg-blue-950/40 border-2 border-blue-900 p-4 rounded-2xl text-center space-y-3">
+                                <p class="text-xs font-arcade text-emerald-400">Sem Munições?</p>
+                                <button onclick="triggerDefenderQuestion()" class="w-full bg-emerald-600 hover:bg-emerald-500 font-arcade text-[10px] text-white py-3 rounded-xl shadow-md transition-all uppercase animate-pulse border border-emerald-400">
+                                    [R] Recarregar Lasers
+                                </button>
+                                <p class="text-[9px] text-slate-400">Clica para responder a perguntas de vocabulário e reabastecer os teus lasers para 6.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal de Pergunta de Recarga (Defender) -->
+                    <div id="defender-question-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
+                        <div class="bg-[#0a0f24] border-2 border-emerald-500 rounded-3xl p-6 max-w-lg w-full space-y-6 shadow-2xl shadow-emerald-500/30 scanlines">
+                            <div class="text-center">
+                                <span class="bg-emerald-950 border border-emerald-700 text-[10px] font-arcade px-3 py-1 rounded-full text-emerald-400">RECARGA DO CANHÃO LASER</span>
+                                <h4 class="font-arcade text-xs text-white mt-4 leading-relaxed" id="defender-modal-question">Carregando pergunta...</h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-3" id="defender-modal-options">
+                                <!-- Opções geradas dinamicamente -->
+                            </div>
+
+                            <div id="defender-modal-feedback" class="hidden p-3 rounded-xl text-center text-xs font-semibold"></div>
+                        </div>
+                    </div>
+
+                    <!-- Resultados Defender -->
+                    <div id="defender-results" class="hidden text-center py-10 space-y-6">
+                        <div class="w-20 h-20 bg-blue-950 text-blue-400 border border-blue-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                            <i data-lucide="swords" class="w-10 h-10"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="font-arcade text-xs md:text-sm font-bold text-white">Batalha Concluída! 🛰️</h3>
+                            <p id="defender-result-text" class="text-slate-400 text-xs">Os escudos aguentaram firmes!</p>
+                            <span id="final-defender-score" class="font-arcade text-lg font-bold text-blue-400 block">SCORE: 0000</span>
+                        </div>
+                        <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+                            <button onclick="startDefenderGame()" class="border border-blue-800 text-blue-400 hover:bg-blue-950/50 font-arcade text-[10px] px-6 py-3 rounded-xl transition-all">
+                                REJOGAR
+                            </button>
+                            <button onclick="switchTab('jogo3')" class="bg-blue-600 hover:bg-blue-500 text-white font-arcade text-[10px] px-6 py-3 rounded-xl transition-all shadow-md">
+                                JOGAR JOGO 3 (COBRA NÉON)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= JOGO 3: SYNTAX SNAKE (A COBRA NÉON) ================= -->
+        <section id="jogo3" class="page-section">
+            <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
+                <div class="bg-slate-950 p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-blue-900">
+                    <div>
+                        <span class="bg-blue-950 text-blue-400 border border-blue-700 text-[10px] font-arcade px-3 py-1 rounded-full uppercase tracking-wider">DESAFIO FINAL</span>
+                        <h2 class="font-arcade text-sm md:text-base font-bold text-white mt-2 neon-text">SYNTAX SNAKE: A COBRA DOS VERBOS 🐍</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Vidas</span>
+                            <span id="snake-lives" class="font-arcade text-xs text-red-500">❤️ ❤️ ❤️</span>
+                        </div>
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase font-bold">Score</span>
+                            <span id="score-snake" class="font-arcade text-xs font-bold text-white">0000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 md:p-6 bg-slate-950">
+                    <!-- Introdução Snake -->
+                    <div id="snake-intro" class="text-center py-10 space-y-6">
+                        <div class="w-20 h-20 bg-blue-950 border border-blue-500 rounded-full flex items-center justify-center mx-auto text-blue-400 animate-bounce">
+                            <i data-lucide="gamepad" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="font-arcade text-xs md:text-sm font-bold text-blue-300 font-arcade">Cobra das Classes Gramaticais!</h3>
+                        <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
+                            Controla a cobra néon e come **apenas a palavra** que pertence à classe solicitada no topo!
+                            Evita as palavras incorretas, não batas nas paredes nem no próprio corpo! Chega aos 500 pontos para completar a campanha letiva de Português!
+                        </p>
+                        <button onclick="startSnakeGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
+                            INICIAR COBRA NÉON
+                        </button>
+                    </div>
+
+                    <!-- Ecrã de Jogo Ativo -->
+                    <div id="snake-active" class="hidden flex flex-col lg:flex-row gap-6 items-center justify-center">
+                        <div class="flex-grow flex flex-col items-center">
+                            <!-- Alvo da Cobra -->
+                            <div class="w-full max-w-xl bg-blue-950/50 border-2 border-blue-900 p-4 rounded-2xl text-center space-y-2 mb-4">
+                                <span class="text-[9px] font-arcade text-blue-400 uppercase tracking-widest">Classe Alvo</span>
+                                <h3 id="snake-target-title" class="font-arcade text-xs md:text-sm text-emerald-400 font-bold">ALVO: VERBOS</h3>
+                            </div>
+
+                            <!-- Canvas do Rio -->
+                            <div class="relative scanlines bg-[#030611] p-2 rounded-2xl border-2 border-blue-900/50 max-w-full mb-6">
+                                <canvas id="snakeCanvas" width="400" height="400" class="max-w-full block bg-slate-950 rounded-lg"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Painel lateral de Controlos Táteis Snake -->
+                        <div class="w-full lg:w-64 space-y-4">
+                            <div class="bg-slate-900/50 p-4 rounded-2xl border border-blue-950 flex flex-col items-center">
+                                <p class="text-[9px] font-arcade text-slate-500 mb-3 uppercase">Controlo Tátil</p>
+                                <div class="grid grid-cols-3 gap-2 w-32">
+                                    <div></div>
+                                    <button onclick="changeSnakeDir('UP')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-up"></i></button>
+                                    <div></div>
+                                    <button onclick="changeSnakeDir('LEFT')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-left"></i></button>
+                                    <div class="bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center text-[10px] font-arcade font-bold text-emerald-400">🐍</div>
+                                    <button onclick="changeSnakeDir('RIGHT')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-right"></i></button>
+                                    <div></div>
+                                    <button onclick="changeSnakeDir('DOWN')" class="bg-blue-950 hover:bg-blue-900 border border-blue-800 p-3 rounded-xl flex items-center justify-center text-blue-400 active:bg-blue-800"><i data-lucide="chevron-down"></i></button>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultados Finais de Todos os Jogos -->
+                    <div id="snake-results" class="hidden text-center py-8 space-y-6">
+                        <div class="w-20 h-20 bg-blue-950 text-blue-400 border border-blue-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                            <i data-lucide="party-popper" class="w-10 h-10"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="font-arcade text-xs md:text-sm font-bold text-white">CAMPANHA COMPLETA! 🎉</h3>
+                            <p class="text-slate-400 text-xs">Concluíste com sucesso todos os desafios de Português!</p>
+                            <p id="snake-result-comment" class="text-[10px] text-blue-300 font-arcade">És um verdadeiro Campeão da Língua!</p>
+                        </div>
+
+                        <!-- CHAMADA À AÇÃO FINAL (CTA) -->
+                        <div class="pt-6 max-w-sm mx-auto">
+                            <a href="#" id="final-cta-btn" class="block w-full bg-blue-600 hover:bg-blue-500 text-white font-arcade text-[10px] py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/50 hover:-translate-y-0.5 duration-200 text-center flex items-center justify-center gap-2 border border-blue-400">
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                                <span>OBTER CERTIFICADO FINAL</span>
+                            </a>
+                            <p class="text-[10px] text-slate-500 mt-2 font-mono">Dica: substitui o link '#' no teu ficheiro pelo teu Classroom ou Drive de fim de ano!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-slate-950 border-t border-blue-950 py-6 mt-12 text-center text-xs text-slate-500 font-mono">
+        <div class="max-w-5xl mx-auto px-4 space-y-2">
+            <p class="font-friendly text-sm text-slate-400 font-semibold">"A nossa língua, o nosso melhor videojogo."</p>
+            <p>© 2026 • Versão Arcade Completa • Feito com ❤️ para os Heróis do 2.º Ciclo</p>
+        </div>
+    </footer>
+
+    <!-- Lógica Geral do Jogo Arcade -->
+    <script>
+        // ================= CONTEXTO DE SINAL RETRO ÁUDIO (Web Audio API) =================
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'coin') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880, now + 0.1); // A5
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'laser') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(880, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.15);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'hit') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.linearRampToValueAtTime(30, now + 0.3);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'jump') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.18);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.setValueAtTime(110, now + 0.15);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            }
+        }
+
+        // CONTROLOS DE ABA (Navegação)
+        function switchTab(tabId) {
+            stopAllGameLoops();
+
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-500/50');
+                btn.classList.add('text-blue-400', 'hover:bg-blue-950/50');
+            });
+
+            const activeSection = document.getElementById(tabId);
+            if (activeSection) {
+                activeSection.classList.add('active');
+            }
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-blue-400', 'hover:bg-blue-950/50');
+                activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-500/50');
+            }
+
+            if (tabId === 'jogo1') startPacGame();
+            if (tabId === 'jogo2') startDefenderGame();
+            if (tabId === 'jogo3') startSnakeGame();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            playSound('success');
+        }
+
+        function stopAllGameLoops() {
+            if (pacInterval) clearInterval(pacInterval);
+            if (defenderInterval) clearInterval(defenderInterval);
+            if (snakeInterval) clearInterval(snakeInterval);
+        }
+
+        // ================= BANCOS DE PERGUNTAS (30 perguntas cada) =================
+        const pacQuestions = [
+            { q: "Na frase 'O cão veloz correu.', qual é o adjetivo?", o: ["O", "cão", "veloz", "correu"], c: 2 },
+            { q: "Identifica o verbo em: 'Nós estudámos muito para o teste.'", o: ["Nós", "estudámos", "muito", "teste"], c: 1 },
+            { q: "Qual das palavras é um determinante artigo definido?", o: ["um", "esta", "a", "meu"], c: 2 },
+            { q: "Em 'Eles cantam bem.', qual é o pronome pessoal?", o: ["Eles", "cantam", "bem", "Não há"], c: 0 },
+            { q: "Qual palavra é um nome próprio?", o: ["cidade", "Lisboa", "rio", "montanha"], c: 1 },
+            { q: "Qual palavra é um advérbio de tempo?", o: ["ontem", "aqui", "muito", "depressa"], c: 0 },
+            { q: "Na frase 'Aquela caneta é azul.', 'aquela' é um determinante...", o: ["possessivo", "demonstrativo", "indefinido", "artigo"], c: 1 },
+            { q: "A palavra 'silenciosamente' pertence a que classe?", o: ["nome", "adjetivo", "verbo", "advérbio"], c: 3 },
+            { q: "Qual das opções é uma preposição?", o: ["com", "mas", "que", "ele"], c: 0 },
+            { q: "Em 'O Pedro comprou três livros.', 'três' é um...", o: ["nome", "adjetivo numeral", "determinante numeral", "verbo"], c: 2 },
+            { q: "Qual é a subclasse do nome em 'alcateia'?", o: ["comum coletivo", "próprio", "comum", "coletivo próprio"], c: 0 },
+            { q: "Identifica o pronome em 'Este livro é meu.'", o: ["Este", "livro", "é", "meu"], c: 3 },
+            { q: "Qual das palavras é um advérbio de quantidade e grau?", o: ["bastante", "rapidamente", "ali", "sim"], c: 0 },
+            { q: "Na frase 'A Rita viajou.', qual é o sujeito?", o: ["A Rita", "viajou", "A", "Rita"], c: 0 },
+            { q: "Qual das palavras é um nome comum abstrato?", o: ["mesa", "beleza", "computador", "pedra"], c: 1 },
+            { q: "Identifica a interjeição em: 'Ufa! Finalmente terminámos.'", o: ["Ufa!", "Finalmente", "terminámos", "Não há"], c: 0 },
+            { q: "Qual das seguintes palavras é um verbo no infinitivo?", o: ["correr", "corri", "correndo", "corrido"], c: 0 },
+            { q: "Na frase 'Eles são simpáticos.', 'simpáticos' é um...", o: ["nome", "adjetivo", "advérbio", "verbo"], c: 1 },
+            { q: "Qual é o determinante possessivo em: 'O meu cão é fiel.'?", o: ["O", "meu", "cão", "fiel"], c: 1 },
+            { q: "Qual palavra é um advérbio de negação?", o: ["talvez", "não", "nunca", "mal"], c: 1 },
+            { q: "Em 'Nós fomos ao cinema.', o verbo está em que pessoa?", o: ["1.ª do singular", "3.ª do plural", "1.ª do plural", "2.ª do plural"], c: 2 },
+            { q: "Qual destas palavras é um nome comum concreto?", o: ["amizade", "tristeza", "cadeira", "esperança"], c: 2 },
+            { q: "Na frase 'O gato comeu o peixe.', qual é o CD (Complemento Direto)?", o: ["O gato", "comeu", "o peixe", "gato"], c: 2 },
+            { q: "O que é 'ontem' em: 'Ontem fomos ao parque.'?", o: ["advérbio de tempo", "advérbio de lugar", "preposição", "nome comum"], c: 0 },
+            { q: "Qual é o determinante artigo indefinido plural?", o: ["os", "as", "uns", "meus"], c: 2 },
+            { q: "Identifica o pronome demonstrativo: 'Isto não faz sentido.'", o: ["Isto", "não", "faz", "sentido"], c: 0 },
+            { q: "Em 'Que lindo dia!', a palavra 'lindo' é um...", o: ["nome", "adjetivo", "advérbio", "verbo"], c: 1 },
+            { q: "Qual é o infinitivo de 'escreveste'?", o: ["escrever", "escrevido", "escrito", "escrevendo"], c: 0 },
+            { q: "Na frase 'Ela mora ali.', 'ali' é um advérbio de...", o: ["tempo", "modo", "lugar", "afirmação"], c: 2 },
+            { q: "Qual é a preposição na frase 'Vou para a escola.'?", o: ["Vou", "para", "a", "escola"], c: 1 }
+        ];
+
+        const defenderQuestions = [
+            { q: "Sinónimo de 'Alegre'", o: ["Contente", "Triste", "Rápido"], c: 0 },
+            { q: "Antónimo de 'Rápido'", o: ["Veloz", "Lento", "Forte"], c: 1 },
+            { q: "Sinónimo de 'Começar'", o: ["Terminar", "Iniciar", "Fugir"], c: 1 },
+            { q: "Antónimo de 'Fácil'", o: ["Simples", "Difícil", "Claro"], c: 1 },
+            { q: "Sinónimo de 'Belo'", o: ["Bonito", "Feio", "Grande"], c: 0 },
+            { q: "Antónimo de 'Sair'", o: ["Partir", "Entrar", "Subir"], c: 1 },
+            { q: "Sinónimo de 'Gritar'", o: ["Falar", "Sussurrar", "Bradar"], c: 2 },
+            { q: "Antónimo de 'Quente'", o: ["Frio", "Morno", "Ardente"], c: 0 },
+            { q: "Sinónimo de 'Descobrir'", o: ["Achar", "Esconder", "Perder"], c: 0 },
+            { q: "Antónimo de 'Cheio'", o: ["Completo", "Vazio", "Pesado"], c: 1 },
+            { q: "Sinónimo de 'Ruído'", o: ["Silêncio", "Barulho", "Música"], c: 1 },
+            { q: "Antónimo de 'Ganhar'", o: ["Vencer", "Perder", "Conseguir"], c: 1 },
+            { q: "Sinónimo de 'Habitação'", o: ["Trabalho", "Casa", "Jardim"], c: 1 },
+            { q: "Antónimo de 'Forte'", o: ["Fraco", "Robusto", " Duro"], c: 0 },
+            { q: "Sinónimo de 'Oferecer'", o: ["Dar", "Tirar", "Pedir"], c: 0 },
+            { q: "Antónimo de 'Perto'", o: ["Longe", "Próximo", "Ao lado"], c: 0 },
+            { q: "Sinónimo de 'Colocar'", o: ["Pôr", "Retirar", "Mover"], c: 0 },
+            { q: "Antónimo de 'Comprar'", o: ["Vender", "Adquirir", "Alugar"], c: 0 },
+            { q: "Sinónimo de 'Escutar'", o: ["Ouvir", "Falar", "Ignorar"], c: 0 },
+            { q: "Antónimo de 'Pesado'", o: ["Leve", "Gordo", "Forte"], c: 0 },
+            { q: "Sinónimo de 'Paciente'", o: ["Calmo", "Nervoso", "Rápido"], c: 0 },
+            { q: "Antónimo de 'Limpo'", o: ["Sujo", "Puro", "Brilhante"], c: 0 },
+            { q: "Sinónimo de 'Grande'", o: ["Enorme", "Pequeno", "Baixo"], c: 0 },
+            { q: "Antónimo de 'Justo'", o: ["Injusto", "Correto", "Honesto"], c: 0 },
+            { q: "Sinónimo de 'Veloz'", o: ["Lento", "Rápido", "Parado"], c: 1 },
+            { q: "Antónimo de 'Luz'", o: ["Brilho", "Trevas", "Fogo"], c: 1 },
+            { q: "Sinónimo de 'Sábio'", o: ["Inteligente", "Ignorante", "Tolo"], c: 0 },
+            { q: "Antónimo de 'Verdade'", o: ["Realidade", "Mentira", "Facto"], c: 1 },
+            { q: "Sinónimo de 'Auxiliar'", o: ["Ajudar", "Atrapalhar", "Ignorar"], c: 0 },
+            { q: "Antónimo de 'Aparecer'", o: ["Surgir", "Desaparecer", "Ficar"], c: 1 }
+        ];
+
+        // Banco de dados para a cobra néon (30 categorias/palavras em rodízio)
+        const snakeDb = [
+            { target: "VERBOS", correct: "jogar", options: ["mesa", "lindo", "ontem"] },
+            { target: "ADJETIVOS", correct: "inteligente", options: ["escola", "correr", "bastante"] },
+            { target: "NOMES", correct: "computador", options: ["azul", "estudar", "depressa"] },
+            { target: "ADVÉRBIOS", correct: "amanhã", options: ["caneta", "saltar", "fiel"] },
+            { target: "VERBOS", correct: "escrever", options: ["casa", "feliz", "lentamente"] },
+            { target: "ADJETIVOS", correct: "simpático", options: ["falar", "Lisboa", "muito"] },
+            { target: "NOMES", correct: "professor", options: ["veloz", "cantar", "atrás"] },
+            { target: "ADVÉRBIOS", correct: "rapidamente", options: ["livro", "comer", "belo"] },
+            { target: "DETERMINANTES", correct: "aquele", options: ["tu", "de", "com"] },
+            { target: "PRONOMES", correct: "eles", options: ["o", "para", "estudioso"] },
+            { target: "PREPOSIÇÕES", correct: "entre", options: ["nós", "este", "sorrir"] },
+            { target: "VERBOS", correct: "partir", options: ["janela", "calmo", "aqui"] },
+            { target: "ADJETIVOS", correct: "brilhante", options: ["gato", "beber", "nunca"] },
+            { target: "NOMES", correct: "cidade", options: ["novo", "escutar", "bem"] },
+            { target: "ADVÉRBIOS", correct: "sempre", options: ["cadeira", "abrir", "forte"] },
+            { target: "DETERMINANTES", correct: "minha", options: ["mim", "por", "lindo"] },
+            { target: "PRONOMES", correct: "comigo", options: ["teu", "sob", "andar"] },
+            { target: "PREPOSIÇÕES", correct: "sobre", options: ["eu", "aquele", "fácil"] },
+            { target: "VERBOS", correct: "aprender", options: ["caderno", "velho", "hoje"] },
+            { target: "ADJETIVOS", correct: "corajoso", options: ["rio", "voar", "talvez"] },
+            { target: "NOMES", correct: "floresta", options: ["doce", "escrever", "atrás"] },
+            { target: "ADVÉRBIOS", correct: "facilmente", options: ["caneca", "vender", "esperto"] },
+            { target: "DETERMINANTES", correct: "umas", options: ["nós", "sem", "alegre"] },
+            { target: "PRONOMES", correct: "consigo", options: ["esta", "trás", "correr"] },
+            { target: "PREPOSIÇÕES", correct: "perante", options: ["ela", "este", "ler"] },
+            { target: "VERBOS", correct: "concluir", options: ["parque", "amável", "não"] },
+            { target: "ADJETIVOS", correct: "estudioso", options: ["caneta", "olhar", "depois"] },
+            { target: "NOMES", correct: "telemóvel", options: ["magro", "ouvir", "bastante"] },
+            { target: "ADVÉRBIOS", correct: "bastante", options: ["lápis", "fazer", "bom"] },
+            { target: "PREPOSIÇÕES", correct: "desde", options: ["mim", "esta", "nadar"] }
+        ];
+
+        let pacInterval = null;
+        let defenderInterval = null;
+        let snakeInterval = null;
+
+        // =====================================================================
+        // JOGO 1: PAC-GRAMÁTICA
+        // =====================================================================
+        let pacCanvas = document.getElementById("pacCanvas");
+        let pacCtx = pacCanvas.getContext("2d");
+        
+        let pacHero = { x: 1, y: 1, dir: 'NONE', nextDir: 'NONE' };
+        let pacGhost = { x: 10, y: 10, dir: 'NONE', lastMoveTime: 0 };
+        let pacEnergy = 100;
+        let pacScore = 0;
+        let pacActive = false;
+        let pacGrid = [];
+        
+        const baseGrid = [
+            [1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,1,0,0,0,0,0,1],
+            [1,0,1,1,0,1,0,1,1,1,0,1],
+            [1,0,1,0,0,0,0,0,0,1,0,1],
+            [1,0,1,0,1,1,1,1,0,1,0,1],
+            [1,0,0,0,1,0,0,1,0,0,0,1],
+            [1,0,1,0,1,0,0,1,0,1,0,1],
+            [1,0,1,0,1,1,1,1,0,1,0,1],
+            [1,0,1,0,0,0,0,0,0,1,0,1],
+            [1,0,1,1,1,0,1,1,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        const tileSize = 32;
+
+        function startPacGame() {
+            stopAllGameLoops();
+            document.getElementById('pac-intro').classList.add('hidden');
+            document.getElementById('pac-results').classList.add('hidden');
+            document.getElementById('pac-active-area').classList.remove('hidden');
+            
+            pacEnergy = 100;
+            pacScore = 0;
+            pacActive = true;
+            pacHero = { x: 1, y: 1, dir: 'NONE', nextDir: 'NONE' };
+            pacGhost = { x: 10, y: 10, dir: 'NONE', lastMoveTime: 0 };
+            
+            pacGrid = JSON.parse(JSON.stringify(baseGrid));
+            
+            updatePacUI();
+            
+            window.removeEventListener('keydown', handlePacKey);
+            window.addEventListener('keydown', handlePacKey);
+            
+            pacInterval = setInterval(updatePac, 150);
+            playSound('success');
+        }
+
+        function handlePacKey(e) {
+            if (!pacActive) return;
+            if (e.key === 'ArrowUp' || e.key === 'w') pacHero.nextDir = 'UP';
+            if (e.key === 'ArrowDown' || e.key === 's') pacHero.nextDir = 'DOWN';
+            if (e.key === 'ArrowLeft' || e.key === 'a') pacHero.nextDir = 'LEFT';
+            if (e.key === 'ArrowRight' || e.key === 'd') pacHero.nextDir = 'RIGHT';
+            if (e.key === 'r' || e.key === 'R') triggerPacQuestion();
+        }
+
+        function movePac(dir) {
+            if (!pacActive) return;
+            pacHero.nextDir = dir;
+        }
+
+        function updatePac() {
+            if (!pacActive) return;
+
+            // Se energia estiver vazia, congela o jogador!
+            if (pacEnergy <= 0) {
+                pacHero.dir = 'NONE';
+                drawPac();
+                return;
+            }
+
+            // Tentar mudar de direção do Herói
+            if (pacHero.nextDir !== 'NONE') {
+                let checkX = pacHero.x;
+                let checkY = pacHero.y;
+                if (pacHero.nextDir === 'UP') checkY--;
+                if (pacHero.nextDir === 'DOWN') checkY++;
+                if (pacHero.nextDir === 'LEFT') checkX--;
+                if (pacHero.nextDir === 'RIGHT') checkX++;
+                
+                if (pacGrid[checkY] && pacGrid[checkY][checkX] !== 1) {
+                    pacHero.dir = pacHero.nextDir;
+                }
+            }
+
+            // Mover o Herói
+            let nextX = pacHero.x;
+            let nextY = pacHero.y;
+            if (pacHero.dir === 'UP') nextY--;
+            if (pacHero.dir === 'DOWN') nextY++;
+            if (pacHero.dir === 'LEFT') nextX--;
+            if (pacHero.dir === 'RIGHT') nextX++;
+
+            if (pacGrid[nextY] && pacGrid[nextY][nextX] !== 1) {
+                pacHero.x = nextX;
+                pacHero.y = nextY;
+                
+                // Consumir energia por movimento
+                pacEnergy -= 1.5;
+                if (pacEnergy < 0) pacEnergy = 0;
+            } else {
+                pacHero.dir = 'NONE';
+            }
+
+            // Apanhar estrelas
+            if (pacGrid[pacHero.y] && pacGrid[pacHero.y][pacHero.x] === 0) {
+                pacGrid[pacHero.y][pacHero.x] = 2; // Estado vazio
+                pacScore += 10;
+                playSound('coin');
+            }
+
+            // MOVER FANTASMA (IA Simples)
+            movePacGhost();
+
+            // Verificar Colisão entre Herói e Fantasma
+            if (pacHero.x === pacGhost.x && pacHero.y === pacGhost.y) {
+                playSound('hit');
+                pacEnergy = Math.max(0, pacEnergy - 25); // Perde 25% de bateria
+                // Reset posições para não morrer infinitamente
+                pacHero.x = 1;
+                pacHero.y = 1;
+                pacHero.dir = 'NONE';
+                pacHero.nextDir = 'NONE';
+                pacGhost.x = 10;
+                pacGhost.y = 10;
+            }
+
+            updatePacUI();
+            drawPac();
+
+            // Verificar se apanhou todas as estrelas
+            let remainingStars = 0;
+            for (let r = 0; r < 12; r++) {
+                for (let c = 0; c < 12; c++) {
+                    if (pacGrid[r][c] === 0) remainingStars++;
+                }
+            }
+            if (remainingStars === 0) {
+                endPacGame(true);
+            }
+        }
+
+        function movePacGhost() {
+            // Obter todas as direções válidas do fantasma
+            const dirs = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
+            let validDirs = [];
+
+            dirs.forEach(d => {
+                let gx = pacGhost.x;
+                let gy = pacGhost.y;
+                if (d === 'UP') gy--;
+                if (d === 'DOWN') gy++;
+                if (d === 'LEFT') gx--;
+                if (d === 'RIGHT') gx++;
+
+                if (pacGrid[gy] && pacGrid[gy][gx] !== 1) {
+                    validDirs.push(d);
+                }
+            });
+
+            // Inteligência simples: 50% de probabilidade de ir na direção do jogador, senão aleatório
+            if (validDirs.length > 0) {
+                let chosenDir = validDirs[Math.floor(Math.random() * validDirs.length)];
+                
+                if (Math.random() < 0.5) {
+                    // Tentar aproximar do herói
+                    let bestDir = chosenDir;
+                    let minDist = Infinity;
+                    validDirs.forEach(d => {
+                        let gx = pacGhost.x;
+                        let gy = pacGhost.y;
+                        if (d === 'UP') gy--;
+                        if (d === 'DOWN') gy++;
+                        if (d === 'LEFT') gx--;
+                        if (d === 'RIGHT') gx++;
+                        
+                        let dist = Math.hypot(pacHero.x - gx, pacHero.y - gy);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            bestDir = d;
+                        }
+                    });
+                    chosenDir = bestDir;
+                }
+
+                pacGhost.dir = chosenDir;
+                if (pacGhost.dir === 'UP') pacGhost.y--;
+                if (pacGhost.dir === 'DOWN') pacGhost.y++;
+                if (pacGhost.dir === 'LEFT') pacGhost.x--;
+                if (pacGhost.dir === 'RIGHT') pacGhost.x++;
+            }
+        }
+
+        function updatePacUI() {
+            document.getElementById('pac-energy').style.width = `${pacEnergy}%`;
+            document.getElementById('score-pac').innerText = String(pacScore).padStart(4, '0');
+            
+            const bar = document.getElementById('pac-energy');
+            if (pacEnergy <= 25) {
+                bar.className = "bg-red-500 h-full transition-all duration-100";
+            } else if (pacEnergy <= 50) {
+                bar.className = "bg-amber-500 h-full transition-all duration-100";
+            } else {
+                bar.className = "bg-blue-400 h-full transition-all duration-100";
+            }
+        }
+
+        function drawPac() {
+            pacCtx.clearRect(0, 0, pacCanvas.width, pacCanvas.height);
+
+            // Desenhar labirinto
+            for (let r = 0; r < 12; r++) {
+                for (let c = 0; c < 12; c++) {
+                    let tile = pacGrid[r][c];
+                    let x = c * tileSize + 8;
+                    let y = r * tileSize + 8;
+
+                    if (tile === 1) {
+                        pacCtx.fillStyle = '#0f172a';
+                        pacCtx.fillRect(x, y, tileSize, tileSize);
+                        pacCtx.strokeStyle = '#1e3a8a';
+                        pacCtx.lineWidth = 2;
+                        pacCtx.strokeRect(x + 2, y + 2, tileSize - 4, tileSize - 4);
+                    } else if (tile === 0) {
+                        pacCtx.fillStyle = '#38bdf8';
+                        pacCtx.shadowColor = '#38bdf8';
+                        pacCtx.shadowBlur = 8;
+                        pacCtx.beginPath();
+                        pacCtx.arc(x + tileSize/2, y + tileSize/2, 4, 0, Math.PI * 2);
+                        pacCtx.fill();
+                        pacCtx.shadowBlur = 0;
+                    }
+                }
+            }
+
+            // Desenhar Herói (Robô Néon)
+            let hX = pacHero.x * tileSize + 8 + tileSize/2;
+            let hY = pacHero.y * tileSize + 8 + tileSize/2;
+
+            pacCtx.fillStyle = '#ffffff';
+            pacCtx.strokeStyle = '#38bdf8';
+            pacCtx.lineWidth = 3;
+            pacCtx.shadowColor = '#38bdf8';
+            pacCtx.shadowBlur = 12;
+
+            pacCtx.beginPath();
+            pacCtx.arc(hX, hY, tileSize/2.5, 0, Math.PI * 2);
+            pacCtx.fill();
+            pacCtx.stroke();
+
+            // Olhinhos néon do robô
+            pacCtx.fillStyle = '#020617';
+            pacCtx.beginPath();
+            pacCtx.arc(hX - 4, hY - 2, 2, 0, Math.PI*2);
+            pacCtx.arc(hX + 4, hY - 2, 2, 0, Math.PI*2);
+            pacCtx.fill();
+
+            // Desenhar Fantasma do Erro (Vermelho)
+            let gX = pacGhost.x * tileSize + 8 + tileSize/2;
+            let gY = pacGhost.y * tileSize + 8 + tileSize/2;
+            
+            pacCtx.fillStyle = '#ef4444';
+            pacCtx.strokeStyle = '#f87171';
+            pacCtx.lineWidth = 2;
+            pacCtx.shadowColor = '#ef4444';
+            pacCtx.shadowBlur = 10;
+            
+            pacCtx.beginPath();
+            pacCtx.arc(gX, gY - 2, tileSize/2.5, Math.PI, 0, false);
+            pacCtx.lineTo(gX + tileSize/2.5, gY + tileSize/2.5);
+            // Ondas de base do fantasma retro
+            pacCtx.lineTo(gX + tileSize/5, gY + tileSize/4);
+            pacCtx.lineTo(gX, gY + tileSize/2.5);
+            pacCtx.lineTo(gX - tileSize/5, gY + tileSize/4);
+            pacCtx.lineTo(gX - tileSize/2.5, gY + tileSize/2.5);
+            pacCtx.closePath();
+            pacCtx.fill();
+            pacCtx.stroke();
+            
+            // Olhos do Fantasma
+            pacCtx.fillStyle = '#ffffff';
+            pacCtx.beginPath();
+            pacCtx.arc(gX - 3, gY - 2, 3, 0, Math.PI*2);
+            pacCtx.arc(gX + 3, gY - 2, 3, 0, Math.PI*2);
+            pacCtx.fill();
+            pacCtx.fillStyle = '#0000ff';
+            pacCtx.beginPath();
+            pacCtx.arc(gX - 3, gY - 2, 1.5, 0, Math.PI*2);
+            pacCtx.arc(gX + 3, gY - 2, 1.5, 0, Math.PI*2);
+            pacCtx.fill();
+
+            // Ecrã de congelamento se energia estiver esgotada
+            if (pacEnergy <= 0) {
+                pacCtx.fillStyle = "rgba(5, 8, 20, 0.75)";
+                pacCtx.fillRect(0, 0, pacCanvas.width, pacCanvas.height);
+                
+                pacCtx.fillStyle = '#ef4444';
+                pacCtx.font = "bold 10px 'Press Start 2P', monospace";
+                pacCtx.textAlign = 'center';
+                pacCtx.fillText("BATERIA ESGOTADA!", 200, 180);
+                
+                pacCtx.fillStyle = '#38bdf8';
+                pacCtx.font = "8px 'Press Start 2P', monospace";
+                pacCtx.fillText("PRIME [R] PARA RECARREGAR", 200, 220);
+            }
+
+            pacCtx.shadowBlur = 0;
+        }
+
+        function triggerPacQuestion() {
+            pacActive = false; // Pausar jogo
+            
+            const randIdx = Math.floor(Math.random() * pacQuestions.length);
+            const questionData = pacQuestions[randIdx];
+
+            document.getElementById('pac-modal-question').innerText = questionData.q;
+            
+            const optionsDiv = document.getElementById('pac-modal-options');
+            optionsDiv.innerHTML = '';
+
+            questionData.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-slate-900 border border-blue-900 hover:border-blue-400 p-4 rounded-xl text-xs font-arcade text-slate-300 transition-all hover:bg-blue-950/40";
+                btn.innerText = `[${idx + 1}] ${opt}`;
+                btn.onclick = () => answerPacQuestion(idx, questionData.c);
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('pac-modal-feedback').classList.add('hidden');
+            document.getElementById('pac-question-modal').classList.remove('hidden');
+        }
+
+        function answerPacQuestion(chosen, correct) {
+            const feedback = document.getElementById('pac-modal-feedback');
+            feedback.classList.remove('hidden');
+            
+            const buttons = document.querySelectorAll('#pac-modal-options button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (chosen === correct) {
+                playSound('success');
+                feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-emerald-950/60 border border-emerald-500 text-emerald-400 animate-pulse";
+                feedback.innerText = "RECARGA COMPLETA! +50% BATERIA";
+                
+                pacEnergy = Math.min(100, pacEnergy + 50);
+                pacScore += 50;
+            } else {
+                playSound('error');
+                feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-rose-950/60 border border-rose-500 text-rose-400";
+                feedback.innerText = "ERRO NO SISTEMA! SEM RECARGA";
+            }
+
+            setTimeout(() => {
+                document.getElementById('pac-question-modal').classList.add('hidden');
+                pacActive = true; 
+            }, 1500);
+        }
+
+        function endPacGame(win) {
+            pacActive = false;
+            clearInterval(pacInterval);
+            document.getElementById('pac-active-area').classList.add('hidden');
+            document.getElementById('pac-results').classList.remove('hidden');
+            document.getElementById('final-pac-score').innerText = `SCORE: ${String(pacScore).padStart(4, '0')}`;
+            if (win) {
+                playSound('success');
+            } else {
+                playSound('error');
+            }
+        }
+
+
+        // =====================================================================
+        // JOGO 2: LÉXICO DEFENDER
+        // =====================================================================
+        let defenderCanvas = document.getElementById("defenderCanvas");
+        let defCtx = defenderCanvas.getContext("2d");
+
+        let defenderScore = 0;
+        let defenderShields = 5;
+        let defenderAmmo = 6; // Munição Limitada
+        let defenderActive = false;
+        let currentDefQuestion = null;
+        let asteroids = [];
+        let defLasers = [];
+
+        function startDefenderGame() {
+            stopAllGameLoops();
+            document.getElementById('defender-intro').classList.add('hidden');
+            document.getElementById('defender-results').classList.add('hidden');
+            document.getElementById('defender-active').classList.remove('hidden');
+
+            defenderScore = 0;
+            defenderShields = 5;
+            defenderAmmo = 6;
+            defenderActive = true;
+            asteroids = [];
+            defLasers = [];
+
+            updateDefenderUI();
+            nextDefenderQuestion();
+
+            defenderCanvas.removeEventListener('mousedown', handleDefenderClick);
+            defenderCanvas.addEventListener('mousedown', handleDefenderClick);
+            
+            defenderCanvas.removeEventListener('touchstart', handleDefenderTouch);
+            defenderCanvas.addEventListener('touchstart', handleDefenderTouch);
+
+            window.removeEventListener('keydown', handleDefenderKeys);
+            window.addEventListener('keydown', handleDefenderKeys);
+
+            defenderInterval = setInterval(updateDefender, 30);
+            playSound('success');
+        }
+
+        function handleDefenderKeys(e) {
+            if (!defenderActive) return;
+            if (e.key === 'r' || e.key === 'R') {
+                triggerDefenderQuestion();
+            }
+        }
+
+        function updateDefenderUI() {
+            document.getElementById('score-defender').innerText = String(defenderScore).padStart(4, '0');
+            document.getElementById('ammo-defender').innerText = `⚡ ${defenderAmmo}/6`;
+            
+            let shieldBars = "";
+            for (let i = 0; i < 5; i++) {
+                shieldBars += i < defenderShields ? "█" : "░";
+            }
+            const sh = document.getElementById('shields-defender');
+            sh.innerText = shieldBars;
+            if (defenderShields <= 2) sh.className = "font-arcade text-xs font-bold text-red-500 animate-pulse";
+            else sh.className = "font-arcade text-xs font-bold text-blue-400";
+        }
+
+        function nextDefenderQuestion() {
+            const randIdx = Math.floor(Math.random() * defenderQuestions.length);
+            currentDefQuestion = defenderQuestions[randIdx];
+
+            document.getElementById('defender-target-title').innerText = `MISSÃO: ${currentDefQuestion.q}`;
+
+            asteroids = [];
+            const lanes = [80, 250, 420];
+            lanes.sort(() => Math.random() - 0.5);
+
+            currentDefQuestion.o.forEach((opt, idx) => {
+                asteroids.push({
+                    x: lanes[idx],
+                    y: -40,
+                    text: opt,
+                    isCorrect: idx === currentDefQuestion.c,
+                    radius: 35,
+                    speed: 1.2 + (defenderScore * 0.0005)
+                });
+            });
+        }
+
+        function handleDefenderClick(e) {
+            if (!defenderActive) return;
+            const rect = defenderCanvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (500 / rect.width);
+            const y = (e.clientY - rect.top) * (350 / rect.height);
+            shootDefenderLaser(x, y);
+        }
+
+        function handleDefenderTouch(e) {
+            if (!defenderActive) return;
+            e.preventDefault();
+            const rect = defenderCanvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = (touch.clientX - rect.left) * (500 / rect.width);
+            const y = (touch.clientY - rect.top) * (350 / rect.height);
+            shootDefenderLaser(x, y);
+        }
+
+        function shootDefenderLaser(targetX, targetY) {
+            // Se não tem munição, não dispara!
+            if (defenderAmmo <= 0) {
+                playSound('error');
+                return;
+            }
+
+            defenderAmmo--;
+            updateDefenderUI();
+
+            const startX = 250;
+            const startY = 330;
+
+            defLasers.push({
+                x: startX,
+                y: startY,
+                tx: targetX,
+                ty: targetY,
+                progress: 0,
+                speed: 0.1
+            });
+            playSound('laser');
+
+            asteroids.forEach(ast => {
+                const dist = Math.hypot(ast.x - targetX, ast.y - targetY);
+                if (dist < ast.radius + 10) {
+                    if (ast.isCorrect) {
+                        playSound('success');
+                        defenderScore += 100;
+                        ast.destroyed = true;
+                        ast.glowColor = '#10b981';
+                        
+                        setTimeout(() => {
+                            nextDefenderQuestion();
+                        }, 800);
+                    } else {
+                        playSound('error');
+                        defenderShields--;
+                        ast.destroyed = true;
+                        ast.glowColor = '#ef4444';
+                        
+                        if (defenderShields <= 0) {
+                            endDefenderGame(false);
+                        } else {
+                            setTimeout(() => {
+                                nextDefenderQuestion();
+                            }, 800);
+                        }
+                    }
+                    updateDefenderUI();
+                }
+            });
+        }
+
+        function updateDefender() {
+            if (!defenderActive) return;
+
+            let hitShield = false;
+            asteroids.forEach(ast => {
+                if (!ast.destroyed) {
+                    ast.y += ast.speed;
+                    if (ast.y > 310) {
+                        hitShield = true;
+                    }
+                }
+            });
+
+            if (hitShield) {
+                playSound('hit');
+                defenderShields--;
+                updateDefenderUI();
+                if (defenderShields <= 0) {
+                    endDefenderGame(false);
+                } else {
+                    nextDefenderQuestion();
+                }
+            }
+
+            defLasers.forEach((laser, idx) => {
+                laser.progress += laser.speed;
+                if (laser.progress >= 1) {
+                    defLasers.splice(idx, 1);
+                }
+            });
+
+            drawDefender();
+            
+            if (defenderScore >= 1000) {
+                endDefenderGame(true);
+            }
+        }
+
+        function drawDefender() {
+            defCtx.clearRect(0, 0, defenderCanvas.width, defenderCanvas.height);
+
+            defCtx.fillStyle = '#ffffff';
+            for (let i = 0; i < 15; i++) {
+                const x = (Math.sin(i * 1234) + 1) * 250;
+                const y = (Math.cos(i * 5678) + 1) * 175;
+                defCtx.fillRect(x, y, 1.5, 1.5);
+            }
+
+            defCtx.strokeStyle = '#1e40af';
+            defCtx.lineWidth = 4;
+            defCtx.beginPath();
+            defCtx.arc(250, 370, 70, Math.PI, 0);
+            defCtx.stroke();
+
+            defCtx.fillStyle = '#38bdf8';
+            defCtx.fillRect(240, 310, 20, 30);
+            defCtx.beginPath();
+            defCtx.arc(250, 330, 15, 0, Math.PI * 2);
+            defCtx.fill();
+
+            defLasers.forEach(laser => {
+                const cx = laser.x + (laser.tx - laser.x) * laser.progress;
+                const cy = laser.y + (laser.ty - laser.y) * laser.progress;
+
+                defCtx.strokeStyle = '#38bdf8';
+                defCtx.shadowColor = '#38bdf8';
+                defCtx.shadowBlur = 10;
+                defCtx.lineWidth = 3;
+                defCtx.beginPath();
+                defCtx.moveTo(laser.x, laser.y);
+                defCtx.lineTo(cx, cy);
+                defCtx.stroke();
+                defCtx.shadowBlur = 0;
+            });
+
+            asteroids.forEach(ast => {
+                if (ast.destroyed) {
+                    defCtx.fillStyle = ast.glowColor;
+                    defCtx.shadowColor = ast.glowColor;
+                    defCtx.shadowBlur = 15;
+                    defCtx.beginPath();
+                    defCtx.arc(ast.x, ast.y, ast.radius * 1.2, 0, Math.PI * 2);
+                    defCtx.fill();
+                    defCtx.shadowBlur = 0;
+                    return;
+                }
+
+                defCtx.fillStyle = '#0f172a';
+                defCtx.strokeStyle = '#1e3a8a';
+                defCtx.lineWidth = 3;
+                defCtx.shadowColor = '#1e3a8a';
+                defCtx.shadowBlur = 8;
+                defCtx.beginPath();
+                defCtx.arc(ast.x, ast.y, ast.radius, 0, Math.PI * 2);
+                defCtx.fill();
+                defCtx.stroke();
+                defCtx.shadowBlur = 0;
+
+                defCtx.fillStyle = '#ffffff';
+                defCtx.font = "bold 10px 'Press Start 2P', monospace";
+                defCtx.textAlign = 'center';
+                defCtx.fillText(ast.text, ast.x, ast.y + 4);
+            });
+
+            // Se sem munição, piscar aviso no canvas
+            if (defenderAmmo <= 0) {
+                defCtx.fillStyle = "rgba(5, 8, 20, 0.7)";
+                defCtx.fillRect(0, 0, defenderCanvas.width, defenderCanvas.height);
+                defCtx.fillStyle = '#f59e0b';
+                defCtx.font = "bold 10px 'Press Start 2P', monospace";
+                defCtx.textAlign = 'center';
+                defCtx.fillText("MUNIÇÃO ESGOTADA!", 250, 160);
+                defCtx.fillStyle = '#ffffff';
+                defCtx.font = "8px 'Press Start 2P', monospace";
+                defCtx.fillText("PRIME [R] PARA RECARREGAR", 250, 200);
+            }
+        }
+
+        function triggerDefenderQuestion() {
+            defenderActive = false; // Pausar simulação
+
+            // Obter pergunta aleatória de Defender (morfologia e sinónimos/antónimos)
+            const randIdx = Math.floor(Math.random() * defenderQuestions.length);
+            const questionData = defenderQuestions[randIdx];
+
+            document.getElementById('defender-modal-question').innerText = questionData.q;
+            
+            const optionsDiv = document.getElementById('defender-modal-options');
+            optionsDiv.innerHTML = '';
+
+            questionData.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-slate-900 border border-emerald-900 hover:border-emerald-400 p-4 rounded-xl text-xs font-arcade text-slate-300 transition-all hover:bg-emerald-950/40";
+                btn.innerText = `[${idx + 1}] ${opt}`;
+                btn.onclick = () => answerDefenderQuestion(idx, questionData.c);
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('defender-modal-feedback').classList.add('hidden');
+            document.getElementById('defender-question-modal').classList.remove('hidden');
+        }
+
+        function answerDefenderQuestion(chosen, correct) {
+            const feedback = document.getElementById('defender-modal-feedback');
+            feedback.classList.remove('hidden');
+            
+            const buttons = document.querySelectorAll('#defender-modal-options button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (chosen === correct) {
+                playSound('success');
+                feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-emerald-950/60 border border-emerald-500 text-emerald-400 animate-pulse";
+                feedback.innerText = "SISTEMAS RECARREGADOS! +6 LASERS";
+                
+                defenderAmmo = 6; // Munição cheia
+                defenderScore += 50;
+            } else {
+                playSound('error');
+                feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-rose-950/60 border border-rose-500 text-rose-400";
+                feedback.innerText = "MUNIÇÃO FALHOU! TENTA OUTRA";
+            }
+
+            setTimeout(() => {
+                document.getElementById('defender-question-modal').classList.add('hidden');
+                defenderActive = true;
+                updateDefenderUI();
+            }, 1500);
+        }
+
+        function endDefenderGame(win) {
+            defenderActive = false;
+            clearInterval(defenderInterval);
+            document.getElementById('defender-active').classList.add('hidden');
+            document.getElementById('defender-results').classList.remove('hidden');
+            
+            const rText = document.getElementById('defender-result-text');
+            document.getElementById('final-defender-score').innerText = `SCORE: ${String(defenderScore).padStart(4, '0')}`;
+            
+            if (win) {
+                playSound('success');
+                rText.innerText = "VITÓRIA! Defendeste com inteligência e astúcia o nosso sistema solar semântico! 🛸";
+            } else {
+                playSound('error');
+                rText.innerText = "GAME OVER! Os escudos colapsaram... Tenta mais uma vez!";
+            }
+        }
+
+
+        // =====================================================================
+        // JOGO 3: SYNTAX SNAKE (A COBRA NÉON)
+        // =====================================================================
+        let snakeCanvas = document.getElementById("snakeCanvas");
+        let snkCtx = snakeCanvas.getContext("2d");
+
+        let snakeScore = 0;
+        let snakeLives = 3;
+        let snakeActive = false;
+        let snakeGridSize = 20; // 20x20 grid para ecrã 400x400
+        let snake = [];
+        let snakeDir = 'RIGHT';
+        let currentSnakeChallenge = null;
+        let wordItems = []; // Itens que contêm a palavra néon, a sua classe e as coordenadas {x, y, text, isCorrect}
+
+        function startSnakeGame() {
+            stopAllGameLoops();
+            document.getElementById('snake-intro').classList.add('hidden');
+            document.getElementById('snake-results').classList.add('hidden');
+            document.getElementById('snake-active').classList.remove('hidden');
+
+            snakeScore = 0;
+            snakeLives = 3;
+            snakeActive = true;
+            snakeDir = 'RIGHT';
+
+            // Iniciar corpo da cobra no centro
+            snake = [
+                {x: 10, y: 10},
+                {x: 9, y: 10},
+                {x: 8, y: 10}
+            ];
+
+            updateSnakeUI();
+            nextSnakeChallenge();
+
+            // Teclado
+            window.removeEventListener('keydown', handleSnakeKeys);
+            window.addEventListener('keydown', handleSnakeKeys);
+
+            // Ciclo de atualização da cobra (lenta o suficiente para ler palavras)
+            snakeInterval = setInterval(updateSnake, 250);
+            playSound('success');
+        }
+
+        function handleSnakeKeys(e) {
+            if (!snakeActive) return;
+            if (e.key === 'ArrowUp' || e.key === 'w') changeSnakeDir('UP');
+            if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
+            if (e.key === 'ArrowLeft' || e.key === 'a') changeSnakeDir('LEFT');
+            if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
+        }
+
+        function changeSnakeDir(dir) {
+            if (!snakeActive) return;
+            // Prevenir inversão imediata
+            if (dir === 'UP' && snakeDir !== 'DOWN') snakeDir = 'UP';
+            if (dir === 'DOWN' && snakeDir !== 'UP') snakeDir = 'DOWN';
+            if (dir === 'LEFT' && snakeDir !== 'RIGHT') snakeDir = 'LEFT';
+            if (dir === 'RIGHT' && snakeDir !== 'LEFT') snakeDir = 'RIGHT';
+        }
+
+        function updateSnakeUI() {
+            document.getElementById('score-snake').innerText = String(snakeScore).padStart(4, '0');
+            let livesText = "";
+            for (let i = 0; i < 3; i++) {
+                livesText += i < snakeLives ? "❤️ " : "🖤 ";
+            }
+            document.getElementById('snake-lives').innerText = livesText;
+        }
+
+        function nextSnakeChallenge() {
+            // Obter categoria aleatória do banco de 30 questões
+            const randIdx = Math.floor(Math.random() * snakeDb.length);
+            currentSnakeChallenge = snakeDb[randIdx];
+
+            document.getElementById('snake-target-title').innerText = `APANHA: ${currentSnakeChallenge.target}`;
+
+            // Criar palavras no ecrã (1 correta e 2 incorretas)
+            wordItems = [];
+
+            // Gerar 3 posições que não batem com o corpo da cobra nem se sobrepõem
+            let positions = [];
+            while (positions.length < 3) {
+                let rx = Math.floor(Math.random() * 16) + 2; // Evitar colar demasiado aos limites
+                let ry = Math.floor(Math.random() * 16) + 2;
+                
+                // Verificar colisão com a cobra
+                let hitBody = snake.some(part => part.x === rx && part.y === ry);
+                let hitOtherPos = positions.some(p => Math.abs(p.x - rx) < 3 && Math.abs(p.y - ry) < 3); // Manter distância mínima entre palavras
+
+                if (!hitBody && !hitOtherPos) {
+                    positions.push({x: rx, y: ry});
+                }
+            }
+
+            // Inserir palavra Correta
+            wordItems.push({
+                x: positions[0].x,
+                y: positions[0].y,
+                text: currentSnakeChallenge.correct,
+                isCorrect: true
+            });
+
+            // Inserir palavras Incorretas
+            wordItems.push({
+                x: positions[1].x,
+                y: positions[1].y,
+                text: currentSnakeChallenge.options[0],
+                isCorrect: false
+            });
+            wordItems.push({
+                x: positions[2].x,
+                y: positions[2].y,
+                text: currentSnakeChallenge.options[1],
+                isCorrect: false
+            });
+        }
+
+        function updateSnake() {
+            if (!snakeActive) return;
+
+            // Calcular nova cabeça
+            let head = {x: snake[0].x, y: snake[0].y};
+            if (snakeDir === 'UP') head.y--;
+            if (snakeDir === 'DOWN') head.y++;
+            if (snakeDir === 'LEFT') head.x--;
+            if (snakeDir === 'RIGHT') head.x++;
+
+            // Colisão com as Paredes do Tabuleiro
+            if (head.x < 0 || head.x >= snakeGridSize || head.y < 0 || head.y >= snakeGridSize) {
+                triggerSnakeCrash();
+                return;
+            }
+
+            // Colisão com o Próprio Corpo
+            let hitSelf = snake.some((part, idx) => idx !== 0 && part.x === head.x && part.y === head.y);
+            if (hitSelf) {
+                triggerSnakeCrash();
+                return;
+            }
+
+            // Inserir nova cabeça
+            snake.unshift(head);
+
+            // Verificar se comeu alguma palavra
+            let eatenIndex = -1;
+            wordItems.forEach((item, idx) => {
+                // A colisão ocorre se a cabeça estiver na mesma coordenada ou adjacente imediata
+                if (Math.abs(head.x - item.x) <= 1 && Math.abs(head.y - item.y) <= 0) {
+                    eatenIndex = idx;
+                }
+            });
+
+            if (eatenIndex !== -1) {
+                let eatenItem = wordItems[eatenIndex];
+                if (eatenItem.isCorrect) {
+                    // Comeu bem!
+                    playSound('coin');
+                    snakeScore += 100;
+                    updateSnakeUI();
+                    
+                    // Cresce e avança para outro desafio
+                    nextSnakeChallenge();
+                } else {
+                    // Comeu a palavra errada!
+                    playSound('error');
+                    snakeLives--;
+                    updateSnakeUI();
+                    
+                    if (snakeLives <= 0) {
+                        endSnakeGame(false);
+                        return;
+                    }
+
+                    // Remover cabeça inserida para encurtar
+                    snake.shift();
+                    nextSnakeChallenge();
+                }
+            } else {
+                // Se não comeu nada, retira a cauda normalmente (movimento fluido)
+                snake.pop();
+            }
+
+            drawSnake();
+
+            // Meta de Vitória: 500 pontos
+            if (snakeScore >= 500) {
+                endSnakeGame(true);
+            }
+        }
+
+        function triggerSnakeCrash() {
+            playSound('hit');
+            snakeLives--;
+            updateSnakeUI();
+
+            if (snakeLives <= 0) {
+                endSnakeGame(false);
+            } else {
+                // Reconfigurar posições da cobra no centro
+                snake = [
+                    {x: 10, y: 10},
+                    {x: 9, y: 10},
+                    {x: 8, y: 10}
+                ];
+                snakeDir = 'RIGHT';
+                nextSnakeChallenge();
+            }
+        }
+
+        function drawSnake() {
+            snkCtx.clearRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+            // Desenhar grelha néon muito fina de fundo
+            snkCtx.strokeStyle = '#0a122c';
+            snkCtx.lineWidth = 1;
+            for (let i = 0; i <= snakeGridSize; i++) {
+                // Verticais
+                snkCtx.beginPath();
+                snkCtx.moveTo(i * 20, 0);
+                snkCtx.lineTo(i * 20, 400);
+                snkCtx.stroke();
+                // Horizontais
+                snkCtx.beginPath();
+                snkCtx.moveTo(0, i * 20);
+                snkCtx.lineTo(400, i * 20);
+                snkCtx.stroke();
+            }
+
+            // Desenhar Palavras
+            wordItems.forEach(item => {
+                let px = item.x * 20;
+                let py = item.y * 20;
+
+                snkCtx.shadowBlur = 8;
+                snkCtx.shadowColor = item.isCorrect ? '#38bdf8' : '#38bdf8'; // Manter tudo néon azul para desafiar
+                
+                // Desenhar base néon para a palavra
+                snkCtx.fillStyle = '#0a0f24';
+                snkCtx.strokeStyle = '#1e3b8b';
+                snkCtx.lineWidth = 1.5;
+                snkCtx.beginPath();
+                snkCtx.roundRect(px - 35, py - 10, 70, 20, 5);
+                snkCtx.fill();
+                snkCtx.stroke();
+
+                // Escrever palavra
+                snkCtx.fillStyle = '#ffffff';
+                snkCtx.font = "bold 8px 'Press Start 2P', monospace";
+                snkCtx.textAlign = 'center';
+                snkCtx.fillText(item.text, px, py + 3);
+            });
+
+            snkCtx.shadowBlur = 0;
+
+            // Desenhar Cobra Néon
+            snake.forEach((part, idx) => {
+                let px = part.x * 20;
+                let py = part.y * 20;
+
+                snkCtx.shadowBlur = 10;
+                if (idx === 0) {
+                    // Cabeça da cobra (Verde néon)
+                    snkCtx.fillStyle = '#10b981';
+                    snkCtx.shadowColor = '#10b981';
+                } else {
+                    // Corpo (Azul néon)
+                    snkCtx.fillStyle = '#38bdf8';
+                    snkCtx.shadowColor = '#38bdf8';
+                }
+
+                snkCtx.beginPath();
+                snkCtx.roundRect(px + 1, py + 1, 18, 18, 4);
+                snkCtx.fill();
+            });
+
+            snkCtx.shadowBlur = 0;
+        }
+
+        function endSnakeGame(win) {
+            snakeActive = false;
+            clearInterval(snakeInterval);
+            document.getElementById('snake-active').classList.add('hidden');
+            document.getElementById('snake-results').classList.remove('hidden');
+            
+            const comment = document.getElementById('snake-result-comment');
+            if (win) {
+                playSound('success');
+                comment.innerText = "Parabéns! ÉS UM HERÓI DA GRAMÁTICA E DO ARCADE! 🏆";
+            } else {
+                playSound('error');
+                comment.innerText = "Bom esforço! O erro faz parte da aprendizagem. Recomeça!";
+            }
+        }
+
+        // ================= CONTRATO DE ARRANQUE INICIAL =================
+        window.onload = function() {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
