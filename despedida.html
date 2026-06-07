@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade de Português: A Última Viagem</title>
+    <title>Arcade de Português: A Grande Despedida</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -19,6 +19,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #050814;
+            transition: background-color 0.3s, color 0.3s;
         }
         .font-friendly {
             font-family: 'Fredoka', sans-serif;
@@ -29,6 +30,7 @@
         .neon-border {
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.5), inset 0 0 15px rgba(56, 189, 248, 0.3);
             border: 2px solid #38bdf8;
+            transition: all 0.3s;
         }
         .neon-text {
             text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
@@ -58,6 +60,45 @@
             background-size: 100% 4px, 6px 100%;
             pointer-events: none;
         }
+
+        /* CONFIGURAÇÃO DO MODO PROJETOR (ALTO CONTRASTE) */
+        body.projector-mode {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        body.projector-mode .bg-\[\#0a0f24\],
+        body.projector-mode .bg-slate-950,
+        body.projector-mode .bg-slate-950\/40,
+        body.projector-mode .bg-slate-900\/50,
+        body.projector-mode .bg-blue-950\/80,
+        body.projector-mode .bg-blue-950\/40 {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+            box-shadow: none !important;
+        }
+        body.projector-mode .text-slate-100,
+        body.projector-mode .text-slate-300,
+        body.projector-mode .text-blue-100,
+        body.projector-mode .text-blue-200 {
+            color: #1e293b !important;
+        }
+        body.projector-mode .text-blue-400,
+        body.projector-mode .text-blue-300 {
+            color: #1d4ed8 !important;
+        }
+        body.projector-mode .neon-border {
+            border: 2px solid #2563eb !important;
+            box-shadow: none !important;
+        }
+        body.projector-mode .neon-text {
+            text-shadow: none !important;
+            color: #1e40af !important;
+        }
+        body.projector-mode canvas {
+            background-color: #f1f5f9 !important;
+            border: 2px solid #475569 !important;
+        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
@@ -74,6 +115,18 @@
                     <h1 class="font-arcade text-xs md:text-sm font-bold text-blue-400 tracking-wide neon-text">PORTUGUÊS ARCADE</h1>
                     <p class="text-[10px] text-blue-300 font-mono uppercase tracking-widest mt-0.5">Fim de Ano</p>
                 </div>
+            </div>
+
+            <!-- Painel de Ferramentas / Acessibilidade -->
+            <div class="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-blue-950">
+                <button onclick="toggleBGM()" id="btn-bgm" class="px-3 py-1.5 rounded-xl text-[10px] font-arcade bg-slate-950 hover:bg-slate-800 border border-blue-900 text-blue-400 transition-all flex items-center gap-1">
+                    <i data-lucide="music" class="w-3.5 h-3.5"></i>
+                    <span id="bgm-status">MÚSICA OFF</span>
+                </button>
+                <button onclick="toggleProjectorMode()" class="px-3 py-1.5 rounded-xl text-[10px] font-arcade bg-slate-950 hover:bg-slate-800 border border-blue-900 text-amber-400 transition-all flex items-center gap-1">
+                    <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+                    <span>PROJETOR</span>
+                </button>
             </div>
 
             <!-- Navegação Cabina -->
@@ -160,6 +213,7 @@
             </div>
         </section>
 
+        <!-- ================= STREAMING_CHUNK: Desenhando a secção do Jogo 1 (Pac-Gramática) com High Scores... ================= -->
         <!-- ================= JOGO 1: PAC-GRAMÁTICA ================= -->
         <section id="jogo1" class="page-section">
             <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
@@ -208,6 +262,10 @@
                             ⭐ <strong class="text-amber-400">SUPER ESTRELAS:</strong> Apanha as <strong class="text-amber-400">Super Estrelas Néon</strong> nos cantos para ficares invencível e <strong class="text-amber-400">comer o Fantasma do Erro</strong> temporariamente!<br>
                             ❤️ Tens 3 vidas. O jogo continua de forma infinita por fases cada vez mais rápidas até perderes todas as vidas!
                         </p>
+                        <div id="pac-leaderboard" class="bg-slate-900/50 p-4 rounded-2xl max-w-xs mx-auto text-left border border-blue-950 space-y-2">
+                            <p class="text-[9px] font-arcade text-blue-400 text-center uppercase tracking-widest">🏆 Classificação Local</p>
+                            <div id="pac-highscores-list" class="text-[10px] font-mono text-slate-400 space-y-1"></div>
+                        </div>
                         <button onclick="startPacGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
                             INICIAR JOGO
                         </button>
@@ -250,8 +308,13 @@
                     <!-- Modal de Pergunta de Recarga (Pac-Gram) -->
                     <div id="pac-question-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
                         <div class="bg-[#0a0f24] border-2 border-blue-500 rounded-3xl p-6 max-w-lg w-full space-y-6 shadow-2xl shadow-blue-500/30 scanlines">
-                            <div class="text-center">
+                            <div class="text-center space-y-2">
                                 <span class="bg-blue-950 border border-blue-700 text-[10px] font-arcade px-3 py-1 rounded-full text-blue-400">SISTEMA DE RECARGA</span>
+                                <div class="flex justify-center gap-2">
+                                    <button onclick="speakCurrentQuestion('pac')" class="bg-blue-950 border border-blue-800 hover:bg-blue-900 text-blue-400 p-2 rounded-xl" title="Ler pergunta em voz alta">
+                                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
                                 <h4 class="font-arcade text-xs text-white mt-4 leading-relaxed" id="pac-modal-question">Carregando pergunta...</h4>
                             </div>
 
@@ -271,6 +334,13 @@
                             <p class="text-slate-400 text-xs">Excedeste o limite de vidas nesta partida.</p>
                             <span id="final-pac-score" class="font-arcade text-lg font-bold text-blue-400 block">SCORE: 0000</span>
                         </div>
+
+                        <!-- Painel de Relatório de Erros -->
+                        <div id="pac-error-report-container" class="hidden bg-slate-900 border border-red-950 p-4 rounded-2xl max-w-xl mx-auto text-left space-y-2">
+                            <p class="text-[10px] font-arcade text-red-400 uppercase tracking-widest text-center">📖 Relatório de Aprendizagem</p>
+                            <div id="pac-errors-list" class="space-y-3 text-xs max-h-48 overflow-y-auto"></div>
+                        </div>
+
                         <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                             <button onclick="startPacGame()" class="border border-blue-800 text-blue-400 hover:bg-blue-950/50 font-arcade text-[10px] px-6 py-3 rounded-xl transition-all">
                                 REJOGAR
@@ -285,6 +355,7 @@
             </div>
         </section>
 
+        <!-- ================= STREAMING_CHUNK: Desenhando a secção do Jogo 2 (Léxico Defender) com High Scores... ================= -->
         <!-- ================= JOGO 2: LÉXICO DEFENDER ================= -->
         <section id="jogo2" class="page-section">
             <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
@@ -320,6 +391,10 @@
                             Clica ou toca no asteroide correto para o destruir com o teu laser!<br>
                             Cada disparo consome <strong class="text-emerald-400">1 munição</strong>. Se ficares sem munição, deves premir <strong class="text-blue-400">R</strong> ou o botão <strong class="text-blue-400">Recarregar</strong> para responder a uma questão lexical e repor as energias do canhão!
                         </p>
+                        <div id="defender-leaderboard" class="bg-slate-900/50 p-4 rounded-2xl max-w-xs mx-auto text-left border border-blue-950 space-y-2">
+                            <p class="text-[9px] font-arcade text-blue-400 text-center uppercase tracking-widest">🏆 Classificação Local</p>
+                            <div id="defender-highscores-list" class="text-[10px] font-mono text-slate-400 space-y-1"></div>
+                        </div>
                         <button onclick="startDefenderGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
                             ATIVAR DEFESAS
                         </button>
@@ -355,8 +430,13 @@
                     <!-- Modal de Pergunta de Recarga (Defender) -->
                     <div id="defender-question-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
                         <div class="bg-[#0a0f24] border-2 border-emerald-500 rounded-3xl p-6 max-w-lg w-full space-y-6 shadow-2xl shadow-emerald-500/30 scanlines">
-                            <div class="text-center">
+                            <div class="text-center space-y-2">
                                 <span class="bg-emerald-950 border border-emerald-700 text-[10px] font-arcade px-3 py-1 rounded-full text-emerald-400">RECARGA DO CANHÃO LASER</span>
+                                <div class="flex justify-center gap-2">
+                                    <button onclick="speakCurrentQuestion('defender')" class="bg-blue-950 border border-blue-800 hover:bg-blue-900 text-blue-400 p-2 rounded-xl" title="Ler pergunta em voz alta">
+                                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
                                 <h4 class="font-arcade text-xs text-white mt-4 leading-relaxed" id="defender-modal-question">Carregando pergunta...</h4>
                             </div>
 
@@ -376,6 +456,13 @@
                             <p id="defender-result-text" class="text-slate-400 text-xs">Os escudos aguentaram firmes!</p>
                             <span id="final-defender-score" class="font-arcade text-lg font-bold text-blue-400 block">SCORE: 0000</span>
                         </div>
+
+                        <!-- Relatório de Erros Defender -->
+                        <div id="defender-error-report-container" class="hidden bg-slate-900 border border-red-950 p-4 rounded-2xl max-w-xl mx-auto text-left space-y-2">
+                            <p class="text-[10px] font-arcade text-red-400 uppercase tracking-widest text-center">📖 Relatório de Aprendizagem</p>
+                            <div id="defender-errors-list" class="space-y-3 text-xs max-h-48 overflow-y-auto"></div>
+                        </div>
+
                         <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                             <button onclick="startDefenderGame()" class="border border-blue-800 text-blue-400 hover:bg-blue-950/50 font-arcade text-[10px] px-6 py-3 rounded-xl transition-all">
                                 REJOGAR
@@ -389,6 +476,7 @@
             </div>
         </section>
 
+        <!-- ================= STREAMING_CHUNK: Desenhando a secção do Jogo 3 (Syntax Snake) com High Scores... ================= -->
         <!-- ================= JOGO 3: SYNTAX SNAKE (A COBRA NÉON) ================= -->
         <section id="jogo3" class="page-section">
             <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
@@ -425,8 +513,12 @@
                         <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
                             Controla a cobra néon e apanha as bolinhas de energia brilhantes para crescer!<br><br>
                             Cada movimento gasta bateria! Se a bateria chegar a 0%, ficas congelado! <br>
-                            Evita as colisões nas paredes (extremos) e no próprio corpo! Sobrevive o máximo de tempo possível e bate o recorde!
+                            Se tentares atravessar as extremidades, reaparecerás no outro lado! Evita apenas colidir contra o próprio corpo. Sobrevive o máximo de tempo possível e bate o recorde!
                         </p>
+                        <div id="snake-leaderboard" class="bg-slate-900/50 p-4 rounded-2xl max-w-xs mx-auto text-left border border-blue-950 space-y-2">
+                            <p class="text-[9px] font-arcade text-blue-400 text-center uppercase tracking-widest">🏆 Classificação Local</p>
+                            <div id="snake-highscores-list" class="text-[10px] font-mono text-slate-400 space-y-1"></div>
+                        </div>
                         <button onclick="startSnakeGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
                             INICIAR COBRA NÉON
                         </button>
@@ -477,8 +569,13 @@
                     <!-- Modal de Pergunta de Recarga (Snake) -->
                     <div id="snake-question-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
                         <div class="bg-[#0a0f24] border-2 border-emerald-500 rounded-3xl p-6 max-w-lg w-full space-y-6 shadow-2xl shadow-emerald-500/30 scanlines">
-                            <div class="text-center">
+                            <div class="text-center space-y-2">
                                 <span class="bg-emerald-950 border border-emerald-700 text-[10px] font-arcade px-3 py-1 rounded-full text-emerald-400">SISTEMA DE RECARGA</span>
+                                <div class="flex justify-center gap-2">
+                                    <button onclick="speakCurrentQuestion('snake')" class="bg-blue-950 border border-blue-800 hover:bg-blue-900 text-blue-400 p-2 rounded-xl" title="Ler pergunta em voz alta">
+                                        <i data-lucide="volume-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
                                 <h4 class="font-arcade text-xs text-white mt-4 leading-relaxed" id="snake-modal-question">Carregando pergunta...</h4>
                             </div>
 
@@ -498,6 +595,13 @@
                             <p class="text-slate-400 text-xs">Ficaste sem vidas, mas mostraste grande destreza!</p>
                             <span id="final-snake-score" class="font-arcade text-lg font-bold text-blue-400 block">SCORE: 0000</span>
                         </div>
+
+                        <!-- Relatório de Erros Snake -->
+                        <div id="snake-error-report-container" class="hidden bg-slate-900 border border-red-950 p-4 rounded-2xl max-w-xl mx-auto text-left space-y-2">
+                            <p class="text-[10px] font-arcade text-red-400 uppercase tracking-widest text-center">📖 Relatório de Aprendizagem</p>
+                            <div id="snake-errors-list" class="space-y-3 text-xs max-h-48 overflow-y-auto"></div>
+                        </div>
+
                         <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                             <button onclick="startSnakeGame()" class="border border-blue-800 text-blue-400 hover:bg-blue-950/50 font-arcade text-[10px] px-6 py-3 rounded-xl transition-all">
                                 REJOGAR SNEAK
@@ -511,6 +615,7 @@
             </div>
         </section>
 
+        <!-- ================= STREAMING_CHUNK: Desenhando a secção do Diploma com os Badges de Conquistas... ================= -->
         <!-- ================= ABA EXCLUSIVA DO CERTIFICADO / DIPLOMA ================= -->
         <section id="diploma-tab" class="page-section">
             <div class="bg-[#0a0f24] rounded-3xl border-2 border-blue-900 shadow-2xl overflow-hidden neon-border">
@@ -521,6 +626,28 @@
                 </div>
 
                 <div class="p-6 md:p-10 space-y-8 bg-slate-950/40">
+                    <!-- Vitrina de Conquistas (Achievements Unlocked) -->
+                    <div class="max-w-xl mx-auto bg-slate-900/60 p-4 rounded-2xl border border-blue-950 text-center space-y-3">
+                        <p class="text-[10px] font-arcade text-amber-400 uppercase tracking-widest">🎖️ As Tuas Conquistas de Campanha</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div id="badge-battery" class="p-3 bg-slate-950 border border-slate-800 rounded-xl opacity-40 transition-all flex flex-col items-center gap-1">
+                                <div class="w-8 h-8 rounded-full bg-blue-950 text-blue-400 flex items-center justify-center text-sm">⚡</div>
+                                <span class="text-[9px] font-arcade text-slate-200">Mestre da Bateria</span>
+                                <span class="text-[8px] text-slate-500">3 respostas corretas seguidas</span>
+                            </div>
+                            <div id="badge-survivor" class="p-3 bg-slate-950 border border-slate-800 rounded-xl opacity-40 transition-all flex flex-col items-center gap-1">
+                                <div class="w-8 h-8 rounded-full bg-red-950 text-red-400 flex items-center justify-center text-sm">❤️</div>
+                                <span class="text-[9px] font-arcade text-slate-200">Sobrevivente</span>
+                                <span class="text-[8px] text-slate-500">Alcançar Fase 3 no Pac-man</span>
+                            </div>
+                            <div id="badge-wise" class="p-3 bg-slate-950 border border-slate-800 rounded-xl opacity-40 transition-all flex flex-col items-center gap-1">
+                                <div class="w-8 h-8 rounded-full bg-amber-950 text-amber-400 flex items-center justify-center text-sm">📚</div>
+                                <span class="text-[9px] font-arcade text-slate-200">Sábio Popular</span>
+                                <span class="text-[8px] text-slate-500">Provérbios perfeitos sem errar</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Formulário Inicial para Pedir o Nome -->
                     <div id="diploma-form" class="max-w-md mx-auto bg-slate-900/80 p-6 rounded-2xl border border-blue-950 space-y-4">
                         <div class="space-y-2">
@@ -565,9 +692,25 @@
 
     <!-- Rodapé -->
     <footer class="bg-slate-950 border-t border-blue-950 py-6 mt-12 text-center text-xs text-slate-500 font-mono">
-        <div class="max-w-5xl mx-auto px-4 space-y-2">
+        <div class="max-w-5xl mx-auto px-4 space-y-4">
             <p class="font-friendly text-sm text-slate-400 font-semibold">"A nossa língua, o nosso melhor videojogo."</p>
             <p>Feito com ❤️ para os meus heróis.</p>
+
+            <!-- Painel Especial de Estatísticas do Professor (Colapsável) -->
+            <div class="border-t border-blue-950/50 pt-4 max-w-md mx-auto">
+                <button onclick="toggleTeacherPanel()" class="bg-slate-900 hover:bg-slate-800 px-4 py-2 border border-blue-950 rounded-xl text-[9px] font-arcade text-blue-400 transition-all">
+                    💼 PAINEL DO PROFESSOR (STATS)
+                </button>
+                <div id="teacher-stats-panel" class="hidden mt-4 bg-slate-900 p-4 rounded-2xl text-left border border-blue-900/50 space-y-3">
+                    <p class="text-[10px] font-arcade text-amber-400 text-center uppercase tracking-widest">📊 Monitor de Dificuldades da Aula</p>
+                    <div class="space-y-1 text-slate-400 text-xs">
+                        <p class="font-bold text-slate-200">Questões Mais Erradas da Sessão:</p>
+                        <ul id="teacher-wrong-questions" class="list-disc pl-4 space-y-1 text-[11px] max-h-32 overflow-y-auto">
+                            <li class="italic text-slate-500">Ainda sem estatísticas de resposta registadas nesta sessão.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -576,6 +719,17 @@
         // ================= CONTEXTO DE SINAL RETRO ÁUDIO (Web Audio API) =================
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
+        let bgmInterval = null;
+        let bgmOsc = null;
+        let bgmGain = null;
+        let bgmMuted = true; // Por padrão, a música inicia desligada
+
+        // Melodia retro feliz de fim de ano (notas MIDI simples em Hz)
+        const retroMelody = [
+            261.63, 293.66, 329.63, 261.63, 329.63, 261.63, 392.00, 349.23,
+            329.63, 293.66, 349.23, 329.63, 293.66, 261.63, 293.66, 196.00
+        ];
+        let melodyIndex = 0;
 
         function playSound(type) {
             if (!audioCtx) {
@@ -596,7 +750,7 @@
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(587.33, now); // D5
                 osc.frequency.setValueAtTime(880, now + 0.1); // A5
-                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.setValueAtTime(0.08, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
                 osc.start(now);
                 osc.stop(now + 0.25);
@@ -604,7 +758,7 @@
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(880, now);
                 osc.frequency.exponentialRampToValueAtTime(110, now + 0.15);
-                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.setValueAtTime(0.06, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
                 osc.start(now);
                 osc.stop(now + 0.15);
@@ -612,7 +766,7 @@
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(120, now);
                 osc.frequency.linearRampToValueAtTime(30, now + 0.3);
-                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.setValueAtTime(0.12, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
                 osc.start(now);
                 osc.stop(now + 0.35);
@@ -622,7 +776,7 @@
                 osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
                 osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
                 osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
-                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.setValueAtTime(0.08, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
                 osc.start(now);
                 osc.stop(now + 0.5);
@@ -630,11 +784,232 @@
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(150, now);
                 osc.frequency.setValueAtTime(110, now + 0.15);
-                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.setValueAtTime(0.1, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
                 osc.start(now);
                 osc.stop(now + 0.35);
             }
+        }
+
+        // CONTROLADOR DE BGM RETRO (LOOP CHIPTUNE)
+        function toggleBGM() {
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            bgmMuted = !bgmMuted;
+            const btn = document.getElementById('btn-bgm');
+            const txt = document.getElementById('bgm-status');
+
+            if (bgmMuted) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+                txt.innerText = "MÚSICA OFF";
+                btn.className = "px-3 py-1.5 rounded-xl text-[10px] font-arcade bg-slate-950 hover:bg-slate-800 border border-blue-900 text-blue-400 transition-all flex items-center gap-1";
+            } else {
+                txt.innerText = "MÚSICA ON";
+                btn.className = "px-3 py-1.5 rounded-xl text-[10px] font-arcade bg-blue-600 hover:bg-blue-500 border border-blue-400 text-white transition-all flex items-center gap-1 shadow-md shadow-blue-500/50";
+                startBGMSequencer();
+            }
+            playSound('success');
+        }
+
+        function startBGMSequencer() {
+            if (bgmInterval) clearInterval(bgmInterval);
+            bgmInterval = setInterval(() => {
+                if (bgmMuted) return;
+                const note = retroMelody[melodyIndex];
+                melodyIndex = (melodyIndex + 1) % retroMelody.length;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(note, audioCtx.currentTime);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.25);
+            }, 300);
+        }
+
+        // MODO PROJETOR (ALTO CONTRASTE)
+        function toggleProjectorMode() {
+            document.body.classList.toggle('projector-mode');
+            playSound('success');
+        }
+
+        // STEAMING_CHUNK: Inicializando o motor de física de partículas de néon... =================
+        // ================= MOTOR DE PARTÍCULAS NÉON =================
+        let particles = [];
+        function createNeonSparks(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    radius: Math.random() * 3 + 1,
+                    color: color,
+                    alpha: 1,
+                    decay: Math.random() * 0.04 + 0.02
+                });
+            }
+        }
+
+        function updateAndDrawParticles(ctx) {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // ================= SISTEMA DE LEITURA TEXT-TO-SPEECH (PT-PT) =================
+        let lastSpokenText = "";
+        function speakCurrentQuestion(gameType) {
+            let textToSpeak = "";
+            if (gameType === 'pac') {
+                textToSpeak = document.getElementById('pac-modal-question').innerText;
+            } else if (gameType === 'defender') {
+                textToSpeak = document.getElementById('defender-modal-question').innerText;
+            } else if (gameType === 'snake') {
+                textToSpeak = document.getElementById('snake-modal-question').innerText;
+            }
+
+            if ('speechSynthesis' in window && textToSpeak) {
+                window.speechSynthesis.cancel(); // Cancelar anterior
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'pt-PT';
+                
+                // Procurar por voz de Portugal se disponível
+                const voices = window.speechSynthesis.getVoices();
+                const ptVoice = voices.find(v => v.lang === 'pt-PT' || v.lang.startsWith('pt'));
+                if (ptVoice) {
+                    utterance.voice = ptVoice;
+                }
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // ================= SISTEMA DE PERSISTÊNCIA E LEADERBOARD LOCAL =================
+        function saveHighScore(gameId, score) {
+            let scores = JSON.parse(localStorage.getItem(`highscores_${gameId}`)) || [];
+            scores.push({ score: score, date: new Date().toLocaleDateString() });
+            scores.sort((a, b) => b.score - a.score);
+            scores = scores.slice(0, 5); // Guardar apenas Top 5
+            localStorage.setItem(`highscores_${gameId}`, JSON.stringify(scores));
+        }
+
+        function renderHighScoreList(gameId, containerId) {
+            const scores = JSON.parse(localStorage.getItem(`highscores_${gameId}`)) || [];
+            const listEl = document.getElementById(containerId);
+            if (!listEl) return;
+            
+            listEl.innerHTML = "";
+            if (scores.length === 0) {
+                listEl.innerHTML = "<div class='text-slate-500 italic'>Ainda sem pontuações!</div>";
+                return;
+            }
+            scores.forEach((s, idx) => {
+                const colors = ['text-yellow-400', 'text-slate-300', 'text-amber-600', 'text-slate-400', 'text-slate-400'];
+                listEl.innerHTML += `
+                    <div class="flex justify-between items-center py-0.5 border-b border-blue-950/20">
+                        <span class="${colors[idx]}">#0${idx + 1} • ${s.score} PTS</span>
+                        <span class="text-[8px] text-slate-500">${s.date}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // ================= SISTEMA DE CONQUISTAS (ACHIEVEMENTS) =================
+        let unlockedAchievements = {
+            batteryMaster: false,
+            survivor: false,
+            popularWise: false
+        };
+
+        function checkAndUnlockAchievement(key) {
+            unlockedAchievements[key] = true;
+            localStorage.setItem('unlockedAchievements_portugues', JSON.stringify(unlockedAchievements));
+            updateAchievementsUI();
+        }
+
+        function updateAchievementsUI() {
+            const stored = JSON.parse(localStorage.getItem('unlockedAchievements_portugues'));
+            if (stored) unlockedAchievements = stored;
+
+            if (unlockedAchievements.batteryMaster) {
+                document.getElementById('badge-battery').classList.remove('opacity-40');
+                document.getElementById('badge-battery').classList.add('border-blue-500', 'shadow-md', 'shadow-blue-500/20');
+            }
+            if (unlockedAchievements.survivor) {
+                document.getElementById('badge-survivor').classList.remove('opacity-40');
+                document.getElementById('badge-survivor').classList.add('border-red-500', 'shadow-md', 'shadow-red-500/20');
+            }
+            if (unlockedAchievements.popularWise) {
+                document.getElementById('badge-wise').classList.remove('opacity-40');
+                document.getElementById('badge-wise').classList.add('border-amber-500', 'shadow-md', 'shadow-amber-500/20');
+            }
+        }
+
+        // ================= MONITORIA PARA PROFESSOR (REGISTO DE ERROS DA TURMA) =================
+        let sessionErrors = {}; // { questionText: { incorrectCount: X, correctOption: Y } }
+
+        function recordClassroomStats(questionText, isCorrect, explanation) {
+            if (!isCorrect) {
+                if (!sessionErrors[questionText]) {
+                    sessionErrors[questionText] = { count: 0, explanation: explanation };
+                }
+                sessionErrors[questionText].count++;
+            }
+            updateTeacherPanelUI();
+        }
+
+        function toggleTeacherPanel() {
+            const panel = document.getElementById('teacher-stats-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function updateTeacherPanelUI() {
+            const list = document.getElementById('teacher-wrong-questions');
+            list.innerHTML = "";
+            const sortedErrors = Object.entries(sessionErrors).sort((a,b) => b[1].count - a[1].count);
+
+            if (sortedErrors.length === 0) {
+                list.innerHTML = "<li class='italic text-slate-500'>Ainda sem erros registados nesta sessão. Bom sinal!</li>";
+                return;
+            }
+
+            sortedErrors.forEach(([question, info]) => {
+                list.innerHTML += `
+                    <li class="border-b border-blue-950/20 pb-2">
+                        <span class="text-red-400 font-bold">[${info.count} Erros]</span> "${question}"
+                        <div class="text-[10px] text-slate-400 italic">Dica de Revisão: ${info.explanation}</div>
+                    </li>
+                `;
+            });
         }
 
         // CONTROLOS DE ABA (Navegação)
@@ -660,9 +1035,21 @@
                 activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-500/50');
             }
 
-            if (tabId === 'jogo1') startPacGame();
-            if (tabId === 'jogo2') startDefenderGame();
-            if (tabId === 'jogo3') startSnakeGame();
+            if (tabId === 'jogo1') {
+                renderHighScoreList('pac', 'pac-highscores-list');
+                startPacGame();
+            }
+            if (tabId === 'jogo2') {
+                renderHighScoreList('defender', 'defender-highscores-list');
+                startDefenderGame();
+            }
+            if (tabId === 'jogo3') {
+                renderHighScoreList('snake', 'snake-highscores-list');
+                startSnakeGame();
+            }
+            if (tabId === 'diploma-tab') {
+                updateAchievementsUI();
+            }
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
             playSound('success');
@@ -676,102 +1063,102 @@
 
         // ================= BANCOS DE PERGUNTAS (30 perguntas cada) =================
         const pacQuestions = [
-            { q: "Na frase 'O cão veloz correu.', qual é o adjetivo?", o: ["O", "cão", "veloz", "correu"], c: 2 },
-            { q: "Identifica o verbo em: 'Nós estudámos muito para o teste.'", o: ["Nós", "estudámos", "muito", "teste"], c: 1 },
-            { q: "Qual das palavras é um determinante artigo definido?", o: ["um", "esta", "a", "meu"], c: 2 },
-            { q: "Em 'Eles cantam bem.', qual é o pronome pessoal?", o: ["Eles", "cantam", "bem", "Não há"], c: 0 },
-            { q: "Qual palavra é um nome próprio?", o: ["cidade", "Lisboa", "rio", "montanha"], c: 1 },
-            { q: "Qual palavra é um advérbio de tempo?", o: ["ontem", "aqui", "muito", "depressa"], c: 0 },
-            { q: "Na frase 'Aquela caneta é azul.', 'aquela' é um determinante...", o: ["possessivo", "demonstrativo", "indefinido", "artigo"], c: 1 },
-            { q: "A palavra 'silenciosamente' pertence a que classe?", o: ["nome", "adjetivo", "verbo", "advérbio"], c: 3 },
-            { q: "Qual das opções é uma preposição?", o: ["com", "mas", "que", "ele"], c: 0 },
-            { q: "Em 'O Pedro comprou três livros.', 'três' é um...", o: ["nome", "adjetivo numeral", "determinante numeral", "verbo"], c: 2 },
-            { q: "Qual é a subclasse do nome em 'alcateia'?", o: ["comum coletivo", "próprio", "comum", "coletivo próprio"], c: 0 },
-            { q: "Identifica o pronome em 'Este livro é meu.'", o: ["Este", "livro", "é", "meu"], c: 3 },
-            { q: "Qual das palavras é um advérbio de quantidade e grau?", o: ["bastante", "rapidamente", "ali", "sim"], c: 0 },
-            { q: "Na frase 'A Rita viajou.', qual é o sujeito?", o: ["A Rita", "viajou", "A", "Rita"], c: 0 },
-            { q: "Qual das palavras é um nome comum abstrato?", o: ["mesa", "beleza", "computador", "pedra"], c: 1 },
-            { q: "Identifica a interjeição em: 'Ufa! Finalmente terminámos.'", o: ["Ufa!", "Finalmente", "terminámos", "Não há"], c: 0 },
-            { q: "Qual das seguintes palavras é um verbo no infinitivo?", o: ["correr", "corri", "correndo", "corrido"], c: 0 },
-            { q: "Na frase 'Eles são simpáticos.', 'simpáticos' é um...", o: ["nome", "adjetivo", "advérbio", "verbo"], c: 1 },
-            { q: "Qual é o determinante possessivo em: 'O meu cão é fiel.'?", o: ["O", "meu", "cão", "fiel"], c: 1 },
-            { q: "Qual palavra é um advérbio de negação?", o: ["talvez", "não", "nunca", "mal"], c: 1 },
-            { q: "Em 'Nós fomos ao cinema.', o verbo está em que pessoa?", o: ["1.ª do singular", "3.ª do plural", "1.ª do plural", "2.ª do plural"], c: 2 },
-            { q: "Qual destas palavras é um nome comum concreto?", o: ["amizade", "tristeza", "cadeira", "esperança"], c: 2 },
-            { q: "Na frase 'O gato comeu o peixe.', qual é o CD (Complemento Direto)?", o: ["O gato", "comeu", "o peixe", "gato"], c: 2 },
-            { q: "O que é 'ontem' em: 'Ontem fomos ao parque.'?", o: ["advérbio de tempo", "advérbio de lugar", "preposição", "nome comum"], c: 0 },
-            { q: "Qual é o determinante artigo indefinido plural?", o: ["os", "as", "uns", "meus"], c: 2 },
-            { q: "Identifica o pronome demonstrativo: 'Isto não faz sentido.'", o: ["Isto", "não", "faz", "sentido"], c: 0 },
-            { q: "Em 'Que lindo dia!', a palavra 'lindo' é um...", o: ["nome", "adjetivo", "advérbio", "verbo"], c: 1 },
-            { q: "Qual é o infinitivo de 'escreveste'?", o: ["escrever", "escrevido", "escrito", "escrevendo"], c: 0 },
-            { q: "Na frase 'Ela mora ali.', 'ali' é um advérbio de...", o: ["tempo", "modo", "lugar", "afirmação"], c: 2 },
-            { q: "Qual é a preposição na frase 'Vou para a escola.'?", o: ["Vou", "para", "a", "escola"], c: 1 }
+            { q: "Na frase 'O cão veloz correu.', qual é o adjetivo?", o: ["O", "cão", "veloz", "correu"], c: 2, e: "O adjetivo é 'veloz', pois caracteriza o cão." },
+            { q: "Identifica o verbo em: 'Nós estudámos muito para o teste.'", o: ["Nós", "estudámos", "muito", "teste"], c: 1, e: "'Estudámos' é o verbo que indica a ação da frase." },
+            { q: "Qual das palavras é um determinante artigo definido?", o: ["um", "esta", "a", "meu"], c: 2, e: "'a' é um determinante artigo definido feminino singular." },
+            { q: "Em 'Eles cantam bem.', qual é o pronome pessoal?", o: ["Eles", "cantam", "bem", "Não há"], c: 0, e: "'Eles' é o pronome pessoal da 3.ª pessoa do plural." },
+            { q: "Qual palavra é um nome próprio?", o: ["cidade", "Lisboa", "rio", "montanha"], c: 1, e: "'Lisboa' é um nome próprio, inicia-se com letra maiúscula." },
+            { q: "Qual palavra é um advérbio de tempo?", o: ["ontem", "aqui", "muito", "depressa"], c: 0, e: "'Ontem' indica quando a ação ocorreu, logo é de tempo." },
+            { q: "Na frase 'Aquela caneta é azul.', 'aquela' é um determinante...", o: ["possessivo", "demonstrativo", "indefinido", "artigo"], c: 1, e: "'Aquela' é demonstrativo, situa a caneta no espaço." },
+            { q: "A palavra 'silenciosamente' pertence a que classe?", o: ["nome", "adjetivo", "verbo", "advérbio"], c: 3, e: "'silenciosamente' é um advérbio de modo." },
+            { q: "Qual das opções é uma preposição?", o: ["com", "mas", "que", "ele"], c: 0, e: "'Com' é uma preposição de companhia/instrumento." },
+            { q: "Em 'O Pedro comprou três livros.', 'três' é um...", o: ["nome", "adjetivo numeral", "determinante numeral", "verbo"], c: 2, e: "'Três' quantifica o nome 'livros', sendo determinante numeral." },
+            { q: "Qual é a subclasse do nome em 'alcateia'?", o: ["comum coletivo", "próprio", "comum", "coletivo próprio"], c: 0, e: "'Alcateia' é um nome comum coletivo (conjunto de lobos)." },
+            { q: "Identifica o pronome em 'Este livro é meu.'", o: ["Este", "livro", "é", "meu"], c: 3, e: "'Meu' substitui a posse do livro, sendo um pronome possessivo nesta construção." },
+            { q: "Qual das palavras é um advérbio de quantidade e grau?", o: ["bastante", "rapidamente", "ali", "sim"], c: 0, e: "'Bastante' é um advérbio de quantidade e grau." },
+            { q: "Na frase 'A Rita viajou.', qual é o sujeito?", o: ["A Rita", "viajou", "A", "Rita"], c: 0, e: "'A Rita' é o sujeito simples que realiza a ação de viajar." },
+            { q: "Qual das palavras é um nome comum abstrato?", o: ["mesa", "beleza", "computador", "pedra"], c: 1, e: "'Beleza' é abstrato porque depende de outro ser para existir." },
+            { q: "Identifica a interjeição em: 'Ufa! Finalmente terminámos.'", o: ["Ufa!", "Finalmente", "terminámos", "Não há"], c: 0, e: "'Ufa!' exprime alívio, tratando-se de uma interjeição." },
+            { q: "Qual das seguintes palavras é um verbo no infinitivo?", o: ["correr", "corri", "correndo", "corrido"], c: 0, e: "O infinitivo termina em -er neste caso: 'correr'." },
+            { q: "Na frase 'Eles são simpáticos.', 'simpáticos' é um...", o: ["nome", "adjetivo", "advérbio", "verbo"], c: 1, e: "'simpáticos' qualifica 'Eles', sendo um adjetivo." },
+            { q: "Qual é o determinante possessivo em: 'O meu cão é fiel.'?", o: ["O", "meu", "cão", "fiel"], c: 1, e: "'meu' é o determinante possessivo de 1.ª pessoa." },
+            { q: "Qual palavra é um advérbio de negação?", o: ["talvez", "não", "nunca", "mal"], c: 1, e: "'Não' nega diretamente a ação do verbo." },
+            { q: "Em 'Nós fomos ao cinema.', o verbo está em que pessoa?", o: ["1.ª do singular", "3.ª do plural", "1.ª do plural", "2.ª do plural"], c: 2, e: "'Fomos' está conjugado na 1.ª pessoa do plural (Nós)." },
+            { q: "Qual destas palavras é um nome comum concreto?", o: ["amizade", "tristeza", "cadeira", "esperança"], c: 2, e: "'Cadeira' tem existência física independente, logo é concreto." },
+            { q: "Na frase 'O gato comeu o peixe.', qual é o CD (Complemento Direto)?", o: ["O gato", "comeu", "o peixe", "gato"], c: 2, e: "'o peixe' responde à pergunta 'o quê?' feita ao verbo 'comeu'." },
+            { q: "O que é 'ontem' em: 'Ontem fomos ao parque.'?", o: ["advérbio de tempo", "advérbio de lugar", "preposição", "nome comum"], c: 0, e: "'Ontem' situa temporalmente a ação." },
+            { q: "Qual é o determinante artigo indefinido plural?", o: ["os", "as", "uns", "meus"], c: 2, e: "'uns' refere-se a seres não especificados no plural." },
+            { q: "Identifica o pronome demonstrativo: 'Isto não faz sentido.'", o: ["Isto", "não", "faz", "sentido"], c: 0, e: "'Isto' demonstra algo próximo de quem fala." },
+            { q: "Em 'Que lindo dia!', a palavra 'lindo' é um...", o: ["nome", "adjetivo", "advérbio", "verbo"], c: 1, e: "'Lindo' qualifica o dia, sendo um adjetivo." },
+            { q: "Qual é o infinitivo de 'escreveste'?", o: ["escrever", "escrevido", "escrito", "escrevendo"], c: 0, e: "O verbo 'escreveste' provém do infinitivo 'escrever'." },
+            { q: "Na frase 'Ela mora ali.', 'ali' é um advérbio de...", o: ["tempo", "modo", "lugar", "afirmação"], c: 2, e: "'Ali' indica onde ela mora, sendo advérbio de lugar." },
+            { q: "Qual é la preposição na frase 'Vou para a escola.'?", o: ["Vou", "para", "a", "escola"], c: 1, e: "'para' estabelece relação de destino, sendo preposição." }
         ];
 
         const defenderQuestions = [
-            { q: "Sinónimo de 'Alegre'", o: ["Contente", "Triste", "Rápido"], c: 0 },
-            { q: "Antónimo de 'Rápido'", o: ["Veloz", "Lento", "Forte"], c: 1 },
-            { q: "Sinónimo de 'Começar'", o: ["Terminar", "Iniciar", "Fugir"], c: 1 },
-            { q: "Antónimo de 'Fácil'", o: ["Simples", "Difícil", "Claro"], c: 1 },
-            { q: "Sinónimo de 'Belo'", o: ["Bonito", "Feio", "Grande"], c: 0 },
-            { q: "Antónimo de 'Sair'", o: ["Partir", "Entrar", "Subir"], c: 1 },
-            { q: "Sinónimo de 'Gritar'", o: ["Falar", "Sussurrar", "Bradar"], c: 2 },
-            { q: "Antónimo de 'Quente'", o: ["Frio", "Morno", "Ardente"], c: 0 },
-            { q: "Sinónimo de 'Descobrir'", o: ["Achar", "Esconder", "Perder"], c: 0 },
-            { q: "Antónimo de 'Cheio'", o: ["Completo", "Vazio", "Pesado"], c: 1 },
-            { q: "Sinónimo de 'Ruído'", o: ["Silêncio", "Barulho", "Música"], c: 1 },
-            { q: "Antónimo de 'Ganhar'", o: ["Vencer", "Perder", "Conseguir"], c: 1 },
-            { q: "Sinónimo de 'Habitação'", o: ["Trabalho", "Casa", "Jardim"], c: 1 },
-            { q: "Antónimo de 'Forte'", o: ["Fraco", "Robusto", "Duro"], c: 0 },
-            { q: "Sinónimo de 'Oferecer'", o: ["Dar", "Tirar", "Pedir"], c: 0 },
-            { q: "Antónimo de 'Perto'", o: ["Longe", "Próximo", "Ao lado"], c: 0 },
-            { q: "Sinónimo de 'Colocar'", o: ["Pôr", "Retirar", "Mover"], c: 0 },
-            { q: "Antónimo de 'Comprar'", o: ["Vender", "Adquirir", "Alugar"], c: 0 },
-            { q: "Sinónimo de 'Escutar'", o: ["Ouvir", "Falar", "Ignorar"], c: 0 },
-            { q: "Antónimo de 'Pesado'", o: ["Leve", "Gordo", "Forte"], c: 0 },
-            { q: "Sinónimo de 'Paciente'", o: ["Calmo", "Nervoso", "Rápido"], c: 0 },
-            { q: "Antónimo de 'Limpo'", o: ["Sujo", "Puro", "Brilhante"], c: 0 },
-            { q: "Sinónimo de 'Grande'", o: ["Enorme", "Pequeno", "Baixo"], c: 0 },
-            { q: "Antónimo de 'Justo'", o: ["Injusto", "Correto", "Honesto"], c: 0 },
-            { q: "Sinónimo de 'Veloz'", o: ["Lento", "Rápido", "Parado"], c: 1 },
-            { q: "Antónimo de 'Luz'", o: ["Brilho", "Trevas", "Fogo"], c: 1 },
-            { q: "Sinónimo de 'Sábio'", o: ["Inteligente", "Ignorante", "Tolo"], c: 0 },
-            { q: "Antónimo de 'Verdade'", o: ["Realidade", "Mentira", "Facto"], c: 1 },
-            { q: "Sinónimo de 'Auxiliar'", o: ["Ajudar", "Atrapalhar", "Ignorar"], c: 0 },
-            { q: "Antónimo de 'Aparecer'", o: ["Surgir", "Desaparecer", "Ficar"], c: 1 }
+            { q: "Sinónimo de 'Alegre'", o: ["Contente", "Triste", "Rápido"], c: 0, e: "'Contente' tem o mesmo significado que alegre." },
+            { q: "Antónimo de 'Rápido'", o: ["Veloz", "Lento", "Forte"], c: 1, e: "'Lento' é o significado oposto a rápido." },
+            { q: "Sinónimo de 'Começar'", o: ["Terminar", "Iniciar", "Fugir"], c: 1, e: "'Iniciar' significa começar." },
+            { q: "Antónimo de 'Fácil'", o: ["Simples", "Difícil", "Claro"], c: 1, e: "'Difícil' é o oposto de fácil." },
+            { q: "Sinónimo de 'Belo'", o: ["Bonito", "Feio", "Grande"], c: 0, e: "'Bonito' é sinónimo de belo." },
+            { q: "Antónimo de 'Sair'", o: ["Partir", "Entrar", "Subir"], c: 1, e: "'Entrar' é o oposto direto de sair." },
+            { q: "Sinónimo de 'Gritar'", o: ["Falar", "Sussurrar", "Bradar"], c: 2, e: "'Bradar' é sinónimo literário de gritar." },
+            { q: "Antónimo de 'Quente'", o: ["Frio", "Morno", "Ardente"], c: 0, e: "'Frio' é o contrário de quente." },
+            { q: "Sinónimo de 'Descobrir'", o: ["Achar", "Esconder", "Perder"], c: 0, e: "'Achar' significa descobrir." },
+            { q: "Antónimo de 'Cheio'", o: ["Completo", "Vazio", "Pesado"], c: 1, e: "'Vazio' é o antónimo de cheio." },
+            { q: "Sinónimo de 'Ruído'", o: ["Silêncio", "Barulho", "Música"], c: 1, e: "'Barulho' é o sinónimo comum de ruído." },
+            { q: "Antónimo de 'Ganhar'", o: ["Vencer", "Perder", "Conseguir"], c: 1, e: "'Perder' é o contrário de ganhar." },
+            { q: "Sinónimo de 'Habitação'", o: ["Trabalho", "Casa", "Jardim"], c: 1, e: "'Casa' é sinónimo de habitação." },
+            { q: "Antónimo de 'Forte'", o: ["Fraco", "Robusto", "Duro"], c: 0, e: "'Fraco' é o contrário de forte." },
+            { q: "Sinónimo de 'Oferecer'", o: ["Dar", "Tirar", "Pedir"], c: 0, e: "'Dar' é sinónimo de oferecer." },
+            { q: "Antónimo de 'Perto'", o: ["Longe", "Próximo", "Ao lado"], c: 0, e: "'Longe' é o oposto de perto." },
+            { q: "Sinónimo de 'Colocar'", o: ["Pôr", "Retirar", "Mover"], c: 0, e: "'Pôr' é equivalente a colocar." },
+            { q: "Antónimo de 'Comprar'", o: ["Vender", "Adquirir", "Alugar"], c: 0, e: "'Vender' é o oposto de comprar." },
+            { q: "Sinónimo de 'Escutar'", o: ["Ouvir", "Falar", "Ignorar"], c: 0, e: "'Ouvir' significa escutar." },
+            { q: "Antónimo de 'Pesado'", o: ["Leve", "Gordo", "Forte"], c: 0, e: "'Leve' é o antónimo de pesado." },
+            { q: "Sinónimo de 'Paciente'", o: ["Calmo", "Nervoso", "Rápido"], c: 0, e: "'Calmo' é sinónimo de paciente." },
+            { q: "Antónimo de 'Limpo'", o: ["Sujo", "Puro", "Brilhante"], c: 0, e: "'Sujo' é o contrário de limpo." },
+            { q: "Sinónimo de 'Grande'", o: ["Enorme", "Pequeno", "Baixo"], c: 0, e: "'Enorme' é um sinónimo de grande." },
+            { q: "Antónimo de 'Justo'", o: ["Injusto", "Correto", "Honesto"], c: 0, e: "'Injusto' é o contrário de justo." },
+            { q: "Sinónimo de 'Veloz'", o: ["Lento", "Rápido", "Parado"], c: 1, e: "'Rápido' significa veloz." },
+            { q: "Antónimo de 'Luz'", o: ["Brilho", "Trevas", "Fogo"], c: 1, e: "'Trevas' é antónimo literário de luz." },
+            { q: "Sinónimo de 'Sábio'", o: ["Inteligente", "Ignorante", "Tolo"], c: 0, e: "'Inteligente' aproxima-se de sábio." },
+            { q: "Antónimo de 'Verdade'", o: ["Realidade", "Mentira", "Facto"], c: 1, e: "'Mentira' é o oposto de verdade." },
+            { q: "Sinónimo de 'Auxiliar'", o: ["Ajudar", "Atrapalhar", "Ignorar"], c: 0, e: "'Ajudar' é equivalente a auxiliar." },
+            { q: "Antónimo de 'Aparecer'", o: ["Surgir", "Desaparecer", "Ficar"], c: 1, e: "'Desaparecer' é o contrário de aparecer." }
         ];
 
         const snakeQuestions = [
-            { q: "Na frase 'O silêncio é de ouro.', qual é a classe de 'silêncio'?", o: ["Nome Comum", "Adjetivo", "Verbo", "Advérbio"], c: 0 },
-            { q: "Qual o antónimo de 'Justo'?", o: ["Injusto", "Desjusto", "Maljusto", "Correto"], c: 0 },
-            { q: "Identifica o verbo em: 'Nós jogamos muito bem!'", o: ["Nós", "jogamos", "muito", "bem"], c: 1 },
-            { q: "Qual palavra é um determinante artigo indefinido?", o: ["o", "uma", "este", "meu"], c: 1 },
-            { q: "Qual é o sujeito em: 'O sol brilha no céu.'?", o: ["sol", "brilha", "O sol", "no céu"], c: 2 },
-            { q: "Qual o sinónimo de 'Habitação'?", o: ["Trabalho", "Escola", "Casa", "Rua"], c: 2 },
-            { q: "A palavra 'rapidamente' é um advérbio de...", o: ["tempo", "modo", "lugar", "quantidade"], c: 1 },
-            { q: "Em 'A minha caneta escreve bem.', 'minha' é um determinante...", o: ["demonstrativo", "possessivo", "artigo", "numeral"], c: 1 },
-            { q: "Qual o plural de 'pão'?", o: ["pãos", "pães", "pões", "pãeses"], c: 1 },
-            { q: "O antónimo de 'Forte' é...", o: ["Lento", "Baixo", "Fraco", "Macio"], c: 2 },
-            { q: "Qual o infinitivo de 'partiram'?", o: ["partir", "partido", "partendo", "parte"], c: 0 },
-            { q: "Identifica o nome próprio: 'A Maria vive em Braga.'", o: ["Maria e Braga", "Maria", "Braga", "vive"], c: 0 },
-            { q: "O sinónimo de 'Grande' é...", o: ["Enorme", "Pequeno", "Gordo", "Alto"], c: 0 },
-            { q: "Na frase 'Eu adoro ler.', 'Eu' é um...", o: ["nome", "adjetivo", "pronome pessoal", "determinante"], c: 2 },
-            { q: "Qual destas palavras é uma preposição?", o: ["com", "mas", "porque", "ele"], c: 0 },
-            { q: "O antónimo de 'Aparecer' é...", o: ["Surgir", "Desaparecer", "Ficar", "Sair"], c: 1 },
-            { q: "Qual o grau do adjetivo em 'Este carro é antiquíssimo'?", o: ["Normal", "Superlativo absoluto sintético", "Superlativo relativo de superioridade", "Comparativo"], c: 1 },
-            { q: "Qual o sinónimo de 'Auxiliar'?", o: ["Atrapalhar", "Ajudar", "Ignorar", "Fugir"], c: 1 },
-            { q: "O que é 'ontem' na frase 'Ontem fomos ao zoo.'?", o: ["nome", "advérbio de tempo", "advérbio de lugar", "preposição"], c: 1 },
-            { q: "Qual o antónimo de 'Pesado'?", o: ["Forte", "Macio", "Leve", "Fino"], c: 2 },
-            { q: "Qual é a subclasse do nome 'alcateia'?", o: ["comum", "próprio", "coletivo", "abstrato"], c: 2 },
-            { q: "Na frase 'Ele comprou dois livros.', 'dois' é um...", o: ["nome", "determinante numeral", "adjetivo", "pronome"], c: 1 },
-            { q: "Qual destas palavras é esdrúxula (proparoxítona)?", o: ["café", "lápis", "médico", "computador"], c: 2 },
-            { q: "Qual é o antónimo de 'Limpo'?", o: ["Sujo", "Puro", "Brilhante", "Lindo"], c: 0 },
-            { q: "O que é 'sob' em: 'O gato está sob a mesa.'?", o: ["preposição", "verbo", "adjetivo", "pronome"], c: 0 },
-            { q: "Qual o sinónimo de 'Belo'?", o: ["Feio", "Bonito", "Grande", "Forte"], c: 1 },
-            { q: "Na frase 'Ela mora longe.', 'longe' é um advérbio de...", o: ["tempo", "modo", "lugar", "negação"], c: 2 },
-            { q: "Qual o plural de 'canal'?", o: ["canals", "canales", "canais", "canaliz"], c: 2 },
-            { q: "Qual o antónimo de 'Luz'?", o: ["Brilho", "Trevas", "Fogo", "Sol"], c: 1 },
-            { q: "Qual é o infinitivo do verbo 'fizemos'?", o: ["fazer", "feito", "fazendo", "fazeram"], c: 0 }
+            { q: "Na frase 'O silêncio é de ouro.', qual é a classe de 'silêncio'?", o: ["Nome Comum", "Adjetivo", "Verbo", "Advérbio"], c: 0, e: "'Silêncio' é um nome comum." },
+            { q: "Qual o antónimo de 'Justo'?", o: ["Injusto", "Desjusto", "Maljusto", "Correto"], c: 0, e: "'Injusto' é o antónimo de justo." },
+            { q: "Identifica o verbo em: 'Nós jogamos muito bem!'", o: ["Nós", "jogamos", "muito", "bem"], c: 1, e: "'Jogamos' é o verbo da frase." },
+            { q: "Qual palavra é um determinante artigo indefinido?", o: ["o", "uma", "este", "meu"], c: 1, e: "'uma' é artigo indefinido feminino singular." },
+            { q: "Qual é o sujeito em: 'O sol brilha no céu.'?", o: ["sol", "brilha", "O sol", "no céu"], c: 2, e: "'O sol' é o sujeito simples." },
+            { q: "Qual o sinónimo de 'Habitação'?", o: ["Trabalho", "Escola", "Casa", "Rua"], c: 2, e: "'Casa' é sinónimo direto." },
+            { q: "A palavra 'rapidamente' é um advérbio de...", o: ["tempo", "modo", "lugar", "quantidade"], c: 1, e: "O sufixo '-mente' indica modo: 'rapidamente'." },
+            { q: "Em 'A minha caneta escreve bem.', 'minha' é um determinante...", o: ["demonstrativo", "possessivo", "artigo", "numeral"], c: 1, e: "'minha' indica posse, logo é possessivo." },
+            { q: "Qual o plural de 'pão'?", o: ["pãos", "pães", "pões", "pãeses"], c: 1, e: "O plural irregular de pão é 'pães'." },
+            { q: "O antónimo de 'Forte' é...", o: ["Lento", "Baixo", "Fraco", "Macio"], c: 2, e: "'Fraco' é o contrário de forte." },
+            { q: "Qual o infinitivo de 'partiram'?", o: ["partir", "partido", "partendo", "parte"], c: 0, e: "O verbo 'partiram' provém de 'partir'." },
+            { q: "Identifica o nome próprio: 'A Maria vive em Braga.'", o: ["Maria e Braga", "Maria", "Braga", "vive"], c: 0, e: "Tanto 'Maria' como 'Braga' são nomes próprios." },
+            { q: "O sinónimo de 'Grande' é...", o: ["Enorme", "Pequeno", "Gordo", "Alto"], c: 0, e: "'Enorme' significa muito grande." },
+            { q: "Na frase 'Eu adoro ler.', 'Eu' é um...", o: ["nome", "adjetivo", "pronome pessoal", "determinante"], c: 2, e: "'Eu' é pronome pessoal da 1.ª pessoa do singular." },
+            { q: "Qual destas palavras é uma preposição?", o: ["com", "mas", "porque", "ele"], c: 0, e: "'com' é uma preposição." },
+            { q: "O antónimo de 'Aparecer' é...", o: ["Surgir", "Desaparecer", "Ficar", "Sair"], c: 1, e: "'Desaparecer' é o contrário de aparecer." },
+            { q: "Qual o grau do adjetivo em 'Este carro é antiquíssimo'?", o: ["Normal", "Superlativo absoluto sintético", "Superlativo relativo de superioridade", "Comparativo"], c: 1, e: "O sufixo '-íssimo' cria o superlativo absoluto sintético." },
+            { q: "Qual o sinónimo de 'Auxiliar'?", o: ["Atrapalhar", "Ajudar", "Ignorar", "Fugir"], c: 1, e: "'Ajudar' é o mesmo que auxiliar." },
+            { q: "O que é 'ontem' na frase 'Ontem fomos ao zoo.'?", o: ["nome", "advérbio de tempo", "advérbio de lugar", "preposição"], c: 1, e: "'Ontem' indica tempo." },
+            { q: "Qual o antónimo de 'Pesado'?", o: ["Forte", "Macio", "Leve", "Fino"], c: 2, e: "'Leve' é o antónimo de pesado." },
+            { q: "Qual é a subclasse do nome 'alcateia'?", o: ["comum", "próprio", "coletivo", "abstrato"], c: 2, e: "'Alcateia' é um nome coletivo." },
+            { q: "Na frase 'Ele comprou dois livros.', 'dois' é um...", o: ["nome", "determinante numeral", "adjetivo", "pronome"], c: 1, e: "'dois' quantifica o nome 'livros'." },
+            { q: "Qual destas palavras é esdrúxula (proparoxítona)?", o: ["café", "lápis", "médico", "computador"], c: 2, e: "'médico' tem o acento tónico na antepenúltima sílaba." },
+            { q: "Qual é o antónimo de 'Limpo'?", o: ["Sujo", "Puro", "Brilhante", "Lindo"], c: 0, e: "'Sujo' é o oposto de limpo." },
+            { q: "O que é 'sob' em: 'O gato está sob a mesa.'?", o: ["preposição", "verbo", "adjetivo", "pronome"], c: 0, e: "'sob' é uma preposição." },
+            { q: "Qual o sinónimo de 'Belo'?", o: ["Feio", "Bonito", "Grande", "Forte"], c: 1, e: "'Bonito' é sinónimo." },
+            { q: "Na frase 'Ela mora longe.', 'longe' é um advérbio de...", o: ["tempo", "modo", "lugar", "negação"], c: 2, e: "'longe' indica lugar." },
+            { q: "Qual o plural de 'canal'?", o: ["canals", "canales", "canais", "canaliz"], c: 2, e: "O plural correto de canal é 'canais'." },
+            { q: "Qual o antónimo de 'Luz'?", o: ["Brilho", "Trevas", "Fogo", "Sol"], c: 1, e: "'Trevas' é o contrário de luz." },
+            { q: "Qual é o infinitivo do verbo 'fizemos'?", o: ["fazer", "feito", "fazendo", "fazeram"], c: 0, e: "O verbo provém de 'fazer'." }
         ];
 
         let pacInterval = null;
@@ -794,17 +1181,19 @@
         let pacGrid = [];
         let pacSuperMode = false;
         let pacSuperTimer = 0;
+        let pacCorrectStreak = 0;
+        let pacErrorsInSession = [];
         
         const baseGrid = [
             [1,1,1,1,1,1,1,1,1,1,1,1],
             [1,0,0,0,0,1,0,0,0,0,0,1],
             [1,0,1,1,0,1,0,1,1,1,0,1],
-            [1,0,1,0,0,0,0,0,0,1,0,1],
-            [1,0,1,0,1,1,1,1,0,1,0,1],
-            [1,0,0,0,1,2,2,1,0,0,0,1],
-            [1,0,1,0,1,2,2,1,0,1,0,1],
-            [1,0,1,0,1,1,1,1,0,1,0,1],
-            [1,0,1,0,0,0,0,0,0,1,0,1],
+            [1,0,1,2,2,2,2,2,2,1,0,1],
+            [1,0,1,2,1,1,1,1,2,1,0,1],
+            [1,0,2,2,1,2,2,1,2,2,0,1],
+            [1,0,1,2,1,2,2,1,2,1,0,1],
+            [1,0,1,2,1,1,1,1,2,1,0,1],
+            [1,0,1,2,2,2,2,2,2,1,0,1],
             [1,0,1,1,1,0,1,1,1,1,0,1],
             [1,0,0,0,0,0,0,0,0,0,0,1],
             [1,1,1,1,1,1,1,1,1,1,1,1]
@@ -817,6 +1206,7 @@
             document.getElementById('pac-intro').classList.add('hidden');
             document.getElementById('pac-results').classList.add('hidden');
             document.getElementById('pac-active-area').classList.remove('hidden');
+            document.getElementById('pac-error-report-container').classList.add('hidden');
             
             pacEnergy = 100;
             pacScore = 0;
@@ -825,6 +1215,8 @@
             pacActive = true;
             pacSuperMode = false;
             pacSuperTimer = 0;
+            pacCorrectStreak = 0;
+            pacErrorsInSession = [];
             pacHero = { x: 1, y: 1, dir: 'NONE', nextDir: 'NONE' };
             pacGhost = { x: 10, y: 10, dir: 'NONE' };
             
@@ -895,22 +1287,27 @@
                 pacHero.y = nextY;
                 
                 // Consumir energia por movimento
-                pacEnergy -= 1.5;
+                pacEnergy -= 1.2;
                 if (pacEnergy < 0) pacEnergy = 0;
             } else {
                 pacHero.dir = 'NONE';
             }
 
             // Apanhar estrelas e super bolinhas néon
+            let hCanvasX = pacHero.x * tileSize + 8 + tileSize/2;
+            let hCanvasY = pacHero.y * tileSize + 8 + tileSize/2;
+
             if (pacGrid[pacHero.y] && pacGrid[pacHero.y][pacHero.x] === 0) {
                 pacGrid[pacHero.y][pacHero.x] = 2; // Estado vazio
                 pacScore += 10;
+                createNeonSparks(hCanvasX, hCanvasY, '#38bdf8');
                 playSound('coin');
             } else if (pacGrid[pacHero.y] && pacGrid[pacHero.y][pacHero.x] === 3) {
                 pacGrid[pacHero.y][pacHero.x] = 2; // Estado vazio
                 pacScore += 50;
                 pacSuperMode = true;
                 pacSuperTimer = 35; // ~5 segundos em ticks
+                createNeonSparks(hCanvasX, hCanvasY, '#fbbf24');
                 playSound('success');
             }
 
@@ -922,7 +1319,7 @@
                 }
             }
 
-            // MOVER FANTASMA (IA Simples, mais lenta se em Super Modo)
+            // MOVER FANTASMA (IA Simples)
             if (!pacSuperMode || Math.random() < 0.6) {
                 movePacGhost();
             }
@@ -933,13 +1330,15 @@
                     // Comer o Fantasma! Regressa ao centro do mapa
                     playSound('success');
                     pacScore += 100;
+                    createNeonSparks(pacGhost.x * tileSize + tileSize, pacGhost.y * tileSize + tileSize, '#fbbf24');
                     pacGhost.x = 5;
                     pacGhost.y = 5;
                 } else {
                     playSound('hit');
                     pacLives--;
+                    createNeonSparks(hCanvasX, hCanvasY, '#ef4444');
                     if (pacLives <= 0) {
-                        endPacGame(false);
+                        endPacGame();
                         return;
                     } else {
                         // Reset posições
@@ -964,8 +1363,11 @@
                 }
             }
             if (remainingStars === 0) {
-                // Avança para a próxima fase com velocidade ligeiramente superior do fantasma!
+                // Avança para a próxima fase!
                 pacPhase++;
+                if (pacPhase >= 3) {
+                    checkAndUnlockAchievement('survivor');
+                }
                 pacGrid = JSON.parse(JSON.stringify(baseGrid));
                 pacGrid[1][10] = 3;
                 pacGrid[10][1] = 3;
@@ -1177,6 +1579,9 @@
             pacCtx.arc(gX + 3, gY - 2, 1.5, 0, Math.PI*2);
             pacCtx.fill();
 
+            // Atualizar e desenhar partículas néon de colisão/comida
+            updateAndDrawParticles(pacCtx);
+
             // Ecrã de congelamento de bateria
             if (pacEnergy <= 0) {
                 pacCtx.fillStyle = "rgba(5, 8, 20, 0.75)";
@@ -1210,7 +1615,7 @@
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left bg-slate-900 border border-blue-900 hover:border-blue-400 p-4 rounded-xl text-xs font-arcade text-slate-300 transition-all hover:bg-blue-950/40";
                 btn.innerText = `[${idx + 1}] ${opt}`;
-                btn.onclick = () => answerPacQuestion(idx, questionData.c);
+                btn.onclick = () => answerPacQuestion(idx, questionData);
                 optionsDiv.appendChild(btn);
             });
 
@@ -1218,24 +1623,41 @@
             document.getElementById('pac-question-modal').classList.remove('hidden');
         }
 
-        function answerPacQuestion(chosen, correct) {
+        function answerPacQuestion(chosen, questionData) {
             const feedback = document.getElementById('pac-modal-feedback');
             feedback.classList.remove('hidden');
             
             const buttons = document.querySelectorAll('#pac-modal-options button');
             buttons.forEach(btn => btn.disabled = true);
 
-            if (chosen === correct) {
+            const isCorrect = (chosen === questionData.c);
+            recordClassroomStats(questionData.q, isCorrect, questionData.e);
+
+            if (isCorrect) {
                 playSound('success');
                 feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-emerald-950/60 border border-emerald-500 text-emerald-400 animate-pulse";
                 feedback.innerText = "RECARGA COMPLETA! +50% BATERIA";
                 
                 pacEnergy = Math.min(100, pacEnergy + 50);
                 pacScore += 50;
+                pacCorrectStreak++;
+
+                if (pacCorrectStreak >= 3) {
+                    checkAndUnlockAchievement('batteryMaster');
+                }
             } else {
                 playSound('error');
                 feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-rose-950/60 border border-rose-500 text-rose-400";
                 feedback.innerText = "ERRO NO SISTEMA! SEM RECARGA";
+                pacCorrectStreak = 0;
+
+                // Registar no relatório de erros desta partida
+                pacErrorsInSession.push({
+                    q: questionData.q,
+                    wrong: questionData.o[chosen],
+                    correct: questionData.o[questionData.c],
+                    e: questionData.e
+                });
             }
 
             setTimeout(() => {
@@ -1244,12 +1666,34 @@
             }, 1500);
         }
 
-        function endPacGame(win) {
+        function endPacGame() {
             pacActive = false;
             clearInterval(pacInterval);
             document.getElementById('pac-active-area').classList.add('hidden');
             document.getElementById('pac-results').classList.remove('hidden');
             document.getElementById('final-pac-score').innerText = `SCORE: ${String(pacScore).padStart(4, '0')}`;
+            
+            saveHighScore('pac', pacScore);
+
+            // Construir relatório de erros se houver
+            const errReport = document.getElementById('pac-error-report-container');
+            const errList = document.getElementById('pac-errors-list');
+            if (pacErrorsInSession.length > 0) {
+                errReport.classList.remove('hidden');
+                errList.innerHTML = "";
+                pacErrorsInSession.forEach(err => {
+                    errList.innerHTML += `
+                        <div class="border-b border-red-950/50 pb-2">
+                            <p class="font-bold text-red-400">P: ${err.q}</p>
+                            <p class="text-[10px] text-slate-400">Respondeste: <span class="line-through">${err.wrong}</span> | Correto: <span class="text-emerald-400">${err.correct}</span></p>
+                            <p class="text-[9px] text-slate-500 italic mt-0.5">${err.e}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                errReport.classList.add('hidden');
+            }
+
             playSound('error');
         }
 
@@ -1266,17 +1710,22 @@
         let currentDefQuestion = null;
         let asteroids = [];
         let defLasers = [];
+        let defenderCorrectStreak = 0;
+        let defenderErrorsInSession = [];
 
         function startDefenderGame() {
             stopAllGameLoops();
             document.getElementById('defender-intro').classList.add('hidden');
             document.getElementById('defender-results').classList.add('hidden');
             document.getElementById('defender-active').classList.remove('hidden');
+            document.getElementById('defender-error-report-container').classList.add('hidden');
 
             defenderScore = 0;
             defenderLives = 3;
             defenderAmmo = 6;
             defenderActive = true;
+            defenderCorrectStreak = 0;
+            defenderErrorsInSession = [];
             asteroids = [];
             defLasers = [];
 
@@ -1379,6 +1828,8 @@
             asteroids.forEach(ast => {
                 const dist = Math.hypot(ast.x - targetX, ast.y - targetY);
                 if (dist < ast.radius + 10) {
+                    createNeonSparks(ast.x, ast.y, ast.isCorrect ? '#10b981' : '#ef4444');
+                    
                     if (ast.isCorrect) {
                         playSound('success');
                         defenderScore += 100;
@@ -1394,6 +1845,14 @@
                         ast.destroyed = true;
                         ast.glowColor = '#ef4444';
                         
+                        // Registar no relatório de erros
+                        defenderErrorsInSession.push({
+                            q: currentDefQuestion.q,
+                            wrong: ast.text,
+                            correct: currentDefQuestion.o[currentDefQuestion.c],
+                            e: currentDefQuestion.e
+                        });
+
                         if (defenderLives <= 0) {
                             endDefenderGame(false);
                         } else {
@@ -1507,6 +1966,9 @@
                 defCtx.fillText(ast.text, ast.x, ast.y + 4);
             });
 
+            // Desenhar partículas néon
+            updateAndDrawParticles(defCtx);
+
             if (defenderAmmo <= 0) {
                 defCtx.fillStyle = "rgba(5, 8, 20, 0.7)";
                 defCtx.fillRect(0, 0, defenderCanvas.width, defenderCanvas.height);
@@ -1535,7 +1997,7 @@
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left bg-slate-900 border border-emerald-900 hover:border-emerald-400 p-4 rounded-xl text-xs font-arcade text-slate-300 transition-all hover:bg-emerald-950/40";
                 btn.innerText = `[${idx + 1}] ${opt}`;
-                btn.onclick = () => answerDefenderQuestion(idx, questionData.c);
+                btn.onclick = () => answerDefenderQuestion(idx, questionData);
                 optionsDiv.appendChild(btn);
             });
 
@@ -1543,24 +2005,41 @@
             document.getElementById('defender-question-modal').classList.remove('hidden');
         }
 
-        function answerDefenderQuestion(chosen, correct) {
+        function answerDefenderQuestion(chosen, questionData) {
             const feedback = document.getElementById('defender-modal-feedback');
             feedback.classList.remove('hidden');
             
             const buttons = document.querySelectorAll('#defender-modal-options button');
             buttons.forEach(btn => btn.disabled = true);
 
-            if (chosen === correct) {
+            const isCorrect = (chosen === questionData.c);
+            recordClassroomStats(questionData.q, isCorrect, questionData.e);
+
+            if (isCorrect) {
                 playSound('success');
                 feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-emerald-950/60 border border-emerald-500 text-emerald-400 animate-pulse";
                 feedback.innerText = "SISTEMAS RECARREGADOS! +6 LASERS";
                 
                 defenderAmmo = 6; 
                 defenderScore += 50;
+                defenderCorrectStreak++;
+
+                if (defenderCorrectStreak >= 3) {
+                    checkAndUnlockAchievement('batteryMaster');
+                }
             } else {
                 playSound('error');
                 feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-rose-950/60 border border-rose-500 text-rose-400";
                 feedback.innerText = "MUNIÇÃO FALHOU! TENTA OUTRA";
+                defenderCorrectStreak = 0;
+
+                // Registar no relatório de erros desta partida
+                defenderErrorsInSession.push({
+                    q: questionData.q,
+                    wrong: questionData.o[chosen],
+                    correct: questionData.o[questionData.c],
+                    e: questionData.e
+                });
             }
 
             setTimeout(() => {
@@ -1579,6 +2058,27 @@
             const rText = document.getElementById('defender-result-text');
             document.getElementById('final-defender-score').innerText = `SCORE: ${String(defenderScore).padStart(4, '0')}`;
             
+            saveHighScore('defender', defenderScore);
+
+            // Construir relatório de erros se houver
+            const errReport = document.getElementById('defender-error-report-container');
+            const errList = document.getElementById('defender-errors-list');
+            if (defenderErrorsInSession.length > 0) {
+                errReport.classList.remove('hidden');
+                errList.innerHTML = "";
+                defenderErrorsInSession.forEach(err => {
+                    errList.innerHTML += `
+                        <div class="border-b border-red-950/50 pb-2">
+                            <p class="font-bold text-red-400">P: ${err.q}</p>
+                            <p class="text-[10px] text-slate-400">Respondeste: <span class="line-through">${err.wrong}</span> | Correto: <span class="text-emerald-400">${err.correct}</span></p>
+                            <p class="text-[9px] text-slate-500 italic mt-0.5">${err.e}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                errReport.classList.add('hidden');
+            }
+
             if (win) {
                 playSound('success');
                 rText.innerText = "VITÓRIA! Defendeste com inteligência e astúcia o nosso sistema solar semântico! 🛸";
@@ -1602,18 +2102,23 @@
         let snakeDir = 'RIGHT';
         let snakeEnergy = 100;
         let snakePellets = []; 
+        let snakeCorrectStreak = 0;
+        let snakeErrorsInSession = [];
 
         function startSnakeGame() {
             stopAllGameLoops();
             document.getElementById('snake-intro').classList.add('hidden');
             document.getElementById('snake-results').classList.add('hidden');
             document.getElementById('snake-active').classList.remove('hidden');
+            document.getElementById('snake-error-report-container').classList.add('hidden');
 
             snakeScore = 0;
             snakeLives = 3;
             snakeEnergy = 100;
             snakeActive = true;
             snakeDir = 'RIGHT';
+            snakeCorrectStreak = 0;
+            snakeErrorsInSession = [];
 
             snake = [
                 {x: 10, y: 10},
@@ -1700,7 +2205,7 @@
             if (snakeDir === 'LEFT') head.x--;
             if (snakeDir === 'RIGHT') head.x++;
 
-            // ATRAVESSAR EXTREMIDADES (Wrapping): Em vez de colidir nas paredes, reaparece no extremo oposto!
+            // ATRAVESSAR EXTREMIDADES (Wrapping)
             if (head.x < 0) head.x = snakeGridSize - 1;
             if (head.x >= snakeGridSize) head.x = 0;
             if (head.y < 0) head.y = snakeGridSize - 1;
@@ -1713,7 +2218,7 @@
             }
 
             // Gasta bateria proporcionalmente por movimento
-            snakeEnergy -= 1.5;
+            snakeEnergy -= 1.2;
             if (snakeEnergy < 0) snakeEnergy = 0;
             updateSnakeUI();
 
@@ -1732,6 +2237,9 @@
                 snakeScore += snakePellets[eatenIdx].points;
                 snakeEnergy = Math.min(100, snakeEnergy + 8);
                 updateSnakeUI();
+
+                // Criar faíscas néon ao comer bolinha
+                createNeonSparks(snakePellets[eatenIdx].x * 20 + 10, snakePellets[eatenIdx].y * 20 + 10, snakePellets[eatenIdx].color);
 
                 snakePellets.splice(eatenIdx, 1);
                 while (snakePellets.length < 3) {
@@ -1823,6 +2331,9 @@
                 snkCtx.fill();
             });
 
+            // Atualizar e desenhar partículas néon
+            updateAndDrawParticles(snkCtx);
+
             snkCtx.shadowBlur = 0;
 
             // Painel semitransparente em caso de falha de bateria
@@ -1856,7 +2367,7 @@
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left bg-slate-900 border border-emerald-900 hover:border-emerald-400 p-4 rounded-xl text-xs font-arcade text-slate-300 transition-all hover:bg-emerald-950/40";
                 btn.innerText = `[${idx + 1}] ${opt}`;
-                btn.onclick = () => answerSnakeQuestion(idx, questionData.c);
+                btn.onclick = () => answerSnakeQuestion(idx, questionData);
                 optionsDiv.appendChild(btn);
             });
 
@@ -1864,24 +2375,41 @@
             document.getElementById('snake-question-modal').classList.remove('hidden');
         }
 
-        function answerSnakeQuestion(chosen, correct) {
+        function answerSnakeQuestion(chosen, questionData) {
             const feedback = document.getElementById('snake-modal-feedback');
             feedback.classList.remove('hidden');
 
             const buttons = document.querySelectorAll('#snake-modal-options button');
             buttons.forEach(btn => btn.disabled = true);
 
-            if (chosen === correct) {
+            const isCorrect = (chosen === questionData.c);
+            recordClassroomStats(questionData.q, isCorrect, questionData.e);
+
+            if (isCorrect) {
                 playSound('success');
                 feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-emerald-950/60 border border-emerald-500 text-emerald-400 animate-pulse";
                 feedback.innerText = "SISTEMAS REABASTECIDOS! +50% ENERGIA";
 
                 snakeEnergy = Math.min(100, snakeEnergy + 50);
                 snakeScore += 50;
+                snakeCorrectStreak++;
+
+                if (snakeCorrectStreak >= 3) {
+                    checkAndUnlockAchievement('batteryMaster');
+                }
             } else {
                 playSound('error');
                 feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-rose-950/60 border border-rose-500 text-rose-400";
                 feedback.innerText = "SINAL FRACO! SEM RECARGA";
+                snakeCorrectStreak = 0;
+
+                // Registar no relatório de erros desta partida
+                snakeErrorsInSession.push({
+                    q: questionData.q,
+                    wrong: questionData.o[chosen],
+                    correct: questionData.o[questionData.c],
+                    e: questionData.e
+                });
             }
 
             setTimeout(() => {
@@ -1897,6 +2425,28 @@
             document.getElementById('snake-active').classList.add('hidden');
             document.getElementById('snake-results').classList.remove('hidden');
             document.getElementById('final-snake-score').innerText = `SCORE: ${String(snakeScore).padStart(4, '0')}`;
+            
+            saveHighScore('snake', snakeScore);
+
+            // Construir relatório de erros se houver
+            const errReport = document.getElementById('snake-error-report-container');
+            const errList = document.getElementById('snake-errors-list');
+            if (snakeErrorsInSession.length > 0) {
+                errReport.classList.remove('hidden');
+                errList.innerHTML = "";
+                snakeErrorsInSession.forEach(err => {
+                    errList.innerHTML += `
+                        <div class="border-b border-red-950/50 pb-2">
+                            <p class="font-bold text-red-400">P: ${err.q}</p>
+                            <p class="text-[10px] text-slate-400">Respondeste: <span class="line-through">${err.wrong}</span> | Correto: <span class="text-emerald-400">${err.correct}</span></p>
+                            <p class="text-[9px] text-slate-500 italic mt-0.5">${err.e}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                errReport.classList.add('hidden');
+            }
+
             playSound('error');
         }
 
@@ -2043,10 +2593,30 @@
                 lineY += 24;
             });
 
-            // 10. Assinatura do Professor e Data
+            // 10. Desenhar Conquistas Adquiridas (Badges) no próprio diploma
+            let badgeX = 340;
+            if (unlockedAchievements.batteryMaster) {
+                ctx.fillStyle = '#3b82f6';
+                ctx.beginPath(); ctx.arc(badgeX, 540, 15, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.font = "12px 'Inter'"; ctx.fillText("⚡", badgeX, 544);
+                badgeX += 60;
+            }
+            if (unlockedAchievements.survivor) {
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(badgeX, 540, 15, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.font = "12px 'Inter'"; ctx.fillText("❤️", badgeX, 544);
+                badgeX += 60;
+            }
+            if (unlockedAchievements.wise) {
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath(); ctx.arc(badgeX, 540, 15, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ffffff'; ctx.font = "12px 'Inter'"; ctx.fillText("🏆", badgeX, 544);
+            }
+
+            // 11. Assinatura do Professor e Data
             ctx.fillStyle = '#64748b';
             ctx.font = "12px 'Georgia', serif";
-            ctx.fillText("Junho de 2026", 400, 505);
+            ctx.fillText("Junho de 2026", 200, 505);
 
             ctx.fillStyle = '#0f172a';
             ctx.font = "bold 14px 'Georgia', serif";
@@ -2099,9 +2669,17 @@
             playSound('success');
         }
 
-        // ARRANCAR INICIAL
+        // ARRANCAR INICIAL DO WEBSITE
         window.onload = function() {
             lucide.createIcons();
+            updateAchievementsUI();
+            
+            // Tentar restaurar conquistas anteriores se existirem
+            const storedAchievements = localStorage.getItem('unlockedAchievements_portugues');
+            if (storedAchievements) {
+                unlockedAchievements = JSON.parse(storedAchievements);
+                updateAchievementsUI();
+            }
         }
     </script>
 </body>
