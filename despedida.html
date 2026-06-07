@@ -71,7 +71,7 @@
                 </div>
                 <div>
                     <h1 class="font-arcade text-xs md:text-sm font-bold text-blue-400 tracking-wide neon-text">PORTUGUÊS ARCADE</h1>
-                    <p class="text-[10px] text-blue-300 font-mono uppercase tracking-widest mt-0.5">Nível 5.º e 6.º Ano • Fim de Ano</p>
+                    <p class="text-[10px] text-blue-300 font-mono uppercase tracking-widest mt-0.5">Fim de Ano</p>
                 </div>
             </div>
 
@@ -133,10 +133,11 @@
 
                     <div class="pt-6 border-t border-blue-950 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-full bg-blue-950/80 border border-blue-700 text-blue-400 flex items-center justify-center font-arcade text-xs">P2</div>
+                            <div class="w-12 h-12 rounded-full bg-blue-950/80 border border-blue-700 text-blue-400 flex items-center justify-center font-arcade text-xs">P1</div>
                             <div>
                                 <p class="font-bold text-slate-200 text-sm">Com orgulho e saudades,</p>
-                                <p class="text-blue-400 text-xs font-mono">O Vosso Professor de Português (Player 1)</p>
+                                <p class="text-blue-400 text-xs font-mono">O vosso professor de Português</p>
+                                <p class="text-slate-400 text-xs font-mono">João Miguel Alves</p>
                             </div>
                         </div>
                         <button onclick="switchTab('jogo1')" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-arcade text-xs tracking-wider transition-all duration-300 shadow-lg shadow-blue-500/30 flex items-center gap-2 group w-full sm:w-auto justify-center">
@@ -164,6 +165,9 @@
                             </div>
                         </div>
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase font-bold text-amber-400" id="super-mode-label">POWER PELLET OFF</span>
+                        </div>
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
                             <span class="text-[9px] font-arcade block text-blue-300 uppercase">Score</span>
                             <span id="score-pac" class="font-arcade text-xs font-bold text-white">0000</span>
                         </div>
@@ -181,9 +185,8 @@
                         <h3 class="font-arcade text-xs md:text-sm font-bold text-blue-300">A Bateria do Herói vai esgotando!</h3>
                         <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
                             Move o herói néon com as <strong class="text-white">setas do teclado</strong> para apanhar as Estrelas. 
-                            Cada movimento gasta bateria! Se a bateria chegar a 0%, ficas congelado!
-                            Desvia-te do <strong class="text-red-500">Fantasma do Erro</strong>! Se ele te apanhar perdes 25% de bateria!
-                            Clica em <strong class="text-blue-400">Recarregar (R)</strong> a qualquer momento para responder a questões gramaticais e encher a bateria!
+                            Cada movimento gasta bateria! Se a bateria chegar a 0%, ficas congelado!<br><br>
+                            ⭐ <strong class="text-amber-400">SUPER NOVIDADE:</strong> Apanha as <strong class="text-amber-400">Super Estrelas Néon</strong> nos cantos para ficares invencível e <strong class="text-amber-400">comer o Fantasma do Erro</strong> temporariamente!
                         </p>
                         <button onclick="startPacGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
                             INICIAR JOGO
@@ -276,7 +279,7 @@
                     <div class="flex items-center gap-4 flex-wrap">
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
                             <span class="text-[9px] font-arcade block text-blue-300 uppercase">Munições</span>
-                            <span id="ammo-defender" class="font-arcade text-xs font-bold text-emerald-400">⚡ 6/6</span>
+                            <span id="ammo-defender" class="font-arcade text-xs font-bold text-emerald-400 font-arcade">⚡ 6/6</span>
                         </div>
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
                             <span class="text-[9px] font-arcade block text-blue-300 uppercase">Escudos</span>
@@ -297,7 +300,7 @@
                         </div>
                         <h3 class="font-arcade text-xs md:text-sm font-bold text-blue-300">Protege os Escudos Planetários!</h3>
                         <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
-                            Clica ou toca no asteroide correto para o destruir com o teu laser!
+                            Clica ou toca no asteroide correto para o destruir com o teu laser!<br>
                             Cada disparo consome <strong class="text-emerald-400">1 munição</strong>. Se ficares sem munição, deves premir <strong class="text-blue-400">R</strong> ou o botão <strong class="text-blue-400">Recarregar</strong> para responder a uma questão lexical e repor as energias do canhão!
                         </p>
                         <button onclick="startDefenderGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
@@ -452,13 +455,17 @@
                             <p id="snake-result-comment" class="text-[10px] text-blue-300 font-arcade">És um verdadeiro Campeão da Língua!</p>
                         </div>
 
-                        <!-- CHAMADA À AÇÃO FINAL (CTA) -->
-                        <div class="pt-6 max-w-sm mx-auto">
-                            <a href="#" id="final-cta-btn" class="block w-full bg-blue-600 hover:bg-blue-500 text-white font-arcade text-[10px] py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/50 hover:-translate-y-0.5 duration-200 text-center flex items-center justify-center gap-2 border border-blue-400">
-                                <i data-lucide="external-link" class="w-4 h-4"></i>
-                                <span>OBTER CERTIFICADO FINAL</span>
-                            </a>
-                            <p class="text-[10px] text-slate-500 mt-2 font-mono">Dica: substitui o link '#' no teu ficheiro pelo teu Classroom ou Drive de fim de ano!</p>
+                        <!-- GERADOR DE CERTIFICADO INTERATIVO -->
+                        <div class="pt-6 max-w-md mx-auto bg-slate-900/80 p-6 rounded-2xl border border-blue-950 space-y-4">
+                            <p class="text-xs font-arcade text-blue-300">OBTER CERTIFICADO FINAL</p>
+                            <div class="text-left space-y-2">
+                                <label class="block text-slate-400 text-xs font-mono">Insere o teu Nome Completo para o teu Diploma:</label>
+                                <input type="text" id="cert-student-name" placeholder="Ex: João Miguel" class="w-full bg-slate-950 border border-blue-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 font-friendly text-center">
+                            </div>
+                            <button onclick="generateCertificate()" class="block w-full bg-blue-600 hover:bg-blue-500 text-white font-arcade text-[10px] py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/50 hover:-translate-y-0.5 duration-200 text-center flex items-center justify-center gap-2 border border-blue-400">
+                                <i data-lucide="award" class="w-4 h-4"></i>
+                                <span>GERAR E DESCARREGAR DIPLOMA</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -467,11 +474,39 @@
 
     </main>
 
+    <!-- Modal do Certificado Gerado -->
+    <div id="cert-modal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <div class="max-w-3xl w-full bg-[#0a0f24] border-2 border-blue-500 rounded-3xl p-6 space-y-6 shadow-2xl shadow-blue-500/30 text-center relative scanlines">
+            <button onclick="closeCertModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-900/80 p-2 rounded-full border border-blue-950">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <h3 class="font-friendly text-2xl font-bold text-white">Parabéns pelo teu Diploma! 🎓</h3>
+            <p class="text-slate-400 text-xs max-w-md mx-auto">Clica no botão de descarga abaixo para salvar a imagem oficial do teu certificado personalizado como recordação!</p>
+            
+            <!-- Canvas do Diploma -->
+            <div class="flex justify-center border-2 border-blue-900 rounded-xl overflow-hidden bg-white max-w-full shadow-lg">
+                <canvas id="certCanvas" width="800" height="600" class="max-w-full block h-auto"></canvas>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <button onclick="downloadCertificate()" class="bg-blue-600 hover:bg-blue-500 text-white font-arcade text-[10px] px-6 py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border border-blue-400">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>DESCARREGAR IMAGEM</span>
+                </button>
+                <button onclick="window.print()" class="bg-slate-900 border border-blue-900 text-blue-400 hover:bg-blue-950 font-arcade text-[10px] px-6 py-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>IMPRIMIR</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Rodapé -->
     <footer class="bg-slate-950 border-t border-blue-950 py-6 mt-12 text-center text-xs text-slate-500 font-mono">
         <div class="max-w-5xl mx-auto px-4 space-y-2">
             <p class="font-friendly text-sm text-slate-400 font-semibold">"A nossa língua, o nosso melhor videojogo."</p>
-            <p>© 2026 • Versão Arcade Completa • Feito com ❤️ para os Heróis do 2.º Ciclo</p>
+            <p>© 2026 • Versão Arcade Completa • Feito com ❤️ para os meus heróis.</p>
         </div>
     </footer>
 
@@ -653,7 +688,6 @@
             { q: "Antónimo de 'Aparecer'", o: ["Surgir", "Desaparecer", "Ficar"], c: 1 }
         ];
 
-        // Banco de dados para a cobra néon (30 categorias/palavras em rodízio)
         const snakeDb = [
             { target: "VERBOS", correct: "jogar", options: ["mesa", "lindo", "ontem"] },
             { target: "ADJETIVOS", correct: "inteligente", options: ["escola", "correr", "bastante"] },
@@ -703,6 +737,8 @@
         let pacScore = 0;
         let pacActive = false;
         let pacGrid = [];
+        let pacSuperMode = false;
+        let pacSuperTimer = 0;
         
         const baseGrid = [
             [1,1,1,1,1,1,1,1,1,1,1,1],
@@ -730,10 +766,17 @@
             pacEnergy = 100;
             pacScore = 0;
             pacActive = true;
+            pacSuperMode = false;
+            pacSuperTimer = 0;
             pacHero = { x: 1, y: 1, dir: 'NONE', nextDir: 'NONE' };
             pacGhost = { x: 10, y: 10, dir: 'NONE', lastMoveTime: 0 };
             
             pacGrid = JSON.parse(JSON.stringify(baseGrid));
+
+            // Colocar as super bolinhas especiais de poder (Power Pellets) nos cantos do mapa
+            pacGrid[1][10] = 3;
+            pacGrid[10][1] = 3;
+            pacGrid[10][10] = 3;
             
             updatePacUI();
             
@@ -801,37 +844,61 @@
                 pacHero.dir = 'NONE';
             }
 
-            // Apanhar estrelas
+            // Apanhar estrelas e super bolinhas néon
             if (pacGrid[pacHero.y] && pacGrid[pacHero.y][pacHero.x] === 0) {
                 pacGrid[pacHero.y][pacHero.x] = 2; // Estado vazio
                 pacScore += 10;
                 playSound('coin');
+            } else if (pacGrid[pacHero.y] && pacGrid[pacHero.y][pacHero.x] === 3) {
+                pacGrid[pacHero.y][pacHero.x] = 2; // Estado vazio
+                pacScore += 50;
+                pacSuperMode = true;
+                pacSuperTimer = 35; // ~5 segundos em ticks
+                playSound('success');
             }
 
-            // MOVER FANTASMA (IA Simples)
-            movePacGhost();
+            // Controlar Temporizador do Super Modo
+            if (pacSuperMode) {
+                pacSuperTimer--;
+                if (pacSuperTimer <= 0) {
+                    pacSuperMode = false;
+                }
+            }
+
+            // MOVER FANTASMA (IA Simples, mais lenta se em Super Modo)
+            if (!pacSuperMode || Math.random() < 0.6) {
+                movePacGhost();
+            }
 
             // Verificar Colisão entre Herói e Fantasma
             if (pacHero.x === pacGhost.x && pacHero.y === pacGhost.y) {
-                playSound('hit');
-                pacEnergy = Math.max(0, pacEnergy - 25); // Perde 25% de bateria
-                // Reset posições para não morrer infinitamente
-                pacHero.x = 1;
-                pacHero.y = 1;
-                pacHero.dir = 'NONE';
-                pacHero.nextDir = 'NONE';
-                pacGhost.x = 10;
-                pacGhost.y = 10;
+                if (pacSuperMode) {
+                    // Comer o Fantasma! Regressa ao centro do mapa
+                    playSound('success');
+                    pacScore += 100;
+                    pacGhost.x = 5;
+                    pacGhost.y = 5;
+                } else {
+                    playSound('hit');
+                    pacEnergy = Math.max(0, pacEnergy - 25); // Perde 25% de bateria
+                    // Reset posições para não morrer infinitamente
+                    pacHero.x = 1;
+                    pacHero.y = 1;
+                    pacHero.dir = 'NONE';
+                    pacHero.nextDir = 'NONE';
+                    pacGhost.x = 10;
+                    pacGhost.y = 10;
+                }
             }
 
             updatePacUI();
             drawPac();
 
-            // Verificar se apanhou todas as estrelas
+            // Verificar se apanhou todas as estrelas normais e especiais
             let remainingStars = 0;
             for (let r = 0; r < 12; r++) {
                 for (let c = 0; c < 12; c++) {
-                    if (pacGrid[r][c] === 0) remainingStars++;
+                    if (pacGrid[r][c] === 0 || pacGrid[r][c] === 3) remainingStars++;
                 }
             }
             if (remainingStars === 0) {
@@ -857,13 +924,28 @@
                 }
             });
 
-            // Inteligência simples: 50% de probabilidade de ir na direção do jogador, senão aleatório
             if (validDirs.length > 0) {
                 let chosenDir = validDirs[Math.floor(Math.random() * validDirs.length)];
                 
-                if (Math.random() < 0.5) {
-                    // Tentar aproximar do herói
-                    let bestDir = chosenDir;
+                // Fugir do jogador se estiver em Super Modo, senão persegui-lo
+                if (pacSuperMode) {
+                    let maxDist = -Infinity;
+                    validDirs.forEach(d => {
+                        let gx = pacGhost.x;
+                        let gy = pacGhost.y;
+                        if (d === 'UP') gy--;
+                        if (d === 'DOWN') gy++;
+                        if (d === 'LEFT') gx--;
+                        if (d === 'RIGHT') gx++;
+                        
+                        let dist = Math.hypot(pacHero.x - gx, pacHero.y - gy);
+                        if (dist > maxDist) {
+                            maxDist = dist;
+                            chosenDir = d;
+                        }
+                    });
+                } else if (Math.random() < 0.5) {
+                    // Tentar aproximar-se do herói
                     let minDist = Infinity;
                     validDirs.forEach(d => {
                         let gx = pacGhost.x;
@@ -894,6 +976,15 @@
             document.getElementById('pac-energy').style.width = `${pacEnergy}%`;
             document.getElementById('score-pac').innerText = String(pacScore).padStart(4, '0');
             
+            const sLabel = document.getElementById('super-mode-label');
+            if (pacSuperMode) {
+                sLabel.innerText = "⭐ SUPER MODO ATIVO! ⭐";
+                sLabel.className = "text-[9px] font-arcade block text-emerald-400 font-bold animate-pulse";
+            } else {
+                sLabel.innerText = "SUPER MODO OFF";
+                sLabel.className = "text-[9px] font-arcade block text-slate-500 font-bold";
+            }
+
             const bar = document.getElementById('pac-energy');
             if (pacEnergy <= 25) {
                 bar.className = "bg-red-500 h-full transition-all duration-100";
@@ -921,11 +1012,22 @@
                         pacCtx.lineWidth = 2;
                         pacCtx.strokeRect(x + 2, y + 2, tileSize - 4, tileSize - 4);
                     } else if (tile === 0) {
+                        // Bolinha pequena
                         pacCtx.fillStyle = '#38bdf8';
                         pacCtx.shadowColor = '#38bdf8';
                         pacCtx.shadowBlur = 8;
                         pacCtx.beginPath();
                         pacCtx.arc(x + tileSize/2, y + tileSize/2, 4, 0, Math.PI * 2);
+                        pacCtx.fill();
+                        pacCtx.shadowBlur = 0;
+                    } else if (tile === 3) {
+                        // Super Bolinha Especial Néon
+                        pacCtx.fillStyle = '#f59e0b';
+                        pacCtx.shadowColor = '#fbbf24';
+                        pacCtx.shadowBlur = 12;
+                        pacCtx.beginPath();
+                        let pulseRadius = 7 + Math.sin(Date.now() / 150) * 2;
+                        pacCtx.arc(x + tileSize/2, y + tileSize/2, pulseRadius, 0, Math.PI * 2);
                         pacCtx.fill();
                         pacCtx.shadowBlur = 0;
                     }
@@ -936,10 +1038,10 @@
             let hX = pacHero.x * tileSize + 8 + tileSize/2;
             let hY = pacHero.y * tileSize + 8 + tileSize/2;
 
-            pacCtx.fillStyle = '#ffffff';
+            pacCtx.fillStyle = pacSuperMode ? '#f59e0b' : '#ffffff';
             pacCtx.strokeStyle = '#38bdf8';
             pacCtx.lineWidth = 3;
-            pacCtx.shadowColor = '#38bdf8';
+            pacCtx.shadowColor = pacSuperMode ? '#fbbf24' : '#38bdf8';
             pacCtx.shadowBlur = 12;
 
             pacCtx.beginPath();
@@ -954,14 +1056,28 @@
             pacCtx.arc(hX + 4, hY - 2, 2, 0, Math.PI*2);
             pacCtx.fill();
 
-            // Desenhar Fantasma do Erro (Vermelho)
+            // Desenhar Fantasma do Erro (Mudando de cor em Super Modo)
             let gX = pacGhost.x * tileSize + 8 + tileSize/2;
             let gY = pacGhost.y * tileSize + 8 + tileSize/2;
             
-            pacCtx.fillStyle = '#ef4444';
-            pacCtx.strokeStyle = '#f87171';
+            if (pacSuperMode) {
+                // Piscar no fim do efeito de vulnerabilidade
+                if (pacSuperTimer < 8 && pacSuperTimer % 2 === 0) {
+                    pacCtx.fillStyle = '#ffffff';
+                    pacCtx.strokeStyle = '#3b82f6';
+                    pacCtx.shadowColor = '#ffffff';
+                } else {
+                    pacCtx.fillStyle = '#1e40af';
+                    pacCtx.strokeStyle = '#60a5fa';
+                    pacCtx.shadowColor = '#1e40af';
+                }
+            } else {
+                pacCtx.fillStyle = '#ef4444';
+                pacCtx.strokeStyle = '#f87171';
+                pacCtx.shadowColor = '#ef4444';
+            }
+
             pacCtx.lineWidth = 2;
-            pacCtx.shadowColor = '#ef4444';
             pacCtx.shadowBlur = 10;
             
             pacCtx.beginPath();
@@ -982,7 +1098,7 @@
             pacCtx.arc(gX - 3, gY - 2, 3, 0, Math.PI*2);
             pacCtx.arc(gX + 3, gY - 2, 3, 0, Math.PI*2);
             pacCtx.fill();
-            pacCtx.fillStyle = '#0000ff';
+            pacCtx.fillStyle = pacSuperMode ? '#f59e0b' : '#0000ff';
             pacCtx.beginPath();
             pacCtx.arc(gX - 3, gY - 2, 1.5, 0, Math.PI*2);
             pacCtx.arc(gX + 3, gY - 2, 1.5, 0, Math.PI*2);
@@ -1067,7 +1183,6 @@
                 playSound('error');
             }
         }
-
 
         // =====================================================================
         // JOGO 2: LÉXICO DEFENDER
@@ -1651,7 +1766,7 @@
                 let py = item.y * 20;
 
                 snkCtx.shadowBlur = 8;
-                snkCtx.shadowColor = item.isCorrect ? '#38bdf8' : '#38bdf8'; // Manter tudo néon azul para desafiar
+                snkCtx.shadowColor = '#38bdf8'; // Manter tudo néon azul para desafiar
                 
                 // Desenhar base néon para a palavra
                 snkCtx.fillStyle = '#0a0f24';
@@ -1709,6 +1824,181 @@
                 playSound('error');
                 comment.innerText = "Bom esforço! O erro faz parte da aprendizagem. Recomeça!";
             }
+        }
+
+        // =====================================================================
+        // GERADOR DE CERTIFICADO DINÂMICO
+        // =====================================================================
+        function generateCertificate() {
+            const studentName = document.getElementById('cert-student-name').value.trim();
+            if (!studentName) {
+                // Utilização de uma caixa estilizada em substituição do alert do browser
+                document.getElementById('cert-student-name').focus();
+                document.getElementById('cert-student-name').classList.add('border-red-500');
+                setTimeout(() => {
+                    document.getElementById('cert-student-name').classList.remove('border-red-500');
+                }, 1500);
+                return;
+            }
+
+            const canvas = document.getElementById('certCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // 1. Limpar e desenhar fundo em gradiente (aspeto papel antigo de qualidade)
+            const grad = ctx.createRadialGradient(400, 300, 50, 400, 300, 450);
+            grad.addColorStop(0, '#fefbf3');
+            grad.addColorStop(1, '#f7f4ea');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 800, 600);
+
+            // 2. Moldura exterior azul escura
+            ctx.strokeStyle = '#0a192f';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(15, 15, 770, 570);
+
+            // 3. Moldura interior dupla dourada/néon
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(30, 30, 740, 540);
+
+            ctx.strokeStyle = '#1e3a8a';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(36, 36, 728, 528);
+
+            // 4. Detalhes ornamentais dourados nos cantos
+            ctx.fillStyle = '#f59e0b';
+            const corners = [
+                [30, 30], [770, 30], [30, 570], [770, 570]
+            ];
+            corners.forEach(([cx, cy]) => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#0a192f';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // 5. Medalhão e Laço Dourado (Desenho Vetorial Canvas)
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+            ctx.shadowBlur = 8;
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(400, 110, 42, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Fitas do Medalhão
+            ctx.fillStyle = '#ef4444'; // Fita Vermelha de Honra
+            ctx.beginPath();
+            ctx.moveTo(380, 140);
+            ctx.lineTo(370, 190);
+            ctx.lineTo(390, 180);
+            ctx.lineTo(400, 150);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(420, 140);
+            ctx.lineTo(430, 190);
+            ctx.lineTo(410, 180);
+            ctx.lineTo(400, 150);
+            ctx.fill();
+
+            // Estrela interna no medalhão
+            ctx.fillStyle = '#ffffff';
+            ctx.font = "bold 26px 'Inter'";
+            ctx.textAlign = 'center';
+            ctx.fillText("⭐", 400, 120);
+
+            // 6. Título do Diploma (Estilo Elegante)
+            ctx.fillStyle = '#1e3a8a';
+            ctx.font = "bold 28px 'Georgia', serif";
+            ctx.fillText("DIPLOMA DE HERÓI DA LÍNGUA", 400, 220);
+            
+            ctx.fillStyle = '#b45309';
+            ctx.font = "bold 13px 'Press Start 2P', monospace";
+            ctx.fillText("NÍVEL ARCADE CONCLUÍDO", 400, 250);
+
+            // 7. Atribuição
+            ctx.fillStyle = '#475569';
+            ctx.font = "italic 16px 'Georgia', serif";
+            ctx.fillText("Este certificado de mérito e coragem literária é orgulhosamente entregue a:", 400, 290);
+
+            // 8. Nome do Aluno Destacado
+            ctx.fillStyle = '#2563eb';
+            ctx.font = "bold 36px 'Fredoka', sans-serif";
+            ctx.fillText(studentName.toUpperCase(), 400, 345);
+
+            // Linha decorativa debaixo do nome
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(220, 365);
+            ctx.lineTo(580, 365);
+            ctx.stroke();
+
+            // 9. Texto Lamechas / Emotivo
+            ctx.fillStyle = '#334155';
+            ctx.font = "italic 15px 'Georgia', serif";
+            
+            const paragraph = [
+                "Pelo excelente empenho, alegria e dedicação demonstrados nas aulas de Português.",
+                "Enfrentaste com coragem as masmorras da gramática, desvendaste os mistérios das palavras",
+                "e provaste que a leitura e a escrita são os teus maiores superpoderes.",
+                "Que as tuas asas continuem a voar rumo a novas leituras e grandes conquistas!"
+            ];
+
+            let lineY = 405;
+            paragraph.forEach(line => {
+                ctx.fillText(line, 400, lineY);
+                lineY += 24;
+            });
+
+            // 10. Data e Assinaturas
+            ctx.fillStyle = '#64748b';
+            ctx.font = "13px 'Georgia', serif";
+            ctx.fillText("Junho de 2026", 400, 505);
+
+            // Assinatura do Professor à esquerda
+            ctx.fillStyle = '#0f172a';
+            ctx.font = "bold 14px 'Georgia', serif";
+            ctx.fillText("O teu Professor,", 200, 535);
+            ctx.font = "italic 15px 'Georgia', serif";
+            ctx.fillStyle = '#2563eb';
+            ctx.fillText("João Miguel Alves", 200, 555);
+
+            // Mensagem motivadora à direita
+            ctx.fillStyle = '#475569';
+            ctx.font = "italic 12px 'Georgia', serif";
+            ctx.fillText("\"A nossa língua, o nosso melhor videojogo.\"", 600, 550);
+
+            // Exibir o Modal e criar ícones internos
+            document.getElementById('cert-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeCertModal() {
+            document.getElementById('cert-modal').classList.add('hidden');
+        }
+
+        function downloadCertificate() {
+            const canvas = document.getElementById('certCanvas');
+            const studentName = document.getElementById('cert-student-name').value.trim() || "heroi";
+            
+            // Gerar URI da imagem em PNG de forma compatível
+            const imgData = canvas.toDataURL("image/png");
+            
+            // Criar gatilho de link dinâmico para forçar a descarga imediata no browser
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imgData;
+            downloadLink.download = `Diploma_Portugues_Arcade_${studentName.replace(/\s+/g, '_')}.png`;
+            
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
         }
 
         // ================= CONTRATO DE ARRANQUE INICIAL =================
