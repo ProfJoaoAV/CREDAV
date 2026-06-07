@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- jsPDF para exportação perfeita para PDF -->
+    <!-- jsPDF para exportação perfeita de diplomas para PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Google Fonts: Fredoka, Press Start 2P e Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -125,7 +125,7 @@
                         Parece que foi ontem que iniciámos o nível 1 desta grande jornada. Enfrentámos juntos masmorras de gramática, decifrámos enigmas de verbos complexos e escalámos montanhas de textos líricos, dramáticos e narrativos. Formámos uma verdadeira guilda!
                     </p>
                     <p>
-                        Vimos o vosso vocabulário expandir-se a cada capítulo, a vossa escrita ganhar aura e a vossa imaginação ultrapassar todos os limites do ecrã. Sei bem que as regras de acentuação pareceram chefes difíceis de derrotar e as subclasses dos nomes às vezes faziam perder algumas vidas. Mas sabem de uma coisa? <strong class="text-blue-400">Vocês nunca carregaram no "Game Over".</strong> Continuaram a tentar e ganharam o jogo!
+                        Vimos o vosso vocabulário expandir-se a cada capítulo, a vossa escrita ganhar o poder de "fogo" e a vossa imaginação ultrapassar todos os limites do ecrã. Sei bem que as regras de acentuação pareceram chefes difíceis de derrotar e as subclasses dos nomes às vezes faziam perder algumas vidas. Mas sabem de uma coisa? <strong class="text-blue-400 font-bold">Vocês nunca carregaram no "Game Over".</strong> Continuaram a tentar e ganharam o jogo!
                     </p>
                     <div class="bg-blue-950/40 border-l-4 border-blue-500 p-5 rounded-r-xl my-6">
                         <p class="italic text-blue-200 text-base font-friendly">
@@ -142,7 +142,7 @@
                             <div>
                                 <p class="font-bold text-slate-200 text-sm">Com orgulho e saudades,</p>
                                 <p class="text-blue-400 text-xs font-mono">O vosso professor de Português</p>
-                                <p class="text-slate-400 text-xs font-mono">João Miguel Alves</p>
+                                <p class="text-slate-200 text-sm font-semibold font-friendly">João Miguel Alves</p>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-3 w-full sm:w-auto">
@@ -168,7 +168,15 @@
                         <span class="bg-blue-950 text-blue-400 border border-blue-700 text-[10px] font-arcade px-3 py-1 rounded-full uppercase tracking-wider">DESAFIO 01</span>
                         <h2 class="font-arcade text-sm md:text-base font-bold text-white mt-2 neon-text">PAC-GRAMÁTICA: CORRIDA DA ENERGIA ⚡</h2>
                     </div>
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Fase</span>
+                            <span id="pac-phase-label" class="font-arcade text-xs font-bold text-white">01</span>
+                        </div>
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Vidas</span>
+                            <span id="pac-lives-label" class="font-arcade text-xs text-red-500">❤️ ❤️ ❤️</span>
+                        </div>
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
                             <span class="text-[9px] font-arcade block text-blue-300 uppercase">Energia</span>
                             <div class="w-24 bg-slate-900 h-3 rounded-full overflow-hidden mt-1 border border-blue-800">
@@ -197,7 +205,8 @@
                         <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
                             Move o herói néon com as <strong class="text-white">setas do teclado</strong> para apanhar as Estrelas. 
                             Cada movimento gasta bateria! Se a bateria chegar a 0%, ficas congelado!<br><br>
-                            ⭐ <strong class="text-amber-400">SUPER ESTRELAS:</strong> Apanha as <strong class="text-amber-400">Super Estrelas Néon</strong> nos cantos para ficares invencível e <strong class="text-amber-400">comer o Fantasma do Erro</strong> temporariamente!
+                            ⭐ <strong class="text-amber-400">SUPER ESTRELAS:</strong> Apanha as <strong class="text-amber-400">Super Estrelas Néon</strong> nos cantos para ficares invencível e <strong class="text-amber-400">comer o Fantasma do Erro</strong> temporariamente!<br>
+                            ❤️ Tens 3 vidas. O jogo continua de forma infinita por fases cada vez mais rápidas até perderes todas as vidas!
                         </p>
                         <button onclick="startPacGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
                             INICIAR JOGO
@@ -258,8 +267,8 @@
                             <i data-lucide="trophy" class="w-10 h-10"></i>
                         </div>
                         <div class="space-y-2">
-                            <h3 class="font-arcade text-xs md:text-sm font-bold text-white">Nível Concluído! 🏆</h3>
-                            <p class="text-slate-400 text-xs">Apanhaste todas as estrelas de gramática!</p>
+                            <h3 class="font-arcade text-xs md:text-sm font-bold text-white">FIM DO JOGO! 🏆</h3>
+                            <p class="text-slate-400 text-xs">Excedeste o limite de vidas nesta partida.</p>
                             <span id="final-pac-score" class="font-arcade text-lg font-bold text-blue-400 block">SCORE: 0000</span>
                         </div>
                         <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
@@ -287,11 +296,11 @@
                     <div class="flex items-center gap-4 flex-wrap">
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
                             <span class="text-[9px] font-arcade block text-blue-300 uppercase">Munições</span>
-                            <span id="ammo-defender" class="font-arcade text-xs font-bold text-emerald-400 font-arcade">⚡ 6/6</span>
+                            <span id="ammo-defender" class="font-arcade text-xs font-bold text-emerald-400">⚡ 6/6</span>
                         </div>
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
-                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Escudos</span>
-                            <span id="shields-defender" class="font-arcade text-xs font-bold text-blue-400">█████</span>
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Vidas</span>
+                            <span id="shields-defender" class="font-arcade text-xs font-bold text-red-500">❤️ ❤️ ❤️</span>
                         </div>
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
                             <span class="text-[9px] font-arcade block text-blue-300 uppercase">Score</span>
@@ -390,6 +399,12 @@
                     </div>
                     <div class="flex items-center gap-4">
                         <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
+                            <span class="text-[9px] font-arcade block text-blue-300 uppercase">Energia</span>
+                            <div class="w-24 bg-slate-900 h-3 rounded-full overflow-hidden mt-1 border border-blue-800">
+                                <div id="snake-energy" class="bg-emerald-400 h-full transition-all duration-100" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-950/80 px-4 py-2 rounded-2xl text-center border border-blue-900">
                             <span class="text-[9px] font-arcade block text-blue-300 uppercase">Vidas</span>
                             <span id="snake-lives" class="font-arcade text-xs text-red-500">❤️ ❤️ ❤️</span>
                         </div>
@@ -408,8 +423,9 @@
                         </div>
                         <h3 class="font-arcade text-xs md:text-sm font-bold text-blue-300 font-arcade">Cobra das Classes Gramaticais!</h3>
                         <p class="text-slate-400 max-w-md mx-auto text-xs leading-relaxed">
-                            Controla a cobra néon e come **apenas a palavra** que pertence à classe solicitada no topo!
-                            Evita as palavras incorretas, não batas nas paredes nem no próprio corpo! Chega aos 500 pontos para completar a campanha letiva de Português!
+                            Controla a cobra néon e apanha as bolinhas de energia brilhantes para crescer!<br><br>
+                            Cada movimento gasta bateria! Se a bateria chegar a 0%, ficas congelado! <br>
+                            Evita as colisões nas paredes (extremos) e no próprio corpo! Sobrevive o máximo de tempo possível e bate o recorde!
                         </p>
                         <button onclick="startSnakeGame()" class="bg-blue-600 hover:bg-blue-500 font-arcade text-xs text-white px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/40 transition-all uppercase tracking-wider">
                             INICIAR COBRA NÉON
@@ -421,8 +437,8 @@
                         <div class="flex-grow flex flex-col items-center">
                             <!-- Alvo da Cobra -->
                             <div class="w-full max-w-xl bg-blue-950/50 border-2 border-blue-900 p-4 rounded-2xl text-center space-y-2 mb-4">
-                                <span class="text-[9px] font-arcade text-blue-400 uppercase tracking-widest">Classe Alvo</span>
-                                <h3 id="snake-target-title" class="font-arcade text-xs md:text-sm text-emerald-400 font-bold">ALVO: VERBOS</h3>
+                                <span class="text-[9px] font-arcade text-blue-400 uppercase tracking-widest">Missão Infinita</span>
+                                <h3 id="snake-target-title" class="font-arcade text-xs md:text-sm text-emerald-400 font-bold">SOBREVIVE E APANHA AS BOLINHAS</h3>
                             </div>
 
                             <!-- Canvas do Rio -->
@@ -433,6 +449,14 @@
 
                         <!-- Painel lateral de Controlos Táteis Snake -->
                         <div class="w-full lg:w-64 space-y-4">
+                            <div class="bg-blue-950/40 border-2 border-blue-900 p-4 rounded-2xl text-center space-y-3">
+                                <p class="text-xs font-arcade text-blue-300">Bateria Crítica?</p>
+                                <button onclick="triggerSnakeQuestion()" class="w-full bg-blue-600 hover:bg-blue-500 font-arcade text-[10px] text-white py-3 rounded-xl shadow-md transition-all uppercase animate-pulse border border-blue-400">
+                                    [R] Recarregar Bateria
+                                </button>
+                                <p class="text-[9px] text-slate-400">Clica para responder a perguntas de Português e carregar a bateria da cobra.</p>
+                            </div>
+
                             <div class="bg-slate-900/50 p-4 rounded-2xl border border-blue-950 flex flex-col items-center">
                                 <p class="text-[9px] font-arcade text-slate-500 mb-3 uppercase">Controlo Tátil</p>
                                 <div class="grid grid-cols-3 gap-2 w-32">
@@ -450,15 +474,29 @@
                         </div>
                     </div>
 
+                    <!-- Modal de Pergunta de Recarga (Snake) -->
+                    <div id="snake-question-modal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
+                        <div class="bg-[#0a0f24] border-2 border-emerald-500 rounded-3xl p-6 max-w-lg w-full space-y-6 shadow-2xl shadow-emerald-500/30 scanlines">
+                            <div class="text-center">
+                                <span class="bg-emerald-950 border border-emerald-700 text-[10px] font-arcade px-3 py-1 rounded-full text-emerald-400">SISTEMA DE RECARGA</span>
+                                <h4 class="font-arcade text-xs text-white mt-4 leading-relaxed" id="snake-modal-question">Carregando pergunta...</h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-3" id="snake-modal-options"></div>
+
+                            <div id="snake-modal-feedback" class="hidden p-3 rounded-xl text-center text-xs font-semibold"></div>
+                        </div>
+                    </div>
+
                     <!-- Resultados Finais Snake -->
                     <div id="snake-results" class="hidden text-center py-8 space-y-6">
                         <div class="w-20 h-20 bg-blue-950 text-blue-400 border border-blue-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
                             <i data-lucide="party-popper" class="w-10 h-10"></i>
                         </div>
                         <div class="space-y-2">
-                            <h3 class="font-arcade text-xs md:text-sm font-bold text-white">CAMPANHA COMPLETA! 🎉</h3>
-                            <p class="text-slate-400 text-xs">Concluíste com sucesso todos os desafios de Português!</p>
-                            <p id="snake-result-comment" class="text-[10px] text-blue-300 font-arcade">És um verdadeiro Campeão da Língua!</p>
+                            <h3 class="font-arcade text-xs md:text-sm font-bold text-white">FIM DO JOGO! 🐍</h3>
+                            <p class="text-slate-400 text-xs">Ficaste sem vidas, mas mostraste grande destreza!</p>
+                            <span id="final-snake-score" class="font-arcade text-lg font-bold text-blue-400 block">SCORE: 0000</span>
                         </div>
                         <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
                             <button onclick="startSnakeGame()" class="border border-blue-800 text-blue-400 hover:bg-blue-950/50 font-arcade text-[10px] px-6 py-3 rounded-xl transition-all">
@@ -703,37 +741,37 @@
             { q: "Antónimo de 'Aparecer'", o: ["Surgir", "Desaparecer", "Ficar"], c: 1 }
         ];
 
-        const snakeDb = [
-            { target: "VERBOS", correct: "jogar", options: ["mesa", "lindo", "ontem"] },
-            { target: "ADJETIVOS", correct: "inteligente", options: ["escola", "correr", "bastante"] },
-            { target: "NOMES", correct: "computador", options: ["azul", "estudar", "depressa"] },
-            { target: "ADVÉRBIOS", correct: "amanhã", options: ["caneta", "saltar", "fiel"] },
-            { target: "VERBOS", correct: "escrever", options: ["casa", "feliz", "lentamente"] },
-            { target: "ADJETIVOS", correct: "simpático", options: ["falar", "Lisboa", "muito"] },
-            { target: "NOMES", correct: "professor", options: ["veloz", "cantar", "atrás"] },
-            { target: "ADVÉRBIOS", correct: "rapidamente", options: ["livro", "comer", "belo"] },
-            { target: "DETERMINANTES", correct: "aquele", options: ["tu", "de", "com"] },
-            { target: "PRONOMES", correct: "eles", options: ["o", "para", "estudioso"] },
-            { target: "PREPOSIÇÕES", correct: "entre", options: ["nós", "este", "sorrir"] },
-            { target: "VERBOS", correct: "partir", options: ["janela", "calmo", "aqui"] },
-            { target: "ADJETIVOS", correct: "brilhante", options: ["gato", "beber", "nunca"] },
-            { target: "NOMES", correct: "cidade", options: ["novo", "escutar", "bem"] },
-            { target: "ADVÉRBIOS", correct: "sempre", options: ["cadeira", "abrir", "forte"] },
-            { target: "DETERMINANTES", correct: "minha", options: ["mim", "por", "lindo"] },
-            { target: "PRONOMES", correct: "comigo", options: ["teu", "sob", "andar"] },
-            { target: "PREPOSIÇÕES", correct: "sobre", options: ["eu", "aquele", "fácil"] },
-            { target: "VERBOS", correct: "aprender", options: ["caderno", "velho", "hoje"] },
-            { target: "ADJETIVOS", correct: "corajoso", options: ["rio", "voar", "talvez"] },
-            { target: "NOMES", correct: "floresta", options: ["doce", "escrever", "atrás"] },
-            { target: "ADVÉRBIOS", correct: "facilmente", options: ["caneca", "vender", "esperto"] },
-            { target: "DETERMINANTES", correct: "umas", options: ["nós", "sem", "alegre"] },
-            { target: "PRONOMES", correct: "consigo", options: ["esta", "trás", "correr"] },
-            { target: "PREPOSIÇÕES", correct: "perante", options: ["ela", "este", "ler"] },
-            { target: "VERBOS", correct: "concluir", options: ["parque", "amável", "não"] },
-            { target: "ADJETIVOS", correct: "estudioso", options: ["caneta", "olhar", "depois"] },
-            { target: "NOMES", correct: "telemóvel", options: ["magro", "ouvir", "bastante"] },
-            { target: "ADVÉRBIOS", correct: "bastante", options: ["lápis", "fazer", "bom"] },
-            { target: "PREPOSIÇÕES", correct: "desde", options: ["mim", "esta", "nadar"] }
+        const snakeQuestions = [
+            { q: "Na frase 'O silêncio é de ouro.', qual é a classe de 'silêncio'?", o: ["Nome Comum", "Adjetivo", "Verbo", "Advérbio"], c: 0 },
+            { q: "Qual o antónimo de 'Justo'?", o: ["Injusto", "Desjusto", "Maljusto", "Correto"], c: 0 },
+            { q: "Identifica o verbo em: 'Nós jogamos muito bem!'", o: ["Nós", "jogamos", "muito", "bem"], c: 1 },
+            { q: "Qual palavra é um determinante artigo indefinido?", o: ["o", "uma", "este", "meu"], c: 1 },
+            { q: "Qual é o sujeito em: 'O sol brilha no céu.'?", o: ["sol", "brilha", "O sol", "no céu"], c: 2 },
+            { q: "Qual o sinónimo de 'Habitação'?", o: ["Trabalho", "Escola", "Casa", "Rua"], c: 2 },
+            { q: "A palavra 'rapidamente' é um advérbio de...", o: ["tempo", "modo", "lugar", "quantidade"], c: 1 },
+            { q: "Em 'A minha caneta escreve bem.', 'minha' é um determinante...", o: ["demonstrativo", "possessivo", "artigo", "numeral"], c: 1 },
+            { q: "Qual o plural de 'pão'?", o: ["pãos", "pães", "pões", "pãeses"], c: 1 },
+            { q: "O antónimo de 'Forte' é...", o: ["Lento", "Baixo", "Fraco", "Macio"], c: 2 },
+            { q: "Qual o infinitivo de 'partiram'?", o: ["partir", "partido", "partendo", "parte"], c: 0 },
+            { q: "Identifica o nome próprio: 'A Maria vive em Braga.'", o: ["Maria e Braga", "Maria", "Braga", "vive"], c: 0 },
+            { q: "O sinónimo de 'Grande' é...", o: ["Enorme", "Pequeno", "Gordo", "Alto"], c: 0 },
+            { q: "Na frase 'Eu adoro ler.', 'Eu' é um...", o: ["nome", "adjetivo", "pronome pessoal", "determinante"], c: 2 },
+            { q: "Qual destas palavras é uma preposição?", o: ["com", "mas", "porque", "ele"], c: 0 },
+            { q: "O antónimo de 'Aparecer' é...", o: ["Surgir", "Desaparecer", "Ficar", "Sair"], c: 1 },
+            { q: "Qual o grau do adjetivo em 'Este carro é antiquíssimo'?", o: ["Normal", "Superlativo absoluto sintético", "Superlativo relativo de superioridade", "Comparativo"], c: 1 },
+            { q: "Qual o sinónimo de 'Auxiliar'?", o: ["Atrapalhar", "Ajudar", "Ignorar", "Fugir"], c: 1 },
+            { q: "O que é 'ontem' na frase 'Ontem fomos ao zoo.'?", o: ["nome", "advérbio de tempo", "advérbio de lugar", "preposição"], c: 1 },
+            { q: "Qual o antónimo de 'Pesado'?", o: ["Forte", "Macio", "Leve", "Fino"], c: 2 },
+            { q: "Qual é a subclasse do nome 'alcateia'?", o: ["comum", "próprio", "coletivo", "abstrato"], c: 2 },
+            { q: "Na frase 'Ele comprou dois livros.', 'dois' é um...", o: ["nome", "determinante numeral", "adjetivo", "pronome"], c: 1 },
+            { q: "Qual destas palavras é esdrúxula (proparoxítona)?", o: ["café", "lápis", "médico", "computador"], c: 2 },
+            { q: "Qual é o antónimo de 'Limpo'?", o: ["Sujo", "Puro", "Brilhante", "Lindo"], c: 0 },
+            { q: "O que é 'sob' em: 'O gato está sob a mesa.'?", o: ["preposição", "verbo", "adjetivo", "pronome"], c: 0 },
+            { q: "Qual o sinónimo de 'Belo'?", o: ["Feio", "Bonito", "Grande", "Forte"], c: 1 },
+            { q: "Na frase 'Ela mora longe.', 'longe' é um advérbio de...", o: ["tempo", "modo", "lugar", "negação"], c: 2 },
+            { q: "Qual o plural de 'canal'?", o: ["canals", "canales", "canais", "canaliz"], c: 2 },
+            { q: "Qual o antónimo de 'Luz'?", o: ["Brilho", "Trevas", "Fogo", "Sol"], c: 1 },
+            { q: "Qual é o infinitivo do verbo 'fizemos'?", o: ["fazer", "feito", "fazendo", "fazeram"], c: 0 }
         ];
 
         let pacInterval = null;
@@ -747,9 +785,11 @@
         let pacCtx = pacCanvas.getContext("2d");
         
         let pacHero = { x: 1, y: 1, dir: 'NONE', nextDir: 'NONE' };
-        let pacGhost = { x: 10, y: 10, dir: 'NONE', lastMoveTime: 0 };
+        let pacGhost = { x: 10, y: 10, dir: 'NONE' };
         let pacEnergy = 100;
         let pacScore = 0;
+        let pacPhase = 1;
+        let pacLives = 3;
         let pacActive = false;
         let pacGrid = [];
         let pacSuperMode = false;
@@ -761,8 +801,8 @@
             [1,0,1,1,0,1,0,1,1,1,0,1],
             [1,0,1,0,0,0,0,0,0,1,0,1],
             [1,0,1,0,1,1,1,1,0,1,0,1],
-            [1,0,0,0,1,0,0,1,0,0,0,1],
-            [1,0,1,0,1,0,0,1,0,1,0,1],
+            [1,0,0,0,1,2,2,1,0,0,0,1],
+            [1,0,1,0,1,2,2,1,0,1,0,1],
             [1,0,1,0,1,1,1,1,0,1,0,1],
             [1,0,1,0,0,0,0,0,0,1,0,1],
             [1,0,1,1,1,0,1,1,1,1,0,1],
@@ -780,15 +820,17 @@
             
             pacEnergy = 100;
             pacScore = 0;
+            pacPhase = 1;
+            pacLives = 3;
             pacActive = true;
             pacSuperMode = false;
             pacSuperTimer = 0;
             pacHero = { x: 1, y: 1, dir: 'NONE', nextDir: 'NONE' };
-            pacGhost = { x: 10, y: 10, dir: 'NONE', lastMoveTime: 0 };
+            pacGhost = { x: 10, y: 10, dir: 'NONE' };
             
             pacGrid = JSON.parse(JSON.stringify(baseGrid));
 
-            // Colocar as super bolinhas especiais de poder (Power Pellets) nos cantos do mapa
+            // Colocar as super bolinhas especiais de poder nos cantos do mapa
             pacGrid[1][10] = 3;
             pacGrid[10][1] = 3;
             pacGrid[10][10] = 3;
@@ -895,21 +937,26 @@
                     pacGhost.y = 5;
                 } else {
                     playSound('hit');
-                    pacEnergy = Math.max(0, pacEnergy - 25); // Perde 25% de bateria
-                    // Reset posições para não morrer infinitamente
-                    pacHero.x = 1;
-                    pacHero.y = 1;
-                    pacHero.dir = 'NONE';
-                    pacHero.nextDir = 'NONE';
-                    pacGhost.x = 10;
-                    pacGhost.y = 10;
+                    pacLives--;
+                    if (pacLives <= 0) {
+                        endPacGame(false);
+                        return;
+                    } else {
+                        // Reset posições
+                        pacHero.x = 1;
+                        pacHero.y = 1;
+                        pacHero.dir = 'NONE';
+                        pacHero.nextDir = 'NONE';
+                        pacGhost.x = 10;
+                        pacGhost.y = 10;
+                    }
                 }
             }
 
             updatePacUI();
             drawPac();
 
-            // Verificar se apanhou todas as estrelas normais e especiais
+            // Verificar se apanhou todas as estrelas normais e especiais de poder
             let remainingStars = 0;
             for (let r = 0; r < 12; r++) {
                 for (let c = 0; c < 12; c++) {
@@ -917,12 +964,21 @@
                 }
             }
             if (remainingStars === 0) {
-                endPacGame(true);
+                // Avança para a próxima fase com velocidade ligeiramente superior do fantasma!
+                pacPhase++;
+                pacGrid = JSON.parse(JSON.stringify(baseGrid));
+                pacGrid[1][10] = 3;
+                pacGrid[10][1] = 3;
+                pacGrid[10][10] = 3;
+                pacHero = { x: 1, y: 1, dir: 'NONE', nextDir: 'NONE' };
+                pacGhost = { x: 10, y: 10, dir: 'NONE' };
+                pacEnergy = Math.min(100, pacEnergy + 30); // Dá um bónus de bateria ao subir de nível
+                playSound('success');
+                updatePacUI();
             }
         }
 
         function movePacGhost() {
-            // Obter todas as direções válidas do fantasma
             const dirs = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
             let validDirs = [];
 
@@ -960,8 +1016,7 @@
                             chosenDir = d;
                         }
                     });
-                } else if (Math.random() < 0.5) {
-                    // Tentar aproximar-se do herói
+                } else if (Math.random() < 0.5 + (pacPhase * 0.05)) { // Fica mais inteligente com o subir das fases
                     let minDist = Infinity;
                     validDirs.forEach(d => {
                         let gx = pacGhost.x;
@@ -991,7 +1046,14 @@
         function updatePacUI() {
             document.getElementById('pac-energy').style.width = `${pacEnergy}%`;
             document.getElementById('score-pac').innerText = String(pacScore).padStart(4, '0');
+            document.getElementById('pac-phase-label').innerText = String(pacPhase).padStart(2, '0');
             
+            let livesStr = "";
+            for (let i = 0; i < 3; i++) {
+                livesStr += i < pacLives ? "❤️ " : "🖤 ";
+            }
+            document.getElementById('pac-lives-label').innerText = livesStr;
+
             const sLabel = document.getElementById('super-mode-label');
             if (pacSuperMode) {
                 sLabel.innerText = "⭐ SUPER MODO ATIVO! ⭐";
@@ -1115,7 +1177,7 @@
             pacCtx.arc(gX + 3, gY - 2, 1.5, 0, Math.PI*2);
             pacCtx.fill();
 
-            // Ecrã de congelamento
+            // Ecrã de congelamento de bateria
             if (pacEnergy <= 0) {
                 pacCtx.fillStyle = "rgba(5, 8, 20, 0.75)";
                 pacCtx.fillRect(0, 0, pacCanvas.width, pacCanvas.height);
@@ -1188,11 +1250,7 @@
             document.getElementById('pac-active-area').classList.add('hidden');
             document.getElementById('pac-results').classList.remove('hidden');
             document.getElementById('final-pac-score').innerText = `SCORE: ${String(pacScore).padStart(4, '0')}`;
-            if (win) {
-                playSound('success');
-            } else {
-                playSound('error');
-            }
+            playSound('error');
         }
 
         // =====================================================================
@@ -1202,7 +1260,7 @@
         let defCtx = defenderCanvas.getContext("2d");
 
         let defenderScore = 0;
-        let defenderShields = 5;
+        let defenderLives = 3;
         let defenderAmmo = 6; 
         let defenderActive = false;
         let currentDefQuestion = null;
@@ -1216,7 +1274,7 @@
             document.getElementById('defender-active').classList.remove('hidden');
 
             defenderScore = 0;
-            defenderShields = 5;
+            defenderLives = 3;
             defenderAmmo = 6;
             defenderActive = true;
             asteroids = [];
@@ -1249,14 +1307,11 @@
             document.getElementById('score-defender').innerText = String(defenderScore).padStart(4, '0');
             document.getElementById('ammo-defender').innerText = `⚡ ${defenderAmmo}/6`;
             
-            let shieldBars = "";
-            for (let i = 0; i < 5; i++) {
-                shieldBars += i < defenderShields ? "█" : "░";
+            let livesStr = "";
+            for (let i = 0; i < 3; i++) {
+                livesStr += i < defenderLives ? "❤️ " : "🖤 ";
             }
-            const sh = document.getElementById('shields-defender');
-            sh.innerText = shieldBars;
-            if (defenderShields <= 2) sh.className = "font-arcade text-xs font-bold text-red-500 animate-pulse";
-            else sh.className = "font-arcade text-xs font-bold text-blue-400";
+            document.getElementById('shields-defender').innerText = livesStr;
         }
 
         function nextDefenderQuestion() {
@@ -1335,11 +1390,11 @@
                         }, 800);
                     } else {
                         playSound('error');
-                        defenderShields--;
+                        defenderLives--;
                         ast.destroyed = true;
                         ast.glowColor = '#ef4444';
                         
-                        if (defenderShields <= 0) {
+                        if (defenderLives <= 0) {
                             endDefenderGame(false);
                         } else {
                             setTimeout(() => {
@@ -1367,9 +1422,9 @@
 
             if (hitShield) {
                 playSound('hit');
-                defenderShields--;
+                defenderLives--;
                 updateDefenderUI();
-                if (defenderShields <= 0) {
+                if (defenderLives <= 0) {
                     endDefenderGame(false);
                 } else {
                     nextDefenderQuestion();
@@ -1384,10 +1439,6 @@
             });
 
             drawDefender();
-            
-            if (defenderScore >= 1000) {
-                endDefenderGame(true);
-            }
         }
 
         function drawDefender() {
@@ -1537,7 +1588,6 @@
             }
         }
 
-
         // =====================================================================
         // JOGO 3: SYNTAX SNAKE (A COBRA NÉON)
         // =====================================================================
@@ -1550,8 +1600,8 @@
         let snakeGridSize = 20; 
         let snake = [];
         let snakeDir = 'RIGHT';
-        let currentSnakeChallenge = null;
-        let wordItems = []; 
+        let snakeEnergy = 100;
+        let snakePellets = []; 
 
         function startSnakeGame() {
             stopAllGameLoops();
@@ -1561,6 +1611,7 @@
 
             snakeScore = 0;
             snakeLives = 3;
+            snakeEnergy = 100;
             snakeActive = true;
             snakeDir = 'RIGHT';
 
@@ -1571,12 +1622,12 @@
             ];
 
             updateSnakeUI();
-            nextSnakeChallenge();
+            spawnSnakePellets();
 
             window.removeEventListener('keydown', handleSnakeKeys);
             window.addEventListener('keydown', handleSnakeKeys);
 
-            snakeInterval = setInterval(updateSnake, 250);
+            snakeInterval = setInterval(updateSnake, 160);
             playSound('success');
         }
 
@@ -1586,6 +1637,7 @@
             if (e.key === 'ArrowDown' || e.key === 's') changeSnakeDir('DOWN');
             if (e.key === 'ArrowLeft' || e.key === 'a') changeSnakeDir('LEFT');
             if (e.key === 'ArrowRight' || e.key === 'd') changeSnakeDir('RIGHT');
+            if (e.key === 'r' || e.key === 'R') triggerSnakeQuestion();
         }
 
         function changeSnakeDir(dir) {
@@ -1598,57 +1650,49 @@
 
         function updateSnakeUI() {
             document.getElementById('score-snake').innerText = String(snakeScore).padStart(4, '0');
+            document.getElementById('snake-energy').style.width = `${snakeEnergy}%`;
             let livesText = "";
             for (let i = 0; i < 3; i++) {
                 livesText += i < snakeLives ? "❤️ " : "🖤 ";
             }
             document.getElementById('snake-lives').innerText = livesText;
+
+            const bar = document.getElementById('snake-energy');
+            if (snakeEnergy <= 25) {
+                bar.className = "bg-red-500 h-full transition-all duration-100";
+            } else if (snakeEnergy <= 50) {
+                bar.className = "bg-amber-500 h-full transition-all duration-100";
+            } else {
+                bar.className = "bg-emerald-400 h-full transition-all duration-100";
+            }
         }
 
-        function nextSnakeChallenge() {
-            const randIdx = Math.floor(Math.random() * snakeDb.length);
-            currentSnakeChallenge = snakeDb[randIdx];
-
-            document.getElementById('snake-target-title').innerText = `APANHA: ${currentSnakeChallenge.target}`;
-
-            wordItems = [];
-
-            let positions = [];
-            while (positions.length < 3) {
-                let rx = Math.floor(Math.random() * 16) + 2; 
-                let ry = Math.floor(Math.random() * 16) + 2;
-                
+        function spawnSnakePellets() {
+            snakePellets = [];
+            while (snakePellets.length < 3) {
+                let rx = Math.floor(Math.random() * (snakeGridSize - 2)) + 1;
+                let ry = Math.floor(Math.random() * (snakeGridSize - 2)) + 1;
                 let hitBody = snake.some(part => part.x === rx && part.y === ry);
-                let hitOtherPos = positions.some(p => Math.abs(p.x - rx) < 3 && Math.abs(p.y - ry) < 3); 
-
-                if (!hitBody && !hitOtherPos) {
-                    positions.push({x: rx, y: ry});
+                let hitOther = snakePellets.some(p => p.x === rx && p.y === ry);
+                if (!hitBody && !hitOther) {
+                    snakePellets.push({
+                        x: rx,
+                        y: ry,
+                        color: ['#10b981', '#38bdf8', '#f59e0b'][Math.floor(Math.random() * 3)],
+                        points: 10
+                    });
                 }
             }
-
-            wordItems.push({
-                x: positions[0].x,
-                y: positions[0].y,
-                text: currentSnakeChallenge.correct,
-                isCorrect: true
-            });
-
-            wordItems.push({
-                x: positions[1].x,
-                y: positions[1].y,
-                text: currentSnakeChallenge.options[0],
-                isCorrect: false
-            });
-            wordItems.push({
-                x: positions[2].x,
-                y: positions[2].y,
-                text: currentSnakeChallenge.options[1],
-                isCorrect: false
-            });
         }
 
         function updateSnake() {
             if (!snakeActive) return;
+
+            // Se a bateria chegar a zero, congela o jogo e pede para recarregar
+            if (snakeEnergy <= 0) {
+                drawSnake();
+                return;
+            }
 
             let head = {x: snake[0].x, y: snake[0].y};
             if (snakeDir === 'UP') head.y--;
@@ -1656,10 +1700,11 @@
             if (snakeDir === 'LEFT') head.x--;
             if (snakeDir === 'RIGHT') head.x++;
 
-            if (head.x < 0 || head.x >= snakeGridSize || head.y < 0 || head.y >= snakeGridSize) {
-                triggerSnakeCrash();
-                return;
-            }
+            // ATRAVESSAR EXTREMIDADES (Wrapping): Em vez de colidir nas paredes, reaparece no extremo oposto!
+            if (head.x < 0) head.x = snakeGridSize - 1;
+            if (head.x >= snakeGridSize) head.x = 0;
+            if (head.y < 0) head.y = snakeGridSize - 1;
+            if (head.y >= snakeGridSize) head.y = 0;
 
             let hitSelf = snake.some((part, idx) => idx !== 0 && part.x === head.x && part.y === head.y);
             if (hitSelf) {
@@ -1667,44 +1712,45 @@
                 return;
             }
 
+            // Gasta bateria proporcionalmente por movimento
+            snakeEnergy -= 1.5;
+            if (snakeEnergy < 0) snakeEnergy = 0;
+            updateSnakeUI();
+
             snake.unshift(head);
 
-            let eatenIndex = -1;
-            wordItems.forEach((item, idx) => {
-                if (Math.abs(head.x - item.x) <= 1 && Math.abs(head.y - item.y) <= 0) {
-                    eatenIndex = idx;
+            let eatenIdx = -1;
+            for (let i = 0; i < snakePellets.length; i++) {
+                if (head.x === snakePellets[i].x && head.y === snakePellets[i].y) {
+                    eatenIdx = i;
+                    break;
                 }
-            });
+            }
 
-            if (eatenIndex !== -1) {
-                let eatenItem = wordItems[eatenIndex];
-                if (eatenItem.isCorrect) {
-                    playSound('coin');
-                    snakeScore += 100;
-                    updateSnakeUI();
-                    nextSnakeChallenge();
-                } else {
-                    playSound('error');
-                    snakeLives--;
-                    updateSnakeUI();
-                    
-                    if (snakeLives <= 0) {
-                        endSnakeGame(false);
-                        return;
+            if (eatenIdx !== -1) {
+                playSound('coin');
+                snakeScore += snakePellets[eatenIdx].points;
+                snakeEnergy = Math.min(100, snakeEnergy + 8);
+                updateSnakeUI();
+
+                snakePellets.splice(eatenIdx, 1);
+                while (snakePellets.length < 3) {
+                    let rx = Math.floor(Math.random() * (snakeGridSize - 2)) + 1;
+                    let ry = Math.floor(Math.random() * (snakeGridSize - 2)) + 1;
+                    if (!snake.some(p => p.x === rx && p.y === ry) && !snakePellets.some(p => p.x === rx && p.y === ry)) {
+                        snakePellets.push({
+                            x: rx,
+                            y: ry,
+                            color: ['#10b981', '#38bdf8', '#f59e0b'][Math.floor(Math.random() * 3)],
+                            points: 10
+                        });
                     }
-
-                    snake.shift();
-                    nextSnakeChallenge();
                 }
             } else {
                 snake.pop();
             }
 
             drawSnake();
-
-            if (snakeScore >= 500) {
-                endSnakeGame(true);
-            }
         }
 
         function triggerSnakeCrash() {
@@ -1713,22 +1759,24 @@
             updateSnakeUI();
 
             if (snakeLives <= 0) {
-                endSnakeGame(false);
+                endSnakeGame();
             } else {
+                // Reinicia apenas a cobra no centro da grelha
                 snake = [
                     {x: 10, y: 10},
                     {x: 9, y: 10},
                     {x: 8, y: 10}
                 ];
                 snakeDir = 'RIGHT';
-                nextSnakeChallenge();
+                spawnSnakePellets();
             }
         }
 
         function drawSnake() {
             snkCtx.clearRect(0, 0, snakeCanvas.width, snakeCanvas.height);
 
-            snkCtx.strokeStyle = '#0a122c';
+            // Grelha de Fundo do Computador de bordo
+            snkCtx.strokeStyle = '#050a1d';
             snkCtx.lineWidth = 1;
             for (let i = 0; i <= snakeGridSize; i++) {
                 snkCtx.beginPath();
@@ -1741,64 +1789,115 @@
                 snkCtx.stroke();
             }
 
-            wordItems.forEach(item => {
-                let px = item.x * 20;
-                let py = item.y * 20;
+            // Desenhar Bolinhas Néon de Energia
+            snakePellets.forEach(item => {
+                let px = item.x * 20 + 10;
+                let py = item.y * 20 + 10;
 
-                snkCtx.shadowBlur = 8;
-                snkCtx.shadowColor = '#38bdf8'; 
-                
-                snkCtx.fillStyle = '#0a0f24';
-                snkCtx.strokeStyle = '#1e3b8b';
-                snkCtx.lineWidth = 1.5;
+                snkCtx.shadowBlur = 12;
+                snkCtx.shadowColor = item.color;
+                snkCtx.fillStyle = item.color;
                 snkCtx.beginPath();
-                snkCtx.roundRect(px - 35, py - 10, 70, 20, 5);
+                snkCtx.arc(px, py, 6, 0, Math.PI * 2);
                 snkCtx.fill();
-                snkCtx.stroke();
-
-                snkCtx.fillStyle = '#ffffff';
-                snkCtx.font = "bold 8px 'Press Start 2P', monospace";
-                snkCtx.textAlign = 'center';
-                snkCtx.fillText(item.text, px, py + 3);
             });
 
             snkCtx.shadowBlur = 0;
 
+            // Desenhar Corpo Néon da Cobra
             snake.forEach((part, idx) => {
                 let px = part.x * 20;
                 let py = part.y * 20;
 
                 snkCtx.shadowBlur = 10;
                 if (idx === 0) {
-                    snkCtx.fillStyle = '#10b981';
-                    snkCtx.shadowColor = '#10b981';
-                } else {
                     snkCtx.fillStyle = '#38bdf8';
                     snkCtx.shadowColor = '#38bdf8';
+                } else {
+                    snkCtx.fillStyle = '#1e40af';
+                    snkCtx.shadowColor = '#1e3a8a';
                 }
 
                 snkCtx.beginPath();
-                snkCtx.roundRect(px + 1, py + 1, 18, 18, 4);
+                snkCtx.roundRect(px + 1, py + 1, 18, 18, 5);
                 snkCtx.fill();
             });
 
             snkCtx.shadowBlur = 0;
+
+            // Painel semitransparente em caso de falha de bateria
+            if (snakeEnergy <= 0) {
+                snkCtx.fillStyle = "rgba(5, 8, 20, 0.85)";
+                snkCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+                snkCtx.fillStyle = '#ef4444';
+                snkCtx.font = "bold 10px 'Press Start 2P', monospace";
+                snkCtx.textAlign = 'center';
+                snkCtx.fillText("BATERIA ESGOTADA!", 200, 180);
+
+                snkCtx.fillStyle = '#38bdf8';
+                snkCtx.font = "8px 'Press Start 2P', monospace";
+                snkCtx.fillText("PRIME [R] PARA RECARREGAR", 200, 220);
+            }
         }
 
-        function endSnakeGame(win) {
+        function triggerSnakeQuestion() {
+            snakeActive = false;
+
+            const randIdx = Math.floor(Math.random() * snakeQuestions.length);
+            const questionData = snakeQuestions[randIdx];
+
+            document.getElementById('snake-modal-question').innerText = questionData.q;
+
+            const optionsDiv = document.getElementById('snake-modal-options');
+            optionsDiv.innerHTML = '';
+
+            questionData.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-slate-900 border border-emerald-900 hover:border-emerald-400 p-4 rounded-xl text-xs font-arcade text-slate-300 transition-all hover:bg-emerald-950/40";
+                btn.innerText = `[${idx + 1}] ${opt}`;
+                btn.onclick = () => answerSnakeQuestion(idx, questionData.c);
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('snake-modal-feedback').classList.add('hidden');
+            document.getElementById('snake-question-modal').classList.remove('hidden');
+        }
+
+        function answerSnakeQuestion(chosen, correct) {
+            const feedback = document.getElementById('snake-modal-feedback');
+            feedback.classList.remove('hidden');
+
+            const buttons = document.querySelectorAll('#snake-modal-options button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (chosen === correct) {
+                playSound('success');
+                feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-emerald-950/60 border border-emerald-500 text-emerald-400 animate-pulse";
+                feedback.innerText = "SISTEMAS REABASTECIDOS! +50% ENERGIA";
+
+                snakeEnergy = Math.min(100, snakeEnergy + 50);
+                snakeScore += 50;
+            } else {
+                playSound('error');
+                feedback.className = "p-3 rounded-xl text-center text-xs font-arcade font-bold bg-rose-950/60 border border-rose-500 text-rose-400";
+                feedback.innerText = "SINAL FRACO! SEM RECARGA";
+            }
+
+            setTimeout(() => {
+                document.getElementById('snake-question-modal').classList.add('hidden');
+                snakeActive = true;
+                updateSnakeUI();
+            }, 1500);
+        }
+
+        function endSnakeGame() {
             snakeActive = false;
             clearInterval(snakeInterval);
             document.getElementById('snake-active').classList.add('hidden');
             document.getElementById('snake-results').classList.remove('hidden');
-            
-            const comment = document.getElementById('snake-result-comment');
-            if (win) {
-                playSound('success');
-                comment.innerText = "Parabéns! ÉS UM HERÓI DA GRAMÁTICA E DO ARCADE! 🏆";
-            } else {
-                playSound('error');
-                comment.innerText = "Bom esforço! O erro faz parte da aprendizagem. Recomeça!";
-            }
+            document.getElementById('final-snake-score').innerText = `SCORE: ${String(snakeScore).padStart(4, '0')}`;
+            playSound('error');
         }
 
         // =====================================================================
@@ -1831,10 +1930,10 @@
             canvas.width = 1600;
             canvas.height = 1200;
 
-            // Escalonar o contexto para podermos desenhar no sistema lógico clássico de 800x600
+            // Escalonar o contexto para desenhar no sistema lógico clássico de 800x600
             ctx.scale(2, 2);
 
-            // 1. Limpar e desenhar fundo em gradiente (aspeto de diploma nobre clássico)
+            // 1. Limpar e desenhar fundo em gradiente
             const grad = ctx.createRadialGradient(400, 300, 50, 400, 300, 450);
             grad.addColorStop(0, '#fcfcf9');
             grad.addColorStop(1, '#f4f1e6');
@@ -1855,7 +1954,7 @@
             ctx.lineWidth = 1;
             ctx.strokeRect(36, 36, 728, 528);
 
-            // 4. Detalhes ornamentais de prestígio nos cantos
+            // 4. Detalhes ornamentais nos cantos
             ctx.fillStyle = '#d97706';
             const corners = [
                 [30, 30], [770, 30], [30, 570], [770, 570]
@@ -1914,7 +2013,7 @@
             ctx.font = "italic 16px 'Georgia', serif";
             ctx.fillText("Este certificado de mérito e carinho literário é entregue com enorme orgulho a:", 400, 290);
 
-            // 8. Nome do Aluno Destacado
+            // 8. Nome do Aluno
             ctx.fillStyle = '#2563eb';
             ctx.font = "bold 32px 'Fredoka', sans-serif";
             ctx.fillText(studentName.toUpperCase(), 400, 345);
@@ -1927,7 +2026,7 @@
             ctx.lineTo(580, 365);
             ctx.stroke();
 
-            // 9. Mensagem Lamechas / Sentimental
+            // 9. Mensagem Sentimental / Lamechas
             ctx.fillStyle = '#334155';
             ctx.font = "italic 14px 'Georgia', serif";
             
@@ -1960,7 +2059,7 @@
             ctx.font = "italic 12px 'Georgia', serif";
             ctx.fillText("\"Feito com ❤️ para os meus heróis.\"", 600, 550);
 
-            // Exportar o Canvas para a tag <img> para máxima facilidade de gravação móvel
+            // Exportar o Canvas para a tag <img> para máxima nitidez e suporte móvel
             const imgData = canvas.toDataURL("image/png");
             document.getElementById('certOutputImg').src = imgData;
         }
@@ -1970,10 +2069,8 @@
             const canvas = document.getElementById('certCanvas');
             const studentName = document.getElementById('cert-student-name').value.trim() || "heroi";
             
-            // Garantir que extraímos em máxima fidelidade
             const imgData = canvas.toDataURL("image/png", 1.0);
             
-            // Instanciar jsPDF (Paisagem, Unidade Pixel, Dimensões 800x600)
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
                 orientation: 'landscape',
