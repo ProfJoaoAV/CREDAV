@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quem é Quem? - Edição Animais</title>
+    <!-- Tailwind CSS para Estilização Moderna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Efeito de pulse personalizado */
+        .pulse-btn {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+            70% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-paw text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold text-white tracking-wide">QUEM É QUEM?</h1>
+                    <p class="text-xs text-indigo-400 font-semibold">CIÊNCIAS DA NATUREZA • ESTUDO DO MEIO</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="resetGame()" class="bg-slate-700 hover:bg-rose-600 hover:text-white text-slate-300 font-medium text-xs px-4 py-2 rounded-lg transition duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Reiniciar Jogo
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL DO JOGO -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+        <!-- 1. ECRÃ DE CONFIGURAÇÃO (Nomes dos Jogadores) -->
+        <div id="screen-setup" class="bg-slate-800 rounded-2xl border border-slate-700 p-6 md:p-10 shadow-2xl max-w-lg mx-auto w-full transition-all duration-300">
+            <div class="text-center mb-8">
+                <span class="bg-indigo-500/10 text-indigo-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-500/20">Edição Especial de Ciências</span>
+                <h2 class="text-3xl font-extrabold mt-3 text-white">Configura o Teu Jogo!</h2>
+                <p class="text-slate-400 text-sm mt-2">Introduzam os vossos nomes para começar o duelo científico de dedução.</p>
+            </div>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-slate-300 text-sm font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-user-ninja text-indigo-400"></i> Nome do Jogador 1 (Ecrã Esquerdo)
+                    </label>
+                    <input type="text" id="p1-name-input" value="Jogador 1" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold transition">
+                </div>
+                <div>
+                    <label class="block text-slate-300 text-sm font-semibold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-user-astronaut text-emerald-400"></i> Nome do Jogador 2 (Ecrã Direito)
+                    </label>
+                    <input type="text" id="p2-name-input" value="Jogador 2" class="w-full bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold transition">
+                </div>
+
+                <div class="pt-4">
+                    <button onclick="startGameSetup()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 transform active:scale-95 text-center block">
+                        Começar Missão <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ECRÃ DE ESCOLHA DE ANIMAL SECRETO -->
+        <div id="screen-choose" class="hidden bg-slate-800 rounded-2xl border border-slate-700 p-6 shadow-2xl transition-all duration-300 max-w-5xl mx-auto w-full">
+            <div class="text-center mb-6">
+                <span id="choose-player-badge" class="bg-indigo-500/10 text-indigo-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-500/20">Fase de Preparação</span>
+                <h2 id="choose-title" class="text-3xl font-extrabold text-white mt-3">Escolhe o Teu Animal Secreto</h2>
+                <p id="choose-subtitle" class="text-slate-400 text-sm mt-1">Ninguém pode estar a olhar para o teu ecrã agora! Clica num animal para o definires como o teu segredo.</p>
+            </div>
+
+            <!-- Grelha de Seleção -->
+            <div id="choose-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3 my-6">
+                <!-- Injetado dinamicamente por JS -->
+            </div>
+
+            <!-- Animal Selecionado Atualmente -->
+            <div class="bg-slate-900 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div id="chosen-animal-emoji" class="text-4xl p-3 bg-slate-800 rounded-xl border border-slate-700">❓</div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-bold uppercase">Animal Selecionado:</p>
+                        <h4 id="chosen-animal-name" class="text-xl font-bold text-white">Clica num animal acima</h4>
+                    </div>
+                </div>
+                <button id="btn-confirm-choice" disabled onclick="confirmSecretSelection()" class="w-full md:w-auto bg-slate-600 text-slate-400 font-bold py-3 px-8 rounded-xl transition duration-200 cursor-not-allowed">
+                    Confirmar Seleção <i class="fa-solid fa-check ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. ECRÃ DE TRANSIÇÃO SEGURO (PASSAR COMPUTADOR) -->
+        <div id="screen-transition" class="hidden bg-indigo-950/90 border-2 border-indigo-500/40 rounded-2xl p-8 md:p-14 text-center shadow-2xl max-w-xl mx-auto w-full transition-all duration-300">
+            <div class="text-rose-500 text-6xl mb-6 animate-bounce">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 class="text-4xl font-black text-white uppercase tracking-wide">Segurança de Turno!</h2>
+            <p class="text-indigo-200 text-lg mt-4">
+                Por favor, passa o dispositivo para o/a:
+            </p>
+            <div class="bg-indigo-900/60 text-white font-extrabold text-3xl py-4 px-6 my-6 rounded-2xl border border-indigo-500/30 shadow-inner">
+                <span id="transition-next-player-name">Nome do Jogador</span>
+            </div>
+            <p class="text-slate-300 text-sm mb-8 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-eye-slash text-rose-400"></i> Certifica-te de que o outro jogador **não consegue olhar** para o ecrã agora!
+            </p>
+            <button onclick="endTransition()" class="pulse-btn w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-4 px-8 rounded-xl text-lg transition shadow-lg shadow-emerald-600/30">
+                Estou Pronto, Entrar na Arena! <i class="fa-solid fa-play ml-2"></i>
+            </button>
+        </div>
+
+        <!-- 4. TABULEIRO DE JOGO PRINCIPAL (ATIVO) -->
+        <div id="screen-gameplay" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+            
+            <!-- Painel de Informação Lateral Esquerdo / Controlos (4 colunas) -->
+            <div class="lg:col-span-4 flex flex-col gap-4">
+                
+                <!-- Turno Atual / Informação -->
+                <div class="bg-slate-800 border border-slate-700 p-5 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="bg-indigo-500/10 text-indigo-400 text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full border border-indigo-500/20">Turno Ativo</span>
+                        <span id="turn-badge" class="bg-slate-900 text-slate-300 text-xs px-3 py-1 rounded font-bold">Ronda 1</span>
+                    </div>
+                    <h3 id="current-player-title" class="text-2xl font-black text-white">É a vez do Jogador!</h3>
+                    <p class="text-slate-400 text-xs mt-1">Deves adivinhar qual é o animal secreto do teu adversário eliminando pistas.</p>
+                </div>
+
+                <!-- ASSISTENTE DE DEDUÇÃO E FEEDBACK DA PISTA -->
+                <div id="deduction-assistant" class="bg-slate-800 border-2 border-slate-700 p-4 rounded-xl shadow-lg transition-all duration-300 hidden">
+                    <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-robot animate-pulse"></i> Assistente de Dedução
+                    </h4>
+                    
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-750 mb-3">
+                        <p class="text-[10px] text-slate-400 uppercase font-semibold">Resposta Obtida:</p>
+                        <p id="assistant-clue-text" class="text-sm font-bold text-white mt-0.5">"Tem Pêlos? SIM"</p>
+                    </div>
+
+                    <!-- Progresso de eliminação do turno -->
+                    <div id="assistant-progress-container" class="space-y-2">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-300">Animais por baixar:</span>
+                            <span id="assistant-count-badge" class="text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">0 / 0</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                            <div id="assistant-progress-bar" class="bg-amber-500 h-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p id="assistant-instruction" class="text-[10px] text-slate-400 italic">Analisa o tabuleiro e deita abaixo as cartas impossíveis.</p>
+                    </div>
+
+                    <!-- Mensagem de Turno Resolvido -->
+                    <div id="assistant-success-msg" class="hidden bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-2.5 rounded-lg text-xs flex items-start gap-2 animate-fade-in mt-1">
+                        <i class="fa-solid fa-circle-check mt-0.5 text-base"></i>
+                        <div>
+                            <span class="font-bold">Dedução Perfeita!</span>
+                            <p class="text-[11px] text-slate-300 mt-0.5">Eliminaste todas as opções inválidas. Podes agora <strong>Passar Turno</strong> de forma segura.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel Secreto Seguro (Retenção) -->
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg text-center">
+                    <p class="text-xs text-slate-400 font-bold uppercase mb-2">Esqueceste-te do teu animal secreto?</p>
+                    <button 
+                        onmousedown="toggleSecretView(true)" 
+                        onmouseup="toggleSecretView(false)"
+                        onmouseleave="toggleSecretView(false)"
+                        ontouchstart="toggleSecretView(true)"
+                        ontouchend="toggleSecretView(false)"
+                        class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold py-3 px-4 rounded-lg transition active:scale-95 select-none duration-150 flex items-center justify-center gap-2"
+                    >
+                        <i class="fa-solid fa-eye text-indigo-400"></i> Manter Premido para Ver Segredo
+                    </button>
+                    <!-- Ecrã de Visualização Rápida -->
+                    <div id="secret-preview-box" class="hidden mt-3 p-3 bg-slate-900 rounded-lg border border-indigo-500/30 flex items-center justify-center gap-3 animate-fade-in">
+                        <span id="secret-preview-emoji" class="text-3xl">🐶</span>
+                        <div class="text-left">
+                            <p class="text-[10px] text-indigo-400 font-bold">O TEU ANIMAL SECRETO:</p>
+                            <h4 id="secret-preview-name" class="font-extrabold text-white text-sm">Cachorro</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel de Perguntas Estruturadas -->
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg flex-grow flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-200 uppercase mb-3 flex items-center gap-2 border-b border-slate-700 pb-2">
+                            <i class="fa-solid fa-circle-question text-indigo-400"></i> Fazer uma Pergunta:
+                        </h4>
+                        
+                        <!-- Lista de Perguntas Colapsável/Acordião -->
+                        <div id="questions-accordion" class="space-y-2 overflow-y-auto max-h-[250px] pr-1">
+                            <!-- Revestimento -->
+                            <details class="group bg-slate-900 rounded-lg border border-slate-700 overflow-hidden">
+                                <summary class="cursor-pointer font-semibold text-xs text-slate-300 py-2.5 px-3 hover:bg-slate-700 flex justify-between items-center transition">
+                                    <span><i class="fa-solid fa-shirt text-indigo-400 mr-2"></i> Revestimento</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="p-2 bg-slate-950/40 border-t border-slate-700 flex flex-col gap-1">
+                                    <button onclick="askQuestion('revestimento', 'pêlos', 'Tem Pêlos?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal tem pêlos?</button>
+                                    <button onclick="askQuestion('revestimento', 'penas', 'Tem Penas?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal tem penas?</button>
+                                    <button onclick="askQuestion('revestimento', 'escamas', 'Tem Escamas?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal tem escamas?</button>
+                                    <button onclick="askQuestion('revestimento', 'pele nua', 'Tem Pele Nua?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal tem pele nua?</button>
+                                </div>
+                            </details>
+
+                            <!-- Alimentação -->
+                            <details class="group bg-slate-900 rounded-lg border border-slate-700 overflow-hidden">
+                                <summary class="cursor-pointer font-semibold text-xs text-slate-300 py-2.5 px-3 hover:bg-slate-700 flex justify-between items-center transition">
+                                    <span><i class="fa-solid fa-utensils text-indigo-400 mr-2"></i> Alimentação</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="p-2 bg-slate-950/40 border-t border-slate-700 flex flex-col gap-1">
+                                    <button onclick="askQuestion('alimentacao', 'carnívoro', 'É Carnívoro?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal é carnívoro?</button>
+                                    <button onclick="askQuestion('alimentacao', 'herbívoro', 'É Herbívoro?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal é herbívoro?</button>
+                                    <button onclick="askQuestion('alimentacao', 'omnívoro', 'É Omnívoro?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal é omnívoro?</button>
+                                </div>
+                            </details>
+
+                            <!-- Locomoção -->
+                            <details class="group bg-slate-900 rounded-lg border border-slate-700 overflow-hidden">
+                                <summary class="cursor-pointer font-semibold text-xs text-slate-300 py-2.5 px-3 hover:bg-slate-700 flex justify-between items-center transition">
+                                    <span><i class="fa-solid fa-shoe-prints text-indigo-400 mr-2"></i> Locomoção</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="p-2 bg-slate-950/40 border-t border-slate-700 flex flex-col gap-1">
+                                    <button onclick="askQuestion('locomocao', 'voa', 'Consegue Voar?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal voa?</button>
+                                    <button onclick="askQuestion('locomocao', 'nada', 'Consegue Nadar?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal nada?</button>
+                                    <button onclick="askQuestion('locomocao', 'anda', 'Consegue Andar/Correr?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal anda ou corre?</button>
+                                    <button onclick="askQuestion('locomocao', 'rasteja', 'Consegue Rastejar?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal rasteja?</button>
+                                </div>
+                            </details>
+
+                            <!-- Habitat -->
+                            <details class="group bg-slate-900 rounded-lg border border-slate-700 overflow-hidden">
+                                <summary class="cursor-pointer font-semibold text-xs text-slate-300 py-2.5 px-3 hover:bg-slate-700 flex justify-between items-center transition">
+                                    <span><i class="fa-solid fa-earth-europe text-indigo-400 mr-2"></i> Habitat</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="p-2 bg-slate-950/40 border-t border-slate-700 flex flex-col gap-1">
+                                    <button onclick="askQuestion('habitat', 'viveTerra', 'Vive na Terra?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal vive maioritariamente na terra?</button>
+                                    <button onclick="askQuestion('habitat', 'viveAgua', 'Vive na Água?')" class="text-left text-xs bg-slate-800 hover:bg-slate-700 p-2 rounded transition">O teu animal vive maioritariamente na água?</button>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Passagem de Turno Automática -->
+                    <div class="mt-4 pt-4 border-t border-slate-700">
+                        <button onclick="passTurn()" class="w-full bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2">
+                            Passar Turno <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Tabuleiro de Cartas de Jogo Principal (8 colunas) -->
+            <div class="lg:col-span-8 bg-slate-800 border border-slate-700 p-4 md:p-6 rounded-2xl shadow-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-border-all text-indigo-400"></i> Descobre o Animal do Adversário
+                    </h3>
+                    <p class="text-xs text-slate-400">Clica em cada carta para deitar abaixo / levantar</p>
+                </div>
+
+                <!-- Grelha das Cartas -->
+                <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <!-- Injetado dinamicamente com as cartas de jogo -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. ECRÃ DE VITÓRIA / FINAL DE JOGO -->
+        <div id="screen-winner" class="hidden bg-slate-800 rounded-2xl border-2 border-emerald-500/50 p-8 md:p-14 text-center shadow-2xl max-w-xl mx-auto w-full transition-all duration-300">
+            <div class="text-amber-400 text-7xl mb-6">
+                <i class="fa-solid fa-trophy animate-bounce"></i>
+            </div>
+            <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-emerald-500/20">Fim do Jogo</span>
+            <h2 class="text-4xl font-extrabold mt-3 text-white">Temos Vencedor!</h2>
+            
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 my-8">
+                <p class="text-slate-400 text-sm">O grande mestre dos biólogos é:</p>
+                <h3 id="winner-name" class="text-3xl font-black text-emerald-400 mt-1">Nome do Vencedor</h3>
+                <p id="winner-text" class="text-slate-300 text-sm mt-3 leading-relaxed">Parabéns! Descobriste o animal misterioso com a tua dedução científica.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="resetGame()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold py-3.5 px-6 rounded-xl transition duration-200">
+                    Jogar Novamente <i class="fa-solid fa-play ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- COMPONENTE: MODAL DE RESPOSTA À PERGUNTA -->
+    <div id="response-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border-2 border-slate-700 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center transform scale-95 transition-all duration-300">
+            <h4 class="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">Resposta do Computador</h4>
+            <h3 id="modal-question-text" class="text-xl font-bold text-white mb-6">"Pergunta?"</h3>
+            
+            <!-- Caixa de resposta gigante -->
+            <div id="modal-response-box" class="py-6 px-10 rounded-2xl border text-5xl font-black mb-6 shadow-inner tracking-wider">
+                SIM / NÃO
+            </div>
+
+            <p class="text-slate-400 text-xs mb-6">Usa esta pista no teu tabuleiro eliminando os animais que não cumprem o requisito biológico.</p>
+
+            <button onclick="closeModal()" class="w-full bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                Entendido! Ajustar Tabuleiro
+            </button>
+        </div>
+    </div>
+
+    <!-- COMPONENTE: MODAL DE FEEDBACK DE DEDUÇÃO INCORRETA (CUSTOMIZADO) -->
+    <div id="feedback-error-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border-2 border-rose-500 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center transform scale-100 transition-all">
+            <div class="text-rose-500 text-5xl mb-4">
+                <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-white">Ups! Dedução Incorreta</h3>
+            
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 my-4 text-left text-sm text-slate-300">
+                <p id="feedback-error-desc" class="leading-relaxed">Explicação científica do porquê de não poder eliminar esta carta.</p>
+            </div>
+
+            <button onclick="closeFeedbackErrorModal()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-6 rounded-xl transition duration-200">
+                Corrigir Estratégia
+            </button>
+        </div>
+    </div>
+
+    <!-- COMPONENTE: MODAL DE CONFIRMAÇÃO DE ADIVINHA (CUSTOMIZADO) -->
+    <div id="guess-confirm-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border-2 border-indigo-500 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center transform scale-95 transition-all duration-300">
+            <div class="text-indigo-400 text-5xl mb-3">
+                <i class="fa-solid fa-crosshairs"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white">Lançar Palpite Final!</h3>
+            <p id="guess-confirm-text" class="text-slate-300 text-sm my-4">Tens a certeza que o animal secreto é este?</p>
+            <div class="flex gap-4">
+                <button onclick="closeGuessConfirm()" class="flex-1 bg-slate-750 hover:bg-slate-700 text-slate-300 font-bold py-3 rounded-xl transition">Cancelar</button>
+                <button id="btn-execute-guess" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow shadow-emerald-700/30">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 px-6 text-center text-slate-500 text-xs">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p>© 2026 • Ferramenta Criada no Workshop de Gamificação</p>
+            <p class="text-indigo-400/80">Desenvolvido com IA para as Escolas em Portugal</p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA DO JOGO EM JAVASCRIPT -->
+    <script>
+        // BASE DE DADOS DOS ANIMAIS (16 Animais do Zoo com atributos científicos)
+        const ANIMALS = [
+            { id: 1, name: "Leão", emoji: "🦁", revestimento: "pêlos", alimentacao: "carnívoro", voa: false, nada: false, anda: true, rasteja: false, viveTerra: true, viveAgua: false },
+            { id: 2, name: "Águia", emoji: "🦅", revestimento: "penas", alimentacao: "carnívoro", voa: true, nada: false, anda: true, rasteja: false, viveTerra: true, viveAgua: false },
+            { id: 3, name: "Tubarão", emoji: "🦈", revestimento: "escamas", alimentacao: "carnívoro", voa: false, nada: true, anda: false, rasteja: false, viveTerra: false, viveAgua: true },
+            { id: 4, name: "Sapo", emoji: "🐸", revestimento: "pele nua", alimentacao: "carnívoro", voa: false, nada: true, anda: true, rasteja: false, viveTerra: true, viveAgua: true },
+            { id: 5, name: "Elefante", emoji: "🐘", revestimento: "pêlos", alimentacao: "herbívoro", voa: false, nada: false, anda: true, rasteja: false, viveTerra: true, viveAgua: false },
+            { id: 6, name: "Urso Pardo", emoji: "🐻", revestimento: "pêlos", alimentacao: "omnívoro", voa: false, nada: true, anda: true, rasteja: false, viveTerra: true, viveAgua: false },
+            { id: 7, name: "Pato", emoji: "🦆", revestimento: "penas", alimentacao: "omnívoro", voa: true, nada: true, anda: true, rasteja: false, viveTerra: true, viveAgua: true },
+            { id: 8, name: "Cobra", emoji: "🐍", revestimento: "escamas", alimentacao: "carnívoro", voa: false, nada: true, anda: false, rasteja: true, viveTerra: true, viveAgua: false },
+            { id: 9, name: "Baleia", emoji: "🐋", revestimento: "pele nua", alimentacao: "carnívoro", voa: false, nada: true, anda: false, rasteja: false, viveTerra: false, viveAgua: true },
+            { id: 10, name: "Tartaruga", emoji: "🐢", revestimento: "escamas", alimentacao: "herbívoro", voa: false, nada: true, anda: true, rasteja: true, viveTerra: true, viveAgua: true },
+            { id: 11, name: "Golfinho", emoji: "🐬", revestimento: "pele nua", alimentacao: "carnívoro", voa: false, nada: true, anda: false, rasteja: false, viveTerra: false, viveAgua: true },
+            { id: 12, name: "Morcego", emoji: "🦇", revestimento: "pêlos", alimentacao: "carnívoro", voa: true, nada: false, anda: true, rasteja: false, viveTerra: true, viveAgua: false },
+            { id: 13, name: "Crocodilo", emoji: "🐊", revestimento: "escamas", alimentacao: "carnívoro", voa: false, nada: true, anda: true, rasteja: true, viveTerra: true, viveAgua: true },
+            { id: 14, name: "Galinha", emoji: "🐔", revestimento: "penas", alimentacao: "omnívoro", voa: false, anda: true, nada: false, rasteja: false, viveTerra: true, viveAgua: false },
+            { id: 15, name: "Vaca", emoji: "🐄", revestimento: "pêlos", alimentacao: "herbívoro", voa: false, nada: false, anda: true, rasteja: false, viveTerra: true, viveAgua: false },
+            { id: 16, name: "Peixe-Palhaço", emoji: "🐠", revestimento: "escamas", alimentacao: "omnívoro", voa: false, nada: true, anda: false, rasteja: false, viveTerra: false, viveAgua: true }
+        ];
+
+        // VARIÁVEIS DE ESTADO DO JOGO
+        let state = {
+            players: {
+                1: { name: "Jogador 1", secretAnimal: null, eliminated: [] },
+                2: { name: "Jogador 2", secretAnimal: null, eliminated: [] }
+            },
+            currentPlayerSetup: 1, 
+            tempSelectedAnimal: null, 
+            currentPlayer: 1, 
+            rounds: 1,
+            transitionTargetScreen: null,
+            
+            // Variáveis de Controle da Pergunta Ativa e do Feedback
+            hasAskedQuestionThisTurn: false,
+            activeClue: null // Guarda: { category, value, result, text, remainingToEliminate, totalToEliminate }
+        };
+
+        window.onload = function() {
+            resetGame();
+        };
+
+        function resetGame() {
+            state.players[1] = { name: "Jogador 1", secretAnimal: null, eliminated: [] };
+            state.players[2] = { name: "Jogador 2", secretAnimal: null, eliminated: [] };
+            state.currentPlayerSetup = 1;
+            state.tempSelectedAnimal = null;
+            state.currentPlayer = 1;
+            state.rounds = 1;
+            state.transitionTargetScreen = null;
+            state.hasAskedQuestionThisTurn = false;
+            state.activeClue = null;
+
+            showScreen("screen-setup");
+        }
+
+        function showScreen(screenId) {
+            const screens = ["screen-setup", "screen-choose", "screen-transition", "screen-gameplay", "screen-winner"];
+            screens.forEach(id => {
+                const element = document.getElementById(id);
+                if (id === screenId) {
+                    element.classList.remove("hidden");
+                } else {
+                    element.classList.add("hidden");
+                }
+            });
+        }
+
+        function startGameSetup() {
+            const p1Val = document.getElementById("p1-name-input").value.trim();
+            const p2Val = document.getElementById("p2-name-input").value.trim();
+
+            if (p1Val) state.players[1].name = p1Val;
+            if (p2Val) state.players[2].name = p2Val;
+
+            state.currentPlayerSetup = 1;
+            prepareChoiceScreen();
+        }
+
+        function prepareChoiceScreen() {
+            state.tempSelectedAnimal = null;
+            const curPlayerName = state.players[state.currentPlayerSetup].name;
+
+            document.getElementById("choose-player-badge").innerText = `Preparação: Vez do/a ${curPlayerName}`;
+            document.getElementById("choose-title").innerText = `Escolhe o teu animal, ${curPlayerName}!`;
+            document.getElementById("choose-subtitle").innerText = `Vira o computador para ti. Os outros jogadores não podem ver o ecrã agora.`;
+            
+            document.getElementById("chosen-animal-emoji").innerText = "❓";
+            document.getElementById("chosen-animal-name").innerText = "Cria um plano secreto!";
+            const btnConfirm = document.getElementById("btn-confirm-choice");
+            btnConfirm.disabled = true;
+            btnConfirm.className = "w-full md:w-auto bg-slate-600 text-slate-400 font-bold py-3 px-8 rounded-xl transition duration-200 cursor-not-allowed";
+
+            const grid = document.getElementById("choose-grid");
+            grid.innerHTML = "";
+
+            ANIMALS.forEach(animal => {
+                const card = document.createElement("button");
+                card.className = "bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 p-3 rounded-xl flex flex-col items-center justify-center transition transform hover:-translate-y-1 active:scale-95";
+                card.id = `choose-card-${animal.id}`;
+                card.onclick = () => selectAnimalForSetup(animal);
+                card.innerHTML = `
+                    <span class="text-3xl">${animal.emoji}</span>
+                    <span class="text-xs font-bold mt-2 text-white text-center">${animal.name}</span>
+                `;
+                grid.appendChild(card);
+            });
+
+            showScreen("screen-choose");
+        }
+
+        function selectAnimalForSetup(animal) {
+            state.tempSelectedAnimal = animal;
+
+            ANIMALS.forEach(a => {
+                const el = document.getElementById(`choose-card-${a.id}`);
+                if (el) {
+                    el.className = "bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 p-3 rounded-xl flex flex-col items-center justify-center transition transform hover:-translate-y-1 active:scale-95";
+                }
+            });
+
+            const activeCard = document.getElementById(`choose-card-${animal.id}`);
+            activeCard.className = "bg-slate-700 border-2 border-indigo-500 bg-indigo-500/10 p-3 rounded-xl flex flex-col items-center justify-center transition transform hover:-translate-y-1";
+
+            document.getElementById("chosen-animal-emoji").innerText = animal.emoji;
+            document.getElementById("chosen-animal-name").innerText = animal.name;
+
+            const btnConfirm = document.getElementById("btn-confirm-choice");
+            btnConfirm.disabled = false;
+            btnConfirm.className = "w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-indigo-600/20 transition duration-200 transform active:scale-95 cursor-pointer";
+        }
+
+        function confirmSecretSelection() {
+            if (!state.tempSelectedAnimal) return;
+
+            state.players[state.currentPlayerSetup].secretAnimal = state.tempSelectedAnimal;
+
+            if (state.currentPlayerSetup === 1) {
+                state.currentPlayerSetup = 2;
+                triggerTransition("screen-choose", state.players[2].name);
+            } else {
+                state.currentPlayer = 1;
+                triggerTransition("screen-gameplay", state.players[1].name);
+            }
+        }
+
+        function triggerTransition(targetScreen, nextPlayerName) {
+            state.transitionTargetScreen = targetScreen;
+            document.getElementById("transition-next-player-name").innerText = nextPlayerName;
+            showScreen("screen-transition");
+        }
+
+        function endTransition() {
+            if (state.transitionTargetScreen === "screen-choose") {
+                prepareChoiceScreen();
+            } else if (state.transitionTargetScreen === "screen-gameplay") {
+                startGameplayTurn();
+            }
+        }
+
+        function startGameplayTurn() {
+            const player = state.players[state.currentPlayer];
+            const adversary = state.players[state.currentPlayer === 1 ? 2 : 1];
+
+            // Resetar controle da pergunta para o novo turno
+            state.hasAskedQuestionThisTurn = false;
+            state.activeClue = null;
+
+            // Interface
+            document.getElementById("current-player-title").innerText = `Vez do/a ${player.name}!`;
+            document.getElementById("turn-badge").innerText = `Ronda ${state.rounds}`;
+            
+            // Ocultar painéis de dedução de turnos antigos
+            document.getElementById("deduction-assistant").classList.add("hidden");
+            document.getElementById("assistant-success-msg").classList.add("hidden");
+
+            // Ativar acordião de perguntas
+            document.getElementById("questions-accordion").classList.remove("opacity-40", "pointer-events-none");
+
+            document.getElementById("secret-preview-emoji").innerText = player.secretAnimal.emoji;
+            document.getElementById("secret-preview-name").innerText = player.secretAnimal.name;
+            document.getElementById("secret-preview-box").classList.add("hidden"); 
+
+            renderGameplayGrid();
+            showScreen("screen-gameplay");
+        }
+
+        function renderGameplayGrid() {
+            const grid = document.getElementById("game-grid");
+            grid.innerHTML = "";
+
+            const playerState = state.players[state.currentPlayer];
+
+            ANIMALS.forEach(animal => {
+                const isEliminated = playerState.eliminated.includes(animal.id);
+
+                const card = document.createElement("div");
+                card.className = `border-2 p-3 rounded-2xl flex flex-col justify-between h-44 relative transition duration-200 shadow-md ${
+                    isEliminated 
+                    ? "bg-slate-900/60 border-slate-800 opacity-30 line-through grayscale" 
+                    : "bg-slate-700 hover:bg-slate-600 border-slate-600 hover:-translate-y-1 cursor-pointer"
+                }`;
+                card.id = `game-card-${animal.id}`;
+
+                card.onclick = (e) => {
+                    if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") {
+                        toggleElimination(animal.id);
+                    }
+                };
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-4xl select-none">${animal.emoji}</span>
+                        ${isEliminated ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-black uppercase px-2 py-0.5 rounded-full"><i class="fa-solid fa-xmark"></i> Excluído</span>' : ''}
+                    </div>
+                    <div class="mt-2">
+                        <h4 class="font-extrabold text-white text-sm tracking-wide">${animal.name}</h4>
+                        <p class="text-[9px] text-slate-300 capitalize mt-0.5">${animal.revestimento} • ${animal.alimentacao}</p>
+                    </div>
+                    
+                    <button onclick="triggerGuessFinal(${animal.id}, '${animal.name}')" class="mt-3 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] uppercase py-1.5 rounded-lg flex items-center justify-center gap-1 transition shadow shadow-emerald-700/20">
+                        <i class="fa-solid fa-crosshairs"></i> É Este!
+                    </button>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // AUXILIAR CIENTÍFICO: VERIFICA SE O ANIMAL CORRESPONDE AO CRITÉRIO DA PERGUNTA
+        function matchesCriteria(animal, category, value) {
+            if (category === "revestimento") return animal.revestimento === value;
+            if (category === "alimentacao") return animal.alimentacao === value;
+            if (category === "locomocao" || category === "habitat") return animal[value] === true;
+            return false;
+        }
+
+        // INTERCETA E VALIDA A ELIMINAÇÃO DE UM ANIMAL (MECÂNICA DE FEEDBACK ATIVO)
+        function toggleElimination(animalId) {
+            const playerState = state.players[state.currentPlayer];
+            const isCurrentlyEliminated = playerState.eliminated.includes(animalId);
+            const animal = ANIMALS.find(a => a.id === animalId);
+
+            // SE EXISTIR UMA PISTA ATIVA NO TURNO, VALIDAR A DEDUÇÃO
+            if (state.activeClue && !isCurrentlyEliminated) {
+                const matches = matchesCriteria(animal, state.activeClue.category, state.activeClue.value);
+                const result = state.activeClue.result; // SIM (true) ou NÃO (false)
+
+                // Caso 1: Adversário disse SIM (o animal secreto tem o atributo).
+                // Logo, o aluno só deve eliminar os que NÃO têm. Se tentar eliminar um que TEM, é um erro de dedução.
+                if (result === true && matches === true) {
+                    const desc = `O teu oponente confirmou que o animal secreto dele **tem/é ${state.activeClue.cleanValue}**.<br><br>O/A **${animal.name}** cumpre este requisito, por isso é um candidato válido! Não podes eliminá-lo nesta ronda.`;
+                    showFeedbackError(desc);
+                    return; 
+                }
+
+                // Caso 2: Adversário disse NÃO (o animal secreto não tem o atributo).
+                // Logo, o aluno só deve eliminar os que TÊM. Se tentar eliminar um que NÃO tem, é um erro.
+                if (result === false && matches === false) {
+                    const desc = `O teu oponente confirmou que o animal secreto dele **NÃO tem/NÃO é ${state.activeClue.cleanValue}**.<br><br>O/A **${animal.name}** também não cumpre esse requisito, logo ainda pode ser o animal correto. Não o deves eliminar!`;
+                    showFeedbackError(desc);
+                    return;
+                }
+            }
+
+            // SE PASSAR A VALIDAÇÃO (OU NÃO HOUVER PISTA ATIVA), EXECUTAR AÇÃO
+            if (isCurrentlyEliminated) {
+                playerState.eliminated = playerState.eliminated.filter(id => id !== animalId);
+            } else {
+                playerState.eliminated.push(animalId);
+            }
+
+            // ATUALIZAR ASSISTENTE DE DEDUÇÃO SE ATIVO
+            if (state.activeClue) {
+                updateDeductionAssistant();
+            }
+
+            renderGameplayGrid();
+        }
+
+        // CALCULA QUANTOS ANIMAIS DEVEM SER ELIMINADOS DA MESA DO JOGADOR
+        function countAnimalsToEliminate(playerState, clue) {
+            let count = 0;
+            ANIMALS.forEach(animal => {
+                // Só consideramos animais que ainda estão ativos no tabuleiro do jogador
+                if (!playerState.eliminated.includes(animal.id)) {
+                    const matches = matchesCriteria(animal, clue.category, clue.value);
+                    if (clue.result === true && !matches) count++;
+                    if (clue.result === false && matches) count++;
+                }
+            });
+            return count;
+        }
+
+        // LIGA O ASSISTENTE DE DEDUÇÃO E CALCULA OS DADOS DO TURNO
+        function initDeductionAssistant(category, value, result, questionText) {
+            const playerState = state.players[state.currentPlayer];
+            
+            // Tratamento linguístico amigável do valor
+            let cleanValue = value;
+            if (value === "pêlos") cleanValue = "Pêlos";
+            if (value === "penas") cleanValue = "Penas";
+            if (value === "escamas") cleanValue = "Escamas";
+            if (value === "pele nua") cleanValue = "Pele Nua";
+            if (value === "viveTerra") cleanValue = "Terrestre";
+            if (value === "viveAgua") cleanValue = "Aquático";
+
+            state.activeClue = {
+                category,
+                value,
+                result,
+                questionText,
+                cleanValue,
+                totalToEliminate: 0
+            };
+
+            // Calcular o número inicial de animais que devem ser eliminados com esta resposta
+            const total = countAnimalsToEliminate(playerState, state.activeClue);
+            state.activeClue.totalToEliminate = total;
+
+            // Ativar painel visual
+            document.getElementById("deduction-assistant").classList.remove("hidden");
+            
+            updateDeductionAssistant();
+        }
+
+        // ATUALIZA OS CONTADORES VISUAIS E A BARRA DE PROGRESSO DO ASSISTENTE
+        function updateDeductionAssistant() {
+            if (!state.activeClue) return;
+
+            const playerState = state.players[state.currentPlayer];
+            const remaining = countAnimalsToEliminate(playerState, state.activeClue);
+            const total = state.activeClue.totalToEliminate;
+
+            const eliminatedInThisTurn = Math.max(0, total - remaining);
+
+            // Atualizar textos
+            const displayClue = `${state.activeClue.questionText} 👉 <span class="${state.activeClue.result ? 'text-emerald-400' : 'text-rose-400'} font-black">${state.activeClue.result ? 'SIM 👍' : 'NÃO ❌'}</span>`;
+            document.getElementById("assistant-clue-text").innerHTML = displayClue;
+            
+            document.getElementById("assistant-count-badge").innerText = `${eliminatedInThisTurn} / ${total} deitados abaixo`;
+
+            // Calcular percentagem de progresso
+            const percentage = total > 0 ? (eliminatedInThisTurn / total) * 100 : 100;
+            const progressBar = document.getElementById("assistant-progress-bar");
+            progressBar.style.width = `${percentage}%`;
+
+            if (remaining === 0 || total === 0) {
+                // Celebração de dedução completa
+                document.getElementById("assistant-progress-container").classList.add("hidden");
+                document.getElementById("assistant-success-msg").classList.remove("hidden");
+            } else {
+                document.getElementById("assistant-progress-container").classList.remove("hidden");
+                document.getElementById("assistant-success-msg").classList.add("hidden");
+            }
+        }
+
+        // MOSTRA MODAL DE ERRO PERSONALIZADO (SEM BLOQUEAR NATIVAMENTE)
+        function showFeedbackError(description) {
+            document.getElementById("feedback-error-desc").innerHTML = description;
+            document.getElementById("feedback-error-modal").classList.remove("hidden");
+        }
+
+        function closeFeedbackErrorModal() {
+            document.getElementById("feedback-error-modal").classList.add("hidden");
+        }
+
+        // EXECUÇÃO DA PERGUNTA DO TURNO
+        function askQuestion(category, value, questionText) {
+            if (state.hasAskedQuestionThisTurn) {
+                showFeedbackError("Já fizeste a tua pergunta permitida para este turno! Deves agora baixar as cartas correspondentes e clicar no botão 'Passar Turno' para dar a vez.");
+                return;
+            }
+
+            const adversary = state.players[state.currentPlayer === 1 ? 2 : 1];
+            const secret = adversary.secretAnimal;
+
+            let result = false;
+
+            // Validação biológica
+            if (category === "revestimento") {
+                result = (secret.revestimento === value);
+            } else if (category === "alimentacao") {
+                result = (secret.alimentacao === value);
+            } else if (category === "locomocao" || category === "habitat") {
+                result = (secret[value] === true);
+            }
+
+            // Marcar pergunta como gasta no turno
+            state.hasAskedQuestionThisTurn = true;
+            document.getElementById("questions-accordion").classList.add("opacity-40", "pointer-events-none");
+
+            // Inicializar o Assistente de Dedução com os dados novos
+            initDeductionAssistant(category, value, result, questionText);
+
+            // Abrir ecrã de resposta
+            openModal(questionText, result);
+        }
+
+        function openModal(question, result) {
+            const modal = document.getElementById("response-modal");
+            const qText = document.getElementById("modal-question-text");
+            const rBox = document.getElementById("modal-response-box");
+
+            qText.innerText = `O teu adversário respondeu a: "${question}"`;
+
+            if (result) {
+                rBox.innerText = "SIM! 👍";
+                rBox.className = "py-6 px-10 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 text-emerald-400 text-5xl font-black mb-6 shadow-inner tracking-wider animate-bounce";
+            } else {
+                rBox.innerText = "NÃO! ❌";
+                rBox.className = "py-6 px-10 rounded-2xl border-2 border-rose-500 bg-rose-500/10 text-rose-400 text-5xl font-black mb-6 shadow-inner tracking-wider";
+            }
+
+            modal.classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("response-modal").classList.add("hidden");
+        }
+
+        function passTurn() {
+            if (state.currentPlayer === 1) {
+                state.currentPlayer = 2;
+            } else {
+                state.currentPlayer = 1;
+                state.rounds += 1;
+            }
+
+            const nextPlayerName = state.players[state.currentPlayer].name;
+            triggerTransition("screen-gameplay", nextPlayerName);
+        }
+
+        // CONFIRMAÇÃO DE PALPITE CUSTOMIZADA
+        function triggerGuessFinal(animalId, animalName) {
+            const modal = document.getElementById("guess-confirm-modal");
+            document.getElementById("guess-confirm-text").innerHTML = `Tens a certeza absoluta que queres arriscar e adivinhar o/a **${animalName}**?<br><br><span class="text-xs text-amber-400"><i class="fa-solid fa-triangle-exclamation"></i> Se falhares, o teu turno será passado!</span>`;
+            
+            modal.classList.remove("hidden");
+
+            document.getElementById("btn-execute-guess").onclick = function() {
+                modal.classList.add("hidden");
+                executeGuessFinal(animalId, animalName);
+            };
+        }
+
+        function closeGuessConfirm() {
+            document.getElementById("guess-confirm-modal").classList.add("hidden");
+        }
+
+        // EXECUTA O PALPITE FINAL E VALIDA SE GANHOU O JOGO
+        function executeGuessFinal(animalId, animalName) {
+            const adversaryNum = state.currentPlayer === 1 ? 2 : 1;
+            const adversary = state.players[adversaryNum];
+            const activePlayer = state.players[state.currentPlayer];
+
+            if (adversary.secretAnimal.id === animalId) {
+                // ACERTOU
+                document.getElementById("winner-name").innerText = activePlayer.name;
+                document.getElementById("winner-text").innerHTML = `Demonstraste capacidades científicas excecionais! Descobriste com sucesso que o animal secreto do/a ${adversary.name} era o/a ${adversary.secretAnimal.emoji} **${adversary.secretAnimal.name}**.`;
+                showScreen("screen-winner");
+            } else {
+                // FALHOU
+                showFeedbackError(`O animal secreto do/a ${adversary.name} **NÃO é o/a ${animalName}**. <br><br>Erraste no palpite, por isso perdes a jogada. O computador será passado para o teu adversário agora.`);
+                
+                // Forçar a passagem de turno assim que o erro for fechado
+                const errorCloseBtn = document.querySelector("#feedback-error-modal button");
+                const oldClick = errorCloseBtn.onclick;
+                errorCloseBtn.onclick = function() {
+                    closeFeedbackErrorModal();
+                    passTurn();
+                    errorCloseBtn.onclick = oldClick; // Restaurar clique original
+                };
+            }
+        }
+    </script>
+</body>
+</html>
