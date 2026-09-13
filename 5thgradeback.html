@@ -113,6 +113,25 @@
             </div>
         </div>
 
+        <!-- BOSS HEALTH BAR HUD (TOP CENTER) -->
+        <div id="boss-hud" class="hidden absolute top-16 left-1/2 transform -translate-x-1/2 z-20 w-80 sm:w-96 bg-slate-950/90 border-2 border-red-500 rounded-xl p-2 shadow-2xl flex flex-col items-center">
+            <div class="flex justify-between w-full px-1 mb-1 font-arcade text-[10px] text-red-400 glow-text-red">
+                <span id="boss-name">APEX RAPTOR KING</span>
+                <span id="boss-hp-text">100/100</span>
+            </div>
+            <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-red-900 shadow-inner">
+                <div id="boss-hp-bar" class="h-full bg-gradient-to-r from-amber-500 via-red-500 to-purple-600 w-full transition-all duration-150"></div>
+            </div>
+        </div>
+
+        <!-- STAGE PROGRESS HUD (BOTTOM CENTER) -->
+        <div id="stage-progress-container" class="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-2 bg-slate-950/80 px-3 py-1 rounded-full border border-slate-700 shadow text-[10px] font-arcade text-slate-300">
+            <span>PROGRESS:</span>
+            <div class="w-24 sm:w-36 h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+                <div id="stage-progress-bar" class="h-full bg-emerald-400 w-0 transition-all duration-200"></div>
+            </div>
+        </div>
+
         <!-- CANVAS GAMEPLAY AREA -->
         <canvas id="gameCanvas" class="w-full h-full block bg-slate-950 cursor-crosshair"></canvas>
 
@@ -221,6 +240,23 @@
             </button>
         </div>
 
+        <!-- STAGE CLEAR MODAL -->
+        <div id="stage-clear-modal" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md p-6 text-center">
+            <h2 class="font-arcade text-2xl sm:text-4xl text-emerald-400 mb-2 glow-text-blue animate-bounce">STAGE CLEAR! 🎉</h2>
+            <p id="stage-clear-sub" class="text-sm text-amber-300 font-arcade mb-4">Boss derrotado! Excelente trabalho Cadete!</p>
+            
+            <div class="bg-slate-900 border border-emerald-500/50 rounded-xl p-4 mb-6 w-80 text-center space-y-2">
+                <p class="text-xs text-slate-300 font-bold uppercase">Recompensas de Etapa:</p>
+                <div class="text-xs text-emerald-400 font-arcade">+1000 BONUS SCORE</div>
+                <div class="text-xs text-yellow-400 font-arcade">+20 MAX AMMO REFUEL</div>
+                <div class="text-xs text-red-400 font-arcade">100% HEALTH RESTORED</div>
+            </div>
+
+            <button id="btn-next-stage" class="font-arcade bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-lg transform hover:scale-105 active:scale-95 transition-all border-2 border-cyan-200">
+                NEXT STAGE 🚀
+            </button>
+        </div>
+
         <!-- On-Screen Controls for Touch / Mobile -->
         <div class="absolute bottom-3 left-3 right-3 z-20 flex justify-between items-center pointer-events-none opacity-80 sm:opacity-50 hover:opacity-100 transition-opacity">
             <div class="flex gap-2 pointer-events-auto">
@@ -237,6 +273,85 @@
     </div>
 
     <script>
+        // Stage Configurations (Expanded to 5 Stages)
+        const STAGES = [
+            {
+                id: 1,
+                name: "STAGE 1: JUNGLE REVISION",
+                targetKills: 8,
+                skyColors: ['#0c101d', '#1e1b4b', '#9a3412', '#ea580c', '#f59e0b'],
+                mountainColor: '#1e1b4e',
+                jungleColor: '#0f382c',
+                groundColors: ['#152b18', '#291b0c', '#110a04'],
+                grassColor: '#166534',
+                grassHighlight: '#22c55e',
+                bossName: 'APEX RAPTOR KING',
+                bossHp: 16,
+                bossColor: '#16a34a',
+                bossType: 'boss_raptor'
+            },
+            {
+                id: 2,
+                name: "STAGE 2: VOLCANIC CAVERN",
+                targetKills: 10,
+                skyColors: ['#180808', '#450a0a', '#7f1d1d', '#b91c1c', '#f97316'],
+                mountainColor: '#450a0a',
+                jungleColor: '#2a0808',
+                groundColors: ['#290f0a', '#1c0a07', '#0d0403'],
+                grassColor: '#9a3412',
+                grassHighlight: '#ef4444',
+                bossName: 'MAGMA SPINOSAURUS',
+                bossHp: 25,
+                bossColor: '#ef4444',
+                bossType: 'boss_spino'
+            },
+            {
+                id: 3,
+                name: "STAGE 3: FROZEN TUNDRA REVISION",
+                targetKills: 12,
+                skyColors: ['#0284c7', '#0369a1', '#075985', '#0c4a6e', '#38bdf8'],
+                mountainColor: '#0f172a',
+                jungleColor: '#1e293b',
+                groundColors: ['#334155', '#1e293b', '#0f172a'],
+                grassColor: '#38bdf8',
+                grassHighlight: '#e0f2fe',
+                bossName: 'FROST GIGANOTOSAURUS',
+                bossHp: 32,
+                bossColor: '#06b6d4',
+                bossType: 'boss_frost'
+            },
+            {
+                id: 4,
+                name: "STAGE 4: CYBER DINO CRATER",
+                targetKills: 15,
+                skyColors: ['#030712', '#1e1b4b', '#312e81', '#4c1d95', '#06b6d4'],
+                mountainColor: '#1e1b4b',
+                jungleColor: '#0f172a',
+                groundColors: ['#0f172a', '#020617', '#000000'],
+                grassColor: '#0284c7',
+                grassHighlight: '#38bdf8',
+                bossName: 'MECHA T-REX PRIME',
+                bossHp: 40,
+                bossColor: '#a855f7',
+                bossType: 'boss_mecha'
+            },
+            {
+                id: 5,
+                name: "STAGE 5: ANCIENT TEMPLE OF KNOWLEDGE",
+                targetKills: 18,
+                skyColors: ['#2e1065', '#581c87', '#7e22ce', '#a855f7', '#f59e0b'],
+                mountainColor: '#3b0764',
+                jungleColor: '#1f0d3d',
+                groundColors: ['#451a03', '#290f0a', '#0f0502'],
+                grassColor: '#d97706',
+                grassHighlight: '#fbbf24',
+                bossName: 'OMEGA TITANOSAURUS',
+                bossHp: 50,
+                bossColor: '#eab308',
+                bossType: 'boss_omega'
+            }
+        ];
+
         // Sound Synthesizer via Web Audio API
         class AudioSynth {
             constructor() {
@@ -395,6 +510,12 @@
         let comboTimer = 0;
         let shellCasings = [];
 
+        // Multi-Stage & Boss State
+        let currentStageIndex = 0;
+        let stageKills = 0;
+        let bossActive = false;
+        let activeBoss = null;
+
         // Stats tracking
         let statsDinosDefeated = 0;
         let statsQuizCorrect = 0;
@@ -462,24 +583,25 @@
             draw(ctx, cameraX) {
                 const width = canvas.width;
                 const height = canvas.height;
+                const stageCfg = STAGES[currentStageIndex];
 
                 const skyGradient = ctx.createLinearGradient(0, 0, 0, height);
-                skyGradient.addColorStop(0, '#0c101d');
-                skyGradient.addColorStop(0.35, '#1e1b4b');
-                skyGradient.addColorStop(0.65, '#9a3412');
-                skyGradient.addColorStop(0.85, '#ea580c');
-                skyGradient.addColorStop(1, '#f59e0b');
+                skyGradient.addColorStop(0, stageCfg.skyColors[0]);
+                skyGradient.addColorStop(0.35, stageCfg.skyColors[1]);
+                skyGradient.addColorStop(0.65, stageCfg.skyColors[2]);
+                skyGradient.addColorStop(0.85, stageCfg.skyColors[3]);
+                skyGradient.addColorStop(1, stageCfg.skyColors[4]);
                 ctx.fillStyle = skyGradient;
                 ctx.fillRect(0, 0, width, height);
 
-                // Golden Sun with Soft Glow Radiance
+                // Golden Sun / Core Glow
                 const sunX = width * 0.8;
                 const sunY = height * 0.25;
                 ctx.beginPath();
                 ctx.arc(sunX, sunY, 65, 0, Math.PI * 2);
                 const sunGrad = ctx.createRadialGradient(sunX, sunY, 15, sunX, sunY, 130);
                 sunGrad.addColorStop(0, '#fef08a');
-                sunGrad.addColorStop(0.3, '#f59e0b');
+                sunGrad.addColorStop(0.3, stageCfg.skyColors[4]);
                 sunGrad.addColorStop(0.7, 'rgba(234, 88, 12, 0.4)');
                 sunGrad.addColorStop(1, 'rgba(234, 88, 12, 0)');
                 ctx.fillStyle = sunGrad;
@@ -498,7 +620,7 @@
                 });
 
                 // Parallax 2: Distant Mountain Range
-                ctx.fillStyle = '#1e1b4e';
+                ctx.fillStyle = stageCfg.mountainColor;
                 ctx.beginPath();
                 ctx.moveTo(0, height);
                 for (let x = 0; x <= width + 80; x += 40) {
@@ -508,8 +630,8 @@
                 ctx.lineTo(width, height);
                 ctx.fill();
 
-                // Midground Jungle Forest Silhouette
-                ctx.fillStyle = '#0f382c';
+                // Midground Silhouette
+                ctx.fillStyle = stageCfg.jungleColor;
                 ctx.beginPath();
                 ctx.moveTo(0, height);
                 for (let x = 0; x <= width + 60; x += 30) {
@@ -519,8 +641,8 @@
                 ctx.lineTo(width, height);
                 ctx.fill();
 
-                // Ancient Stone Pillars/Ruins in Midground
-                ctx.fillStyle = '#132e26';
+                // Ancient Stone Pillars/Ruins
+                ctx.fillStyle = 'rgba(10, 20, 15, 0.5)';
                 this.ruins.forEach(r => {
                     const rx = (r.x - cameraX * 0.5) % 2400;
                     const drawRx = rx < 0 ? rx + 2400 : rx;
@@ -531,38 +653,23 @@
                     }
                 });
 
-                // Foreground Jungle Canopy (Overhanging Vines and Leaves from top)
-                ctx.fillStyle = '#062017';
-                for (let x = 0; x < width + 100; x += 120) {
-                    const vineSwing = Math.sin((x + frameCount * 0.5) * 0.02) * 15;
-                    ctx.beginPath();
-                    ctx.moveTo(x - 20, 0);
-                    ctx.quadraticCurveTo(x + 20 + vineSwing, height * 0.2, x + 40, 0);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(x + 10 + vineSwing * 0.5, height * 0.12, 22, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // Detailed Foreground Soil & Grass Path
-                const groundY = height - 85;
-
                 // Soil Layer
+                const groundY = height - 85;
                 const soilGrad = ctx.createLinearGradient(0, groundY, 0, height);
-                soilGrad.addColorStop(0, '#152b18');
-                soilGrad.addColorStop(0.2, '#291b0c');
-                soilGrad.addColorStop(1, '#110a04');
+                soilGrad.addColorStop(0, stageCfg.groundColors[0]);
+                soilGrad.addColorStop(0.2, stageCfg.groundColors[1]);
+                soilGrad.addColorStop(1, stageCfg.groundColors[2]);
                 ctx.fillStyle = soilGrad;
                 ctx.fillRect(0, groundY, width, 85);
 
                 // Top Grass Turf Line
-                ctx.fillStyle = '#166534';
+                ctx.fillStyle = stageCfg.grassColor;
                 ctx.fillRect(0, groundY - 4, width, 8);
-                ctx.fillStyle = '#22c55e';
+                ctx.fillStyle = stageCfg.grassHighlight;
                 ctx.fillRect(0, groundY - 4, width, 3);
 
-                // Grass Blades Details on Ground
-                ctx.fillStyle = '#15803d';
+                // Grass Blades Details
+                ctx.fillStyle = stageCfg.grassColor;
                 const pathOffset = (cameraX * 1) % 50;
                 for (let gx = -pathOffset; gx < width + 50; gx += 25) {
                     ctx.beginPath();
@@ -580,11 +687,6 @@
                 ctx.lineTo(sunX - 350, height);
                 ctx.lineTo(sunX - 180, height);
                 ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(sunX, sunY);
-                ctx.lineTo(sunX - 120, height);
-                ctx.lineTo(sunX + 80, height);
-                ctx.fill();
                 ctx.restore();
             }
         }
@@ -597,6 +699,7 @@
                 this.x = cameraX + canvas.width + 50 + Math.random() * 150;
                 this.markedForDeletion = false;
                 this.animTimer = 0;
+                this.isBoss = false;
 
                 if (type === 'raptor') {
                     this.width = 65;
@@ -617,15 +720,19 @@
                     this.scoreValue = 150;
                     this.baseY = this.y;
                     this.color = '#3b82f6';
-                } else if (type === 'boss') {
-                    this.width = 98;
-                    this.height = 90;
+                } 
+                // Stage Bosses
+                else if (type.startsWith('boss_')) {
+                    this.isBoss = true;
+                    const stageCfg = STAGES[currentStageIndex];
+                    this.width = 130;
+                    this.height = 110;
                     this.y = canvas.height - 85 - this.height;
-                    this.hp = 10;
-                    this.maxHp = 10;
-                    this.speed = 1.6;
-                    this.scoreValue = 500;
-                    this.color = '#a855f7';
+                    this.hp = stageCfg.bossHp;
+                    this.maxHp = stageCfg.bossHp;
+                    this.speed = 1.2;
+                    this.scoreValue = 1500;
+                    this.color = stageCfg.bossColor;
                 }
             }
 
@@ -637,6 +744,11 @@
                     this.y = this.baseY + Math.sin(this.animTimer * 1.5) * 28;
                 }
 
+                // Boss movement restriction - stop near player
+                if (this.isBoss && this.x < hero.x + 280) {
+                    this.x = hero.x + 280;
+                }
+
                 if (this.x + this.width < cameraX - 100) {
                     this.markedForDeletion = true;
                 }
@@ -645,8 +757,8 @@
             draw(ctx) {
                 ctx.save();
 
-                // Health Bar for Damaged Enemies
-                if (this.hp < this.maxHp) {
+                // Health Bar for Regular Damaged Enemies (Boss has top HUD bar)
+                if (!this.isBoss && this.hp < this.maxHp) {
                     ctx.fillStyle = 'rgba(0,0,0,0.75)';
                     ctx.fillRect(this.x, this.y - 14, this.width, 7);
                     ctx.fillStyle = '#ef4444';
@@ -664,50 +776,25 @@
 
                     const runCycle = Math.sin(this.animTimer * 10) * 12;
 
-                    // Legs
+                    // Legs & Body
                     ctx.fillStyle = '#15803d';
                     ctx.fillRect(this.x + 22 + runCycle, this.y + 28, 9, 18);
                     ctx.fillRect(this.x + 40 - runCycle, this.y + 28, 9, 18);
 
-                    // Body
                     ctx.fillStyle = '#22c55e';
                     ctx.beginPath();
                     ctx.ellipse(this.x + 36, this.y + 22, 24, 14, 0, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Tiger Stripes
-                    ctx.fillStyle = '#14532d';
-                    ctx.fillRect(this.x + 26, this.y + 12, 4, 12);
-                    ctx.fillRect(this.x + 34, this.y + 10, 4, 14);
-                    ctx.fillRect(this.x + 42, this.y + 12, 4, 12);
-
-                    // Tail
-                    const tailY = Math.sin(this.animTimer * 8) * 6;
-                    ctx.beginPath();
-                    ctx.moveTo(this.x + 54, this.y + 20);
-                    ctx.lineTo(this.x + 78, this.y + 10 + tailY);
-                    ctx.lineTo(this.x + 54, this.y + 26);
-                    ctx.fillStyle = '#16a34a';
-                    ctx.fill();
-
-                    // Head & Jaws
+                    // Head & Eye
                     ctx.fillStyle = '#22c55e';
                     ctx.fillRect(this.x + 4, this.y + 4, 26, 18);
-                    ctx.fillStyle = '#fef08a';
-                    ctx.fillRect(this.x, this.y + 16, 18, 5);
-                    ctx.fillStyle = '#dc2626';
-                    ctx.fillRect(this.x + 4, this.y + 14, 12, 3);
-
-                    // Eye
                     ctx.fillStyle = '#ef4444';
                     ctx.fillRect(this.x + 8, this.y + 7, 5, 5);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(this.x + 9, this.y + 8, 2, 2);
 
                 } else if (this.type === 'pterodactyl') {
                     const wingFlap = Math.sin(this.animTimer * 10) * 22;
 
-                    // Wings
                     ctx.fillStyle = '#2563eb';
                     ctx.beginPath();
                     ctx.moveTo(this.x + 24, this.y + 16);
@@ -715,59 +802,50 @@
                     ctx.lineTo(this.x + 48, this.y + 16);
                     ctx.fill();
 
-                    // Body
                     ctx.fillStyle = '#3b82f6';
                     ctx.fillRect(this.x + 16, this.y + 10, 24, 12);
 
-                    // Beak
-                    ctx.fillStyle = '#1d4ed8';
+                } else if (this.isBoss) {
+                    // Giant Boss Render
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)';
                     ctx.beginPath();
-                    ctx.moveTo(this.x + 16, this.y + 10);
-                    ctx.lineTo(this.x - 12, this.y + 14);
-                    ctx.lineTo(this.x + 16, this.y + 18);
+                    ctx.ellipse(this.x + this.width / 2, canvas.height - 85, 60, 12, 0, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Eye
+                    // Main Body
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(this.x + 20, this.y + 20, 90, 65);
+
+                    // Head & Jaw
+                    ctx.fillRect(this.x - 15, this.y + 10, 50, 40);
                     ctx.fillStyle = '#fef08a';
-                    ctx.fillRect(this.x + 8, this.y + 10, 4, 4);
+                    ctx.fillRect(this.x - 20, this.y + 35, 35, 12); // Teeth/Jaw
 
-                } else if (this.type === 'boss') {
-                    // Mecha T-Rex
-                    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-                    ctx.beginPath();
-                    ctx.ellipse(this.x + this.width / 2, canvas.height - 85, 45, 10, 0, 0, Math.PI * 2);
-                    ctx.fill();
+                    // Glowing Boss Eye
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fillRect(this.x - 5, this.y + 18, 10, 10);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(this.x - 3, this.y + 20, 4, 4);
 
-                    ctx.fillStyle = '#7e22ce';
-                    ctx.fillRect(this.x + 15, this.y + 15, 70, 50);
-
-                    ctx.fillStyle = '#fbbf24';
-                    ctx.fillRect(this.x + 25, this.y + 20, 45, 12);
-                    ctx.fillRect(this.x + 20, this.y + 40, 55, 10);
-
-                    ctx.fillStyle = '#06b6d4';
-                    ctx.fillRect(this.x - 6, this.y + 18, 28, 8);
-                    ctx.fillStyle = '#67e8f9';
-                    ctx.fillRect(this.x - 2, this.y + 20, 10, 4);
-
-                    // Spikes
-                    ctx.fillStyle = '#f43f5e';
-                    for (let s = 25; s < 75; s += 16) {
+                    // Boss Armor Spikes
+                    ctx.fillStyle = '#f59e0b';
+                    for (let s = 30; s < 100; s += 22) {
                         ctx.beginPath();
-                        ctx.moveTo(this.x + s, this.y + 15);
-                        ctx.lineTo(this.x + s + 8, this.y - 10);
-                        ctx.lineTo(this.x + s + 16, this.y + 15);
+                        ctx.moveTo(this.x + s, this.y + 20);
+                        ctx.lineTo(this.x + s + 10, this.y - 16);
+                        ctx.lineTo(this.x + s + 20, this.y + 20);
                         ctx.fill();
                     }
 
-                    if (frameCount % 4 === 0) {
+                    // Exhaust Particles
+                    if (frameCount % 3 === 0) {
                         particles.push({
-                            x: this.x + 75,
-                            y: this.y + 15,
-                            vx: 1 + Math.random(),
+                            x: this.x + 100,
+                            y: this.y + 30,
+                            vx: 2 + Math.random() * 2,
                             vy: -1 - Math.random(),
-                            size: 4 + Math.random() * 4,
-                            color: '#64748b',
+                            size: 5 + Math.random() * 5,
+                            color: this.color,
                             life: 1,
                             decay: 0.05
                         });
@@ -1000,10 +1078,36 @@
         function updateHUD() {
             document.getElementById('ammo-count').innerText = ammo;
             document.getElementById('score-text').innerText = String(score).padStart(6, '0');
+            
+            const stageCfg = STAGES[currentStageIndex];
+            document.getElementById('stage-text').innerText = stageCfg.name;
+
             const hpBar = document.getElementById('hp-bar');
             if (hpBar) hpBar.style.width = Math.max(0, Math.min(100, hp)) + '%';
             const hpText = document.getElementById('hp-text');
             if (hpText) hpText.innerText = Math.max(0, Math.round(hp)) + '/100';
+
+            // Stage Progress Bar
+            const stageProgressBar = document.getElementById('stage-progress-bar');
+            if (stageProgressBar) {
+                const pct = Math.min(100, Math.round((stageKills / stageCfg.targetKills) * 100));
+                stageProgressBar.style.width = pct + '%';
+            }
+
+            // Boss HUD updates
+            const bossHud = document.getElementById('boss-hud');
+            if (bossActive && activeBoss) {
+                bossHud.classList.remove('hidden');
+                document.getElementById('boss-name').innerText = stageCfg.bossName;
+                document.getElementById('boss-hp-text').innerText = `${Math.max(0, Math.round(activeBoss.hp))}/${activeBoss.maxHp}`;
+                const bossHpBar = document.getElementById('boss-hp-bar');
+                if (bossHpBar) {
+                    const bossPct = Math.max(0, Math.min(100, (activeBoss.hp / activeBoss.maxHp) * 100));
+                    bossHpBar.style.width = bossPct + '%';
+                }
+            } else {
+                bossHud.classList.add('hidden');
+            }
 
             const reloadAlert = document.getElementById('reload-alert');
             if (reloadAlert) {
@@ -1091,16 +1195,25 @@
             if (tripleShotTimer > 0) tripleShotTimer--;
 
             cameraX = hero.x - 100;
+            const stageCfg = STAGES[currentStageIndex];
 
-            // Enemy Spawner
-            if (frameCount % 90 === 0) {
+            // Check for Boss Spawning Trigger
+            if (!bossActive && stageKills >= stageCfg.targetKills) {
+                bossActive = true;
+                activeBoss = new Enemy(stageCfg.bossType);
+                enemies.push(activeBoss);
+                audio.playPowerup();
+                addFloatingText("⚠️ WARNING: BOSS APPROACHING! ⚠️", hero.x, hero.y - 40, '#ef4444');
+                updateHUD();
+            }
+
+            // Enemy Spawner (Regular dinos spawn if boss is not active)
+            if (!bossActive && frameCount % 90 === 0) {
                 const rand = Math.random();
-                if (rand < 0.5) {
+                if (rand < 0.6) {
                     enemies.push(new Enemy('raptor'));
-                } else if (rand < 0.85) {
-                    enemies.push(new Enemy('pterodactyl'));
                 } else {
-                    enemies.push(new Enemy('boss'));
+                    enemies.push(new Enemy('pterodactyl'));
                 }
             }
 
@@ -1163,7 +1276,7 @@
                 }
             }
 
-            // Bullets logic
+            // Bullets logic & Boss Collision
             bullets.forEach(bullet => {
                 bullet.x += bullet.vx;
                 bullet.y += bullet.vy;
@@ -1179,6 +1292,8 @@
                         enemy.hp -= bullet.damage;
                         createExplosion(bullet.x, bullet.y, '#fef08a', 6);
 
+                        if (enemy.isBoss) updateHUD();
+
                         if (enemy.hp <= 0 && !enemy.markedForDeletion) {
                             enemy.markedForDeletion = true;
                             
@@ -1189,9 +1304,21 @@
 
                             score += gainedScore;
                             statsDinosDefeated++;
-                            screenShake = 9;
-                            createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color || '#ef4444', 24);
+                            screenShake = enemy.isBoss ? 18 : 9;
+                            createExplosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.color || '#ef4444', enemy.isBoss ? 45 : 24);
                             audio.playExplosion();
+
+                            if (!enemy.isBoss) {
+                                stageKills++;
+                            }
+
+                            // Boss Defeated Logic
+                            if (enemy.isBoss) {
+                                bossActive = false;
+                                activeBoss = null;
+                                handleStageClear();
+                                return;
+                            }
 
                             if (comboCounter > 1) {
                                 document.getElementById('combo-container').classList.remove('hidden');
@@ -1201,9 +1328,10 @@
                                 addFloatingText(`+${gainedScore}`, enemy.x, enemy.y, '#38bdf8');
                             }
 
+                            // Sem munições a cair dos dinossauros! O jogador tem de responder a perguntas no 'R'!
                             const dropChance = Math.random();
-                            if (dropChance < 0.4) {
-                                const pType = dropChance < 0.15 ? 'triple' : (dropChance < 0.28 ? 'health' : 'ammo');
+                            if (dropChance < 0.35) {
+                                const pType = dropChance < 0.12 ? 'triple' : 'health';
                                 powerups.push(new Powerup(enemy.x + enemy.width / 2, enemy.y, pType));
                             }
 
@@ -1248,8 +1376,8 @@
                     hero.y < enemy.y + enemy.height &&
                     hero.y + hero.height > enemy.y) {
                     
-                    hp -= 0.6;
-                    screenShake = 4;
+                    hp -= enemy.isBoss ? 1.2 : 0.6;
+                    screenShake = enemy.isBoss ? 8 : 4;
                     createExplosion(hero.x + 20, hero.y + 30, '#ef4444', 2);
                     updateHUD();
 
@@ -1403,12 +1531,57 @@
             document.getElementById('game-over-modal').classList.remove('hidden');
         }
 
+        function handleStageClear() {
+            score += 1000;
+            hp = 100;
+            ammo += 20;
+
+            if (currentStageIndex < STAGES.length - 1) {
+                gameState = 'STAGE_CLEAR';
+                document.getElementById('stage-clear-modal').classList.remove('hidden');
+            } else {
+                // Final Game Clear Victory!
+                gameState = 'GAMEOVER';
+                document.getElementById('game-over-title').innerText = "MISSION CLEAR!";
+                document.getElementById('game-over-title').className = "font-arcade text-3xl sm:text-5xl text-emerald-400 mb-2 glow-text-blue";
+                document.getElementById('game-over-sub').innerText = "🏆 PARABÉNS! Completaste todas as etapas e salvaste a missão!";
+                document.getElementById('final-score').innerText = String(score).padStart(6, '0');
+                document.getElementById('stat-dinos').innerText = statsDinosDefeated;
+                const accuracy = statsQuizTotal > 0 ? Math.round((statsQuizCorrect / statsQuizTotal) * 100) : 100;
+                document.getElementById('stat-accuracy').innerText = `${accuracy}%`;
+                document.getElementById('game-over-modal').classList.remove('hidden');
+            }
+        }
+
+        function startNextStage() {
+            currentStageIndex++;
+            stageKills = 0;
+            bossActive = false;
+            activeBoss = null;
+
+            bullets = [];
+            enemies = [];
+            particles = [];
+            powerups = [];
+
+            hero.reset();
+            updateHUD();
+
+            document.getElementById('stage-clear-modal').classList.add('hidden');
+            gameState = 'PLAYING';
+        }
+
         function restartGame() {
             score = 0;
             ammo = 25;
             hp = 100;
             comboCounter = 0;
             comboTimer = 0;
+            currentStageIndex = 0;
+            stageKills = 0;
+            bossActive = false;
+            activeBoss = null;
+
             statsDinosDefeated = 0;
             statsQuizCorrect = 0;
             statsQuizTotal = 0;
@@ -1421,9 +1594,14 @@
             powerups = [];
             shellCasings = [];
 
+            document.getElementById('game-over-title').innerText = "GAME OVER";
+            document.getElementById('game-over-title').className = "font-arcade text-3xl sm:text-5xl text-red-500 mb-2 glow-text-red";
+            document.getElementById('game-over-sub').innerText = "As forças pré-históricas venceram desta vez!";
+
             hero.reset();
             updateHUD();
 
+            document.getElementById('stage-clear-modal').classList.add('hidden');
             document.getElementById('game-over-modal').classList.add('hidden');
             document.getElementById('start-screen').classList.add('hidden');
             gameState = 'PLAYING';
@@ -1438,6 +1616,10 @@
         document.getElementById('btn-start').addEventListener('click', () => {
             audio.init();
             restartGame();
+        });
+
+        document.getElementById('btn-next-stage').addEventListener('click', () => {
+            startNextStage();
         });
 
         document.getElementById('btn-restart').addEventListener('click', () => {
