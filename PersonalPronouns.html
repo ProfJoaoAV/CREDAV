@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1a2e">
+<title>🦊 Pronouns Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1:#1a1a2e; --bg2:#16213e; --accent:#ffd93d; --accent2:#ff6b9d;
+    --good:#4ade80; --bad:#f87171; --card:#0f3460; --text:#fff;
+    --gold:#fbbf24; --silver:#cbd5e1; --bronze:#d97706;
+    --radius:20px; --shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+  body.light {
+    --bg1:#fef9ef; --bg2:#ffe8d6; --card:#ffffff; --text:#1a1a2e;
+    --accent:#f59e0b; --accent2:#ec4899;
+  }
+  body.dyslexia { font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif; letter-spacing: 0.5px; }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Fredoka', sans-serif; }
+  html, body { height:100%; }
+  body {
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: var(--text); min-height:100vh; padding:14px; overflow-x:hidden;
+    transition: background .4s, color .4s;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:12px 18px; background:rgba(255,255,255,.08);
+    border-radius:var(--radius); margin-bottom:16px;
+    backdrop-filter: blur(10px); flex-wrap: wrap;
+  }
+  .logo { font-size:1.4rem; font-weight:700; color:var(--accent); }
+  .stats { display:flex; gap:8px; font-size:.95rem; flex-wrap:wrap; align-items:center; }
+  .stats span { background:rgba(255,255,255,.12); padding:6px 12px; border-radius:12px; }
+  .level-bar {
+    width:100%; max-width:220px; height:8px; background:rgba(255,255,255,.15);
+    border-radius:8px; overflow:hidden; margin-left:8px;
+  }
+  .level-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0%; transition:width .5s; }
+
+  /* ===== NAV ===== */
+  nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:20px; }
+  nav button {
+    background:rgba(255,255,255,.08); color:var(--text); border:2px solid transparent;
+    padding:10px 16px; border-radius:14px; cursor:pointer; font-size:.95rem;
+    font-weight:600; transition:all .2s;
+  }
+  nav button:hover { background:rgba(255,255,255,.18); transform:translateY(-2px); }
+  nav button.active { background:var(--accent); color:#1a1a2e; border-color:var(--accent); }
+
+  main { max-width:900px; margin:0 auto; }
+  .screen { display:none; animation:fadeIn .35s; }
+  .screen.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+  /* ===== CARDS ===== */
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+  .card {
+    background:var(--card); padding:22px; border-radius:var(--radius); text-align:center;
+    transition:transform .3s, box-shadow .3s; border:2px solid rgba(255,255,255,.1);
+    position: relative;
+  }
+  .card:hover { transform:translateY(-6px) rotate(-1deg); box-shadow:0 12px 24px rgba(255,217,61,.3); }
+  .card .pronoun { font-size:2.4rem; font-weight:700; color:var(--accent); }
+  .card .emoji { font-size:2rem; margin:6px 0; }
+  .card .ex { font-size:.95rem; opacity:.9; }
+  .card .pt { font-size:.85rem; opacity:.6; margin-top:4px; }
+  .card .speak-btn { position:absolute; top:10px; right:10px; background:rgba(255,255,255,.1); border:none;
+    color:var(--text); font-size:1.1rem; border-radius:50%; width:34px; height:34px; cursor:pointer; }
+
+  /* ===== QUESTION ===== */
+  .question-box {
+    background:var(--card); padding:26px; border-radius:var(--radius);
+    text-align:center; border:2px solid rgba(255,255,255,.1); box-shadow:var(--shadow);
+  }
+  .question { font-size:1.4rem; margin-bottom:18px; line-height:1.5; }
+  .question .q-emoji { font-size:2.5rem; display:block; margin-bottom:8px; }
+  .speak-q { background:rgba(255,255,255,.12); border:none; color:var(--text);
+    padding:6px 14px; border-radius:12px; cursor:pointer; font-size:1rem; margin-bottom:12px; }
+  .options { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:8px; }
+  .options button {
+    padding:16px; font-size:1.15rem; font-weight:600; border-radius:16px;
+    border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08);
+    color:var(--text); cursor:pointer; transition:all .2s; position: relative;
+  }
+  .options button:hover:not(:disabled) { background:var(--accent); color:#1a1a2e; transform:scale(1.03); }
+  .options button.correct { background:var(--good); color:#064e3b; border-color:var(--good); }
+  .options button.wrong { background:var(--bad); color:#7f1d1d; border-color:var(--bad); }
+  .options button:disabled { cursor:default; }
+  .feedback { margin-top:16px; font-size:1rem; min-height:30px; font-weight:600; line-height:1.5; }
+  .feedback .why { display:block; font-size:.9rem; opacity:.85; margin-top:6px; font-weight:400; }
+  .mascot { font-size:3.6rem; margin:6px 0; transition:transform .3s; }
+  .mascot.bounce { animation:bounce .6s; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px) scale(1.15)} }
+
+  .btn-primary {
+    background:var(--accent); color:#1a1a2e; border:none; padding:12px 24px;
+    font-size:1rem; font-weight:700; border-radius:14px; cursor:pointer;
+    margin:12px 6px 0; transition:transform .2s;
+  }
+  .btn-primary:hover { transform:scale(1.05); }
+  .btn-primary.secondary { background:var(--accent2); color:white; }
+  .btn-primary.ghost { background:rgba(255,255,255,.12); color:var(--text); }
+  .btn-primary.small { padding:8px 16px; font-size:.9rem; }
+
+  /* ===== PROGRESS ===== */
+  .progress-wrap { background:rgba(255,255,255,.1); border-radius:20px; height:14px; overflow:hidden; margin-bottom:16px; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0%; transition:width .4s; }
+  .quiz-meta { display:flex; justify-content:space-between; font-size:.9rem; opacity:.9; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
+
+  /* ===== BADGES ===== */
+  .badges-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; }
+  .badge {
+    background:var(--card); padding:18px; border-radius:var(--radius); text-align:center;
+    border:2px solid rgba(255,255,255,.1); transition:all .3s;
+  }
+  .badge.earned { border-color:var(--accent); box-shadow:0 0 20px rgba(255,217,61,.4); }
+  .badge.locked { opacity:.45; filter:grayscale(1); }
+  .badge .icon { font-size:2.6rem; }
+  .badge .name { font-weight:700; margin-top:6px; font-size:.9rem; }
+  .badge .desc { font-size:.72rem; opacity:.75; margin-top:4px; }
+
+  /* ===== RESULT ===== */
+  .result-box { text-align:center; padding:20px; }
+  .medal { font-size:5.5rem; margin:8px 0; animation:bounce 1s; }
+  .final-score { font-size:3.2rem; font-weight:700; margin:8px 0; }
+  .final-score.gold { color:var(--gold); }
+  .final-score.silver { color:var(--silver); }
+  .final-score.bronze { color:var(--bronze); }
+  .final-score.study { color:var(--accent2); }
+  .grade-line { font-size:1.15rem; margin:6px 0; opacity:.95; }
+  .message { font-size:1rem; margin:14px auto; max-width:520px; line-height:1.5; }
+
+  .review-list {
+    text-align:left; margin-top:20px; max-height:340px; overflow-y:auto;
+    background:rgba(0,0,0,.22); border-radius:16px; padding:14px;
+  }
+  .review-list h3 { margin-bottom:10px; color:var(--accent); }
+  .review-item {
+    padding:10px 12px; border-radius:10px; margin-bottom:8px;
+    background:rgba(255,255,255,.06); font-size:.92rem;
+  }
+  .review-item .correct-ans { color:var(--good); font-weight:600; }
+  .review-item .your-ans { color:var(--bad); font-weight:600; }
+
+  /* ===== SHOP ===== */
+  .shop-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; }
+  .shop-item {
+    background:var(--card); padding:16px; border-radius:var(--radius); text-align:center;
+    border:2px solid rgba(255,255,255,.1);
+  }
+  .shop-item .av { font-size:3rem; }
+  .shop-item .nm { font-weight:700; margin-top:6px; }
+  .shop-item .pr { font-size:.85rem; opacity:.8; margin-top:4px; }
+  .shop-item button { margin-top:8px; }
+  .shop-item.owned button { background:var(--good); color:#064e3b; }
+
+  /* ===== HISTORY ===== */
+  .history-item {
+    background:var(--card); padding:14px; border-radius:14px; margin-bottom:10px;
+    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+    border-left:4px solid var(--accent);
+  }
+  .history-item .date { font-size:.85rem; opacity:.7; }
+  .history-item .grade { font-size:1.4rem; font-weight:700; }
+
+  /* ===== SETTINGS ===== */
+  .settings-row { display:flex; justify-content:space-between; align-items:center; padding:12px;
+    background:var(--card); border-radius:14px; margin-bottom:10px; }
+  .toggle { position:relative; width:50px; height:26px; background:rgba(255,255,255,.2);
+    border-radius:26px; cursor:pointer; transition:.3s; }
+  .toggle::after { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px;
+    background:white; border-radius:50%; transition:.3s; }
+  .toggle.on { background:var(--good); }
+  .toggle.on::after { left:27px; }
+
+  /* ===== CONFETTI ===== */
+  .confetti { position:fixed; width:10px; height:10px; top:-10px; z-index:999; animation:fall linear forwards; pointer-events:none; }
+  @keyframes fall { to { transform:translateY(110vh) rotate(720deg); opacity:0; } }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px);
+    background:var(--accent); color:#1a1a2e; padding:14px 22px; border-radius:16px;
+    font-weight:700; font-size:1.05rem; z-index:1000; transition:transform .4s;
+    box-shadow:0 8px 24px rgba(0,0,0,.4); max-width:90%; text-align:center;
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* ===== DROP ZONE ===== */
+  .drop-zone {
+    border:3px dashed rgba(255,255,255,.3); border-radius:16px; padding:20px; margin:10px 0;
+    min-height:70px; display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem; transition:.3s;
+  }
+  .drop-zone.over { background:rgba(255,217,61,.2); border-color:var(--accent); }
+  .chip {
+    background:var(--accent); color:#1a1a2e; padding:8px 18px; border-radius:12px;
+    font-weight:700; cursor:grab; user-select:none; display:inline-block; margin:4px;
+  }
+  .chip:active { cursor:grabbing; }
+  .chip.used { opacity:.4; }
+
+  /* ===== CERTIFICATE ===== */
+  .cert {
+    background:#fff; color:#1a1a2e; padding:40px; border:8px double var(--gold);
+    border-radius:16px; text-align:center; font-family:'Georgia', serif;
+  }
+  .cert h1 { color:#1a1a2e; font-size:2.2rem; margin-bottom:8px; }
+  .cert .name { font-size:1.8rem; font-weight:bold; color:#b45309; margin:20px 0; border-bottom:2px solid #ddd; padding-bottom:8px; display:inline-block; min-width:60%; }
+  .cert .grade-big { font-size:4rem; font-weight:bold; color:#b45309; margin:14px 0; }
+
+  @media (max-width:520px) {
+    .options { grid-template-columns:1fr; }
+    .logo { font-size:1.1rem; }
+    .stats { font-size:.8rem; }
+    .question { font-size:1.15rem; }
+    .final-score { font-size:2.4rem; }
+    .medal { font-size:4rem; }
+  }
+  @media print {
+    body * { visibility:hidden; }
+    #certView, #certView * { visibility:visible; }
+    #certView { position:absolute; left:0; top:0; width:100%; }
+    nav, header { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🦊 Pronouns Quest</div>
+  <div class="stats">
+    <span>⭐ <b id="score">0</b></span>
+    <span>🔥 <b id="streak">0</b></span>
+    <span>🏆 <b id="badgeCount">0</b>/7</span>
+    <span>🎯 Nv <b id="levelNum">1</b></span>
+    <div class="level-bar"><div class="level-fill" id="levelFill"></div></div>
+    <span id="avatarDisplay" style="font-size:1.3rem;background:none;padding:0">🦊</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" data-screen="home">🏠 Home</button>
+  <button data-screen="learn">📚 Learn</button>
+  <button data-screen="practice">🎯 Practice</button>
+  <button data-screen="daily">📅 Diário</button>
+  <button data-screen="quiz">⚡ Quiz</button>
+  <button data-screen="badges">🏆 Badges</button>
+  <button data-screen="shop">🛍️ Loja</button>
+  <button data-screen="history">📊 Histórico</button>
+  <button data-screen="settings">⚙️ Config</button>
+</nav>
+
+<main>
+  <!-- HOME -->
+  <section id="home" class="screen active">
+    <div class="question-box">
+      <div class="mascot" id="homeAvatar">🦊</div>
+      <h2 id="welcomeTitle">Bem-vindo, campeão!</h2>
+      <p style="margin-top:12px;opacity:.85" id="homeSub">Aprende os <b>Subject Personal Pronouns</b> e ganha badges!</p>
+      <p style="margin-top:8px;font-size:1.05rem;color:var(--accent)">"Eu não sou sonsa… sou é ESPERTA!" 😎</p>
+      <div style="margin-top:20px">
+        <button class="btn-primary" onclick="go('learn')">🚀 Começar</button>
+        <button class="btn-primary secondary" onclick="go('daily')">📅 Desafio Diário</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARN -->
+  <section id="learn" class="screen">
+    <h2 style="margin-bottom:16px;text-align:center">📚 Os 7 Pronomes</h2>
+    <div class="cards" id="cardsContainer"></div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section id="practice" class="screen">
+    <div class="question-box">
+      <div class="mascot" id="practiceMascot">🦊</div>
+      <div class="question" id="practiceQuestion"></div>
+      <div class="options" id="practiceOptions"></div>
+      <div class="feedback" id="practiceFeedback"></div>
+      <button class="btn-primary" id="practiceNext" style="display:none">Próxima ➡️</button>
+    </div>
+  </section>
+
+  <!-- DAILY -->
+  <section id="daily" class="screen">
+    <div class="question-box">
+      <h2 style="margin-bottom:10px">📅 Desafio Diário</h2>
+      <p id="dailyStatus" style="margin-bottom:16px;opacity:.9">5 perguntas rápidas. Volta amanhã para manteres a streak!</p>
+      <div id="dailyContent"></div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="screen">
+    <div class="progress-wrap"><div class="progress-bar" id="quizProgress"></div></div>
+    <div class="quiz-meta">
+      <span>Pergunta <b id="quizNum">1</b>/30</span>
+      <span>✅ <b id="quizCorrectLive">0</b> · ❌ <b id="quizWrongLive">0</b></span>
+      <span id="quizTimer">⏱️ 0:00</span>
+    </div>
+    <div class="question-box" id="quizBox">
+      <div class="mascot" id="quizMascot">🦊</div>
+      <div class="question" id="quizQuestion"></div>
+      <button class="speak-q" id="quizSpeak" style="display:none">🔊 Ouvir</button>
+      <div class="options" id="quizOptions"></div>
+      <div id="quizExtra"></div>
+      <div class="feedback" id="quizFeedback"></div>
+      <button class="btn-primary" id="quizNext" style="display:none">Próxima ➡️</button>
+    </div>
+  </section>
+
+  <!-- BADGES -->
+  <section id="badges" class="screen">
+    <h2 style="margin-bottom:16px;text-align:center">🏆 As Tuas Badges</h2>
+    <div class="badges-grid" id="badgesGrid"></div>
+  </section>
+
+  <!-- SHOP -->
+  <section id="shop" class="screen">
+    <h2 style="margin-bottom:16px;text-align:center">🛍️ Loja de Avatares</h2>
+    <p style="text-align:center;opacity:.8;margin-bottom:16px">Gasta os teus pontos para desbloquear avatares!</p>
+    <div class="shop-grid" id="shopGrid"></div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="history" class="screen">
+    <h2 style="margin-bottom:16px;text-align:center">📊 O Teu Histórico</h2>
+    <div id="historyContent"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="screen">
+    <h2 style="margin-bottom:16px;text-align:center">⚙️ Configurações</h2>
+    <div class="settings-row">
+      <span>👤 Nome do aluno</span>
+      <input id="studentName" type="text" placeholder="O teu nome" style="background:rgba(255,255,255,.1);border:none;color:var(--text);padding:8px 12px;border-radius:10px;font-size:1rem;max-width:180px" />
+    </div>
+    <div class="settings-row">
+      <span>🔊 Sons e voz</span>
+      <div class="toggle" id="toggleSound"></div>
+    </div>
+    <div class="settings-row">
+      <span>☀️ Modo claro</span>
+      <div class="toggle" id="toggleLight"></div>
+    </div>
+    <div class="settings-row">
+      <span>🔤 Fonte dislexia</span>
+      <div class="toggle" id="toggleDyslexia"></div>
+    </div>
+    <div style="text-align:center;margin-top:24px">
+      <button class="btn-primary" onclick="printCert()">🎓 Ver Certificado</button>
+      <button class="btn-primary secondary" onclick="resetProgress()">🔄 Apagar Progresso</button>
+    </div>
+  </section>
+
+  <!-- CERTIFICATE (escondido até imprimir) -->
+  <section id="certView" class="screen">
+    <div class="cert" id="certContent"></div>
+    <div style="text-align:center;margin-top:20px">
+      <button class="btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+      <button class="btn-primary ghost" onclick="go('settings')">← Voltar</button>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   ESTADO GLOBAL
+   ========================================================= */
+const DEFAULT_STATE = {
+  score: 0, streak: 0, bestStreak: 0, correctTotal: 0,
+  badges: {}, quizDone: false, lastQuizGrade: null,
+  history: [],             // {date, grade, pct, correct, total}
+  avatarsOwned: ['🦊'],    // default
+  avatarCurrent: '🦊',
+  studentName: '',
+  settings: { sound: true, light: false, dyslexia: false },
+  dailyDate: '',           // YYYY-MM-DD
+  dailyStreak: 0,
+  dailyDone: false,
+};
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+const BADGES = [
+  { id:'smart',       icon:'🧠', name:'Sou Esperto!',        desc:'3 acertos seguidos',       msg:'Não sou sonsa, sou é ESPERTA! 😎' },
+  { id:'eagle',       icon:'🎯', name:'Olho Vivo',           desc:'5 acertos no Practice',    msg:'Eu vejo tudo! 👀' },
+  { id:'rocket',      icon:'⚡', name:'Rápido como Foguete',  desc:'Quiz em menos de 8 min',   msg:'Não perco tempo! 🚀' },
+  { id:'perfect',     icon:'💎', name:'Perfeito!',           desc:'100% no Quiz',             msg:'Sou uma máquina! 💎' },
+  { id:'unstoppable', icon:'🔥', name:'Imparável',           desc:'10 acertos seguidos',      msg:'Não me paro! 🔥' },
+  { id:'knower',      icon:'🏆', name:'I Know My Pronouns',  desc:'Nota ≥14 no Quiz',         msg:'Ninguém me engana! 🏆' },
+  { id:'master',      icon:'🌟', name:'Mestre dos Pronouns', desc:'Ganhar todas as outras',   msg:'Eu não sou sonsa... sou PRO! 🌟' },
+];
+
+/* =========================================================
+   DADOS - PRONOMES
+   ========================================================= */
+const PRONOUNS = [
+  { p:'I',    emoji:'🙋',      ex:'I am Portuguese.',    pt:'Eu' },
+  { p:'You',  emoji:'👉',      ex:'You are my friend.',  pt:'Tu / Vocês' },
+  { p:'He',   emoji:'👦',      ex:'He is my brother.',   pt:'Ele' },
+  { p:'She',  emoji:'👧',      ex:'She is a teacher.',   pt:'Ela' },
+  { p:'It',   emoji:'🐱',      ex:'It is a cat.',        pt:'Coisa / Animal' },
+  { p:'We',   emoji:'👨‍👩‍👧',   ex:'We are students.',    pt:'Nós' },
+  { p:'They', emoji:'👫',      ex:'They are friends.',   pt:'Eles / Elas' },
+];
+
+/* =========================================================
+   PERGUNTAS (30) com explicação + emoji
+   ========================================================= */
+const QUESTIONS = [
+  { q:'Maria is happy. ___ is happy.',                    a:'She',  opts:['He','She','It','They'],  emoji:'👧', why:'Maria é rapariga → She.' },
+  { q:'Pedro is my brother. ___ is my brother.',          a:'He',   opts:['She','He','It','They'],  emoji:'👦', why:'Pedro é rapaz → He.' },
+  { q:'The dog is big. ___ is big.',                      a:'It',   opts:['He','She','It','We'],    emoji:'🐶', why:'Animal → It.' },
+  { q:'My mum is a doctor. ___ is a doctor.',             a:'She',  opts:['He','She','It','We'],    emoji:'👩‍⚕️', why:'Mum (mãe) → She.' },
+  { q:'The book is on the table. ___ is on the table.',   a:'It',   opts:['He','She','It','They'],  emoji:'📖', why:'Objeto → It.' },
+  { q:'Mr. Silva is a teacher. ___ is a teacher.',        a:'He',   opts:['She','He','It','We'],    emoji:'👨‍🏫', why:'Mr. Silva → He.' },
+  { q:'The cat is sleeping. ___ is sleeping.',            a:'It',   opts:['He','She','It','We'],    emoji:'🐱', why:'Animal → It.' },
+  { q:'Ana is my sister. ___ is my sister.',              a:'She',  opts:['He','She','It','They'],  emoji:'👧', why:'Ana é rapariga → She.' },
+  { q:'Tom is at school. ___ is at school.',              a:'He',   opts:['She','He','It','We'],    emoji:'🧑‍🎓', why:'Tom é rapaz → He.' },
+  { q:'Ana and Rita are sisters. ___ are sisters.',       a:'They', opts:['We','You','They','She'], emoji:'👭', why:'Duas pessoas → They.' },
+  { q:'The cats are cute. ___ are cute.',                 a:'They', opts:['It','He','She','They'],  emoji:'🐱🐱', why:'Plural → They.' },
+  { q:'My friends are here. ___ are here.',               a:'They', opts:['We','You','They','He'],  emoji:'🧑‍🤝‍🧑', why:'Vários amigos → They.' },
+  { q:'The books are new. ___ are new.',                  a:'They', opts:['It','He','She','They'],  emoji:'📚', why:'Plural → They.' },
+  { q:'João and I are friends. ___ are friends.',         a:'We',   opts:['They','You','We','He'],  emoji:'🤝', why:'Eu + João = We.' },
+  { q:'Tom and I are in class 5A. ___ are in 5A.',        a:'We',   opts:['They','We','You','He'],  emoji:'🏫', why:'Eu + Tom = We.' },
+  { q:'My family and I live in Lisbon. ___ live in Lisbon.', a:'We', opts:['They','You','We','She'], emoji:'🏠', why:'Eu + família = We.' },
+  { q:'___ am a student.',                                a:'I',    opts:['You','I','He','We'],     emoji:'🎒', why:'1ª pessoa singular → I.' },
+  { q:'___ am from Portugal.',                            a:'I',    opts:['He','I','We','You'],     emoji:'🇵🇹', why:'1ª pessoa singular → I.' },
+  { q:'___ are my best friend.',                          a:'You',  opts:['I','You','It','She'],    emoji:'👫', why:'A pessoa a quem falas → You.' },
+  { q:'___ are a good student, Marta!',                   a:'You',  opts:['I','You','She','We'],    emoji:'👩‍🎓', why:'A falar com Marta → You.' },
+  { q:'Anna is my teacher. ___ is very nice.',            a:'She',  opts:['He','She','It','They'],  emoji:'👩‍🏫', why:'Anna → She.' },
+  { q:'Rui and I are playing. ___ are playing.',          a:'We',   opts:['They','We','You','He'],  emoji:'🎮', why:'Eu + Rui = We.' },
+  { q:'The computer is old. ___ is old.',                 a:'It',   opts:['He','She','It','They'],  emoji:'💻', why:'Objeto → It.' },
+  { q:'My grandparents are old. ___ are old.',            a:'They', opts:['We','You','They','It'],  emoji:'👴👵', why:'Duas pessoas → They.' },
+  { q:'Diogo, are ___ ready?',                            a:'you',  opts:['I','you','he','we'],     emoji:'🧑', why:'A perguntar ao Diogo → you.' },
+  { q:'I have a dog. ___ is very friendly.',              a:'It',   opts:['He','She','It','They'],  emoji:'🐕', why:'Animal → It.' },
+  { q:'Sofia and Inês are my cousins. ___ are my cousins.', a:'They', opts:['We','She','They','You'], emoji:'👧👧', why:'Duas pessoas → They.' },
+  { q:'___ are students in year 5.',                      a:'We',   opts:['I','We','He','It'],      emoji:'🎓', why:'Nós → We.' },
+  { q:'Mr. and Mrs. Costa are teachers. ___ are teachers.', a:'They', opts:['We','You','They','He'], emoji:'👨‍🏫👩‍🏫', why:'Duas pessoas → They.' },
+  { q:'The sun is yellow. ___ is yellow.',                a:'It',   opts:['He','She','It','They'],  emoji:'☀️', why:'Coisa natural → It.' },
+];
+
+/* =========================================================
+   AVATARES DA LOJA
+   ========================================================= */
+const AVATARS = [
+  { id:'🦊', name:'Raposa',    price:0 },
+  { id:'🐱', name:'Gato',      price:100 },
+  { id:'🐶', name:'Cão',       price:100 },
+  { id:'🐼', name:'Panda',     price:200 },
+  { id:'🦁', name:'Leão',      price:200 },
+  { id:'🐉', name:'Dragão',    price:300 },
+  { id:'🦄', name:'Unicórnio', price:300 },
+  { id:'👽', name:'Alien',     price:400 },
+  { id:'🤖', name:'Robot',     price:400 },
+  { id:'🐢', name:'Tartaruga', price:500 },
+  { id:'🦉', name:'Coruja',    price:500 },
+  { id:'🌟', name:'Estrela',   price:600 },
+];
+
+/* =========================================================
+   NAVEGAÇÃO
+   ========================================================= */
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => {
+    b.classList.toggle('active', b.dataset.screen === id);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'practice') newPracticeQuestion();
+  if (id === 'quiz')    startQuiz();
+  if (id === 'badges')  renderBadges();
+  if (id === 'shop')    renderShop();
+  if (id === 'history') renderHistory();
+  if (id === 'daily')   renderDaily();
+  if (id === 'settings') syncSettingsUI();
+}
+document.querySelectorAll('nav button').forEach(b => {
+  b.addEventListener('click', () => go(b.dataset.screen));
+});
+
+/* =========================================================
+   PERSISTÊNCIA
+   ========================================================= */
+function saveState() {
+  try { localStorage.setItem('pronounsQuestV2', JSON.stringify(state)); } catch(e){}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem('pronounsQuestV2');
+    if (s) {
+      const parsed = JSON.parse(s);
+      state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), parsed);
+      state.settings = Object.assign(DEFAULT_STATE.settings, parsed.settings || {});
+    }
+  } catch(e){}
+}
+
+/* =========================================================
+   SOM / VOZ
+   ========================================================= */
+function speak(text, lang='en-US') {
+  if (!state.settings.sound) return;
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; u.rate = 0.9; u.pitch = 1.05;
+  window.speechSynthesis.speak(u);
+}
+function beep(freq=600, dur=0.1, type='sine') {
+  if (!state.settings.sound) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    osc.connect(gain); gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+
+/* =========================================================
+   UI HELPERS
+   ========================================================= */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function confetti() {
+  for (let i = 0; i < 50; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = ['#ffd93d','#ff6b9d','#4ade80','#60a5fa','#f472b6'][i%5];
+    c.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+    c.style.animationDelay = (Math.random() * 0.3) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3500);
+  }
+}
+function bounceMascot(id) {
+  const m = document.getElementById(id);
+  if (!m) return;
+  m.classList.remove('bounce'); void m.offsetWidth; m.classList.add('bounce');
+}
+function shuffle(a) { return a.slice().sort(() => Math.random() - 0.5); }
+
+/* Nível baseado em pontos: cada 200 pts = 1 nível */
+function getLevel() { return Math.floor(state.score / 200) + 1; }
+function getLevelProgress() { return (state.score % 200) / 200 * 100; }
+
+function updateStats() {
+  document.getElementById('score').textContent = state.score;
+  document.getElementById('streak').textContent = state.streak;
+  document.getElementById('badgeCount').textContent =
+    Object.values(state.badges).filter(Boolean).length;
+  document.getElementById('levelNum').textContent = getLevel();
+  document.getElementById('levelFill').style.width = getLevelProgress() + '%';
+  document.getElementById('avatarDisplay').textContent = state.avatarCurrent;
+  document.getElementById('homeAvatar').textContent = state.avatarCurrent;
+  document.getElementById('practiceMascot').textContent = state.avatarCurrent;
+  document.getElementById('quizMascot').textContent = state.avatarCurrent;
+  document.getElementById('welcomeTitle').textContent =
+    state.studentName ? `Olá, ${state.studentName}!` : 'Bem-vindo, campeão!';
+}
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+function earnBadge(id) {
+  if (state.badges[id]) return;
+  const b = BADGES.find(x => x.id === id);
+  state.badges[id] = true;
+  state.score += 50;
+  toast(`${b.icon} Badge: ${b.name}! — ${b.msg}`);
+  confetti(); beep(880, 0.15);
+  updateStats(); saveState();
+  checkMasterBadge();
+}
+function checkMasterBadge() {
+  const others = BADGES.filter(b => b.id !== 'master').every(b => state.badges[b.id]);
+  if (others && !state.badges.master) setTimeout(() => earnBadge('master'), 600);
+}
+
+/* =========================================================
+   LEARN
+   ========================================================= */
+function renderCards() {
+  document.getElementById('cardsContainer').innerHTML = PRONOUNS.map(p => `
+    <div class="card">
+      <button class="speak-btn" title="Ouvir" onclick="speak('${p.ex}')">🔊</button>
+      <div class="pronoun">${p.p}</div>
+      <div class="emoji">${p.emoji}</div>
+      <div class="ex">${p.ex}</div>
+      <div class="pt">${p.pt}</div>
+    </div>`).join('');
+}
+
+/* =========================================================
+   PRACTICE
+   ========================================================= */
+let currentPractice = null;
+let practiceCorrect = 0;
+
+function newPracticeQuestion() {
+  currentPractice = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+  document.getElementById('practiceQuestion').innerHTML =
+    `<span class="q-emoji">${currentPractice.emoji}</span>${currentPractice.q}`;
+  const opts = shuffle(currentPractice.opts);
+  const box = document.getElementById('practiceOptions');
+  box.innerHTML = '';
+  document.getElementById('practiceFeedback').textContent = '';
+  document.getElementById('practiceNext').style.display = 'none';
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.textContent = o;
+    b.onclick = () => checkPractice(b, o);
+    box.appendChild(b);
+  });
+}
+
+function checkPractice(btn, choice) {
+  const correct = choice === currentPractice.a;
+  document.querySelectorAll('#practiceOptions button').forEach(b => b.disabled = true);
+  if (correct) {
+    btn.classList.add('correct');
+    state.score += 10; state.streak++; state.correctTotal++; practiceCorrect++;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+    document.getElementById('practiceFeedback').innerHTML =
+      `<span style="color:var(--good)">✅ Isso mesmo! +10 pontos</span>
+       <span class="why">${currentPractice.why}</span>`;
+    bounceMascot('practiceMascot'); beep(800, 0.1);
+    if (state.streak >= 3) earnBadge('smart');
+    if (state.streak >= 10) earnBadge('unstoppable');
+    if (practiceCorrect >= 5) earnBadge('eagle');
+  } else {
+    btn.classList.add('wrong');
+    state.streak = 0; beep(300, 0.2, 'square');
+    document.getElementById('practiceFeedback').innerHTML =
+      `<span style="color:var(--bad)">❌ Era <b>${currentPractice.a}</b>.</span>
+       <span class="why">${currentPractice.why}</span>`;
+    document.querySelectorAll('#practiceOptions button').forEach(b => {
+      if (b.textContent === currentPractice.a) b.classList.add('correct');
+    });
+  }
+  document.getElementById('practiceNext').style.display = 'inline-block';
+  updateStats(); saveState();
+}
+document.getElementById('practiceNext').onclick = newPracticeQuestion;
+
+/* =========================================================
+   DESAFIO DIÁRIO
+   ========================================================= */
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function renderDaily() {
+  const today = todayKey();
+  const content = document.getElementById('dailyContent');
+  const status = document.getElementById('dailyStatus');
+
+  if (state.dailyDate === today && state.dailyDone) {
+    status.innerHTML = `✅ Já fizeste o desafio de hoje! Volta amanhã.`;
+    content.innerHTML = `
+      <p style="font-size:1.3rem;margin:20px 0">🔥 Streak diária: <b>${state.dailyStreak}</b> dia(s)</p>
+      <button class="btn-primary" onclick="go('quiz')">⚡ Fazer Quiz completo</button>`;
+    return;
+  }
+
+  status.innerHTML = `5 perguntas rápidas. Volta amanhã para manteres a streak! 🔥 Streak atual: <b>${state.dailyStreak}</b>`;
+  content.innerHTML = `<button class="btn-primary" onclick="startDaily()">🚀 Começar Desafio</button>`;
+}
+
+let dailyQs = [], dailyIdx = 0, dailyScore = 0;
+
+function startDaily() {
+  dailyQs = shuffle(QUESTIONS).slice(0, 5);
+  dailyIdx = 0; dailyScore = 0;
+  renderDailyQuestion();
+}
+
+function renderDailyQuestion() {
+  const content = document.getElementById('dailyContent');
+  if (dailyIdx >= dailyQs.length) return endDaily();
+  const q = dailyQs[dailyIdx];
+  content.innerHTML = `
+    <div class="progress-wrap"><div class="progress-bar" style="width:${dailyIdx/5*100}%"></div></div>
+    <p style="opacity:.8">${dailyIdx+1}/5</p>
+    <div class="question" style="margin:16px 0">
+      <span class="q-emoji">${q.emoji}</span>${q.q}
+    </div>
+    <div class="options" id="dailyOpts"></div>
+    <div class="feedback" id="dailyFb"></div>
+    <button class="btn-primary" id="dailyNext" style="display:none">Próxima ➡️</button>
+  `;
+  const box = document.getElementById('dailyOpts');
+  shuffle(q.opts).forEach(o => {
+    const b = document.createElement('button');
+    b.textContent = o;
+    b.onclick = () => {
+      document.querySelectorAll('#dailyOpts button').forEach(x => x.disabled = true);
+      const ok = o === q.a;
+      if (ok) { b.classList.add('correct'); dailyScore++; state.score += 15; beep(800,0.1); }
+      else { b.classList.add('wrong'); beep(300,0.2,'square');
+        document.querySelectorAll('#dailyOpts button').forEach(x => {
+          if (x.textContent === q.a) x.classList.add('correct');
+        });
+      }
+      document.getElementById('dailyFb').innerHTML =
+        `<span style="color:var(--${ok?'good':'bad'})">${ok?'✅ +15 pontos!':'❌ Era '+q.a}</span>
+         <span class="why">${q.why}</span>`;
+      document.getElementById('dailyNext').style.display = 'inline-block';
+      updateStats(); saveState();
+    };
+    box.appendChild(b);
+  });
+  document.getElementById('dailyNext').onclick = () => { dailyIdx++; renderDailyQuestion(); };
+}
+
+function endDaily() {
+  const today = todayKey();
+  if (state.dailyDate !== today) {
+    // verifica se é consecutivo
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const yKey = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    state.dailyStreak = state.dailyDate === yKey ? state.dailyStreak + 1 : 1;
+  }
+  state.dailyDate = today;
+  state.dailyDone = true;
+  state.score += 30; // bónus
+  confetti();
+  document.getElementById('dailyContent').innerHTML = `
+    <div class="mascot">🎉</div>
+    <h2>Desafio feito!</h2>
+    <p style="font-size:1.3rem;margin:14px 0">Acertaste <b>${dailyScore}/5</b></p>
+    <p style="color:var(--accent)">+30 pontos bónus · 🔥 Streak: <b>${state.dailyStreak}</b> dia(s)</p>
+    <button class="btn-primary" onclick="go('home')">🏠 Voltar</button>
+  `;
+  updateStats(); saveState();
+}
+
+/* =========================================================
+   QUIZ 30 PERGUNTAS
+   ========================================================= */
+let quizQuestions = [];
+let quizIndex = 0, quizCorrect = 0, quizWrong = 0;
+let quizStartTime = 0, quizTimerInterval = null;
+let quizAnswers = [];
+
+function startQuiz() {
+  quizQuestions = shuffle(QUESTIONS).slice(0, 30);
+  quizIndex = 0; quizCorrect = 0; quizWrong = 0;
+  quizAnswers = [];
+  quizStartTime = Date.now();
+  state.quizDone = false;
+  // re-render box if was replaced by result
+  document.getElementById('quizBox').innerHTML = `
+    <div class="mascot" id="quizMascot">${state.avatarCurrent}</div>
+    <div class="question" id="quizQuestion"></div>
+    <button class="speak-q" id="quizSpeak" style="display:none">🔊 Ouvir</button>
+    <div class="options" id="quizOptions"></div>
+    <div id="quizExtra"></div>
+    <div class="feedback" id="quizFeedback"></div>
+    <button class="btn-primary" id="quizNext" style="display:none">Próxima ➡️</button>
+  `;
+  document.getElementById('quizNext').onclick = () => { quizIndex++; showQuizQuestion(); };
+  clearInterval(quizTimerInterval);
+  quizTimerInterval = setInterval(() => {
+    const s = Math.floor((Date.now() - quizStartTime) / 1000);
+    document.getElementById('quizTimer').textContent =
+      `⏱️ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  }, 1000);
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  if (quizIndex >= quizQuestions.length) return endQuiz();
+  const q = quizQuestions[quizIndex];
+  document.getElementById('quizNum').textContent = quizIndex + 1;
+  document.getElementById('quizCorrectLive').textContent = quizCorrect;
+  document.getElementById('quizWrongLive').textContent = quizWrong;
+  document.getElementById('quizProgress').style.width =
+    (quizIndex / quizQuestions.length * 100) + '%';
+  document.getElementById('quizQuestion').innerHTML =
+    `<span class="q-emoji">${q.emoji}</span>${q.q}`;
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('quizNext').style.display = 'none';
+  const speakBtn = document.getElementById('quizSpeak');
+  speakBtn.style.display = 'inline-block';
+  speakBtn.onclick = () => speak(q.q.replace('___', q.a));
+
+  const box = document.getElementById('quizOptions');
+  box.innerHTML = '';
+  shuffle(q.opts).forEach(o => {
+    const b = document.createElement('button');
+    b.textContent = o;
+    b.onclick = () => checkQuiz(b, o, q);
+    box.appendChild(b);
+  });
+}
+
+function checkQuiz(btn, choice, q) {
+  const correct = choice === q.a;
+  document.querySelectorAll('#quizOptions button').forEach(b => b.disabled = true);
+  quizAnswers.push({ q: q.q, correct: q.a, your: choice, ok: correct, why: q.why });
+
+  if (correct) {
+    btn.classList.add('correct');
+    state.score += 20; state.streak++; quizCorrect++;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+    document.getElementById('quizFeedback').innerHTML =
+      `<span style="color:var(--good)">✅ +20 pontos! Boa! 🎉</span>
+       <span class="why">${q.why}</span>`;
+    bounceMascot('quizMascot'); beep(880, 0.1);
+    if (state.streak >= 3) earnBadge('smart');
+    if (state.streak >= 10) earnBadge('unstoppable');
+  } else {
+    btn.classList.add('wrong');
+    state.streak = 0; quizWrong++; beep(300, 0.2, 'square');
+    document.getElementById('quizFeedback').innerHTML =
+      `<span style="color:var(--bad)">❌ Erraste. Era <b>${q.a}</b>.</span>
+       <span class="why">${q.why}</span>`;
+    document.querySelectorAll('#quizOptions button').forEach(b => {
+      if (b.textContent === q.a) b.classList.add('correct');
+    });
+  }
+  document.getElementById('quizCorrectLive').textContent = quizCorrect;
+  document.getElementById('quizWrongLive').textContent = quizWrong;
+  document.getElementById('quizNext').style.display = 'inline-block';
+  updateStats(); saveState();
+}
+
+function endQuiz() {
+  clearInterval(quizTimerInterval);
+  const total = quizQuestions.length;
+  const elapsed = (Date.now() - quizStartTime) / 1000;
+  const pct = Math.round((quizCorrect / total) * 100);
+  const grade = Math.round((quizCorrect / total) * 20);
+
+  let medal, cls, title, message;
+  if (pct >= 90)      { medal='🥇'; cls='gold';   title='OURO! Mestre dos Pronouns!'; message='Fantástico! Dominas os subject pronouns. Não és sonsa — és PRO! 🌟'; }
+  else if (pct >= 70) { medal='🥈'; cls='silver'; title='PRATA! Muito bom!';         message='Excelente trabalho! Estás quase no topo. Revê os erros e voltas ao ouro! 💪'; }
+  else if (pct >= 50) { medal='🥉'; cls='bronze'; title='BRONZE! Bom trabalho!';     message='Bom esforço! Com mais prática vais longe. Vê os erros abaixo e tenta outra vez. 📚'; }
+  else                { medal='📚'; cls='study';  title='Vamos estudar juntos!';     message='Não desistas! Vai ao Learn, revê os pronomes e volta a tentar. Vais conseguir! 🌱'; }
+
+  state.quizDone = true;
+  state.lastQuizGrade = { grade, pct, correct: quizCorrect, total, date: Date.now() };
+  state.history.push({ date: Date.now(), grade, pct, correct: quizCorrect, total });
+  if (state.history.length > 20) state.history = state.history.slice(-20);
+
+  if (quizCorrect === total) earnBadge('perfect');
+  if (pct >= 70) earnBadge('knower');
+  if (elapsed < 480) earnBadge('rocket');
+  checkMasterBadge();
+
+  const wrongs = quizAnswers.filter(a => !a.ok);
+  const reviewHTML = wrongs.length ? `
+    <div class="review-list">
+      <h3>📋 Vê os teus erros (${wrongs.length})</h3>
+      ${wrongs.map(w => `
+        <div class="review-item">
+          <div>${w.q}</div>
+          <div style="margin-top:4px">Tu: <span class="your-ans">${w.your}</span> · Certo: <span class="correct-ans">${w.correct}</span></div>
+          <div style="font-size:.82rem;opacity:.75;margin-top:4px">💡 ${w.why}</div>
+        </div>`).join('')}
+    </div>` : `<div class="review-list"><h3>💎 Sem erros! Incrível!</h3></div>`;
+
+  const box = document.getElementById('quizBox');
+  box.innerHTML = `
+    <div class="result-box">
+      <div class="medal">${medal}</div>
+      <h2>${title}</h2>
+      <div class="final-score ${cls}">${grade}<span style="font-size:1.2rem;opacity:.7">/20</span></div>
+      <div class="grade-line">✅ ${quizCorrect} · ❌ ${quizWrong} · ${pct}%</div>
+      <div class="grade-line" style="font-size:.95rem;opacity:.7">⏱️ Tempo: ${elapsed.toFixed(1)}s</div>
+      <p class="message">${message}</p>
+      ${reviewHTML}
+      <button class="btn-primary" onclick="go('quiz')">🔁 Repetir</button>
+      <button class="btn-primary secondary" onclick="go('badges')">🏆 Badges</button>
+      <button class="btn-primary secondary" onclick="go('certView'); renderCert();">🎓 Certificado</button>
+      <button class="btn-primary ghost" onclick="go('learn')">📚 Revisar</button>
+    </div>
+  `;
+  if (pct >= 70) setTimeout(confetti, 300);
+  updateStats(); saveState();
+}
+
+/* =========================================================
+   BADGES VIEW
+   ========================================================= */
+function renderBadges() {
+  document.getElementById('badgesGrid').innerHTML = BADGES.map(b => `
+    <div class="badge ${state.badges[b.id] ? 'earned' : 'locked'}">
+      <div class="icon">${state.badges[b.id] ? b.icon : '🔒'}</div>
+      <div class="name">${b.name}</div>
+      <div class="desc">${state.badges[b.id] ? '✅ ' + b.desc : b.desc}</div>
+    </div>`).join('');
+}
+
+/* =========================================================
+   SHOP
+   ========================================================= */
+function renderShop() {
+  document.getElementById('shopGrid').innerHTML = AVATARS.map(a => {
+    const owned = state.avatarsOwned.includes(a.id);
+    const current = state.avatarCurrent === a.id;
+    return `
+      <div class="shop-item ${owned ? 'owned' : ''}">
+        <div class="av">${a.id}</div>
+        <div class="nm">${a.name}</div>
+        <div class="pr">${a.price === 0 ? 'Grátis' : '⭐ ' + a.price}</div>
+        ${owned
+          ? current
+            ? `<button class="btn-primary small" disabled>✅ Em uso</button>`
+            : `<button class="btn-primary small" onclick="useAvatar('${a.id}')">Usar</button>`
+          : `<button class="btn-primary small" onclick="buyAvatar('${a.id}', ${a.price})">Comprar</button>`}
+      </div>`;
+  }).join('');
+}
+function buyAvatar(id, price) {
+  if (state.score < price) { toast('❌ Pontos insuficientes!'); return; }
+  state.score -= price;
+  state.avatarsOwned.push(id);
+  state.avatarCurrent = id;
+  toast(`✅ Avatar ${id} desbloqueado!`);
+  confetti(); beep(1000, 0.15);
+  updateStats(); saveState(); renderShop();
+}
+function useAvatar(id) {
+  state.avatarCurrent = id;
+  toast(`Avatar ${id} em uso!`);
+  updateStats(); saveState(); renderShop();
+}
+
+/* =========================================================
+   HISTÓRICO
+   ========================================================= */
+function renderHistory() {
+  const el = document.getElementById('historyContent');
+  if (!state.history.length) {
+    el.innerHTML = `<p style="text-align:center;opacity:.8">Ainda não há tentativas do Quiz. Faz um para começares! ⚡</p>
+                    <div style="text-align:center"><button class="btn-primary" onclick="go('quiz')">Ir para o Quiz</button></div>`;
+    return;
+  }
+  const best = Math.max(...state.history.map(h => h.grade));
+  const avg = (state.history.reduce((s,h) => s+h.grade, 0) / state.history.length).toFixed(1);
+  el.innerHTML = `
+    <div style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:16px;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:6px">📈 Média: <b>${avg}/20</b> · 🥇 Melhor: <b>${best}/20</b></div>
+      <div style="opacity:.8;font-size:.9rem">${state.history.length} tentativa(s)</div>
+    </div>
+    ${state.history.slice().reverse().map(h => {
+      const d = new Date(h.date);
+      const dateStr = d.toLocaleDateString('pt-PT') + ' ' + d.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
+      const cls = h.pct >= 90 ? 'gold' : h.pct >= 70 ? 'silver' : h.pct >= 50 ? 'bronze' : 'study';
+      const medal = h.pct >= 90 ? '🥇' : h.pct >= 70 ? '🥈' : h.pct >= 50 ? '🥉' : '📚';
+      return `
+        <div class="history-item">
+          <div>
+            <div class="date">${dateStr}</div>
+            <div style="font-size:.9rem;opacity:.8">${h.correct}/${h.total} · ${h.pct}%</div>
+          </div>
+          <div class="grade ${cls}" style="color:var(--${cls === 'study' ? 'accent2' : cls})">${medal} ${h.grade}/20</div>
+        </div>`;
+    }).join('')}
+  `;
+}
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+function syncSettingsUI() {
+  document.getElementById('studentName').value = state.studentName || '';
+  document.getElementById('toggleSound').classList.toggle('on', state.settings.sound);
+  document.getElementById('toggleLight').classList.toggle('on', state.settings.light);
+  document.getElementById('toggleDyslexia').classList.toggle('on', state.settings.dyslexia);
+  applySettings();
+}
+function applySettings() {
+  document.body.classList.toggle('light', state.settings.light);
+  document.body.classList.toggle('dyslexia', state.settings.dyslexia);
+}
+function toggleSetting(key) {
+  state.settings[key] = !state.settings[key];
+  syncSettingsUI(); saveState();
+}
+document.getElementById('studentName').addEventListener('input', e => {
+  state.studentName = e.target.value.trim();
+  saveState(); updateStats();
+});
+document.getElementById('toggleSound').onclick = () => toggleSetting('sound');
+document.getElementById('toggleLight').onclick = () => toggleSetting('light');
+document.getElementById('toggleDyslexia').onclick = () => toggleSetting('dyslexia');
+
+function resetProgress() {
+  if (!confirm('Apagar TODOS os pontos, badges e histórico? Isto não pode ser desfeito.')) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  saveState(); updateStats(); syncSettingsUI(); renderBadges(); renderHistory();
+  toast('🔄 Progresso apagado.');
+}
+
+/* =========================================================
+   CERTIFICADO
+   ========================================================= */
+function renderCert() {
+  const g = state.lastQuizGrade;
+  const name = state.studentName || '______________________';
+  const date = new Date().toLocaleDateString('pt-PT', { year:'numeric', month:'long', day:'numeric' });
+  const badgesEarned = Object.values(state.badges).filter(Boolean).length;
+  const el = document.getElementById('certContent');
+  if (!g) {
+    el.innerHTML = `<p style="text-align:center">Faz primeiro um Quiz completo para ganhares o certificado! ⚡</p>
+      <div style="text-align:center"><button class="btn-primary" onclick="go('quiz')">Ir para o Quiz</button></div>`;
+    return;
+  }
+  const medal = g.pct >= 90 ? '🥇' : g.pct >= 70 ? '🥈' : g.pct >= 50 ? '🥉' : '📚';
+  el.innerHTML = `
+    <h1>🎓 Certificado</h1>
+    <p style="font-size:1rem">Pronouns Quest — Subject Personal Pronouns</p>
+    <p style="margin-top:20px">Este certificado é atribuído a</p>
+    <div class="name">${name}</div>
+    <p>por completar o Quiz de 30 perguntas com o resultado de</p>
+    <div class="grade-big">${g.grade}/20</div>
+    <p style="font-size:1.1rem">${medal} ${g.correct}/${g.total} certas (${g.pct}%)</p>
+    <p style="margin-top:20px;font-size:1rem">🏆 ${badgesEarned}/7 badges conquistadas · ⭐ ${state.score} pontos</p>
+    <p style="margin-top:30px;font-size:.9rem;opacity:.7">${date}</p>
+    <p style="margin-top:40px;border-top:2px solid #ddd;padding-top:10px;font-size:.9rem">Assinatura do Professor</p>
+  `;
+}
+function printCert() {
+  renderCert();
+  go('certView');
+  setTimeout(() => window.print(), 400);
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+loadState();
+applySettings();
+renderCards();
+renderBadges();
+renderShop();
+renderHistory();
+updateStats();
+</script>
+</body>
+</html>
