@@ -54,6 +54,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 ::-webkit-scrollbar { width:8px; }
 ::-webkit-scrollbar-track { background:#07080f; }
 ::-webkit-scrollbar-thumb { background:#ff0033; border-radius:4px; }
+
+/* Bloom overlay */
+#bloom-layer {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index:5; mix-blend-mode: screen;
+    filter: blur(6px); opacity:0.55;
+}
 </style>
 </head>
 <body class="crt min-h-screen flex flex-col relative animated-bg">
@@ -254,10 +261,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 <section id="sec-arcade" class="hidden space-y-4">
     <div class="bg-gradient-to-r from-hawkins-panel via-gray-900 to-hawkins-panel p-4 rounded-2xl border border-hawkins-border shadow-2xl flex flex-wrap justify-between items-center gap-3">
         <div><h2 class="text-base md:text-xl font-tech font-bold text-white">🔫 HAWKINS LAB: RUN & GUN</h2>
-        <p class="text-gray-300 text-[10px] md:text-xs mt-1"><b class="text-hawkins-cyan">A/D</b> correr • <b class="text-hawkins-cyan">W</b> saltar 2x • <b class="text-hawkins-cyan">J/Z</b> disparar • <b class="text-hawkins-cyan">Shift</b> dash • <b class="text-hawkins-yellow">R</b> recarregar</p></div>
+        <p class="text-gray-300 text-[10px] md:text-xs mt-1"><b class="text-hawkins-cyan">A/D</b> correr • <b class="text-hawkins-cyan">W</b> saltar 2x • <b class="text-hawkins-cyan">J/Z</b> disparar • <b class="text-hawkins-cyan">Shift</b> dash • <b class="text-hawkins-yellow">R</b> recarregar • <b class="text-hawkins-purple">1/2/3</b> armas</p></div>
         <div class="flex flex-wrap gap-2 font-mono text-[10px] md:text-xs">
             <div class="bg-black/90 px-2 py-1 rounded-lg border border-hawkins-red text-red-400">STAGE <span id="hud-stage" class="font-bold text-white">1-1</span></div>
+            <div id="hud-weapon" class="bg-black/90 px-2 py-1 rounded-lg border border-hawkins-cyan text-hawkins-cyan font-bold">🔫</div>
             <div id="hud-ammo-container" class="bg-black/90 px-2 py-1 rounded-lg border border-hawkins-yellow text-hawkins-yellow">AMMO <span id="hud-ammo" class="font-bold text-yellow-300">12</span></div>
+            <div id="hud-combo-container" class="hidden bg-black/90 px-2 py-1 rounded-lg border border-hawkins-yellow text-hawkins-yellow">🔥 x<span id="hud-combo">0</span></div>
             <div class="bg-black/90 px-2 py-1 rounded-lg border border-green-500 text-green-400">HP <span id="hud-hp" class="font-bold text-green-300">100%</span></div>
             <div class="bg-black/90 px-2 py-1 rounded-lg border border-hawkins-purple text-purple-300">SCORE <span id="hud-score" class="font-bold text-white">0</span></div>
             <div id="hud-timer-container" class="hidden bg-black/90 px-2 py-1 rounded-lg border border-hawkins-cyan text-hawkins-cyan">⏱ <span id="hud-timer" class="font-bold text-white">0.0s</span></div>
@@ -269,7 +278,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
         <div id="arcade-overlay" class="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center p-5 text-center space-y-3 overflow-y-auto">
             <div class="w-14 h-14 rounded-2xl bg-hawkins-red/20 border-2 border-hawkins-red flex items-center justify-center text-2xl animate-bounce shadow-[0_0_20px_#ff0033]">⚡</div>
             <h3 id="arcade-overlay-title" class="font-arcade text-base md:text-xl text-hawkins-red neon-text-red">HAWKINS CONTRA SHOOTER</h3>
-            <p id="arcade-overlay-desc" class="text-gray-300 text-xs font-tech max-w-lg">9 fases, 9 chefes, 16 tipos de inimigos.<br>Munição limitada — recarrega respondendo!</p>
+            <p id="arcade-overlay-desc" class="text-gray-300 text-xs font-tech max-w-lg">9 fases, 9 chefes, mini-bosses e 3 armas.<br>Munição limitada — recarrega respondendo!</p>
             <div class="flex gap-2 flex-wrap justify-center">
                 <button onclick="startContraGame('normal')" class="px-6 py-3 bg-hawkins-red hover:bg-red-600 text-white font-tech font-bold text-base rounded-xl shadow-[0_0_30px_#ff0033] transform hover:scale-105">⚡ INICIAR</button>
                 <button onclick="startContraGame('endless')" class="px-5 py-3 bg-hawkins-purple hover:bg-purple-600 text-white font-tech font-bold text-sm rounded-xl">♾️ ENDLESS</button>
@@ -315,7 +324,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
             <div class="font-arcade text-lg text-hawkins-red neon-text-red mb-3">MUNDO CONCLUÍDO</div>
             <div id="world-transition-msg" class="text-gray-300 font-tech text-base max-w-lg mb-4"></div>
             <div id="world-trivia" class="bg-hawkins-panel border border-hawkins-cyan/40 p-4 rounded-xl max-w-md mb-4"></div>
-            <button id="world-transition-btn" class="px-5 py-2.5 bg-hawkins-red text-white font-tech font-bold rounded-xl">Continuar ➔</button>
+            <div class="w-full max-w-md mb-4">
+                <div class="text-xs font-mono text-hawkins-cyan mb-1">A CARREGAR...</div>
+                <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div id="loading-bar" class="h-full bg-gradient-to-r from-hawkins-cyan via-hawkins-yellow to-hawkins-red" style="width:0%"></div>
+                </div>
+            </div>
+            <button id="world-transition-btn" class="hidden px-5 py-2.5 bg-hawkins-red text-white font-tech font-bold rounded-xl">Continuar ➔</button>
         </div>
 
         <div id="second-chance" class="hidden absolute inset-0 z-36 bg-black/95 flex-col items-center justify-center p-5 text-center space-y-3 flex">
@@ -330,6 +345,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
         <div id="checkpoint-toast" class="hidden absolute top-20 left-1/2 -translate-x-1/2 z-27 bg-hawkins-cyan/20 border-2 border-hawkins-cyan px-5 py-2 rounded-xl text-hawkins-cyan font-tech font-bold text-sm">✅ Checkpoint!</div>
 
         <canvas id="contra-canvas" width="900" height="480" class="w-full h-auto bg-gray-950 block"></canvas>
+        <canvas id="bloom-layer" width="900" height="480"></canvas>
+        <canvas id="bloom-canvas" width="900" height="480" class="hidden"></canvas>
 
         <div class="w-full bg-hawkins-panel p-2 md:p-3 border-t border-hawkins-border flex items-center justify-between gap-2 flex-wrap">
             <div class="flex gap-2">
@@ -356,6 +373,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
         <label class="flex items-center justify-between p-3 bg-gray-950 rounded-xl"><span class="text-gray-300 font-tech text-sm">🎮 Modo Fácil</span><input type="checkbox" id="opt-easy" onchange="saveSettings()" class="w-5 h-5"></label>
         <label class="flex items-center justify-between p-3 bg-gray-950 rounded-xl"><span class="text-gray-300 font-tech text-sm">🌗 Alto Contraste</span><input type="checkbox" id="opt-contrast" onchange="saveSettings()" class="w-5 h-5"></label>
         <label class="flex items-center justify-between p-3 bg-gray-950 rounded-xl"><span class="text-gray-300 font-tech text-sm">🏃 Reduzir Movimento</span><input type="checkbox" id="opt-reduce-motion" onchange="saveSettings()" class="w-5 h-5"></label>
+        <label class="flex items-center justify-between p-3 bg-gray-950 rounded-xl"><span class="text-gray-300 font-tech text-sm">✨ Bloom</span><input type="checkbox" id="opt-bloom" onchange="saveSettings()" class="w-5 h-5"></label>
         <label class="flex items-center justify-between p-3 bg-gray-950 rounded-xl"><span class="text-gray-300 font-tech text-sm">📺 Filtro CRT</span><input type="checkbox" id="opt-crt" onchange="saveSettings()" class="w-5 h-5"></label>
         <label class="flex items-center justify-between p-3 bg-gray-950 rounded-xl"><span class="text-gray-300 font-tech text-sm">🔊 Som</span><input type="checkbox" id="opt-audio" onchange="saveSettings()" class="w-5 h-5"></label>
         <div class="p-3 bg-gray-950 rounded-xl"><span class="text-gray-300 font-tech text-sm block mb-2">🔤 Texto</span><input type="range" id="opt-text-scale" min="100" max="140" value="100" oninput="saveSettings()" class="w-full"></div>
@@ -373,24 +391,23 @@ const CONFIG = {
     economy: { coinsPerEnemy:8, coinsPerBoss:150, coinsPerQuizCorrect:12 },
     ammo: { start:12, max:18, perCorrect:6, perWrong:3, perPowerup:8, perCombo:2, penaltyOnMiss:3, antiSpamShots:3, warnThreshold:5 },
     easy: { dmgMul:0.6, enemySpeedMul:0.7, hpMul:1.5 },
-    checkpointInterval: 800
+    checkpointInterval: 800,
+    weapons: {
+        pistol:  { name:'Pistola', icon:'🔫', ammoCost:1, fireRate:7,  bulletSize:7, color:'#00f0ff', damageMul:1,   speed:16, spread:0,    count:1, pierce:0, desc:'Padrão' },
+        shotgun: { name:'Shotgun', icon:'💥', ammoCost:2, fireRate:14, bulletSize:6, color:'#ff8c00', damageMul:1.1, speed:15, spread:0.18, count:3, pierce:0, desc:'3 balas' },
+        railgun: { name:'Railgun', icon:'⚡', ammoCost:3, fireRate:22, bulletSize:9, color:'#ff00ff', damageMul:2.5, speed:24, spread:0,    count:1, pierce:5, desc:'Perfura' }
+    },
+    combo: { critAt:5, rageAt:10, pierceAt:15, timeout:180 }
 };
+let currentWeapon = 'pistol';
+let shotCombo = 0, comboTimer = 0, rageTimer = 0, pierceActive = false;
 
 // =====================================================
 // SPRITE CACHE
 // =====================================================
 const SPRITE_CACHE = {};
-
-function createSpriteCanvas(w, h) {
-    const c = document.createElement('canvas');
-    c.width = w; c.height = h;
-    return c;
-}
-function shade(c, mul) {
-    const m = c.match(/\d+/g);
-    if (!m) return c;
-    return `rgb(${Math.round(m[0]*mul)},${Math.round(m[1]*mul)},${Math.round(m[2]*mul)})`;
-}
+function createSpriteCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function shade(c, mul) { const m = c.match(/\d+/g); if (!m) return c; return `rgb(${Math.round(m[0]*mul)},${Math.round(m[1]*mul)},${Math.round(m[2]*mul)})`; }
 function safeR(r) { return Math.max(1, r); }
 
 // =====================================================
@@ -412,8 +429,7 @@ function drawGuardSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
     ctx.strokeRect(x + 8 + legOffset, y + h - 18, 8, 18);
     ctx.strokeRect(x + w - 16 - legOffset, y + h - 18, 8, 18);
-    const bodyY = y + 20 + bodyBob;
-    const bodyH = h - 38;
+    const bodyY = y + 20 + bodyBob, bodyH = h - 38;
     const bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
     bodyGrad.addColorStop(0, armorLight);
     bodyGrad.addColorStop(0.5, skinTone);
@@ -429,7 +445,6 @@ function drawGuardSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.fillRect(x + 10, bodyY + bodyH - 12, w - 20, 3);
     ctx.fillStyle = '#2a2a3a';
     ctx.fillRect(x + 3, bodyY + bodyH - 16, 6, 12);
-    ctx.strokeRect(x + 3, bodyY + bodyH - 16, 6, 12);
     const headY = y + bodyBob;
     const headGrad = ctx.createLinearGradient(x, headY, x, headY + 18);
     headGrad.addColorStop(0, armorLight);
@@ -438,21 +453,17 @@ function drawGuardSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.fillRect(x + w/2 - 9, headY, 18, 18);
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
     ctx.strokeRect(x + w/2 - 9, headY, 18, 18);
-    ctx.fillStyle = 'rgba(200,220,255,0.35)';
-    ctx.fillRect(x + w/2 - 9, headY, 18, 2);
     ctx.fillStyle = '#1e293b';
     ctx.fillRect(x + w/2 - 1.5, headY - 1, 3, 20);
     ctx.save();
     ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 10;
     ctx.fillStyle = '#ef4444';
     ctx.fillRect(x + w/2 - 6, headY + 6, 12, 4);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#fff';
     ctx.fillRect(x + w/2 - 4, headY + 7, 4, 2);
     ctx.restore();
     ctx.fillStyle = '#0a0a14';
     ctx.fillRect(x - 4, bodyY + 6, 20, 5);
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(x - 4, bodyY + 6, 20, 2);
     if (isElite) {
         ctx.save();
         ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.5;
@@ -486,8 +497,6 @@ function drawDroneSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.beginPath(); ctx.arc(cx, cy, w/2 - 2, 0, Math.PI*2); ctx.stroke();
     ctx.strokeStyle = 'rgba(200,240,255,0.4)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx - 1, cy - 1, w/2 - 4, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
-    ctx.save();
-    ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 20;
     const corePulse = safeR(5 + Math.sin(animT * 3) * 1.5);
     const coreGrad = ctx.createRadialGradient(cx, cy, 1, cx, cy, corePulse);
     coreGrad.addColorStop(0, '#ffffff');
@@ -510,7 +519,6 @@ function drawDroneSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.beginPath(); ctx.arc(cx + 6, cy + 5, 2, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#ffd700';
     ctx.beginPath(); ctx.arc(cx - 6, cy - 5, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
     if (isElite) {
         ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.5;
         ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 8;
@@ -536,9 +544,6 @@ function drawTurretSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.fillRect(x + 4, y + h - 20, w - 8, 20);
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
     ctx.strokeRect(x + 4, y + h - 20, w - 8, 20);
-    ctx.fillStyle = '#4a5a6a';
-    ctx.beginPath(); ctx.arc(x + 10, y + h - 10, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x + w - 10, y + h - 10, 1.5, 0, Math.PI*2); ctx.fill();
     const towerY = y + 15;
     const towerGrad = ctx.createLinearGradient(x + w/2 - 12, towerY, x + w/2 + 12, towerY + 30);
     towerGrad.addColorStop(0, isElite ? '#3a4a5a' : '#2a4a6a');
@@ -561,14 +566,9 @@ function drawTurretSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.fillStyle = '#020617';
     ctx.fillRect(x - 8, y + 25, 16, 5);
     ctx.fillRect(x - 8, y + 33, 16, 5);
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
-    ctx.strokeRect(x - 8, y + 25, 16, 5);
-    ctx.strokeRect(x - 8, y + 33, 16, 5);
     if (isElite) {
         ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.5;
-        ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 8;
         ctx.strokeRect(x + 3, y + 3, w - 6, h - 6);
-        ctx.shadowBlur = 0;
     }
     if (isHurt) {
         ctx.globalCompositeOperation = 'lighter';
@@ -798,12 +798,6 @@ function drawVineSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
         ctx.quadraticCurveTo(sx + 18, sy - 3, sx + 22, sy + Math.sin(animT + i + 1) * 4);
         ctx.stroke();
     }
-    if (isElite) {
-        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.5;
-        ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 8;
-        ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
-        ctx.shadowBlur = 0;
-    }
     if (isHurt) {
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
@@ -858,12 +852,6 @@ function drawSpitterSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.beginPath(); ctx.arc(cx - 4, cy - 11, 2, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(cx + 4, cy - 11, 2, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    if (isElite) {
-        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.5;
-        ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 8;
-        ctx.beginPath(); ctx.ellipse(cx, cy, safeR(w/2 - 1 + breathe), safeR(h/2 - 5 + breathe), 0, 0, Math.PI*2); ctx.stroke();
-        ctx.shadowBlur = 0;
-    }
     if (isHurt) {
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
@@ -914,12 +902,6 @@ function drawHunterSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.fillRect(cx - 4, cy - 2, 1.5, 3);
     ctx.fillRect(cx - 1, cy - 2, 1.5, 3);
     ctx.fillRect(cx + 2, cy - 2, 1.5, 3);
-    if (isElite) {
-        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 1.5;
-        ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 8;
-        ctx.strokeRect(x + 3, y + 3, w - 6, h - 6);
-        ctx.shadowBlur = 0;
-    }
     if (isHurt) {
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
@@ -1126,8 +1108,7 @@ function drawMechaBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.fillStyle = '#475569';
     ctx.beginPath(); ctx.arc(x + 37, y + h - 30, 6, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(x + w - 37, y + h - 30, 6, 0, Math.PI*2); ctx.fill();
-    const bodyY = y + 25;
-    const bodyH = h - 70;
+    const bodyY = y + 25, bodyH = h - 70;
     const bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
     bodyGrad.addColorStop(0, '#6a7a8a');
     bodyGrad.addColorStop(0.4, '#475569');
@@ -1201,8 +1182,7 @@ function drawGuardCaptain(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.strokeRect(x + 30, y + h - 40, 20, 40);
     ctx.fillRect(x + w - 50, y + h - 40, 20, 40);
     ctx.strokeRect(x + w - 50, y + h - 40, 20, 40);
-    const bodyY = y + 30 + bob;
-    const bodyH = h - 70;
+    const bodyY = y + 30 + bob, bodyH = h - 70;
     const bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
     bodyGrad.addColorStop(0, '#5a6a7a');
     bodyGrad.addColorStop(0.5, '#334155');
@@ -1241,9 +1221,6 @@ function drawGuardCaptain(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.fillRect(x - 25, bodyY + 40, 50, 12);
     ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
     ctx.strokeRect(x - 25, bodyY + 40, 50, 12);
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(x - 35, bodyY + 42, 15, 8);
-    ctx.strokeRect(x - 35, bodyY + 42, 15, 8);
     if (isHurt) {
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
@@ -1442,12 +1419,7 @@ function drawMindFlayerBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
         const baseY = cy + 40;
         ctx.beginPath();
         ctx.moveTo(baseX, baseY);
-        ctx.quadraticCurveTo(
-            baseX + Math.sin(animT + i) * 30,
-            baseY + 40,
-            baseX + Math.cos(animT * 1.3 + i) * 25,
-            baseY + 80
-        );
+        ctx.quadraticCurveTo(baseX + Math.sin(animT + i) * 30, baseY + 40, baseX + Math.cos(animT * 1.3 + i) * 25, baseY + 80);
         ctx.stroke();
     }
     ctx.lineCap = 'butt';
@@ -1470,7 +1442,6 @@ function drawMindFlayerBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const mouthOpen = safeR(10 + Math.sin(animT * 1.5) * 6);
     ctx.fillStyle = '#200005';
     ctx.beginPath(); ctx.ellipse(cx, cy + 30, 40, mouthOpen, 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
     ctx.fillStyle = '#fff';
     for (let i = 0; i < 12; i++) {
         const da = (i / 12) * Math.PI * 2;
@@ -1496,74 +1467,43 @@ function drawMindFlayerBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
 function buildEnemySpriteFrames(type, w, h, drawer) {
     const frames = { normal: [], elite: [], hurt: [] };
     const PADDING = 20;
-    const cw = w + PADDING * 2;
-    const ch = h + PADDING * 2;
+    const cw = w + PADDING * 2, ch = h + PADDING * 2;
     for (let f = 0; f < 8; f++) {
-        // Normal
-        try {
-            const c1 = createSpriteCanvas(cw, ch);
-            drawer(c1.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.6, false, false);
-            frames.normal.push(c1);
-        } catch(e) { console.warn('draw fail normal', type, e); frames.normal.push(createSpriteCanvas(cw, ch)); }
-        // Elite
-        try {
-            const c2 = createSpriteCanvas(cw, ch);
-            drawer(c2.getContext('2d'), PADDING, PADDING, { w, h }, 2.5, f * 0.6, true, false);
-            frames.elite.push(c2);
-        } catch(e) { frames.elite.push(frames.normal[f]); }
-        // Hurt
-        try {
-            const c3 = createSpriteCanvas(cw, ch);
-            drawer(c3.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.6, false, true);
-            frames.hurt.push(c3);
-        } catch(e) { frames.hurt.push(frames.normal[f]); }
+        try { const c1 = createSpriteCanvas(cw, ch); drawer(c1.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.6, false, false); frames.normal.push(c1); }
+        catch(e) { frames.normal.push(createSpriteCanvas(cw, ch)); }
+        try { const c2 = createSpriteCanvas(cw, ch); drawer(c2.getContext('2d'), PADDING, PADDING, { w, h }, 2.5, f * 0.6, true, false); frames.elite.push(c2); }
+        catch(e) { frames.elite.push(frames.normal[f]); }
+        try { const c3 = createSpriteCanvas(cw, ch); drawer(c3.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.6, false, true); frames.hurt.push(c3); }
+        catch(e) { frames.hurt.push(frames.normal[f]); }
     }
     frames.w = cw; frames.h = ch; frames.pad = PADDING;
     return frames;
 }
-
 function buildBossSpriteFrames(type, w, h, drawer) {
     const frames = { normal: [], hurt: [] };
     const PADDING = 50;
-    const cw = w + PADDING * 2;
-    const ch = h + PADDING * 2;
+    const cw = w + PADDING * 2, ch = h + PADDING * 2;
     for (let f = 0; f < 8; f++) {
-        try {
-            const c1 = createSpriteCanvas(cw, ch);
-            drawer(c1.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.5, false, false);
-            frames.normal.push(c1);
-        } catch(e) { console.warn('boss fail', type, e); frames.normal.push(createSpriteCanvas(cw, ch)); }
-        try {
-            const c2 = createSpriteCanvas(cw, ch);
-            drawer(c2.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.5, false, true);
-            frames.hurt.push(c2);
-        } catch(e) { frames.hurt.push(frames.normal[f]); }
+        try { const c1 = createSpriteCanvas(cw, ch); drawer(c1.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.5, false, false); frames.normal.push(c1); }
+        catch(e) { frames.normal.push(createSpriteCanvas(cw, ch)); }
+        try { const c2 = createSpriteCanvas(cw, ch); drawer(c2.getContext('2d'), PADDING, PADDING, { w, h }, 1.5, f * 0.5, false, true); frames.hurt.push(c2); }
+        catch(e) { frames.hurt.push(frames.normal[f]); }
     }
     frames.w = cw; frames.h = ch; frames.pad = PADDING;
     return frames;
 }
-
 function safeBuild(key, w, h, drawer) {
-    try {
-        SPRITE_CACHE[key] = buildEnemySpriteFrames(key, w, h, drawer);
-    } catch(err) {
-        console.error('Sprite build failed:', key, err);
-        SPRITE_CACHE[key] = buildFallbackSprite(w, h, '#ff0033');
-    }
+    try { SPRITE_CACHE[key] = buildEnemySpriteFrames(key, w, h, drawer); }
+    catch(err) { console.error('Sprite build failed:', key, err); SPRITE_CACHE[key] = buildFallbackSprite(w, h, '#ff0033'); }
 }
 function safeBuildBoss(key, w, h, drawer) {
-    try {
-        SPRITE_CACHE[key] = buildBossSpriteFrames(key, w, h, drawer);
-    } catch(err) {
-        console.error('Boss build failed:', key, err);
-        SPRITE_CACHE[key] = buildFallbackSprite(w, h, '#881337', true);
-    }
+    try { SPRITE_CACHE[key] = buildBossSpriteFrames(key, w, h, drawer); }
+    catch(err) { console.error('Boss build failed:', key, err); SPRITE_CACHE[key] = buildFallbackSprite(w, h, '#881337', true); }
 }
 function buildFallbackSprite(w, h, color, isBoss) {
     const frames = { normal: [], elite: [], hurt: [] };
     const PADDING = isBoss ? 50 : 20;
-    const cw = w + PADDING * 2;
-    const ch = h + PADDING * 2;
+    const cw = w + PADDING * 2, ch = h + PADDING * 2;
     for (let f = 0; f < 8; f++) {
         const c = createSpriteCanvas(cw, ch);
         const ctx = c.getContext('2d');
@@ -1579,7 +1519,6 @@ function buildFallbackSprite(w, h, color, isBoss) {
     frames.w = cw; frames.h = ch; frames.pad = PADDING;
     return frames;
 }
-
 function initSpriteCache() {
     safeBuild('guard', 42, 64, drawGuardSprite);
     safeBuild('drone', 34, 34, drawDroneSprite);
@@ -1594,11 +1533,7 @@ function initSpriteCache() {
     safeBuild('camper', 48, 44, drawCamperSprite);
     safeBuild('stalker', 50, 50, drawStalkerSprite);
     safeBuild('void', 54, 54, drawVoidSprite);
-    SPRITE_CACHE.wallcrawler = SPRITE_CACHE.demodog;
-    SPRITE_CACHE.flamer = SPRITE_CACHE.spitter;
-    SPRITE_CACHE.tank = SPRITE_CACHE.guard;
 }
-
 function initBossSpriteCache() {
     safeBuildBoss('boss-mecha', 160, 180, drawMechaBoss);
     safeBuildBoss('boss-captain', 120, 140, drawGuardCaptain);
@@ -1610,21 +1545,18 @@ function initBossSpriteCache() {
 // =====================================================
 // SAVE
 // =====================================================
-const SAVE_KEY = 'hawkins_shooter_save_v6';
+const SAVE_KEY = 'hawkins_shooter_save_v7';
 let save = {
     xp:0, level:1, coins:0,
     chaptersCompleted:[false,false,false],
     achievements:{}, wrongAnswers:[],
     upgrades:{hp:0, ammo:0, damage:0, coinBonus:0},
-    highestScore:0, bestTime:0, endlessBest:0,
-    skin:'default', unlockedSkins:['default'],
-    title:'Rookie',
+    highestScore:0, skin:'default', unlockedSkins:['default'], title:'Rookie',
     dailyStreak:0, lastPlayDate:'',
     dailyMission:{ date:'', type:'', progress:0, target:0, claimed:false },
-    totalQuizCorrect:0, totalEnemiesKilled:0, totalBossesKilled:0,
-    endlessWavesSurvived:0
+    totalQuizCorrect:0, totalEnemiesKilled:0, totalBossesKilled:0
 };
-let settings = { easy:false, contrast:false, reduceMotion:false, crt:true, audio:true, textScale:100 };
+let settings = { easy:false, contrast:false, reduceMotion:false, crt:true, audio:true, textScale:100, bloom:true };
 
 function loadSave() {
     try {
@@ -1655,9 +1587,12 @@ function applySettings() {
     document.documentElement.style.fontSize = (settings.textScale / 100 * 16) + 'px';
     isMuted = !settings.audio;
     document.getElementById('audio-icon').textContent = isMuted ? '🔇' : '🔊';
+    const bl = document.getElementById('bloom-layer');
+    if (bl) bl.style.display = settings.bloom ? '' : 'none';
     document.getElementById('opt-easy').checked = settings.easy;
     document.getElementById('opt-contrast').checked = settings.contrast;
     document.getElementById('opt-reduce-motion').checked = settings.reduceMotion;
+    document.getElementById('opt-bloom').checked = settings.bloom;
     document.getElementById('opt-crt').checked = settings.crt;
     document.getElementById('opt-audio').checked = settings.audio;
     document.getElementById('opt-text-scale').value = settings.textScale;
@@ -1668,15 +1603,14 @@ function saveSettings() {
     settings.easy = document.getElementById('opt-easy').checked;
     settings.contrast = document.getElementById('opt-contrast').checked;
     settings.reduceMotion = document.getElementById('opt-reduce-motion').checked;
+    settings.bloom = document.getElementById('opt-bloom').checked;
     settings.crt = document.getElementById('opt-crt').checked;
     settings.audio = document.getElementById('opt-audio').checked;
     settings.textScale = parseInt(document.getElementById('opt-text-scale').value);
     persistSettings(); applySettings();
 }
 
-// =====================================================
 // TITLES / SKINS / ACHIEVEMENTS
-// =====================================================
 const TITLES = [
     { minLevel:1, title:'Rookie', color:'#a0a8b8' },
     { minLevel:2, title:'Cadet', color:'#00f0ff' },
@@ -1723,7 +1657,10 @@ const ACHIEVEMENTS = [
     { id:'endless5', name:'Endless 5', desc:'5 vagas', icon:'♾️' },
     { id:'endless20', name:'Endless 20', desc:'20 vagas', icon:'🌌' },
     { id:'writeMode', name:'Escritor', desc:'3 respostas escritas', icon:'✏️' },
-    { id:'allskins', name:'Fashionista', desc:'Todas as skins', icon:'👑' }
+    { id:'allskins', name:'Fashionista', desc:'Todas as skins', icon:'👑' },
+    { id:'combo10', name:'Combo 10', desc:'10 tiros sem falhar', icon:'🔥' },
+    { id:'railgunKill', name:'Railgun Kill', desc:'Matar com railgun', icon:'⚡' },
+    { id:'miniBoss', name:'Mini-Boss Killer', desc:'Derrota um mini-boss', icon:'💪' }
 ];
 function unlockAchievement(id) {
     if (save.achievements[id]) return;
@@ -1731,9 +1668,6 @@ function unlockAchievement(id) {
     persist(); renderAchievements();
     const a = ACHIEVEMENTS.find(x => x.id === id);
     if (a) showToast(`🏆 ${a.name}`);
-    if (save.unlockedSkins.length >= SKINS.length) {
-        setTimeout(() => { if (!save.achievements['allskins']) { save.achievements['allskins'] = Date.now(); persist(); renderAchievements(); showToast('🏆 Fashionista'); } }, 500);
-    }
 }
 function showToast(msg, type='success') {
     const t = document.createElement('div');
@@ -1746,9 +1680,7 @@ function showToast(msg, type='success') {
     setTimeout(() => { t.style.transition = 'all .4s'; t.style.opacity = '0'; t.style.transform = 'translate(-50%, -20px)'; setTimeout(()=>t.remove(), 400); }, 2400);
 }
 
-// =====================================================
 // AUDIO
-// =====================================================
 let isMuted = false, isUpsideDown = false;
 function playSound(type) {
     if (isMuted) return;
@@ -1785,9 +1717,7 @@ function speakText(text) {
     window.speechSynthesis.speak(u);
 }
 
-// =====================================================
 // QUIZ DATA
-// =====================================================
 const quizChapters = {
     1: { topic:'Question Words', questions: [
         { q:'___ is your best friend?', options:['Who','Where','When','What'], correct:0, explain:'WHO = Pessoas.', pt:'Quem é o teu melhor amigo?', icon:'👤' },
@@ -1821,9 +1751,7 @@ const quizChapters = {
     ]}
 };
 
-// =====================================================
 // UI FUNCTIONS
-// =====================================================
 function toggleAudio() { isMuted = !isMuted; settings.audio = !isMuted; persistSettings(); document.getElementById('audio-icon').textContent = isMuted ? '🔇' : '🔊'; }
 function switchTab(tabId) {
     playSound('correct');
@@ -1881,13 +1809,10 @@ function addCoins(amount) {
 }
 function allChaptersCompleted() { return save.chaptersCompleted.every(x => x); }
 
-// =====================================================
 // QUIZ LOGIC
-// =====================================================
 let activeChapter = 1, currentQuestionIndex = 0, bossHP = 100, playerHearts = 3;
 let currentStreak = 0, chapterPerfect = true;
 let quizWriteMode = false, quizWriteStreak = 0;
-
 function selectChapter(chapId) {
     activeChapter = chapId; currentQuestionIndex = 0;
     bossHP = 100; playerHearts = 3; currentStreak = 0; chapterPerfect = true;
@@ -1994,10 +1919,6 @@ function speakQuestion() {
     const q = quizChapters[activeChapter].questions[currentQuestionIndex];
     speakText(q.q.replace(/___/g, 'blank'));
 }
-
-// =====================================================
-// LIGHTBULBS
-// =====================================================
 let currentBulbExample = '';
 function playLightBulb(word, example, meaning, color, icon) {
     playSound('correct');
@@ -2021,9 +1942,7 @@ function changeDogCount(delta) {
     else rt.innerHTML = `${currentDogCount} Dogs = <span class="text-purple-400 font-bold">THEY</span> are friendly.`;
 }
 
-// =====================================================
 // SHOP / SKINS / CARDS / ACHV / DAILY / REPORT
-// =====================================================
 const SHOP_ITEMS = [
     { id:'hp', name:'Coração', desc:'+25 HP máx', icon:'❤️', maxLevel:5, baseCost:60, inc:40 },
     { id:'ammo', name:'Mochila', desc:'+3 munição máx', icon:'🎒', maxLevel:5, baseCost:70, inc:45 },
@@ -2072,8 +1991,7 @@ function equipSkin(id) { save.skin = id; persist(); playSound('powerup'); render
 function buySkin(id) {
     const skin = SKINS.find(s => s.id === id);
     if (!skin || save.coins < skin.cost) { playSound('error'); return; }
-    save.coins -= skin.cost;
-    save.unlockedSkins.push(id); save.skin = id;
+    save.coins -= skin.cost; save.unlockedSkins.push(id); save.skin = id;
     persist(); playSound('powerup'); showToast(`👕 ${skin.name}!`);
     if (save.unlockedSkins.length >= SKINS.length) unlockAchievement('allskins');
     renderSkins(); updatePlayerHUD(); updatePassAvatar();
@@ -2223,6 +2141,8 @@ let totalQuizCorrectInGame = 0;
 let gameMode = 'normal';
 let lastCheckpoint = 0;
 let secondChance = null;
+let lightSources = [];
+let bloomCanvas, bloomCtx, bloomLayer;
 
 let player = {
     x:100, y:300, w:42, h:64, vx:0, vy:0,
@@ -2264,6 +2184,43 @@ const TRIVIA = [
 ];
 function getCurrentStageDef() { return STAGES.find(s => s.world === currentWorld && s.stage === currentStage) || STAGES[0]; }
 
+// BLOOM + LIGHT
+function initBloom() {
+    bloomCanvas = document.getElementById('bloom-canvas');
+    bloomCtx = bloomCanvas ? bloomCanvas.getContext('2d') : null;
+    bloomLayer = document.getElementById('bloom-layer');
+}
+function registerLight(x, y, radius, color, life=30) {
+    lightSources.push({ x, y, radius, color, life, maxLife: life });
+}
+function updateLights() {
+    for (let i = lightSources.length - 1; i >= 0; i--) {
+        const l = lightSources[i];
+        l.life--;
+        l.radius *= 0.98;
+        if (l.life <= 0) lightSources.splice(i, 1);
+    }
+}
+function drawAmbientLighting() {
+    if (lightSources.length === 0) return;
+    contraCtx.save();
+    contraCtx.globalCompositeOperation = 'lighter';
+    lightSources.forEach(l => {
+        const grad = contraCtx.createRadialGradient(l.x, l.y, 0, l.x, l.y, Math.max(1, l.radius));
+        grad.addColorStop(0, l.color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        contraCtx.fillStyle = grad;
+        contraCtx.fillRect(l.x - l.radius, l.y - l.radius, l.radius*2, l.radius*2);
+    });
+    contraCtx.restore();
+}
+function applyBloom() {
+    if (!bloomLayer || !settings.bloom) return;
+    const bctx = bloomLayer.getContext('2d');
+    bctx.clearRect(0, 0, bloomLayer.width, bloomLayer.height);
+    bctx.drawImage(contraCanvas, 0, 0);
+}
+
 function initContraEngine() {
     contraCanvas = document.getElementById('contra-canvas');
     if (!contraCanvas) return;
@@ -2277,6 +2234,9 @@ function initContraEngine() {
         if (e.key === 'j' || e.key === 'J' || e.key === 'z' || e.key === 'Z') shootBullet();
         if (e.key === 'r' || e.key === 'R') triggerGrammarReload();
         if (e.key === 'Shift') tryDash();
+        if (e.key === '1') switchWeapon('pistol');
+        if (e.key === '2') switchWeapon('shotgun');
+        if (e.key === '3') switchWeapon('railgun');
         if ([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
     });
     window.addEventListener('keyup', e => {
@@ -2378,6 +2338,9 @@ function resetStageData() {
     stageLength = def.length;
     bossIntroShown = false; noHitThisStage = true;
     shotsSinceReload = 0; ammoQuizStreak = 0; ammoQuizMiss = 0; lastCheckpoint = 0;
+    shotCombo = 0; comboTimer = 0; rageTimer = 0; pierceActive = false;
+    currentWeapon = 'pistol';
+    lightSources = [];
     player.x = 100; player.y = 296; player.vx = 0; player.vy = 0;
     player.hp = player.maxHp;
     player.ammo = Math.min(player.maxAmmo, CONFIG.ammo.start + save.upgrades.ammo);
@@ -2399,9 +2362,14 @@ function resetStageData() {
         enemies.push(createEnemy(type, baseX + jitter));
     }
     enemies.sort((a,b) => a.x - b.x);
+    const miniBossType = def.types[def.types.length - 1];
+    enemies.push(createMiniBoss(miniBossType, stageLength / 2 + 200));
+    enemies.sort((a,b) => a.x - b.x);
     boss = createBoss(def.boss, stageLength - 400, def.bossHP);
     boss.active = false;
     updateHUD();
+    updateWeaponHUD();
+    updateComboHUD();
     showStageIntro();
 }
 function createEnemy(type, x) {
@@ -2425,6 +2393,21 @@ function createEnemy(type, x) {
         default: return { ...base, type:'demodog', name:'Demodog', y:322, w:52, h:38, hp:45*m, maxHp:45*m, damage:10, score:90*sc, vx:-2*eMul, behavior:'charger' };
     }
 }
+function createMiniBoss(type, x) {
+    const m = createEnemy(type, x);
+    m.isMiniBoss = true;
+    m.w *= 1.6;
+    m.h *= 1.6;
+    m.y = 360 - m.h;
+    m.hp = m.hp * 6;
+    m.maxHp = m.hp;
+    m.damage = m.damage * 1.5;
+    m.score = m.score * 8;
+    m.vx *= 0.7;
+    m.name = 'MINI-' + m.name;
+    m.isElite = true;
+    return m;
+}
 function createBoss(type, x, hp) {
     const base = { x, y:180, w:160, h:180, hp, maxHp:hp, active:false, shootTimer:0, pulse:0, phase:1, type, hitFlash:0, moveTimer:0, moveDir:1, spawnX:x, state:'idle', stateTimer:0, attacked:false };
     switch(type) {
@@ -2437,20 +2420,69 @@ function createBoss(type, x, hp) {
 }
 function shootBullet() {
     if (!contraRunning || paused || player.reloading || secondChance) return;
-    if (player.ammo <= 0) { playSound('empty'); addFloatText(player.x - cameraX, player.y - 20, "SEM MUNIÇÃO!", '#ff3333'); shakeHudAmmo(); return; }
+    const wpn = CONFIG.weapons[currentWeapon] || CONFIG.weapons.pistol;
+    if (player.ammo < wpn.ammoCost) { playSound('empty'); addFloatText(player.x - cameraX, player.y - 20, "SEM MUNIÇÃO!", '#ff3333'); shakeHudAmmo(); return; }
     if (player.firingTimer > 0) return;
-    player.ammo--; player.firingTimer = player.shotgunTimer > 0 ? 14 : 7;
-    shotsSinceReload++; playSound('shoot'); updateHUD();
+    player.ammo -= wpn.ammoCost;
+    player.firingTimer = wpn.fireRate;
+    shotsSinceReload++;
+    playSound('shoot'); updateHUD();
     const dir = player.facingRight ? 1 : -1;
-    const dmg = CONFIG.bullets.playerDamage + save.upgrades.damage * 5;
-    if (player.shotgunTimer > 0) {
-        for (let k = -1; k <= 1; k++) {
-            const ang = k * 0.18;
-            bullets.push({ x: player.x + (player.facingRight ? player.w + 6 : -6), y: player.y + 28, vx: dir * Math.cos(ang) * 16, vy: Math.sin(ang) * 8, life: 55, size: 6, damage: dmg, isShotgun: true });
-        }
-    } else bullets.push({ x: player.x + (player.facingRight ? player.w + 6 : -6), y: player.y + 28, vx: dir * 16, vy: 0, life: 70, size: 7, damage: dmg });
-    createParticles(player.x + (player.facingRight ? player.w + 8 : -8), player.y + 28, 8, '#00f0ff', 'spark');
-    screenShakeMag = Math.max(screenShakeMag, 1.5);
+    let dmg = CONFIG.bullets.playerDamage + save.upgrades.damage * 5;
+    dmg = Math.round(dmg * wpn.damageMul);
+    if (rageTimer > 0) dmg = Math.round(dmg * 1.3);
+    const originX = player.x + (player.facingRight ? player.w + 6 : -6);
+    const originY = player.y + 28;
+    const count = wpn.count || 1;
+    for (let k = 0; k < count; k++) {
+        const offset = count === 1 ? 0 : (k - (count-1)/2) * wpn.spread;
+        bullets.push({
+            x: originX, y: originY,
+            vx: dir * Math.cos(offset) * wpn.speed,
+            vy: Math.sin(offset) * wpn.speed * (wpn.spread > 0 ? 3 : 0.5),
+            life: wpn.pierce ? 100 : 70,
+            size: wpn.bulletSize, damage: dmg, color: wpn.color,
+            pierce: wpn.pierce || 0, hitEnemies: []
+        });
+    }
+    registerLight(originX - cameraX, originY, 130, wpn.color === '#ff00ff' ? 'rgba(255,0,255,0.4)' : 'rgba(0,240,255,0.35)', 20);
+    createParticles(originX, originY, 8, wpn.color, 'spark');
+    screenShakeMag = Math.max(screenShakeMag, currentWeapon === 'railgun' ? 5 : currentWeapon === 'shotgun' ? 3 : 1.5);
+}
+function registerHit() {
+    shotCombo++;
+    comboTimer = CONFIG.combo.timeout;
+    if (shotCombo >= CONFIG.combo.rageAt) {
+        rageTimer = 300; pierceActive = true;
+        showToast('🔥 RAGE MODE!', 'success');
+        playSound('powerup');
+        unlockAchievement('combo10');
+    } else if (shotCombo >= CONFIG.combo.pierceAt) pierceActive = true;
+    updateComboHUD();
+}
+function updateComboHUD() {
+    const c = document.getElementById('hud-combo-container');
+    const ct = document.getElementById('hud-combo');
+    if (!c || !ct) return;
+    if (shotCombo >= 2) { c.classList.remove('hidden'); ct.textContent = shotCombo; }
+    else c.classList.add('hidden');
+}
+function resetCombo() { shotCombo = 0; comboTimer = 0; updateComboHUD(); }
+function switchWeapon(name) {
+    if (!CONFIG.weapons[name] || currentWeapon === name) return;
+    currentWeapon = name;
+    const w = CONFIG.weapons[name];
+    playSound('powerup');
+    addFloatText(player.x - cameraX, player.y - 40, w.icon + ' ' + w.name.toUpperCase(), w.color);
+    updateWeaponHUD();
+}
+function updateWeaponHUD() {
+    const el = document.getElementById('hud-weapon');
+    if (el) {
+        const w = CONFIG.weapons[currentWeapon] || CONFIG.weapons.pistol;
+        el.textContent = w.icon;
+        el.style.color = w.color;
+    }
 }
 function shakeHudAmmo() {
     const el = document.getElementById('hud-ammo-container');
@@ -2544,10 +2576,7 @@ function gameLoopContra() {
     accumulatedTime += dt;
     let steps = 0;
     while (accumulatedTime >= FIXED_DT && steps < 5) {
-        if (slowMoFrames > 0) {
-            slowMoFrames--;
-            if (slowMoFrames % 2 !== 0) { accumulatedTime -= FIXED_DT; steps++; continue; }
-        }
+        if (slowMoFrames > 0) { slowMoFrames--; if (slowMoFrames % 2 !== 0) { accumulatedTime -= FIXED_DT; steps++; continue; } }
         if (hitstopFrames > 0) { hitstopFrames--; accumulatedTime -= FIXED_DT; steps++; continue; }
         animFrame++;
         updateGameLogic();
@@ -2569,6 +2598,8 @@ function gameLoopContra() {
 function updateGameLogic() {
     if (player.reloading || secondChance) return;
     if (player.firingTimer > 0) player.firingTimer--;
+    if (comboTimer > 0) { comboTimer--; if (comboTimer === 0) resetCombo(); }
+    if (rageTimer > 0) { rageTimer--; if (rageTimer === 0) { pierceActive = false; showToast('Rage terminou', 'info'); } }
     if (player.invulnTimer > 0) player.invulnTimer--;
     if (player.jumpBuffer > 0) player.jumpBuffer--;
     if (player.dashCooldown > 0) player.dashCooldown--;
@@ -2629,14 +2660,20 @@ function updateGameLogic() {
         for (let j = enemies.length - 1; j >= 0; j--) {
             const e = enemies[j];
             if (bcx + b.size > e.x && bcx - b.size < e.x + e.w && bcy + b.size > e.y && bcy - b.size < e.y + e.h) {
+                if (b.hitEnemies && b.hitEnemies.includes(e)) continue;
+                if (b.hitEnemies) b.hitEnemies.push(e);
                 const isHeadshot = bcy < e.y + e.h * 0.22;
-                const dmg = isHeadshot ? b.damage * 2 : b.damage;
+                let dmg = isHeadshot ? b.damage * 2 : b.damage;
+                if (pierceActive && rageTimer > 0) dmg = Math.round(dmg * 1.4);
                 e.hp -= dmg; e.hitFlash = 6;
                 playSound(isHeadshot ? 'headshot' : 'hit');
                 createParticles(bcx, bcy, isHeadshot ? 16 : 10, isHeadshot ? '#ffd700' : '#ff0033', 'spark');
                 addFloatText(bcx - cameraX, bcy - 15, `${isHeadshot?'💀 ':''}-${dmg}`, isHeadshot ? '#ffd700' : '#00f0ff');
                 hitstopFrames = isHeadshot ? 4 : 2; hit = true;
+                registerHit();
+                registerLight(bcx - cameraX, bcy, 90, 'rgba(255,215,0,0.35)', 12);
                 if (e.hp <= 0) killEnemy(e, j);
+                if (b.pierce && b.pierce > 0) { b.pierce--; hit = false; continue; }
                 break;
             }
         }
@@ -2738,7 +2775,9 @@ function updateGameLogic() {
         const ft = floatTexts[i]; ft.y -= 0.8; ft.life--;
         if (ft.life <= 0) floatTexts.splice(i, 1);
     }
+    updateLights();
     updateHUD();
+    updateComboHUD();
 }
 function damagePlayer(dmg) {
     if (player.invulnTimer > 0 || player.shieldTimer > 0) return;
@@ -2814,7 +2853,11 @@ function updateBoss() {
             boss.stateTimer = 0; boss.attacked = false;
         }
     } else if (boss.state === 'charging') {
-        if (boss.stateTimer === 1) { playSound('charge'); telegraphs.push({ x:boss.x + boss.w/2, y:boss.y + boss.h/2, r:60, maxR:120, life:45, color:'#ff0033' }); }
+        if (boss.stateTimer === 1) {
+            playSound('charge');
+            telegraphs.push({ x:boss.x + boss.w/2, y:boss.y + boss.h/2, r:60, maxR:120, life:45, color:'#ff0033' });
+            registerLight(boss.x + boss.w/2 - cameraX, boss.y + boss.h/2, 220, 'rgba(255,0,51,0.5)', 45);
+        }
         if (boss.stateTimer > 45 && !boss.attacked) { boss.attacked = true; fireBossProjectiles(); playSound('bossroar'); screenShakeMag = 6; }
         if (boss.stateTimer > 70) { boss.state = 'idle'; boss.stateTimer = 0; }
     } else if (boss.state === 'attacking') {
@@ -2836,6 +2879,7 @@ function fireBossProjectiles() {
 function killEnemy(e, index) {
     createParticles(e.x + e.w/2, e.y + e.h/2, 24, '#ffd700', 'explosion');
     createParticles(e.x + e.w/2, e.y + e.h/2, 12, '#ff0033', 'spark');
+    registerLight(e.x + e.w/2 - cameraX, e.y + e.h/2, 100, 'rgba(255,215,0,0.4)', 20);
     gameScore += e.score; addCoins(CONFIG.economy.coinsPerEnemy);
     save.totalEnemiesKilled = (save.totalEnemiesKilled||0) + 1;
     updateDailyProgress('enemies', 1);
@@ -2844,6 +2888,8 @@ function killEnemy(e, index) {
     unlockAchievement('first_blood');
     if (save.totalEnemiesKilled >= 50) unlockAchievement('kill50');
     if (save.totalEnemiesKilled >= 200) unlockAchievement('kill200');
+    if (currentWeapon === 'railgun') unlockAchievement('railgunKill');
+    if (e.isMiniBoss) unlockAchievement('miniBoss');
     if (Math.random() < 0.08) {
         const roll = Math.random();
         const type = roll < 0.55 ? 'ammo' : roll < 0.85 ? 'health' : roll < 0.95 ? 'shotgun' : 'shield';
@@ -2892,8 +2938,19 @@ function showWorldTransition(completedWorld) {
     document.getElementById('world-transition-msg').textContent = msgs[completedWorld] || '';
     const trivia = TRIVIA[Math.floor(Math.random() * TRIVIA.length)];
     document.getElementById('world-trivia').innerHTML = `<div class="text-xs font-mono text-hawkins-cyan mb-1">💡 SABIAS QUE?</div><div class="text-sm text-white font-tech">${trivia}</div>`;
+    const bar = document.getElementById('loading-bar');
     const btn = document.getElementById('world-transition-btn');
+    btn.classList.add('hidden');
+    bar.style.width = '0%';
+    let progress = 0;
+    const loadInterval = setInterval(() => {
+        progress += 4;
+        bar.style.width = Math.min(100, progress) + '%';
+        if (progress >= 100) { clearInterval(loadInterval); btn.classList.remove('hidden'); }
+    }, 80);
+    document.getElementById('world-transition').classList.remove('hidden');
     btn.onclick = () => {
+        clearInterval(loadInterval);
         document.getElementById('world-transition').classList.add('hidden');
         currentWorld++; currentStage = 1;
         contraRunning = true; document.body.classList.add('playing');
@@ -2902,7 +2959,6 @@ function showWorldTransition(completedWorld) {
         lastFrameTime = performance.now();
         requestAnimationFrame(gameLoopContra);
     };
-    document.getElementById('world-transition').classList.remove('hidden');
 }
 function applyPowerup(p) {
     playSound('powerup');
@@ -2925,9 +2981,7 @@ function createParticles(x, y, count, color, type='spark') {
 }
 function addFloatText(x, y, text, color) { floatTexts.push({ x, y, text, color, life:55 }); }
 
-// =====================================================
 // RENDER
-// =====================================================
 function drawGameGraphics() {
     contraCtx.save();
     contraCtx.translate(screenShakeX, screenShakeY);
@@ -2952,9 +3006,11 @@ function drawGameGraphics() {
     drawBullets();
     drawEnemyBullets();
     drawParticlesAndTexts();
+    drawAmbientLighting();
     drawMiniMap();
     drawScreenEffects();
     contraCtx.restore();
+    applyBloom();
 }
 function drawTelegraphs() {
     telegraphs.forEach(t => {
@@ -2988,7 +3044,7 @@ function drawSky(bg) {
     for (let i = 0; i < 5; i++) {
         const nx = (i * 500 - cameraX * 0.03) % (stageLength + 500) - 250;
         const ny = 40 + i * 30;
-        const nr = 90 + Math.sin(animFrame * 0.01 + i) * 15;
+        const nr = Math.max(1, 90 + Math.sin(animFrame * 0.01 + i) * 15);
         const ng = contraCtx.createRadialGradient(nx, ny, 0, nx, ny, nr);
         if (bg.startsWith('upside')) { ng.addColorStop(0,'rgba(255,0,85,0.08)'); ng.addColorStop(1,'rgba(255,0,85,0)'); }
         else if (bg.startsWith('forest')) { ng.addColorStop(0,'rgba(80,40,120,0.08)'); ng.addColorStop(1,'rgba(80,40,120,0)'); }
@@ -3006,6 +3062,16 @@ function drawSky(bg) {
 }
 function drawBackgroundLayer(bg) {
     if (bg.startsWith('lab')) {
+        // Camada extra distante
+        contraCtx.globalAlpha = 0.35;
+        for (let i = 0; i < 40; i++) {
+            const bx2 = (i * 160 - cameraX * 0.08) % (stageLength + 400) - 200;
+            contraCtx.fillStyle = '#050a14';
+            contraCtx.fillRect(bx2, 100, 80, 240);
+            contraCtx.fillStyle = '#0a1520';
+            contraCtx.fillRect(bx2 + 5, 110, 30, 15);
+        }
+        contraCtx.globalAlpha = 1;
         for (let i = 0; i < 30; i++) {
             const bx = (i * 240 - cameraX * 0.15) % (stageLength + 500) - 250;
             const wg = contraCtx.createLinearGradient(bx, 40, bx, 340);
@@ -3019,6 +3085,18 @@ function drawBackgroundLayer(bg) {
             contraCtx.fillRect(bx + 30, 120, 38, 28); contraCtx.restore();
         }
     } else if (bg.startsWith('forest')) {
+        // Camada extra distante
+        contraCtx.globalAlpha = 0.25;
+        contraCtx.fillStyle = '#0a0520';
+        for (let i = 0; i < 60; i++) {
+            const tx = (i * 90 - cameraX * 0.1) % (stageLength + 400) - 200;
+            contraCtx.beginPath();
+            contraCtx.moveTo(tx + 20, 80);
+            contraCtx.lineTo(tx, 340);
+            contraCtx.lineTo(tx + 40, 340);
+            contraCtx.fill();
+        }
+        contraCtx.globalAlpha = 1;
         contraCtx.globalAlpha = 0.55;
         contraCtx.fillStyle = bg === 'forest-dark' ? '#020008' : '#040610';
         for (let i = 0; i < 50; i++) {
@@ -3034,6 +3112,16 @@ function drawBackgroundLayer(bg) {
             contraCtx.beginPath(); contraCtx.moveTo(tx + 34, 100); contraCtx.lineTo(tx - 20, 260); contraCtx.lineTo(tx + 88, 260); contraCtx.fill();
         }
     } else {
+        // Camada extra
+        contraCtx.globalAlpha = 0.3;
+        contraCtx.fillStyle = '#0a0005';
+        for (let i = 0; i < 40; i++) {
+            const tx = (i * 130 - cameraX * 0.08) % (stageLength + 400) - 200;
+            contraCtx.beginPath();
+            contraCtx.arc(tx + 20, 250 + Math.sin(i) * 30, 40, 0, Math.PI*2);
+            contraCtx.fill();
+        }
+        contraCtx.globalAlpha = 1;
         contraCtx.globalAlpha = 0.45;
         for (let i = 0; i < 22; i++) {
             const vx = (i * 240 - cameraX * 0.2) % (stageLength + 500) - 250;
@@ -3125,8 +3213,8 @@ function drawBullets() {
     bullets.forEach(b => {
         const bx = b.x - cameraX;
         contraCtx.save();
-        contraCtx.shadowColor = b.isShotgun ? '#ff8c00' : '#00f0ff'; contraCtx.shadowBlur = 20;
-        contraCtx.fillStyle = b.isShotgun ? '#ff8c00' : '#00f0ff';
+        contraCtx.shadowColor = b.color || '#00f0ff'; contraCtx.shadowBlur = 20;
+        contraCtx.fillStyle = b.color || '#00f0ff';
         contraCtx.beginPath(); contraCtx.arc(bx, b.y, b.size, 0, Math.PI*2); contraCtx.fill();
         contraCtx.fillStyle = '#fff';
         contraCtx.beginPath(); contraCtx.arc(bx, b.y, b.size * 0.5, 0, Math.PI*2); contraCtx.fill();
@@ -3327,12 +3415,13 @@ function drawScreenEffects() {
     }
     if (player.shieldTimer > 0) {
         contraCtx.fillStyle = '#00f0ff'; contraCtx.font = 'bold 14px Rajdhani';
-        contraCtx.fillText(`🛡 ESCUDO: ${Math.ceil(player.shieldTimer/60)}s`, 20, indY);
+        contraCtx.fillText(`🛡 ESCUDO: ${Math.ceil(player.shieldTimer/60)}s`, 20, indY); indY -= 20;
     }
-    if (ammoQuizStreak >= 2) {
-        contraCtx.fillStyle = '#ffd700';
-        contraCtx.font = 'bold 16px Rajdhani';
-        contraCtx.fillText(`🔥 COMBO x${ammoQuizStreak}`, 20, indY - 20);
+    if (rageTimer > 0) {
+        contraCtx.fillStyle = '#ffd700'; contraCtx.font = 'bold 16px Rajdhani';
+        contraCtx.shadowColor = '#ffd700'; contraCtx.shadowBlur = 12;
+        contraCtx.fillText(`🔥 RAGE ${Math.ceil(rageTimer/60)}s`, 20, indY);
+        contraCtx.shadowBlur = 0;
     }
 }
 function triggerGameOverScreen() {
@@ -3388,6 +3477,7 @@ window.onload = function() {
     try { initSpriteCache(); console.log('✅ Enemy sprites:', Object.keys(SPRITE_CACHE).length); } catch(e) { console.error('Enemy cache:', e); }
     try { initBossSpriteCache(); console.log('✅ Boss sprites added'); } catch(e) { console.error('Boss cache:', e); }
     try { initContraEngine(); } catch(e) { console.error('Engine:', e); }
+    try { initBloom(); } catch(e) { console.error('Bloom:', e); }
     try { initSporesCanvas(); } catch(e) { console.error('Spores:', e); }
     try { selectChapter(1); } catch(e) { console.error('Chapter:', e); }
     try {
