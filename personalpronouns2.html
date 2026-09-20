@@ -1437,84 +1437,274 @@ function shade(c, mul) {
     return `rgb(${Math.round(Math.min(255,r*mul))},${Math.round(Math.min(255,g*mul))},${Math.round(Math.min(255,b*mul))})`;
 }
 function drawElevenSprite(ctx, pose, animT, skin) {
-    const paleSkin = '#f8d5c4', hairBrown = '#5a2a0f', dressPink = '#e87aa4', jacketBlue = '#3a5a99';
+    const paleSkin = '#f6d3bf', paleSkinSh = '#e0b299', hairBrown = '#4a2410', hairBrownLt = '#6b3818',
+          dressPink = '#ef86ac', dressPinkSh = '#c95c85', jacketBlue = '#3a5a99', jacketBlueSh = '#22335c',
+          jacketBlueLt = '#4f78c2', shoeWhite = '#f2f2f6';
     let legOffsetL = 0, legOffsetR = 0, armOffset = 0, bodyBob = 0;
-    if (pose === 'run1') { legOffsetL = -6; legOffsetR = 6; armOffset = 4; bodyBob = -1; }
-    else if (pose === 'run3') { legOffsetL = 6; legOffsetR = -6; armOffset = -4; bodyBob = -1; }
-    else if (pose === 'jump') { legOffsetL = -3; legOffsetR = 4; armOffset = -6; bodyBob = -2; }
+    if (pose === 'run1') { legOffsetL = -6; legOffsetR = 6; armOffset = 5; bodyBob = -1; }
+    else if (pose === 'run2') { legOffsetL = -2; legOffsetR = 2; armOffset = 1; bodyBob = -2; }
+    else if (pose === 'run3') { legOffsetL = 6; legOffsetR = -6; armOffset = -5; bodyBob = -1; }
+    else if (pose === 'run4') { legOffsetL = 2; legOffsetR = -2; armOffset = -1; bodyBob = -2; }
+    else if (pose === 'jump') { legOffsetL = -3; legOffsetR = 4; armOffset = -6; bodyBob = -3; }
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,240,255,0.35)'; ctx.shadowBlur = 6;
+
+    // ---- legs ----
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3;
+    ctx.fillStyle = paleSkinSh;
+    ctx.beginPath(); ctx.roundRect(-8 + legOffsetL, 18, 6, 13, 3); ctx.fill(); ctx.stroke();
     ctx.fillStyle = paleSkin;
-    ctx.beginPath(); ctx.roundRect(-8 + legOffsetL, 18, 6, 14, 3); ctx.fill();
-    ctx.beginPath(); ctx.roundRect(2 + legOffsetR, 18, 6, 14, 3); ctx.fill();
-    ctx.fillStyle = '#f0f0f5';
-    ctx.beginPath(); ctx.roundRect(-8 + legOffsetL, 28, 6, 6, 2); ctx.fill();
-    ctx.beginPath(); ctx.roundRect(2 + legOffsetR, 28, 6, 6, 2); ctx.fill();
-    ctx.fillStyle = dressPink;
+    ctx.beginPath(); ctx.roundRect(2 + legOffsetR, 18, 6, 13, 3); ctx.fill(); ctx.stroke();
+    // socks
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.roundRect(-8 + legOffsetL, 27, 6, 4, 1); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(2 + legOffsetR, 27, 6, 4, 1); ctx.fill();
+    // shoes
+    ctx.fillStyle = shoeWhite;
+    ctx.beginPath(); ctx.roundRect(-9 + legOffsetL, 30, 8, 6, 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(1 + legOffsetR, 30, 8, 6, 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ff0033';
+    ctx.fillRect(-9 + legOffsetL, 32.5, 8, 1.4);
+    ctx.fillRect(1 + legOffsetR, 32.5, 8, 1.4);
+
+    // ---- dress skirt (gradient) ----
+    const skirtGrad = ctx.createLinearGradient(0, 0 + bodyBob, 0, 22 + bodyBob);
+    skirtGrad.addColorStop(0, dressPink); skirtGrad.addColorStop(1, dressPinkSh);
+    ctx.fillStyle = skirtGrad;
     ctx.beginPath();
-    ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(11, 0 + bodyBob); ctx.lineTo(13, 22 + bodyBob); ctx.lineTo(-13, 22 + bodyBob);
+    ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(11, 0 + bodyBob); ctx.lineTo(13.5, 22 + bodyBob); ctx.lineTo(-13.5, 22 + bodyBob);
     ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = jacketBlue;
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4; ctx.stroke();
+    // skirt pleat lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1;
+    for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(i * 5.5, 1 + bodyBob); ctx.lineTo(i * 6.6, 21 + bodyBob); ctx.stroke(); }
+
+    // ---- jacket (denim, two panels) ----
+    const jGrad = ctx.createLinearGradient(-11, 0, 11, 0);
+    jGrad.addColorStop(0, jacketBlueLt); jGrad.addColorStop(0.5, jacketBlue); jGrad.addColorStop(1, jacketBlueSh);
+    ctx.fillStyle = jGrad;
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(-3, 0 + bodyBob); ctx.lineTo(-3, 14 + bodyBob); ctx.lineTo(-11, 16 + bodyBob);
     ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(11, 0 + bodyBob); ctx.lineTo(3, 0 + bodyBob); ctx.lineTo(3, 14 + bodyBob); ctx.lineTo(11, 16 + bodyBob);
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = jacketBlue;
-    ctx.beginPath(); ctx.roundRect(-14, 2 + bodyBob + armOffset*0.3, 4, 12, 2); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(10, 2 + bodyBob - armOffset*0.3, 4, 12, 2); ctx.fill(); ctx.stroke();
-    const headY = -12 + bodyBob;
+    // collar
+    ctx.fillStyle = jacketBlueSh;
+    ctx.beginPath(); ctx.moveTo(-4, -1 + bodyBob); ctx.lineTo(0, 4 + bodyBob); ctx.lineTo(4, -1 + bodyBob); ctx.lineTo(0, -3 + bodyBob); ctx.closePath(); ctx.fill();
+    // pocket stitches
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 0.8;
+    ctx.strokeRect(-9.5, 6 + bodyBob, 5, 5);
+    ctx.strokeRect(4.5, 6 + bodyBob, 5, 5);
+
+    // ---- arms ----
+    ctx.fillStyle = jGrad;
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.roundRect(-14, 2 + bodyBob + armOffset*0.3, 4.5, 12, 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(9.5, 2 + bodyBob - armOffset*0.3, 4.5, 12, 2); ctx.fill(); ctx.stroke();
     ctx.fillStyle = paleSkin;
-    ctx.beginPath(); ctx.ellipse(0, headY + 3, 10, 11, 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(-11.5, 14 + bodyBob + armOffset*0.3, 2.6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(11.5, 14 + bodyBob - armOffset*0.3, 2.6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+    // ---- head ----
+    const headY = -12 + bodyBob;
+    // back hair mass (behind head)
     ctx.fillStyle = hairBrown;
-    ctx.beginPath(); ctx.ellipse(0, headY - 2, 12, 11, 0, Math.PI, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(-10, headY + 3, 4, 8, 0.3, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(10, headY + 3, 4, 8, -0.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0, headY + 1, 13.5, 13, 0, 0, Math.PI*2); ctx.fill();
+    // face
+    const faceGrad = ctx.createRadialGradient(-3, headY, 2, 0, headY + 3, 12);
+    faceGrad.addColorStop(0, paleSkin); faceGrad.addColorStop(1, paleSkinSh);
+    ctx.fillStyle = faceGrad;
+    ctx.beginPath(); ctx.ellipse(0, headY + 3, 9.5, 10.5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3; ctx.stroke();
+    // hair cap + fringe
+    const hairGrad = ctx.createLinearGradient(0, headY - 12, 0, headY + 4);
+    hairGrad.addColorStop(0, hairBrownLt); hairGrad.addColorStop(1, hairBrown);
+    ctx.fillStyle = hairGrad;
+    ctx.beginPath(); ctx.ellipse(0, headY - 3, 11.5, 9.5, 0, Math.PI, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(-10, headY - 1); ctx.quadraticCurveTo(-6, headY + 3, -7, headY + 6);
+    ctx.quadraticCurveTo(-9.5, headY + 2, -10, headY - 1); ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(10, headY - 1); ctx.quadraticCurveTo(6, headY + 3, 7, headY + 6);
+    ctx.quadraticCurveTo(9.5, headY + 2, 10, headY - 1); ctx.closePath(); ctx.fill();
+    // side strands
+    ctx.beginPath(); ctx.ellipse(-9.5, headY + 4, 3.2, 7.5, 0.25, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(9.5, headY + 4, 3.2, 7.5, -0.25, 0, Math.PI*2); ctx.fill();
+    // eyebrows
+    ctx.strokeStyle = '#3a2210'; ctx.lineWidth = 1.1; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-6, headY + 0.5); ctx.lineTo(-2.2, headY + 0.2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(2.2, headY + 0.2); ctx.lineTo(6, headY + 0.5); ctx.stroke();
+    // eyes
     ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.ellipse(-4, headY + 3, 2.2, 2.8, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(4, headY + 3, 2.2, 2.8, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#3a2a1a';
-    ctx.beginPath(); ctx.arc(-4, headY + 3.5, 1.4, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(4, headY + 3.5, 1.4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-4, headY + 3.2, 2.1, 2.6, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(4, headY + 3.2, 2.1, 2.6, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#2b1c10';
+    ctx.beginPath(); ctx.arc(-4, headY + 3.6, 1.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4, headY + 3.6, 1.3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-4.5, headY + 3, 0.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3.5, headY + 3, 0.5, 0, Math.PI*2); ctx.fill();
+    // nose + mouth
+    ctx.strokeStyle = '#c98a68'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(0, headY + 4.5); ctx.lineTo(-0.6, headY + 6.2); ctx.stroke();
+    ctx.strokeStyle = '#9a4a4a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(0, headY + 7, 1.6, 0.15*Math.PI, 0.85*Math.PI); ctx.stroke();
+    // small blush
+    ctx.fillStyle = 'rgba(233,120,120,0.35)';
+    ctx.beginPath(); ctx.ellipse(-6.5, headY + 6.5, 1.6, 1.1, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(6.5, headY + 6.5, 1.6, 1.1, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
 }
 function drawDemodogSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h;
-    const cDark = '#4a0a20', cMid = '#8a1237', cLight = '#c04060';
+    const cDark = isElite ? '#3a1a02' : '#4a0a14', cMid = isElite ? '#a8480c' : '#9a1428', cLight = isElite ? '#ff8a1a' : '#e03050', cBone = '#f2e6d8';
+    const cx = x + w/2, cy = y + h/2 + 4;
+    const gait = Math.sin(animT * 2 + seed);
+    // ground shadow
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 4, w * 0.55, 5, 0, 0, Math.PI*2); ctx.fill();
-    const bodyGrad = ctx.createLinearGradient(x, y + 10, x, y + h - 8);
-    bodyGrad.addColorStop(0, cLight); bodyGrad.addColorStop(0.5, cMid); bodyGrad.addColorStop(1, cDark);
-    ctx.fillStyle = bodyGrad;
+    ctx.beginPath(); ctx.ellipse(cx, y + h + 4, w * 0.5, 5, 0, 0, Math.PI*2); ctx.fill();
+    // --- legs (4, alternating gait) ---
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.6;
+    for (let i = 0; i < 4; i++) {
+        const legX = x + 10 + i * (w - 22) / 3;
+        const phase = (i % 2 === 0 ? 1 : -1) * gait * 5;
+        const kneeY = y + h - 14, footY = y + h - 2;
+        const legGrad = ctx.createLinearGradient(legX, kneeY, legX, footY);
+        legGrad.addColorStop(0, cMid); legGrad.addColorStop(1, cDark);
+        ctx.fillStyle = legGrad;
+        ctx.beginPath();
+        ctx.moveTo(legX - 3, kneeY);
+        ctx.quadraticCurveTo(legX + phase * 0.4, (kneeY + footY) / 2, legX + phase, footY);
+        ctx.lineTo(legX + phase + 4, footY);
+        ctx.quadraticCurveTo(legX + phase * 0.4 + 4, (kneeY + footY) / 2, legX + 6, kneeY);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        // claws
+        ctx.fillStyle = cBone;
+        ctx.beginPath(); ctx.moveTo(legX + phase, footY); ctx.lineTo(legX + phase - 2, footY + 4); ctx.lineTo(legX + phase + 1, footY); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(legX + phase + 4, footY); ctx.lineTo(legX + phase + 6, footY + 4); ctx.lineTo(legX + phase + 3, footY); ctx.fill();
+    }
+    // --- tail ---
+    const tailGrad = ctx.createLinearGradient(x + w - 6, cy, x + w + 12, cy - 8);
+    tailGrad.addColorStop(0, cMid); tailGrad.addColorStop(1, cDark);
+    ctx.fillStyle = tailGrad; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4;
     ctx.beginPath();
-    ctx.moveTo(x + 8, y + 16);
-    ctx.bezierCurveTo(x + 14, y + 8, x + w - 18, y + 8, x + w - 8, y + 14);
-    ctx.bezierCurveTo(x + w - 2, y + 20, x + w - 4, y + h - 6, x + w - 12, y + h - 6);
-    ctx.lineTo(x + 14, y + h - 6);
-    ctx.bezierCurveTo(x + 6, y + h - 8, x + 2, y + 24, x + 8, y + 16);
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
-    const headX = x + 12, headY = y + 16;
-    ctx.save(); ctx.shadowColor = '#e11d48'; ctx.shadowBlur = 10;
-    ctx.fillStyle = '#e11d48';
-    ctx.beginPath(); ctx.arc(headX, headY, 8, 0, Math.PI*2); ctx.fill();
+    ctx.moveTo(x + w - 8, cy - 4);
+    ctx.quadraticCurveTo(x + w + 8, cy - 10 + gait * 4, x + w + 14, cy - 2 + gait * 6);
+    ctx.quadraticCurveTo(x + w + 4, cy + 2, x + w - 10, cy + 4);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // --- body (muscular arched torso) ---
+    const bodyGrad = ctx.createLinearGradient(x, y + 6, x, y + h - 6);
+    bodyGrad.addColorStop(0, cLight); bodyGrad.addColorStop(0.55, cMid); bodyGrad.addColorStop(1, cDark);
+    ctx.fillStyle = bodyGrad; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(x + 6, y + h - 10);
+    ctx.bezierCurveTo(x + 4, y + 14, x + 16, y + 2, x + w * 0.42, y + 4);
+    ctx.bezierCurveTo(x + w * 0.7, y + 6, x + w - 6, y + 10, x + w - 4, y + h * 0.45);
+    ctx.bezierCurveTo(x + w - 2, y + h - 8, x + w * 0.6, y + h - 4, x + w * 0.4, y + h - 6);
+    ctx.bezierCurveTo(x + w * 0.2, y + h - 8, x + 10, y + h - 4, x + 6, y + h - 10);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // muscle striation highlights
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(x + 16 + i * 9, y + 10); ctx.quadraticCurveTo(x + 20 + i * 9, y + h/2, x + 14 + i * 9, y + h - 10); ctx.stroke(); }
+    // spine ridge spikes
+    ctx.fillStyle = cDark;
+    for (let i = 0; i < 5; i++) {
+        const sx = x + 14 + i * ((w * 0.55) / 5), sy = y + 5 - Math.sin(i * 1.1) * 2;
+        ctx.beginPath(); ctx.moveTo(sx - 3, sy + 6); ctx.lineTo(sx, sy - 3); ctx.lineTo(sx + 3, sy + 6); ctx.closePath(); ctx.fill();
+    }
+    // --- head: demogorgon petal-mouth ---
+    const headX = x + w - 6, headY = y + h * 0.32;
+    const openAmt = isElite ? 0.55 + Math.sin(animT * 3) * 0.25 : 0.35 + Math.sin(animT * 3) * 0.2;
+    ctx.save(); ctx.shadowColor = isElite ? '#ff8a1a' : '#ff2a4a'; ctx.shadowBlur = isElite ? 16 : 10;
+    const petals = 5;
+    for (let i = 0; i < petals; i++) {
+        const ang = (i / petals) * Math.PI * 2 + Math.PI / petals;
+        const spread = 0.35 + openAmt;
+        const petalGrad = ctx.createRadialGradient(headX, headY, 1, headX, headY, 13);
+        petalGrad.addColorStop(0, '#3a0008'); petalGrad.addColorStop(0.55, cLight); petalGrad.addColorStop(1, cMid);
+        ctx.fillStyle = petalGrad;
+        ctx.beginPath();
+        ctx.moveTo(headX, headY);
+        ctx.quadraticCurveTo(
+            headX + Math.cos(ang - 0.35) * 13 * (0.6 + spread * 0.6), headY + Math.sin(ang - 0.35) * 13 * (0.6 + spread * 0.6),
+            headX + Math.cos(ang) * 15 * (0.7 + spread), headY + Math.sin(ang) * 15 * (0.7 + spread)
+        );
+        ctx.quadraticCurveTo(
+            headX + Math.cos(ang + 0.35) * 13 * (0.6 + spread * 0.6), headY + Math.sin(ang + 0.35) * 13 * (0.6 + spread * 0.6),
+            headX, headY
+        );
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
+        // teeth ridges along petal edge
+        ctx.fillStyle = cBone;
+        for (let t = -1; t <= 1; t++) {
+            const tAng = ang + t * 0.22;
+            const tx = headX + Math.cos(tAng) * 12 * (0.65 + spread * 0.7);
+            const ty = headY + Math.sin(tAng) * 12 * (0.65 + spread * 0.7);
+            ctx.beginPath(); ctx.moveTo(tx, ty);
+            ctx.lineTo(tx + Math.cos(tAng) * 3, ty + Math.sin(tAng) * 3);
+            ctx.lineTo(tx + Math.cos(tAng + 0.15) * 1.2, ty + Math.sin(tAng + 0.15) * 1.2);
+            ctx.closePath(); ctx.fill();
+        }
+    }
+    // throat core glow
+    ctx.fillStyle = '#0a0002';
+    ctx.beginPath(); ctx.arc(headX, headY, 4.5, 0, Math.PI*2); ctx.fill();
     ctx.restore();
+    if (isElite) {
+        ctx.save(); ctx.fillStyle = '#ffd700'; ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 12;
+        ctx.beginPath(); ctx.arc(x + w/2, y - 2, 2.4, 0, Math.PI*2); ctx.fill(); ctx.restore();
+    }
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawGuardSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h;
+    const cx = x + w/2;
+    const armSwing = Math.sin(animT * 2 + seed) * 2;
+    const vestC = isElite ? '#3a2a10' : '#2b3446', vestLt = isElite ? '#5a4218' : '#425068', vestDk = '#171b28';
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 3, w * 0.6, 4, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(x + 6, y + 20, w - 12, h - 44);
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.strokeRect(x + 6, y + 20, w - 12, h - 44);
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(x + w/2 - 10, y, 20, 22);
-    ctx.strokeRect(x + w/2 - 10, y, 20, 22);
-    ctx.save(); ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 14;
-    ctx.fillStyle = '#ef4444';
-    ctx.fillRect(x + w/2 - 7, y + 8, 14, 5);
+    ctx.beginPath(); ctx.ellipse(cx, y + h + 3, w * 0.55, 4, 0, 0, Math.PI*2); ctx.fill();
+    // legs
+    ctx.fillStyle = '#1c2330'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.roundRect(cx - 9, y + h - 20, 7, 20, 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(cx + 2, y + h - 20, 7, 20, 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#0c0f17';
+    ctx.fillRect(cx - 10, y + h - 4, 9, 4); ctx.fillRect(cx + 1, y + h - 4, 9, 4);
+    // torso / tactical vest
+    const torsoGrad = ctx.createLinearGradient(x + 6, y + 18, x + w - 6, y + 18);
+    torsoGrad.addColorStop(0, vestLt); torsoGrad.addColorStop(0.5, vestC); torsoGrad.addColorStop(1, vestDk);
+    ctx.fillStyle = torsoGrad;
+    ctx.beginPath(); ctx.roundRect(x + 6, y + 18, w - 12, h - 40, 3); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.6; ctx.strokeRect(x + 6, y + 18, w - 12, h - 40);
+    // vest straps + pouches
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, y + 18); ctx.lineTo(cx, y + h - 22); ctx.stroke();
+    ctx.fillStyle = vestDk;
+    ctx.fillRect(cx - w/2 + 9, y + h - 30, 6, 7); ctx.fillRect(cx + w/2 - 15, y + h - 30, 6, 7);
+    // arms
+    ctx.fillStyle = vestC; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.roundRect(x + 2, y + 20 + armSwing, 5, 16, 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(x + w - 7, y + 20 - armSwing, 5, 16, 2); ctx.fill(); ctx.stroke();
+    // rifle
+    ctx.save(); ctx.translate(x + w - 4, y + 26); ctx.rotate(-0.12);
+    ctx.fillStyle = '#111319'; ctx.fillRect(0, 0, 20, 3.5); ctx.fillRect(14, -3, 4, 4);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 0.8; ctx.strokeRect(0, 0, 20, 3.5);
     ctx.restore();
+    // helmet
+    const helmGrad = ctx.createLinearGradient(cx - 10, y, cx + 10, y);
+    helmGrad.addColorStop(0, vestLt); helmGrad.addColorStop(1, vestDk);
+    ctx.fillStyle = helmGrad;
+    ctx.beginPath(); ctx.moveTo(cx - 10, y + 20); ctx.quadraticCurveTo(cx - 11, y - 2, cx, y - 3); ctx.quadraticCurveTo(cx + 11, y - 2, cx + 10, y + 20); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
+    // visor
+    ctx.save(); ctx.shadowColor = isElite ? '#ffd700' : '#ef4444'; ctx.shadowBlur = 14;
+    ctx.fillStyle = isElite ? '#ffd700' : '#ef4444';
+    ctx.beginPath(); ctx.roundRect(cx - 7, y + 9, 14, 5, 2); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(cx - 7, y + 9, 14, 5);
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawDroneSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
@@ -1651,12 +1841,75 @@ function drawDemogorgonAlphaSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
 // Bosses
 function drawMechaBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    ctx.fillStyle = '#475569';
-    ctx.fillRect(x + 20, y + 20, w - 40, h - 40);
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(x + 20, y + 20, w - 40, h - 40);
-    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 30;
-    ctx.fillStyle = '#ff0033';
-    ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI*2); ctx.fill();
+    const legSwing = Math.sin(animT * 1.5) * 6;
+    const steel = '#4a5568', steelLt = '#7b8798', steelDk = '#252c38', flesh = '#8a1228', fleshLt = '#c73450';
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath(); ctx.ellipse(cx, y + h + 6, w * 0.4, 10, 0, 0, Math.PI*2); ctx.fill();
+    // --- hydraulic legs (mech) ---
+    for (let i = -1; i <= 1; i += 2) {
+        const lx = cx + i * 44;
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
+        const legGrad = ctx.createLinearGradient(lx - 10, 0, lx + 10, 0);
+        legGrad.addColorStop(0, steelDk); legGrad.addColorStop(0.5, steel); legGrad.addColorStop(1, steelLt);
+        ctx.fillStyle = legGrad;
+        ctx.beginPath(); ctx.roundRect(lx - 11, y + h * 0.55, 22, h * 0.38 + i * legSwing * 0.3, 5); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = steelDk;
+        ctx.beginPath(); ctx.roundRect(lx - 16, y + h - 16, 32, 16, 4); ctx.fill(); ctx.stroke();
+        // hydraulic piston glow
+        ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 10; ctx.fillStyle = '#00f0ff';
+        ctx.fillRect(lx - 2, y + h * 0.58, 4, h * 0.3); ctx.restore();
+    }
+    // --- torso: fused steel + organic flesh core ---
+    const torsoGrad = ctx.createLinearGradient(x + 20, y, x + w - 20, y);
+    torsoGrad.addColorStop(0, steelDk); torsoGrad.addColorStop(0.5, steel); torsoGrad.addColorStop(1, steelDk);
+    ctx.fillStyle = torsoGrad; ctx.strokeStyle = '#000'; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.roundRect(x + 18, y + 30, w - 36, h * 0.5, 10); ctx.fill(); ctx.stroke();
+    // armor plating lines
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.4;
+    for (let i = 1; i < 4; i++) { const px = x + 18 + (w - 36) * i / 4; ctx.beginPath(); ctx.moveTo(px, y + 32); ctx.lineTo(px, y + 30 + h * 0.5 - 4); ctx.stroke(); }
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.moveTo(x + 22, y + 34); ctx.lineTo(x + w - 22, y + 34); ctx.stroke();
+    // exposed organic core (rib cage window with pulsing flesh)
+    const coreGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 30);
+    coreGrad.addColorStop(0, fleshLt); coreGrad.addColorStop(0.6, flesh); coreGrad.addColorStop(1, '#2a0510');
+    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 28 + Math.sin(animT * 4) * 8;
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath(); ctx.ellipse(cx, cy + 6, 26, 24 + Math.sin(animT * 4) * 2, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, cy + 6, 26, 24, 0, 0, Math.PI*2); ctx.stroke();
+    // rib struts over core
+    ctx.strokeStyle = steelDk; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(cx + i * 11, cy - 22); ctx.lineTo(cx + i * 7, cy + 30); ctx.stroke(); }
+    // shoulder cannons
+    ctx.fillStyle = steelDk; ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.roundRect(x + 6, y + 24, 20, 34, 6); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(x + w - 26, y + 24, 20, 34, 6); ctx.fill(); ctx.stroke();
+    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 16; ctx.fillStyle = '#ff0033';
+    ctx.beginPath(); ctx.arc(x + 16, y + 30, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + w - 16, y + 30, 4, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    // --- demogorgon head atop mech (petal maw) ---
+    const headY = y + 4, openAmt = 0.4 + Math.sin(animT * 3) * 0.25;
+    ctx.save(); ctx.shadowColor = '#ff2a4a'; ctx.shadowBlur = 22;
+    const petals = 6;
+    for (let i = 0; i < petals; i++) {
+        const ang = (i / petals) * Math.PI * 2;
+        const petalGrad = ctx.createRadialGradient(cx, headY, 2, cx, headY, 22);
+        petalGrad.addColorStop(0, '#3a0008'); petalGrad.addColorStop(0.5, fleshLt); petalGrad.addColorStop(1, flesh);
+        ctx.fillStyle = petalGrad;
+        ctx.beginPath();
+        ctx.moveTo(cx, headY);
+        ctx.quadraticCurveTo(cx + Math.cos(ang - 0.3) * 16, headY + Math.sin(ang - 0.3) * 16, cx + Math.cos(ang) * (20 + openAmt * 14), headY + Math.sin(ang) * (20 + openAmt * 14));
+        ctx.quadraticCurveTo(cx + Math.cos(ang + 0.3) * 16, headY + Math.sin(ang + 0.3) * 16, cx, headY);
+        ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.6; ctx.stroke();
+    }
+    ctx.restore();
+    ctx.fillStyle = '#0a0002'; ctx.beginPath(); ctx.arc(cx, headY, 7, 0, Math.PI*2); ctx.fill();
+    // steel neck collar clamping the head to the mech chassis
+    ctx.fillStyle = steelDk; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(cx - 16, y + 22, 32, 12, 4); ctx.fill(); ctx.stroke();
+    ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 12; ctx.fillStyle = '#00f0ff';
+    ctx.beginPath(); ctx.arc(cx - 9, y + 28, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 9, y + 28, 2, 0, Math.PI*2); ctx.fill();
     ctx.restore();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
@@ -2173,6 +2426,112 @@ function createParticles(x, y, count, color, type='spark') {
         particles.push({ x, y, vx:(Math.random()-0.5)*(type==='explosion'?10:6), vy:(Math.random()-0.5)*(type==='explosion'?10:6), radius: Math.random()*3.5+1.5, color, alpha:1 });
     }
 }
+function drawStageDecor(ctx, bg, camX, canvasW) {
+    ctx.save();
+    if (bg === 'lab') {
+        // distant back wall panel seams (slow parallax)
+        const backP = camX * 0.25;
+        ctx.strokeStyle = 'rgba(90,120,160,0.18)'; ctx.lineWidth = 1;
+        for (let i = -1; i < 12; i++) { const px = i * 90 - (backP % 90); ctx.beginPath(); ctx.moveTo(px, 40); ctx.lineTo(px, 320); ctx.stroke(); }
+        // vertical cyan light beams (mid parallax)
+        const beamP = camX * 0.45;
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = -1; i < 6; i++) {
+            const bx = i * 240 - (beamP % 240) + 60;
+            const beamGrad = ctx.createLinearGradient(bx - 30, 30, bx + 30, 340);
+            beamGrad.addColorStop(0, 'rgba(0,220,255,0)'); beamGrad.addColorStop(0.5, 'rgba(0,220,255,0.10)'); beamGrad.addColorStop(1, 'rgba(0,220,255,0)');
+            ctx.fillStyle = beamGrad;
+            ctx.beginPath(); ctx.moveTo(bx - 5, 30); ctx.lineTo(bx + 5, 30); ctx.lineTo(bx + 26, 340); ctx.lineTo(bx - 26, 340); ctx.closePath(); ctx.fill();
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        // industrial support pillars (near parallax)
+        const pillarP = camX * 0.7;
+        const spacing = 220;
+        for (let i = -1; i < Math.ceil(canvasW / spacing) + 2; i++) {
+            const pxBase = i * spacing - (pillarP % spacing);
+            const pw = 34;
+            const pGrad = ctx.createLinearGradient(pxBase, 0, pxBase + pw, 0);
+            pGrad.addColorStop(0, '#0a0f1c'); pGrad.addColorStop(0.35, '#1c2b45'); pGrad.addColorStop(0.55, '#2e4468'); pGrad.addColorStop(1, '#080c16');
+            ctx.fillStyle = pGrad;
+            ctx.fillRect(pxBase, 20, pw, 340);
+            ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 2; ctx.strokeRect(pxBase, 20, pw, 340);
+            // rivets
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            for (let ry = 30; ry < 350; ry += 26) { ctx.beginPath(); ctx.arc(pxBase + 5, ry, 1.6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(pxBase + pw - 5, ry, 1.6, 0, Math.PI*2); ctx.fill(); }
+            // status light strip
+            const t = (animFrame * 0.03 + i) % 2;
+            ctx.save(); ctx.shadowColor = t < 1 ? '#22c55e' : '#ff0033'; ctx.shadowBlur = 12;
+            ctx.fillStyle = t < 1 ? '#22c55e' : '#ff0033';
+            ctx.fillRect(pxBase + pw/2 - 2, 40, 4, 14);
+            ctx.restore();
+            // conduit pipe along base
+            ctx.fillStyle = '#131a28'; ctx.fillRect(pxBase - 4, 340, pw + 8, 8);
+        }
+        // hanging warning triangle signs (sparse)
+        const signP = camX * 0.7;
+        for (let i = -1; i < Math.ceil(canvasW / 440) + 2; i++) {
+            const sx = i * 440 + 130 - (signP % 440);
+            ctx.save(); ctx.translate(sx, 150);
+            ctx.fillStyle = '#ffd400'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(14, 12); ctx.lineTo(-14, 12); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 15px Arial'; ctx.textAlign = 'center';
+            ctx.fillText('!', 0, 9);
+            ctx.restore();
+        }
+        // caution hazard tape strip along floor edge
+        const tapeY = 358, tapeH = 7, tapeP = camX;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(0, tapeY, canvasW, tapeH); ctx.clip();
+        ctx.fillStyle = '#151a10'; ctx.fillRect(0, tapeY, canvasW, tapeH);
+        ctx.fillStyle = '#f4c400';
+        const stripe = 22;
+        for (let i = -2; i < canvasW / stripe + 4; i++) {
+            const sxp = i * stripe - (tapeP % (stripe * 2));
+            ctx.save(); ctx.translate(sxp, tapeY); ctx.rotate(-0.6);
+            ctx.fillRect(-4, -4, 12, tapeH + 8);
+            ctx.restore();
+        }
+        ctx.restore();
+        // floor grid panel lines (near, fast parallax)
+        const floorP = camX;
+        ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1;
+        for (let i = -1; i < canvasW / 60 + 2; i++) { const fx = i * 60 - (floorP % 60); ctx.beginPath(); ctx.moveTo(fx, 366); ctx.lineTo(fx, 480); ctx.stroke(); }
+        // signage
+        ctx.save(); ctx.globalAlpha = 0.85;
+        ctx.font = 'bold 12px Rajdhani, sans-serif'; ctx.fillStyle = '#8fd8ff'; ctx.textAlign = 'left';
+        ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 6;
+        ctx.fillText('HAWKINS NATIONAL LABORATORY', 40 - (camX * 0.25 % 900), 66);
+        ctx.fillStyle = '#ffd400'; ctx.shadowColor = '#ffd400';
+        ctx.fillText('NÍVEL 4 · ACESSO RESTRITO', 520 - (camX * 0.25 % 900), 66);
+        ctx.restore();
+        // subtle top vignette / ceiling struts
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(canvasW, 22); ctx.stroke();
+    } else if (bg === 'forest') {
+        const treeP = camX * 0.55;
+        for (let i = -1; i < 10; i++) {
+            const tx = i * 160 - (treeP % 160);
+            const tGrad = ctx.createLinearGradient(tx, 60, tx + 26, 60);
+            tGrad.addColorStop(0, '#0a0410'); tGrad.addColorStop(0.5, '#241040'); tGrad.addColorStop(1, '#0a0410');
+            ctx.fillStyle = tGrad; ctx.fillRect(tx, 60, 26, 300);
+            ctx.save(); ctx.shadowColor = '#b026ff'; ctx.shadowBlur = 10; ctx.fillStyle = 'rgba(176,38,255,0.5)';
+            ctx.beginPath(); ctx.ellipse(tx + 13, 60, 40, 26, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
+        }
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1;
+        for (let i = -1; i < canvasW / 50 + 2; i++) { const fx = i * 50 - (camX % 50); ctx.beginPath(); ctx.moveTo(fx, 368); ctx.lineTo(fx - 10, 480); ctx.stroke(); }
+    } else {
+        const veinP = camX * 0.5;
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = -1; i < 8; i++) {
+            const vx = i * 200 - (veinP % 200);
+            ctx.strokeStyle = 'rgba(255,0,60,0.25)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(vx, 30); ctx.quadraticCurveTo(vx + 40, 180, vx - 20, 360); ctx.stroke();
+        }
+        ctx.globalCompositeOperation = 'source-over';
+    }
+    ctx.restore();
+}
 function drawGameGraphics() {
     contraCtx.save();
     contraCtx.translate(screenShakeX, screenShakeY);
@@ -2191,6 +2550,7 @@ function drawGameGraphics() {
     else if (bg.startsWith('forest')) { floorGrad.addColorStop(0,'#0a0e1a'); floorGrad.addColorStop(1,'#06080f'); }
     else { floorGrad.addColorStop(0,'#1a0410'); floorGrad.addColorStop(1,'#0f0208'); }
     contraCtx.fillStyle = floorGrad; contraCtx.fillRect(0, 360, contraCanvas.width, 120);
+    drawStageDecor(contraCtx, bg, cameraX, contraCanvas.width);
     // Enemies
     enemies.forEach(e => {
         const ex = e.x - cameraX;
