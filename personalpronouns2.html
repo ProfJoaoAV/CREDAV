@@ -51,6 +51,10 @@ body.upside-down { background-color:#020005 !important; }
 .badge-shimmer { animation: shimmer 2s ease-in-out infinite; }
 @keyframes speakerPulse { 0%{transform: scale(1)} 50%{transform: scale(1.15); box-shadow: 0 0 20px currentColor} 100%{transform: scale(1)} }
 .speaking { animation: speakerPulse 0.6s ease-in-out infinite; }
+@keyframes certGlow { 0%,100%{box-shadow: 0 0 30px rgba(255,215,0,0.5), inset 0 0 60px rgba(255,215,0,0.1)} 50%{box-shadow: 0 0 60px rgba(255,215,0,0.9), inset 0 0 80px rgba(255,215,0,0.2)} }
+.cert-glow { animation: certGlow 3s ease-in-out infinite; }
+@keyframes timerPulse { 0%,100%{color:#00f0ff} 50%{color:#ffd700} }
+.timer-warning { animation: timerPulse 0.5s ease-in-out infinite; }
 .touch-btn { min-width:60px; min-height:60px; font-size:22px; }
 @media (max-width:640px) { .touch-btn { min-width:64px; min-height:64px; font-size:24px; } #contra-canvas { max-height: 60vh; } }
 button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-offset: 2px; }
@@ -70,7 +74,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 .study-table .en { font-weight: 700; color: #0d9488; }
 .study-table .pt { color: #64748b; font-style: italic; }
 .highlight-it { background: linear-gradient(135deg, #fef3e2, #fde8c4); border-left: 4px solid #14b8a6; padding: 16px 20px; border-radius: 0 12px 12px 0; color:#1a1a2e; }
-
 .audio-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: 32px; height: 32px; border-radius: 8px;
@@ -83,12 +86,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 .audio-btn:active { transform: scale(0.95); }
 .audio-btn.small { width: 26px; height: 26px; font-size: 12px; }
 .audio-btn.large { width: 40px; height: 40px; font-size: 18px; border-radius: 10px; }
-.audio-btn.teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
 .audio-btn.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
 .audio-btn.purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
 .audio-btn.cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
 .audio-btn.gray { background: linear-gradient(135deg, #64748b, #475569); }
-
 .flip-card { perspective: 1000px; height: 180px; cursor: pointer; }
 .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
 .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
@@ -104,7 +105,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 .flip-card-back { background: linear-gradient(135deg, #f0fdfa, #ccfbf1); color: #0f766e; border-color: #14b8a6; transform: rotateY(180deg); }
 .flip-card-back .pt-translation { color: #0d9488; font-style: italic; font-weight: 600; }
 .flip-card:hover .flip-card-front { box-shadow: 0 8px 30px rgba(20, 184, 166, 0.6); }
-
 .listen-all-btn {
     display: inline-flex; align-items: center; gap: 8px;
     padding: 10px 18px; border-radius: 12px;
@@ -116,7 +116,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 }
 .listen-all-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6); }
 .listen-all-btn:active { transform: translateY(0); }
-
 .speed-control { display: flex; gap: 4px; background: rgba(0,0,0,0.15); padding: 4px; border-radius: 10px; }
 .speed-btn {
     padding: 6px 12px; border-radius: 6px; font-size: 12px;
@@ -126,6 +125,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 }
 .speed-btn.active { background: white; color: #0d9488; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 .speed-btn:hover:not(.active) { background: rgba(255,255,255,0.5); }
+@media print {
+    body * { visibility: hidden !important; }
+    #certificate-printable, #certificate-printable * { visibility: visible !important; }
+    #certificate-printable { position: absolute; left: 0; top: 0; width: 100%; }
+}
 </style>
 </head>
 <body class="crt min-h-screen flex flex-col relative animated-bg">
@@ -157,7 +161,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
     <nav class="max-w-7xl mx-auto mt-2 flex border-b border-hawkins-border overflow-x-auto text-sm font-tech">
         <button onclick="switchTab('review')" id="tab-review" class="nav-tab px-4 py-2 border-b-2 border-hawkins-red text-hawkins-red font-bold flex items-center gap-1.5 whitespace-nowrap transition-all">📚 Estudar</button>
         <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-tab px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap transition-all">✏️ Quiz</button>
+        <button onclick="switchTab('test')" id="tab-test" class="nav-tab px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap transition-all">📝 Modo Teste</button>
         <button onclick="switchTab('badges')" id="tab-badges" class="nav-tab px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap transition-all">🏆 Badges</button>
+        <button onclick="switchTab('certificate')" id="tab-certificate" class="nav-tab px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap transition-all">🏅 Certificado</button>
         <button onclick="switchTab('arcade')" id="tab-arcade" class="nav-tab px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap transition-all">🔫 Jogar</button>
     </nav>
 </header>
@@ -184,14 +190,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
         <div id="speech-status" class="mt-3 text-xs font-tech"></div>
     </div>
 
-    <!-- MÓDULO 1 -->
+    <!-- MÓDULO 1: PRONOMES -->
     <div class="bg-hawkins-panel rounded-2xl border border-hawkins-border p-5 md:p-6 shadow-xl">
         <div class="flex items-center gap-3 mb-4 flex-wrap">
             <span class="px-3 py-1 rounded-lg bg-teal-500/20 border border-teal-500 text-teal-300 text-xs font-bold font-tech">MÓDULO 1</span>
             <h3 class="text-lg md:text-xl font-tech font-bold text-white">👤 Personal Pronouns</h3>
         </div>
         <p class="text-gray-300 text-sm mb-4">Os <b>personal pronouns</b> substituem nomes de pessoas, animais ou objetos.</p>
-
         <div class="overflow-x-auto mb-5">
             <table class="study-table">
                 <thead><tr><th>Singular</th><th style="width:60px">🔊</th><th>Plural</th><th style="width:60px">🔊</th></tr></thead>
@@ -223,191 +228,58 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
                 </tbody>
             </table>
         </div>
-
         <button class="listen-all-btn mb-5" onclick="listenAll(['I', 'You', 'He', 'She', 'It', 'We', 'You', 'They'])">🎧 Ouvir todos</button>
-
         <div class="highlight-it">
             <p class="text-sm mb-2"><b>⚠ Regra IT vs THEY:</b></p>
             <ul class="text-sm space-y-1 list-disc ml-5">
                 <li><b>it</b> = 1 objeto ou 1 animal</li>
                 <li><b>they</b> = 2 ou mais objetos ou animais</li>
             </ul>
-            <div class="mt-3 space-y-2">
-                <div class="p-3 bg-white/60 rounded-lg text-sm flex items-center gap-3">
-                    <button class="audio-btn teal" onclick="speakEn('The dog is friendly. It is friendly.')">🔊</button>
-                    <div><b>The dog is friendly. It is friendly.</b> <span class="pt">(1 cão)</span></div>
-                </div>
-                <div class="p-3 bg-white/60 rounded-lg text-sm flex items-center gap-3">
-                    <button class="audio-btn teal" onclick="speakEn('The dogs are friendly. They are friendly.')">🔊</button>
-                    <div><b>The dogs are friendly. They are friendly.</b> <span class="pt">(2+ cães)</span></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-5">
-            <div class="text-sm font-tech font-bold text-teal-300 mb-3">🎴 Cartões — clica para virar e ouvir:</div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                <div class="flip-card" onclick="flipCard(this); speakEn('I')">
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front"><div class="text-3xl mb-2">👤</div><div class="text-xl font-bold font-tech">I</div><div class="text-xs opacity-80 mt-1">Clica para ouvir</div></div>
-                        <div class="flip-card-back"><div class="text-3xl mb-2">🇵🇹</div><div class="text-xl font-bold">Eu</div><div class="pt-translation text-sm mt-1">Singular</div></div>
-                    </div>
-                </div>
-                <div class="flip-card" onclick="flipCard(this); speakEn('You')">
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front"><div class="text-3xl mb-2">👉</div><div class="text-xl font-bold font-tech">You</div></div>
-                        <div class="flip-card-back"><div class="text-3xl mb-2">🇵🇹</div><div class="text-xl font-bold">Tu / Vós</div></div>
-                    </div>
-                </div>
-                <div class="flip-card" onclick="flipCard(this); speakEn('He')">
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front"><div class="text-3xl mb-2">👦</div><div class="text-xl font-bold font-tech">He</div></div>
-                        <div class="flip-card-back"><div class="text-3xl mb-2">🇵🇹</div><div class="text-xl font-bold">Ele</div></div>
-                    </div>
-                </div>
-                <div class="flip-card" onclick="flipCard(this); speakEn('She')">
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front"><div class="text-3xl mb-2">👧</div><div class="text-xl font-bold font-tech">She</div></div>
-                        <div class="flip-card-back"><div class="text-3xl mb-2">🇵🇹</div><div class="text-xl font-bold">Ela</div></div>
-                    </div>
-                </div>
-                <div class="flip-card" onclick="flipCard(this); speakEn('It')">
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front"><div class="text-3xl mb-2">📦</div><div class="text-xl font-bold font-tech">It</div></div>
-                        <div class="flip-card-back"><div class="text-3xl mb-2">🇵🇹</div><div class="text-xl font-bold">Ele/Ela</div><div class="pt-translation text-sm">1 coisa</div></div>
-                    </div>
-                </div>
-                <div class="flip-card" onclick="flipCard(this); speakEn('We')">
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front"><div class="text-3xl mb-2">👥</div><div class="text-xl font-bold font-tech">We</div></div>
-                        <div class="flip-card-back"><div class="text-3xl mb-2">🇵🇹</div><div class="text-xl font-bold">Nós</div></div>
-                    </div>
-                </div>
-                <div class="flip-card" onclick="flipCard(this); speakEn('They')">
-                    <div class="flip-card-inner">
-                        <div class="flip-card-front"><div class="text-3xl mb-2">🧑‍🤝‍🧑</div><div class="text-xl font-bold font-tech">They</div></div>
-                        <div class="flip-card-back"><div class="text-3xl mb-2">🇵🇹</div><div class="text-xl font-bold">Eles/Elas</div><div class="pt-translation text-sm">Várias</div></div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- MÓDULO 2 -->
+    <!-- MÓDULO 2: QUESTION WORDS -->
     <div class="bg-hawkins-panel rounded-2xl border border-hawkins-border p-5 md:p-6 shadow-xl">
         <div class="flex items-center gap-3 mb-4 flex-wrap">
             <span class="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500 text-amber-300 text-xs font-bold font-tech">MÓDULO 2</span>
             <h3 class="text-lg md:text-xl font-tech font-bold text-white">❓ Question Words</h3>
         </div>
-
         <div class="overflow-x-auto mb-5">
             <table class="study-table">
                 <thead><tr><th>Question word</th><th style="width:60px">🔊</th><th>Exemplo</th><th style="width:60px">🔊</th></tr></thead>
                 <tbody>
-                    <tr>
-                        <td><span class="en">Who...?</span> <span class="pt">(Quem?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('Who')">🔊</button></td>
-                        <td><span class="en">Who</span> is she? <span class="pt">(Quem é ela?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('Who is she?')">🔊</button></td>
-                    </tr>
-                    <tr>
-                        <td><span class="en">What...?</span> <span class="pt">(O que?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('What')">🔊</button></td>
-                        <td><span class="en">What</span> is your name? <span class="pt">(Qual é o teu nome?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('What is your name?')">🔊</button></td>
-                    </tr>
-                    <tr>
-                        <td><span class="en">When...?</span> <span class="pt">(Quando?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('When')">🔊</button></td>
-                        <td><span class="en">When</span> is your birthday? <span class="pt">(Quando é o teu aniversário?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('When is your birthday?')">🔊</button></td>
-                    </tr>
-                    <tr>
-                        <td><span class="en">Where...?</span> <span class="pt">(Onde?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('Where')">🔊</button></td>
-                        <td><span class="en">Where</span> are you? <span class="pt">(Onde estás?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('Where are you?')">🔊</button></td>
-                    </tr>
-                    <tr>
-                        <td><span class="en">How...?</span> <span class="pt">(Como?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('How')">🔊</button></td>
-                        <td><span class="en">How</span> are you? <span class="pt">(Como estás?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('How are you?')">🔊</button></td>
-                    </tr>
-                    <tr>
-                        <td><span class="en">How old...?</span> <span class="pt">(Que idade?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('How old')">🔊</button></td>
-                        <td><span class="en">How old</span> are you? <span class="pt">(Quantos anos tens?)</span></td>
-                        <td><button class="audio-btn amber" onclick="speakEn('How old are you?')">🔊</button></td>
-                    </tr>
+                    <tr><td><span class="en">Who...?</span> <span class="pt">(Quem?)</span></td><td><button class="audio-btn amber" onclick="speakEn('Who')">🔊</button></td><td><span class="en">Who</span> is she?</td><td><button class="audio-btn amber" onclick="speakEn('Who is she?')">🔊</button></td></tr>
+                    <tr><td><span class="en">What...?</span> <span class="pt">(O que?)</span></td><td><button class="audio-btn amber" onclick="speakEn('What')">🔊</button></td><td><span class="en">What</span> is your name?</td><td><button class="audio-btn amber" onclick="speakEn('What is your name?')">🔊</button></td></tr>
+                    <tr><td><span class="en">When...?</span> <span class="pt">(Quando?)</span></td><td><button class="audio-btn amber" onclick="speakEn('When')">🔊</button></td><td><span class="en">When</span> is your birthday?</td><td><button class="audio-btn amber" onclick="speakEn('When is your birthday?')">🔊</button></td></tr>
+                    <tr><td><span class="en">Where...?</span> <span class="pt">(Onde?)</span></td><td><button class="audio-btn amber" onclick="speakEn('Where')">🔊</button></td><td><span class="en">Where</span> are you?</td><td><button class="audio-btn amber" onclick="speakEn('Where are you?')">🔊</button></td></tr>
+                    <tr><td><span class="en">How...?</span> <span class="pt">(Como?)</span></td><td><button class="audio-btn amber" onclick="speakEn('How')">🔊</button></td><td><span class="en">How</span> are you?</td><td><button class="audio-btn amber" onclick="speakEn('How are you?')">🔊</button></td></tr>
+                    <tr><td><span class="en">How old...?</span> <span class="pt">(Que idade?)</span></td><td><button class="audio-btn amber" onclick="speakEn('How old')">🔊</button></td><td><span class="en">How old</span> are you?</td><td><button class="audio-btn amber" onclick="speakEn('How old are you?')">🔊</button></td></tr>
                 </tbody>
             </table>
         </div>
-
         <button class="listen-all-btn mb-3" onclick="listenAll(['Who', 'What', 'When', 'Where', 'How', 'How old'])">🎧 Ouvir as palavras</button>
-        <button class="listen-all-btn mb-5" style="background: linear-gradient(135deg, #a855f7, #7e22ce);" onclick="listenAll(['Who is she?', 'What is your name?', 'When is your birthday?', 'Where are you?', 'How are you?', 'How old are you?'])">🎧 Ouvir as perguntas completas</button>
     </div>
 
-    <!-- MÓDULO 3 -->
+    <!-- MÓDULO 3: IN / ON -->
     <div class="bg-hawkins-panel rounded-2xl border border-hawkins-border p-5 md:p-6 shadow-xl">
         <div class="flex items-center gap-3 mb-4 flex-wrap">
             <span class="px-3 py-1 rounded-lg bg-purple-500/20 border border-purple-500 text-purple-300 text-xs font-bold font-tech">MÓDULO 3</span>
             <h3 class="text-lg md:text-xl font-tech font-bold text-white">📅 IN vs ON</h3>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
             <div class="p-4 bg-blue-950/40 rounded-xl border border-blue-500/40">
-                <div class="text-lg font-bold text-blue-300 mb-3 flex items-center gap-2">
-                    📆 IN
-                    <button class="audio-btn cyan" onclick="speakEn('In August. In 1983.')">🔊</button>
-                </div>
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2 text-sm text-gray-200">
-                        <button class="audio-btn cyan small" onclick="speakEn('In August')">🔊</button>
-                        <div><b>in</b> + months: <i>in August</i></div>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-200">
-                        <button class="audio-btn cyan small" onclick="speakEn('In 1983')">🔊</button>
-                        <div><b>in</b> + years: <i>in 1983</i></div>
-                    </div>
-                </div>
+                <div class="text-lg font-bold text-blue-300 mb-3 flex items-center gap-2">📆 IN <button class="audio-btn cyan" onclick="speakEn('In August. In 1983.')">🔊</button></div>
+                <ul class="text-sm text-gray-200 space-y-1 list-disc ml-5">
+                    <li><b>in</b> + months: <i>in August</i></li>
+                    <li><b>in</b> + years: <i>in 1983</i></li>
+                </ul>
             </div>
             <div class="p-4 bg-yellow-950/40 rounded-xl border border-yellow-500/40">
-                <div class="text-lg font-bold text-yellow-300 mb-3 flex items-center gap-2">
-                    🗓 ON
-                    <button class="audio-btn amber" onclick="speakEn('On Tuesday. On the twenty third of December.')">🔊</button>
-                </div>
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2 text-sm text-gray-200">
-                        <button class="audio-btn amber small" onclick="speakEn('On Tuesday')">🔊</button>
-                        <div><b>on</b> + days: <i>on Tuesday</i></div>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm text-gray-200">
-                        <button class="audio-btn amber small" onclick="speakEn('On the twenty third of December')">🔊</button>
-                        <div><b>on</b> + dates: <i>on 23rd December</i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="highlight-it">
-            <div class="text-sm mb-3 flex items-center gap-2">
-                <b>🔑 Truque:</b>
-                <button class="audio-btn purple" onclick="speakEn('I N for long things like months and years. O N for short things like days and dates.')">🔊</button>
-            </div>
-            <ul class="text-sm space-y-1 list-disc ml-5">
-                <li><b>IN</b> — coisas longas: meses, anos</li>
-                <li><b>ON</b> — coisas curtas: dias, datas</li>
-            </ul>
-            <div class="mt-3 space-y-2">
-                <div class="p-3 bg-white/60 rounded-lg text-sm flex items-center gap-3">
-                    <button class="audio-btn purple small" onclick="speakEn('My birthday is in May.')">🔊</button>
-                    <div>My birthday is <b>in</b> May.</div>
-                </div>
-                <div class="p-3 bg-white/60 rounded-lg text-sm flex items-center gap-3">
-                    <button class="audio-btn purple small" onclick="speakEn('We have English on Monday.')">🔊</button>
-                    <div>We have English <b>on</b> Monday.</div>
-                </div>
+                <div class="text-lg font-bold text-yellow-300 mb-3 flex items-center gap-2">🗓 ON <button class="audio-btn amber" onclick="speakEn('On Tuesday. On the twenty third of December.')">🔊</button></div>
+                <ul class="text-sm text-gray-200 space-y-1 list-disc ml-5">
+                    <li><b>on</b> + days: <i>on Tuesday</i></li>
+                    <li><b>on</b> + dates: <i>on 23rd December</i></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -420,7 +292,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 <!-- TAB: QUIZ -->
 <section id="sec-quiz" class="hidden space-y-5">
     <div class="bg-gradient-to-r from-hawkins-panel via-gray-900 to-hawkins-panel p-5 rounded-2xl border border-hawkins-border shadow-xl">
-        <h2 class="text-xl md:text-2xl font-tech font-bold text-white mb-3 flex items-center gap-2"><span class="text-hawkins-red text-3xl">✏️</span> Quiz</h2>
+        <h2 class="text-xl md:text-2xl font-tech font-bold text-white mb-3 flex items-center gap-2"><span class="text-hawkins-red text-3xl">✏️</span> Quiz de Prática</h2>
+        <p class="text-gray-300 text-sm mb-3">Modo treino — com feedback imediato e explicações.</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button onclick="selectTopic(1)" id="topic-btn-1" class="p-3 rounded-xl bg-hawkins-red text-white font-tech font-bold transition-all">👤 Personal Pronouns</button>
             <button onclick="selectTopic(2)" id="topic-btn-2" class="p-3 rounded-xl bg-gray-950 border border-gray-800 text-gray-400 hover:text-white font-tech font-bold transition-all">❓ Question Words</button>
@@ -446,7 +319,6 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
                 <h3 id="quiz-question-text" class="text-base md:text-xl font-tech font-bold text-white mb-2">Carregando...</h3>
                 <button class="audio-btn gray" onclick="speakQuizQuestion()">🔊</button>
             </div>
-            <p id="quiz-question-hint" class="text-xs text-gray-500 italic"></p>
         </div>
         <div id="quiz-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"></div>
         <div id="quiz-feedback" class="p-4 rounded-xl text-sm font-tech font-bold hidden mb-3"></div>
@@ -466,7 +338,143 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
         </div>
         <div class="flex gap-2 justify-center flex-wrap">
             <button onclick="selectTopic(currentTopic)" class="px-5 py-2.5 bg-hawkins-cyan text-black font-tech font-bold rounded-xl">🔄 Repetir</button>
-            <button onclick="switchTab('badges')" class="px-5 py-2.5 bg-hawkins-purple text-white font-tech font-bold rounded-xl">🏆 Badges</button>
+            <button onclick="switchTab('certificate')" class="px-5 py-2.5 bg-hawkins-yellow text-black font-tech font-bold rounded-xl">🏅 Ver Certificado</button>
+        </div>
+    </div>
+</section>
+
+<!-- TAB: MODO TESTE -->
+<section id="sec-test" class="hidden space-y-5">
+    <!-- Ecrã inicial -->
+    <div id="test-intro">
+        <div class="bg-gradient-to-r from-red-950 via-hawkins-panel to-red-950 p-6 md:p-8 rounded-2xl border-2 border-hawkins-red shadow-2xl text-center">
+            <div class="text-6xl mb-3">📝</div>
+            <h2 class="text-2xl md:text-3xl font-tech font-bold text-hawkins-red neon-text-red mb-2">MODO TESTE OFICIAL</h2>
+            <p class="text-gray-300 text-sm max-w-2xl mx-auto mb-4">
+                Teste cronometrado com <b>30 perguntas</b> dos 3 tópicos.<br>
+                Sem feedback imediato. Nota final de 0 a 20 valores.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-5 text-left">
+                <div class="bg-black/60 border border-hawkins-red/40 rounded-xl p-3">
+                    <div class="text-hawkins-red text-2xl mb-1">⏱</div>
+                    <div class="text-xs text-gray-400">Tempo</div>
+                    <div class="text-white font-bold text-sm">15 minutos</div>
+                </div>
+                <div class="bg-black/60 border border-hawkins-red/40 rounded-xl p-3">
+                    <div class="text-hawkins-red text-2xl mb-1">📊</div>
+                    <div class="text-xs text-gray-400">Perguntas</div>
+                    <div class="text-white font-bold text-sm">30 (10 por tópico)</div>
+                </div>
+                <div class="bg-black/60 border border-hawkins-red/40 rounded-xl p-3">
+                    <div class="text-hawkins-red text-2xl mb-1">🏅</div>
+                    <div class="text-xs text-gray-400">Nota</div>
+                    <div class="text-white font-bold text-sm">0 a 20 valores</div>
+                </div>
+            </div>
+            <div class="bg-yellow-950/40 border border-yellow-500/40 rounded-xl p-3 max-w-lg mx-auto mb-5 text-xs text-yellow-200 text-left">
+                <b>⚠ Regras:</b>
+                <ul class="list-disc ml-5 mt-1 space-y-0.5">
+                    <li>Não podes voltar atrás nas perguntas</li>
+                    <li>Cada resposta vale 1 ponto (sem penalização)</li>
+                    <li>Se o tempo acabar, o teste é submetido automaticamente</li>
+                    <li>Só podes fazer 1 teste de cada vez</li>
+                </ul>
+            </div>
+            <input type="text" id="test-student-name" placeholder="Escreve o teu nome" class="bg-black/60 border-2 border-hawkins-red rounded-xl px-4 py-3 text-white font-tech text-base w-full max-w-md mb-4 focus:outline-none focus:border-hawkins-cyan" maxlength="40">
+            <div>
+                <button onclick="startOfficialTest()" class="px-8 py-4 bg-hawkins-red hover:bg-red-600 text-white font-tech font-bold text-lg rounded-xl shadow-lg transition-all hover:scale-105">
+                    ▶ COMEÇAR TESTE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ecrã do teste em curso -->
+    <div id="test-running" class="hidden">
+        <div class="bg-gradient-to-r from-hawkins-panel via-gray-900 to-hawkins-panel p-4 rounded-2xl border-2 border-hawkins-red shadow-xl mb-4">
+            <div class="flex justify-between items-center flex-wrap gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="font-arcade text-xs text-hawkins-cyan">📝 TESTE OFICIAL</span>
+                    <span class="text-xs font-mono text-gray-400">Pergunta <span id="test-current-q">1</span> de <span id="test-total-q">30</span></span>
+                </div>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div id="test-timer-container" class="bg-black border-2 border-hawkins-cyan rounded-xl px-4 py-2">
+                        <span class="text-xs text-gray-400">⏱</span>
+                        <span id="test-timer" class="font-mono font-bold text-lg text-hawkins-cyan ml-1">15:00</span>
+                    </div>
+                    <div class="bg-black border border-hawkins-purple rounded-xl px-3 py-1.5">
+                        <span class="text-xs text-gray-400">Respondidas:</span>
+                        <span id="test-answered" class="font-mono font-bold text-hawkins-purple ml-1">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-hawkins-panel rounded-2xl border border-hawkins-border p-5 md:p-6 shadow-2xl">
+            <div class="w-full bg-gray-950 h-3 rounded-full mb-4 overflow-hidden border border-gray-800">
+                <div id="test-progress-bar" class="h-full bg-gradient-to-r from-hawkins-red to-hawkins-purple transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="bg-gray-950 p-5 rounded-2xl border border-hawkins-border mb-4">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                    <span id="test-topic-badge" class="px-2 py-0.5 rounded bg-hawkins-cyan/20 text-hawkins-cyan text-[10px] font-mono">TOPIC</span>
+                    <button class="audio-btn gray" onclick="speakTestQuestion()">🔊</button>
+                </div>
+                <h3 id="test-question-text" class="text-lg md:text-xl font-tech font-bold text-white mb-2">Carregando...</h3>
+                <p class="text-xs text-gray-500 italic">Sem feedback — responde com atenção</p>
+            </div>
+            <div id="test-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"></div>
+            <div class="text-right">
+                <button id="test-next-btn" onclick="submitTestAnswer()" class="hidden px-6 py-3 bg-hawkins-red hover:bg-red-700 text-white font-tech font-bold rounded-xl transition-all">
+                    Confirmar ➔
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ecrã de resultado final -->
+    <div id="test-result" class="hidden">
+        <div class="bg-gradient-to-br from-hawkins-panel via-gray-900 to-black rounded-2xl border-4 border-hawkins-yellow p-6 md:p-8 shadow-2xl text-center">
+            <div class="text-6xl mb-3" id="test-result-emoji">🏆</div>
+            <h2 class="text-2xl md:text-3xl font-tech font-bold text-hawkins-yellow mb-2">TESTE CONCLUÍDO</h2>
+            <p class="text-gray-300 mb-1">Resultado do Agente <b id="test-result-name" class="text-white">—</b></p>
+            <p class="text-xs text-gray-500 font-mono mb-6" id="test-result-date">—</p>
+
+            <div class="bg-black border-2 border-hawkins-yellow rounded-2xl p-6 max-w-lg mx-auto mb-5">
+                <div class="text-xs font-mono text-gray-400 mb-2">NOTA FINAL</div>
+                <div class="text-6xl md:text-7xl font-arcade text-hawkins-yellow mb-3" id="test-result-grade">--</div>
+                <div class="text-sm text-gray-300">em 20 valores</div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 max-w-2xl mx-auto mb-5">
+                <div class="bg-gray-950 p-3 rounded-xl border border-green-500/40">
+                    <div class="text-3xl font-bold text-green-400" id="test-result-correct">0</div>
+                    <div class="text-xs text-gray-400">Acertos</div>
+                </div>
+                <div class="bg-gray-950 p-3 rounded-xl border border-red-500/40">
+                    <div class="text-3xl font-bold text-red-400" id="test-result-wrong">0</div>
+                    <div class="text-xs text-gray-400">Erros</div>
+                </div>
+                <div class="bg-gray-950 p-3 rounded-xl border border-hawkins-cyan/40">
+                    <div class="text-3xl font-bold text-hawkins-cyan" id="test-result-time">0:00</div>
+                    <div class="text-xs text-gray-400">Tempo usado</div>
+                </div>
+            </div>
+
+            <div id="test-result-feedback" class="bg-gray-950 border border-hawkins-border rounded-xl p-4 max-w-2xl mx-auto mb-5 text-sm font-tech"></div>
+
+            <div class="flex gap-2 justify-center flex-wrap">
+                <button onclick="showTestReview()" class="px-5 py-2.5 bg-hawkins-cyan text-black font-tech font-bold rounded-xl">📖 Ver respostas</button>
+                <button onclick="closeTestResult()" class="px-5 py-2.5 bg-hawkins-purple text-white font-tech font-bold rounded-xl">🔄 Novo teste</button>
+                <button onclick="switchTab('certificate')" class="px-5 py-2.5 bg-hawkins-yellow text-black font-tech font-bold rounded-xl">🏅 Certificado</button>
+            </div>
+        </div>
+
+        <!-- Revisão detalhada -->
+        <div id="test-review-panel" class="hidden mt-5 bg-hawkins-panel rounded-2xl border border-hawkins-border p-5 shadow-xl">
+            <h3 class="text-lg font-tech font-bold text-white mb-3 flex items-center gap-2">
+                <span class="text-hawkins-cyan">📖</span> Revisão das tuas respostas
+            </h3>
+            <div id="test-review-list" class="space-y-2 max-h-96 overflow-y-auto pr-2"></div>
         </div>
     </div>
 </section>
@@ -497,15 +505,117 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
             <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-center"><div class="text-2xl">🎯</div><div id="stat-total-correct" class="text-xl font-bold text-green-400">0</div><div class="text-xs text-gray-400">Respostas certas</div></div>
             <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-center"><div class="text-2xl">📖</div><div id="stat-quizzes-done" class="text-xl font-bold text-hawkins-cyan">0</div><div class="text-xs text-gray-400">Quizzes</div></div>
             <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-center"><div class="text-2xl">🔥</div><div id="stat-best-streak" class="text-xl font-bold text-hawkins-yellow">0</div><div class="text-xs text-gray-400">Melhor streak</div></div>
-            <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-center"><div class="text-2xl">⭐</div><div id="stat-perfect-quizzes" class="text-xl font-bold text-hawkins-purple">0</div><div class="text-xs text-gray-400">100%</div></div>
+            <div class="bg-gray-950 p-3 rounded-xl border border-gray-800 text-center"><div class="text-2xl">📝</div><div id="stat-tests-done" class="text-xl font-bold text-hawkins-purple">0</div><div class="text-xs text-gray-400">Testes feitos</div></div>
         </div>
+    </div>
+</section>
+
+<!-- TAB: CERTIFICADO -->
+<section id="sec-certificate" class="hidden space-y-5">
+    <div class="bg-gradient-to-r from-hawkins-panel via-gray-900 to-hawkins-panel p-5 md:p-6 rounded-2xl border border-hawkins-border shadow-xl">
+        <h2 class="text-xl md:text-2xl font-tech font-bold text-white flex items-center gap-3"><span class="text-hawkins-yellow text-3xl">🏅</span> Certificado de Mestre de Inglês</h2>
+        <p class="text-gray-300 text-sm mt-2 max-w-2xl">Completa os 3 tópicos com nota ≥ 70% para desbloquear o teu certificado oficial do Hawkins Lab.</p>
+    </div>
+
+    <!-- Estado bloqueado -->
+    <div id="cert-locked" class="bg-hawkins-panel rounded-2xl border border-hawkins-border p-6 shadow-xl text-center">
+        <div class="text-6xl mb-3">🔒</div>
+        <h3 class="text-xl font-tech font-bold text-white mb-2">Certificado ainda bloqueado</h3>
+        <p class="text-gray-300 text-sm mb-5 max-w-lg mx-auto">Completa os 3 tópicos no Quiz com pelo menos <b class="text-hawkins-yellow">70%</b> em cada um para desbloquear.</p>
+        <div class="max-w-md mx-auto space-y-2" id="cert-requirements"></div>
+    </div>
+
+    <!-- Estado desbloqueado -->
+    <div id="cert-unlocked" class="hidden space-y-4">
+        <div class="bg-yellow-950/40 border border-hawkins-yellow/40 rounded-xl p-4 flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🎉</div>
+                <div>
+                    <div class="font-tech font-bold text-hawkins-yellow">Certificado desbloqueado!</div>
+                    <div class="text-xs text-gray-300">Personaliza o nome e imprime.</div>
+                </div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <input type="text" id="cert-name-input" placeholder="Nome do aluno" class="bg-black/60 border-2 border-hawkins-yellow rounded-lg px-3 py-2 text-white font-tech text-sm focus:outline-none focus:border-hawkins-cyan" maxlength="40">
+                <button onclick="updateCertificateName()" class="px-4 py-2 bg-hawkins-cyan text-black font-tech font-bold rounded-lg text-sm">Aplicar</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-hawkins-red text-white font-tech font-bold rounded-lg text-sm">🖨️ Imprimir</button>
+            </div>
+        </div>
+
+        <!-- Certificado imprimível -->
+        <div id="certificate-printable" class="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-8 md:p-12 rounded-2xl border-8 border-double border-hawkins-yellow shadow-2xl cert-glow relative overflow-hidden">
+            <!-- Borda decorativa -->
+            <div class="absolute inset-3 border-2 border-hawkins-yellow/40 rounded-xl pointer-events-none"></div>
+            <div class="absolute inset-5 border border-hawkins-yellow/20 rounded-lg pointer-events-none"></div>
+            
+            <!-- Cantos decorativos -->
+            <div class="absolute top-4 left-4 w-8 h-8 border-t-4 border-l-4 border-hawkins-yellow"></div>
+            <div class="absolute top-4 right-4 w-8 h-8 border-t-4 border-r-4 border-hawkins-yellow"></div>
+            <div class="absolute bottom-4 left-4 w-8 h-8 border-b-4 border-l-4 border-hawkins-yellow"></div>
+            <div class="absolute bottom-4 right-4 w-8 h-8 border-b-4 border-r-4 border-hawkins-yellow"></div>
+
+            <div class="text-center relative z-10">
+                <div class="flex items-center justify-center gap-3 mb-4">
+                    <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-hawkins-red to-red-900 border-2 border-hawkins-yellow flex items-center justify-center text-white font-arcade font-bold text-base shadow-lg">HL</div>
+                    <div class="text-left">
+                        <div class="font-arcade text-xs text-hawkins-red">HAWKINS NATIONAL LAB</div>
+                        <div class="text-[9px] text-amber-700 font-mono">ENGLISH LANGUAGE DEPARTMENT</div>
+                    </div>
+                </div>
+
+                <div class="text-xs font-arcade text-amber-800 mb-2">CERTIFICADO DE CONCLUSÃO</div>
+                <h1 class="text-3xl md:text-5xl font-tech font-bold text-amber-900 mb-2">Mestre de Inglês</h1>
+                <div class="text-3xl mb-6">🏆 ✨ 🏆</div>
+
+                <p class="text-amber-800 font-tech mb-2">Este certificado é atribuído a</p>
+                <p id="cert-display-name" class="text-3xl md:text-4xl font-tech font-bold text-hawkins-red mb-4 border-b-2 border-amber-400 inline-block px-8 pb-1">— Nome do Agente —</p>
+
+                <p class="text-amber-800 font-tech text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-6">
+                    Por ter completado com sucesso os <b>3 tópicos essenciais</b> do 5.º ano de Inglês:<br>
+                    <span class="inline-block mt-2 font-bold text-amber-900">
+                        👤 Personal Pronouns &nbsp; • &nbsp; ❓ Question Words &nbsp; • &nbsp; 📅 IN vs ON
+                    </span>
+                </p>
+
+                <div class="grid grid-cols-3 gap-3 max-w-2xl mx-auto mb-6">
+                    <div class="bg-white/60 border border-amber-300 rounded-lg p-2">
+                        <div class="text-[10px] text-amber-700 font-mono">MÉDIA FINAL</div>
+                        <div id="cert-avg-grade" class="text-2xl font-bold text-hawkins-red">—</div>
+                    </div>
+                    <div class="bg-white/60 border border-amber-300 rounded-lg p-2">
+                        <div class="text-[10px] text-amber-700 font-mono">NÍVEL</div>
+                        <div id="cert-display-level" class="text-2xl font-bold text-hawkins-red">1</div>
+                    </div>
+                    <div class="bg-white/60 border border-amber-300 rounded-lg p-2">
+                        <div class="text-[10px] text-amber-700 font-mono">BADGES</div>
+                        <div id="cert-display-badges" class="text-2xl font-bold text-hawkins-red">0</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end max-w-2xl mx-auto mt-8">
+                    <div class="text-center">
+                        <div class="border-t-2 border-amber-700 w-32 md:w-40 mb-1"></div>
+                        <div class="text-[10px] text-amber-700 font-mono">Diretor do Lab</div>
+                    </div>
+                    <div class="text-4xl">🎓</div>
+                    <div class="text-center">
+                        <div id="cert-display-date" class="border-t-2 border-amber-700 w-32 md:w-40 mb-1 pt-1 text-[10px] text-amber-700 font-mono">— Data —</div>
+                    </div>
+                </div>
+
+                <div class="text-[9px] text-amber-600 font-mono mt-6">Certificado #{CERT_ID} • Hawkins Lab English Program</div>
+            </div>
+        </div>
+
+        <div class="text-xs text-gray-400 text-center">Dica: clica em <b>🖨️ Imprimir</b> para guardar como PDF ou imprimir em papel.</div>
     </div>
 </section>
 
 <!-- TAB: ARCADE -->
 <section id="sec-arcade" class="hidden space-y-4">
     <div class="bg-gradient-to-r from-hawkins-panel via-gray-900 to-hawkins-panel p-4 rounded-2xl border border-hawkins-border shadow-2xl flex flex-wrap justify-between items-center gap-3">
-        <div><h2 class="text-base md:text-xl font-tech font-bold text-white">🔫 HAWKINS LAB: RUN & GUN</h2></div>
+        <div><h2 class="text-base md:text-xl font-tech font-bold text-white">🔫 HAWKINS LAB: RUN & GUN</h2>
+        <p class="text-gray-300 text-[10px] md:text-xs mt-1"><b class="text-hawkins-cyan">A/D</b> correr • <b class="text-hawkins-cyan">W</b> saltar • <b class="text-hawkins-cyan">J/Z</b> disparar • <b class="text-hawkins-yellow">R</b> recarregar • <b class="text-hawkins-purple">1/2/3</b> armas</p></div>
         <div class="flex flex-wrap gap-2 font-mono text-[10px] md:text-xs">
             <div class="bg-black/90 px-2 py-1 rounded-lg border border-hawkins-red text-red-400">STAGE <span id="hud-stage" class="font-bold text-white">1-1</span></div>
             <div id="hud-weapon" class="bg-black/90 px-2 py-1 rounded-lg border border-hawkins-cyan text-hawkins-cyan font-bold">🔫</div>
@@ -516,20 +626,20 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
     </div>
 
     <div id="game-container" class="relative bg-black rounded-2xl border-2 border-hawkins-red shadow-[0_0_35px_rgba(255,0,51,0.35)] overflow-hidden max-w-5xl mx-auto flex flex-col items-center">
-        <div id="arcade-overlay" class="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center p-5 text-center space-y-3">
-            <div class="w-14 h-14 rounded-2xl bg-hawkins-red/20 border-2 border-hawkins-red flex items-center justify-center text-2xl animate-bounce">⚡</div>
+        <div id="arcade-overlay" class="absolute inset-0 bg-black/95 z-20 flex flex-col items-center justify-center p-5 text-center space-y-3 overflow-y-auto">
+            <div class="w-14 h-14 rounded-2xl bg-hawkins-red/20 border-2 border-hawkins-red flex items-center justify-center text-2xl animate-bounce shadow-[0_0_20px_#ff0033]">⚡</div>
             <h3 id="arcade-overlay-title" class="font-arcade text-base md:text-xl text-hawkins-red neon-text-red">HAWKINS CONTRA SHOOTER</h3>
-            <p class="text-gray-300 text-xs font-tech max-w-lg">9 fases, 9 chefes épicos, 3 armas.</p>
+            <p id="arcade-overlay-desc" class="text-gray-300 text-xs font-tech max-w-lg">9 fases, 9 chefes épicos, 3 armas.</p>
             <button onclick="startContraGame('normal')" class="px-6 py-3 bg-hawkins-red hover:bg-red-600 text-white font-tech font-bold text-base rounded-xl shadow-[0_0_30px_#ff0033] transform hover:scale-105">⚡ INICIAR</button>
         </div>
         <div id="pause-overlay" class="hidden absolute inset-0 bg-black/90 z-40 flex-col items-center justify-center p-5 text-center space-y-3 flex">
-            <h3 class="font-arcade text-xl text-hawkins-cyan neon-text-cyan">⏸ PAUSA</h3>
-            <div class="flex gap-2 flex-wrap justify-center">
+            <h3 class="font-arcade text-xl md:text-3xl text-hawkins-cyan neon-text-cyan">⏸ PAUSA</h3>
+            <div class="flex gap-2 mt-3 flex-wrap justify-center">
                 <button onclick="togglePause()" class="px-5 py-2.5 bg-hawkins-red text-white font-tech font-bold rounded-xl">▶ Continuar</button>
                 <button onclick="giveUpGame()" class="px-5 py-2.5 bg-gray-800 text-gray-300 font-tech font-bold rounded-xl">✖ Sair</button>
             </div>
         </div>
-        <div id="arcade-reload-modal" class="hidden absolute inset-0 bg-black/97 z-30 flex-col items-center justify-center p-5 text-center space-y-3 flex">
+        <div id="arcade-reload-modal" class="hidden absolute inset-0 bg-black/97 z-30 flex-col items-center justify-center p-5 text-center space-y-3 overflow-y-auto flex">
             <span class="text-xs font-mono text-hawkins-yellow uppercase animate-pulse">⚡ RECARGA ⚡</span>
             <h4 id="reload-prompt-q" class="font-tech text-lg md:text-xl font-bold text-white max-w-xl">Carregando...</h4>
             <p id="reload-context" class="text-xs text-hawkins-cyan"></p>
@@ -557,8 +667,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
                 <button id="btn-touch-jump" class="touch-btn rounded-xl bg-gray-900 border border-hawkins-border font-bold active:bg-hawkins-red flex items-center justify-center">⬆️</button>
             </div>
             <div class="flex gap-2">
-                <button id="btn-touch-fire" class="px-4 h-[60px] rounded-xl bg-hawkins-red font-tech font-bold text-white text-sm active:scale-95">🔥</button>
-                <button onclick="triggerGrammarReload()" class="px-4 h-[60px] rounded-xl bg-hawkins-cyan text-black font-tech font-bold text-sm active:scale-95">🔄</button>
+                <button id="btn-touch-fire" class="px-4 md:px-6 h-[60px] rounded-xl bg-hawkins-red font-tech font-bold text-white text-sm flex items-center gap-1 active:scale-95">🔥</button>
+                <button onclick="triggerGrammarReload()" class="px-4 md:px-6 h-[60px] rounded-xl bg-hawkins-cyan text-black font-tech font-bold text-sm flex items-center gap-1 active:scale-95">🔄</button>
             </div>
         </div>
     </div>
@@ -566,13 +676,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid #00f0ff; outline-
 
 </main>
 
-<footer class="relative z-10 border-t border-hawkins-border py-3 text-center text-xs text-gray-500 font-tech">Stranger English: Hawkins Lab • Ultra HD Edition</footer>
+<footer class="relative z-10 border-t border-hawkins-border py-3 text-center text-xs text-gray-500 font-tech">Stranger English: Hawkins Lab • Ultra HD Edition • 5.º Ano</footer>
 
 <script>
 // ===================== SPEECH ROBUSTO =====================
 let speechSpeed = 0.9;
 let speechVoice = null;
-let voicesReady = false;
 let speechUnlocked = false;
 
 function pickEnglishVoice() {
@@ -581,7 +690,6 @@ function pickEnglishVoice() {
     if (!voices || voices.length === 0) return null;
     const pref = [
         v => v.lang === 'en-GB' && /female|zira|samantha|karen|moira|tessa|serena/i.test(v.name),
-        v => v.lang === 'en-GB' && /male|daniel|george/i.test(v.name),
         v => v.lang === 'en-GB',
         v => v.lang === 'en-US' && /female|zira|samantha|karen/i.test(v.name),
         v => v.lang === 'en-US',
@@ -599,30 +707,25 @@ function updateSpeechStatus() {
     const el = document.getElementById('speech-status');
     if (!el) return;
     if (!('speechSynthesis' in window)) {
-        el.innerHTML = '🔇 <span class="text-red-400">O teu browser não suporta leitura em voz alta. Experimenta o Chrome ou Edge.</span>';
+        el.innerHTML = '🔇 <span class="text-red-400">O teu browser não suporta leitura em voz alta.</span>';
         return;
     }
     const voices = window.speechSynthesis.getVoices();
     if (voices.length === 0) {
-        el.innerHTML = '⏳ <span class="text-yellow-400">A carregar vozes... Se não ouvires nada, verifica se tens vozes em inglês instaladas no sistema.</span>';
+        el.innerHTML = '⏳ <span class="text-yellow-400">A carregar vozes...</span>';
     } else if (!speechVoice) {
-        el.innerHTML = '⚠ <span class="text-yellow-400">Vozes carregadas (' + voices.length + ') mas nenhuma em inglês. Vai a Configurações do Windows → Hora e Idioma → Fala → Adicionar English.</span>';
+        el.innerHTML = '⚠ <span class="text-yellow-400">' + voices.length + ' vozes, mas nenhuma em inglês.</span>';
     } else {
         el.innerHTML = '🔊 <span class="text-green-400">Voz pronta: ' + speechVoice.name + ' (' + speechVoice.lang + ')</span>';
     }
 }
 
 function initVoices() {
-    if (!('speechSynthesis' in window)) {
-        updateSpeechStatus();
-        return;
-    }
+    if (!('speechSynthesis' in window)) { updateSpeechStatus(); return; }
     const tryLoad = () => {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices && voices.length > 0) {
+        const v = window.speechSynthesis.getVoices();
+        if (v && v.length > 0) {
             speechVoice = pickEnglishVoice();
-            voicesReady = true;
-            console.log('🔊 Vozes disponíveis:', voices.length, '→ escolhida:', speechVoice?.name, speechVoice?.lang);
             updateSpeechStatus();
             return true;
         }
@@ -630,105 +733,50 @@ function initVoices() {
     };
     if (!tryLoad()) {
         let n = 0;
-        const interval = setInterval(() => {
-            n++;
-            if (tryLoad() || n > 20) { clearInterval(interval); updateSpeechStatus(); }
-        }, 200);
+        const iv = setInterval(() => { n++; if (tryLoad() || n > 20) { clearInterval(iv); updateSpeechStatus(); } }, 200);
     }
-    window.speechSynthesis.onvoiceschanged = () => {
-        console.log('🔄 onvoiceschanged');
-        tryLoad();
-    };
+    window.speechSynthesis.onvoiceschanged = () => { tryLoad(); };
 }
-
 function unlockSpeech() {
-    if (speechUnlocked) return;
-    if (!('speechSynthesis' in window)) return;
+    if (speechUnlocked || !('speechSynthesis' in window)) return;
     speechUnlocked = true;
-    try {
-        const u = new SpeechSynthesisUtterance(' ');
-        u.volume = 0;
-        u.rate = 10;
-        window.speechSynthesis.speak(u);
-        console.log('🔓 Speech desbloqueado');
-    } catch(e) {}
+    try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.rate = 10; window.speechSynthesis.speak(u); } catch(e) {}
 }
-['click', 'touchstart', 'keydown'].forEach(evt => {
-    document.addEventListener(evt, unlockSpeech, { once: true, passive: true });
-});
+['click', 'touchstart', 'keydown'].forEach(evt => document.addEventListener(evt, unlockSpeech, { once: true, passive: true }));
 
 function speakEn(text, opts = {}) {
-    if (!('speechSynthesis' in window)) {
-        showSpeechError('O teu browser não suporta leitura em voz alta.');
-        return;
-    }
+    if (!('speechSynthesis' in window)) return;
     if (isMuted) return;
-
-    // Feedback visual
     if (window.event && window.event.currentTarget) {
         const btn = window.event.currentTarget;
         btn.classList.add('speaking');
         setTimeout(() => btn.classList.remove('speaking'), 700);
     }
-
     try { window.speechSynthesis.cancel(); } catch(e) {}
-
     const cleanText = text.replace(/\s+/g, ' ').trim();
     if (!cleanText) return;
-
     const u = new SpeechSynthesisUtterance(cleanText);
     u.lang = 'en-GB';
     u.rate = opts.rate || speechSpeed;
-    u.pitch = opts.pitch || 1.0;
+    u.pitch = 1.0;
     u.volume = 1.0;
     if (!speechVoice) speechVoice = pickEnglishVoice();
     if (speechVoice) u.voice = speechVoice;
-
-    if (cleanText.split(' ').length > 3 && !opts.forceSpeed) {
-        u.rate = Math.min(speechSpeed, 0.85);
-    }
-
+    if (cleanText.split(' ').length > 3 && !opts.forceSpeed) u.rate = Math.min(speechSpeed, 0.85);
+    try { window.speechSynthesis.speak(u); } catch(e) {}
     let started = false;
-    u.onstart = () => { started = true; console.log('▶ A falar:', cleanText); };
-    u.onerror = (ev) => {
-        console.warn('Erro speech:', ev.error);
-        if (ev.error === 'not-allowed') showSpeechError('O browser bloqueou o áudio. Clica na página uma vez.');
-    };
-
-    try {
-        window.speechSynthesis.speak(u);
-    } catch(e) {
-        console.error('Erro ao falar:', e);
-        return;
-    }
-
-    // Watchdog: se em 400ms não começou, tenta de novo
+    u.onstart = () => { started = true; };
     setTimeout(() => {
         if (!started && !window.speechSynthesis.speaking) {
-            console.warn('Watchdog retry');
             try {
                 window.speechSynthesis.cancel();
                 const u2 = new SpeechSynthesisUtterance(cleanText);
-                u2.lang = 'en-US';
-                u2.rate = u.rate;
-                u2.volume = 1.0;
+                u2.lang = 'en-US'; u2.rate = u.rate; u2.volume = 1.0;
                 window.speechSynthesis.speak(u2);
             } catch(e) {}
         }
     }, 400);
 }
-
-let speechErrorShown = false;
-function showSpeechError(msg) {
-    if (speechErrorShown) return;
-    speechErrorShown = true;
-    const t = document.createElement('div');
-    t.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[1000] px-4 py-3 rounded-xl bg-red-950 border-2 border-red-500 text-red-200 font-tech font-bold text-sm max-w-md text-center shadow-2xl';
-    t.textContent = '🔇 ' + msg;
-    document.body.appendChild(t);
-    setTimeout(() => { t.style.transition = 'all .5s'; t.style.opacity = '0'; setTimeout(() => { t.remove(); speechErrorShown = false; }, 500); }, 5000);
-}
-
 let speechQueue = [];
 function listenAll(items) {
     if (!('speechSynthesis' in window) || isMuted) return;
@@ -741,33 +789,31 @@ function playNextInQueue() {
     if (speechQueue.length === 0) return;
     const text = speechQueue.shift();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-GB';
-    u.rate = speechSpeed;
-    u.pitch = 1.0;
-    u.volume = 1.0;
+    u.lang = 'en-GB'; u.rate = speechSpeed; u.pitch = 1.0; u.volume = 1.0;
     if (!speechVoice) speechVoice = pickEnglishVoice();
     if (speechVoice) u.voice = speechVoice;
     u.onend = () => setTimeout(playNextInQueue, 400);
     u.onerror = () => setTimeout(playNextInQueue, 400);
     window.speechSynthesis.speak(u);
 }
-
 function setSpeechSpeed(rate, btn) {
     speechSpeed = rate;
     document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
-    speakEn('Hello', { rate: rate, forceSpeed: true });
+    speakEn('Hello', { rate, forceSpeed: true });
 }
-
 function flipCard(el) { el.classList.toggle('flipped'); }
 
 // ===================== SAVE =====================
-const SAVE_KEY = 'hawkins_shooter_save_v13';
+const SAVE_KEY = 'hawkins_shooter_save_v14';
 let save = {
     xp:0, level:1, coins:0,
     achievements:{}, unlockedBadges:{},
     quizStats: { totalCorrect: 0, quizzesDone: 0, bestStreak: 0, perfectQuizzes: 0, byTopic: {1:0, 2:0, 3:0} },
     bestScore: {1:0, 2:0, 3:0},
+    testsDone: 0,
+    bestTestGrade: 0,
+    lastTestResult: null,
     highestScore:0, skin:'default', unlockedSkins:['default'],
     totalEnemiesKilled: 0
 };
@@ -790,27 +836,27 @@ function resetProgress() { if (!confirm('Apagar todo o progresso?')) return; loc
 
 // ===================== BADGES =====================
 const BADGES = [
-    { id:'quiz_pron_50', name:'Aprendiz de Pronomes', desc:'Acerta 6+ em Pronouns', icon:'👤', color:'teal', check: () => (save.bestScore[1]||0) >= 6 },
+    { id:'quiz_pron_50', name:'Aprendiz de Pronomes', desc:'6+ em Pronouns', icon:'👤', color:'teal', check: () => (save.bestScore[1]||0) >= 6 },
     { id:'quiz_pron_100', name:'Mestre dos Pronomes', desc:'100% em Pronouns', icon:'👤⭐', color:'teal', check: () => (save.bestScore[1]||0) >= 12 },
-    { id:'quiz_quest_50', name:'Detetive de Perguntas', desc:'Acerta 6+ em Question Words', icon:'❓', color:'amber', check: () => (save.bestScore[2]||0) >= 6 },
-    { id:'quiz_quest_100', name:'Mestre das Question Words', desc:'100% em Question Words', icon:'❓⭐', color:'amber', check: () => (save.bestScore[2]||0) >= 12 },
-    { id:'quiz_prep_50', name:'Viajante do Tempo', desc:'Acerta 6+ em IN vs ON', icon:'📅', color:'purple', check: () => (save.bestScore[3]||0) >= 6 },
+    { id:'quiz_quest_50', name:'Detetive', desc:'6+ em Question Words', icon:'❓', color:'amber', check: () => (save.bestScore[2]||0) >= 6 },
+    { id:'quiz_quest_100', name:'Mestre das QW', desc:'100% em QW', icon:'❓⭐', color:'amber', check: () => (save.bestScore[2]||0) >= 12 },
+    { id:'quiz_prep_50', name:'Viajante do Tempo', desc:'6+ em IN vs ON', icon:'📅', color:'purple', check: () => (save.bestScore[3]||0) >= 6 },
     { id:'quiz_prep_100', name:'Mestre do IN/ON', desc:'100% em IN vs ON', icon:'📅⭐', color:'purple', check: () => (save.bestScore[3]||0) >= 12 },
-    { id:'first_quiz', name:'Primeiro Quiz', desc:'Completa o 1.º quiz', icon:'🎯', color:'cyan', check: () => save.quizStats.quizzesDone >= 1 },
+    { id:'first_quiz', name:'Primeiro Quiz', desc:'Completa 1 quiz', icon:'🎯', color:'cyan', check: () => save.quizStats.quizzesDone >= 1 },
     { id:'quiz_3', name:'Maratonista', desc:'Completa 3 quizzes', icon:'📖', color:'cyan', check: () => save.quizStats.quizzesDone >= 3 },
     { id:'all_topics', name:'Poliglota', desc:'Completa os 3 tópicos', icon:'🌍', color:'yellow', check: () => (save.bestScore[1]||0)>0 && (save.bestScore[2]||0)>0 && (save.bestScore[3]||0)>0 },
-    { id:'streak5', name:'Em Chamas', desc:'Acerta 5 seguidas', icon:'🔥', color:'red', check: () => save.quizStats.bestStreak >= 5 },
-    { id:'streak10', name:'Imparável', desc:'Acerta 10 seguidas', icon:'🔥🔥', color:'red', check: () => save.quizStats.bestStreak >= 10 },
+    { id:'streak5', name:'Em Chamas', desc:'5 seguidas', icon:'🔥', color:'red', check: () => save.quizStats.bestStreak >= 5 },
+    { id:'streak10', name:'Imparável', desc:'10 seguidas', icon:'🔥🔥', color:'red', check: () => save.quizStats.bestStreak >= 10 },
     { id:'perfect_1', name:'Perfeição', desc:'100% num quiz', icon:'⭐', color:'yellow', check: () => save.quizStats.perfectQuizzes >= 1 },
-    { id:'perfect_3', name:'Nota Máxima', desc:'3 quizzes com 100%', icon:'⭐⭐⭐', color:'yellow', check: () => save.quizStats.perfectQuizzes >= 3 },
-    { id:'correct_30', name:'Trinta Certas', desc:'30 respostas certas', icon:'💯', color:'green', check: () => save.quizStats.totalCorrect >= 30 },
-    { id:'correct_60', name:'Sessenta Certas', desc:'60 respostas certas', icon:'💯💯', color:'green', check: () => save.quizStats.totalCorrect >= 60 },
-    { id:'first_blood', name:'Primeiro Sangue', desc:'Derrota 1.º inimigo', icon:'🩸', color:'red', check: () => save.achievements.first_blood || save.totalEnemiesKilled > 0 },
-    { id:'boss1', name:'Mecha Slayer', desc:'Derrota o Mecha', icon:'🤖', color:'cyan', check: () => save.achievements.boss1 },
-    { id:'boss2', name:'Caçador', desc:'Derrota o Demogorgon Prime', icon:'🌸', color:'red', check: () => save.achievements.boss2 },
-    { id:'boss3', name:'Matador de Mentes', desc:'Derrota o Mind Flayer', icon:'👁️', color:'purple', check: () => save.achievements.boss3 },
-    { id:'coins_100', name:'Poupador', desc:'Ganha 100 moedas', icon:'🪙', color:'yellow', check: () => save.coins >= 100 },
-    { id:'coins_500', name:'Rico', desc:'Ganha 500 moedas', icon:'💰', color:'yellow', check: () => save.coins >= 500 }
+    { id:'perfect_3', name:'Nota Máxima', desc:'3 quizzes 100%', icon:'⭐⭐⭐', color:'yellow', check: () => save.quizStats.perfectQuizzes >= 3 },
+    { id:'correct_30', name:'30 Certas', desc:'30 respostas certas', icon:'💯', color:'green', check: () => save.quizStats.totalCorrect >= 30 },
+    { id:'correct_60', name:'60 Certas', desc:'60 respostas certas', icon:'💯💯', color:'green', check: () => save.quizStats.totalCorrect >= 60 },
+    { id:'first_blood', name:'Primeiro Sangue', desc:'Derrota 1 inimigo', icon:'🩸', color:'red', check: () => save.achievements.first_blood || save.totalEnemiesKilled > 0 },
+    { id:'boss1', name:'Mecha Slayer', desc:'Derrota Mecha', icon:'🤖', color:'cyan', check: () => save.achievements.boss1 },
+    { id:'boss2', name:'Caçador', desc:'Derrota Demogorgon Prime', icon:'🌸', color:'red', check: () => save.achievements.boss2 },
+    { id:'boss3', name:'Mind Killer', desc:'Derrota Mind Flayer', icon:'👁️', color:'purple', check: () => save.achievements.boss3 },
+    { id:'first_test', name:'Teste Feito', desc:'Completa o 1.º teste', icon:'📝', color:'cyan', check: () => save.testsDone >= 1 },
+    { id:'test_excellent', name:'Excelente', desc:'Nota ≥ 18 num teste', icon:'🌟', color:'yellow', check: () => save.bestTestGrade >= 18 }
 ];
 function checkBadges() {
     let newUnlocks = [];
@@ -846,7 +892,7 @@ function renderBadges() {
     document.getElementById('stat-total-correct').textContent = save.quizStats.totalCorrect;
     document.getElementById('stat-quizzes-done').textContent = save.quizStats.quizzesDone;
     document.getElementById('stat-best-streak').textContent = save.quizStats.bestStreak;
-    document.getElementById('stat-perfect-quizzes').textContent = save.quizStats.perfectQuizzes;
+    document.getElementById('stat-tests-done').textContent = save.testsDone || 0;
     const colorMap = { teal:'border-teal-500 bg-teal-950/30', amber:'border-amber-500 bg-amber-950/30', purple:'border-purple-500 bg-purple-950/30', cyan:'border-hawkins-cyan bg-cyan-950/30', yellow:'border-hawkins-yellow bg-yellow-950/30', red:'border-hawkins-red bg-red-950/30', green:'border-green-500 bg-green-950/30' };
     BADGES.forEach(b => {
         const unlocked = !!save.unlockedBadges[b.id];
@@ -866,10 +912,10 @@ function renderBadges() {
 const QUIZ_TOPICS = {
     1: { name:'Personal Pronouns', icon:'👤', questions: [
         { q:'Look at Mike! ___ playing football.', options:['He is','She is','It is','They is'], correct:0, explain:'Mike é 1 rapaz → HE.', pt:'Ele joga futebol.' },
-        { q:'Joyce is worried. ___ looking for Will.', options:['She is','He is','It is','They is'], correct:0, explain:'Joyce é 1 rapariga → SHE.', pt:'Ela procura o Will.' },
-        { q:'Nancy and Jonathan ___ at school.', options:['They are','He is','She is','It is'], correct:0, explain:'Várias pessoas → THEY.', pt:'Estão na escola.' },
+        { q:'Joyce is worried. ___ looking for Will.', options:['She is','He is','It is','They is'], correct:0, explain:'Joyce = SHE.', pt:'Ela procura o Will.' },
+        { q:'Nancy and Jonathan ___ at school.', options:['They are','He is','She is','It is'], correct:0, explain:'Várias → THEY.', pt:'Estão na escola.' },
         { q:'The Demogorgon is scary. ___ big teeth.', options:['It has','They has','He have','She have'], correct:0, explain:'1 monstro → IT.', pt:'Tem dentes grandes.' },
-        { q:'There are 4 Demodogs! ___ running!', options:['They are','It is','He is','She is'], correct:0, explain:'Vários animais → THEY.', pt:'Eles correm!' },
+        { q:'There are 4 Demodogs! ___ running!', options:['They are','It is','He is','She is'], correct:0, explain:'Vários → THEY.', pt:'Eles correm!' },
         { q:'Eleven ___ my best friend.', options:['She is','He is','It is','They is'], correct:0, explain:'Eleven = SHE.', pt:'É minha amiga.' },
         { q:'The Walkie-Talkie is new. ___ small.', options:['It is','They are','He is','She is'], correct:0, explain:'1 objeto → IT.', pt:'É pequeno.' },
         { q:'Hopper and Joyce ___ at the lab.', options:['They are','It is','He is','She is'], correct:0, explain:'2 pessoas → THEY.', pt:'No laboratório.' },
@@ -926,8 +972,6 @@ function renderQuizQuestion() {
     document.getElementById('quiz-progress-text').textContent = `${currentQuestionIndex + 1} / ${topic.questions.length}`;
     document.getElementById('quiz-progress-bar').style.width = ((currentQuestionIndex) / topic.questions.length * 100) + '%';
     document.getElementById('quiz-question-text').textContent = q.q;
-    document.getElementById('quiz-question-text').dataset.audioText = q.q.replace(/___/g, 'blank');
-    document.getElementById('quiz-question-hint').textContent = `Tópico: ${topic.name}`;
     document.getElementById('quiz-score-correct').textContent = quizCorrect;
     document.getElementById('quiz-score-wrong').textContent = quizWrong;
     document.getElementById('quiz-streak').textContent = quizStreak;
@@ -945,8 +989,7 @@ function renderQuizQuestion() {
     });
 }
 function speakQuizQuestion() {
-    const el = document.getElementById('quiz-question-text');
-    const txt = el.dataset.audioText || el.textContent;
+    const txt = document.getElementById('quiz-question-text').textContent.replace(/___/g, 'blank');
     speakEn(txt);
 }
 function answerQuestion(isCorrect, q, btnEl) {
@@ -1010,10 +1053,333 @@ function finishQuiz() {
     result.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ===================== UI =====================
+// ===================== MODO TESTE OFICIAL =====================
+let testState = null;
+let testTimerInterval = null;
+
+function buildOfficialTest() {
+    // 10 perguntas de cada tópico, misturadas
+    const allQuestions = [];
+    [1,2,3].forEach(topicId => {
+        const topic = QUIZ_TOPICS[topicId];
+        // Embaralhar e pegar 10
+        const shuffled = [...topic.questions].sort(() => Math.random() - 0.5).slice(0, 10);
+        shuffled.forEach(q => {
+            allQuestions.push({
+                q: q.q,
+                options: q.options,
+                correct: q.correct,
+                explain: q.explain,
+                pt: q.pt,
+                topicId: topicId,
+                topicName: topic.name,
+                icon: topic.icon
+            });
+        });
+    });
+    // Embaralhar tudo
+    return allQuestions.sort(() => Math.random() - 0.5);
+}
+
+function startOfficialTest() {
+    const nameInput = document.getElementById('test-student-name');
+    const name = (nameInput.value || '').trim();
+    if (!name) {
+        nameInput.classList.add('animate-pulse');
+        nameInput.style.borderColor = '#ff0033';
+        setTimeout(() => { nameInput.classList.remove('animate-pulse'); nameInput.style.borderColor = ''; }, 1000);
+        return;
+    }
+    if (name.length < 2) {
+        alert('Escreve um nome com pelo menos 2 letras.');
+        return;
+    }
+    playSound('powerup');
+    testState = {
+        studentName: name,
+        questions: buildOfficialTest(),
+        currentIndex: 0,
+        answers: [], // {topicId, correct: bool, givenAnswer}
+        selectedOption: null,
+        startTime: Date.now(),
+        endTime: null,
+        timeLimit: 15 * 60 * 1000, // 15 min
+        finished: false
+    };
+    document.getElementById('test-intro').classList.add('hidden');
+    document.getElementById('test-running').classList.remove('hidden');
+    document.getElementById('test-result').classList.add('hidden');
+    document.getElementById('test-total-q').textContent = testState.questions.length;
+    renderTestQuestion();
+    startTestTimer();
+}
+
+function startTestTimer() {
+    if (testTimerInterval) clearInterval(testTimerInterval);
+    updateTestTimer();
+    testTimerInterval = setInterval(() => {
+        if (!testState || testState.finished) { clearInterval(testTimerInterval); return; }
+        const elapsed = Date.now() - testState.startTime;
+        const remaining = testState.timeLimit - elapsed;
+        if (remaining <= 0) {
+            clearInterval(testTimerInterval);
+            finishOfficialTest(true); // tempo esgotado
+            return;
+        }
+        updateTestTimer();
+    }, 1000);
+}
+
+function updateTestTimer() {
+    if (!testState) return;
+    const elapsed = Date.now() - testState.startTime;
+    const remaining = Math.max(0, testState.timeLimit - elapsed);
+    const min = Math.floor(remaining / 60000);
+    const sec = Math.floor((remaining % 60000) / 1000);
+    const el = document.getElementById('test-timer');
+    el.textContent = `${min}:${sec.toString().padStart(2,'0')}`;
+    if (remaining < 60 * 1000) el.classList.add('timer-warning');
+    else el.classList.remove('timer-warning');
+}
+
+function renderTestQuestion() {
+    if (!testState) return;
+    const q = testState.questions[testState.currentIndex];
+    document.getElementById('test-current-q').textContent = testState.currentIndex + 1;
+    document.getElementById('test-answered').textContent = testState.answers.length;
+    document.getElementById('test-progress-bar').style.width = ((testState.currentIndex) / testState.questions.length * 100) + '%';
+    document.getElementById('test-topic-badge').textContent = `${q.icon} ${q.topicName}`;
+    document.getElementById('test-question-text').textContent = q.q;
+    document.getElementById('test-next-btn').classList.add('hidden');
+    testState.selectedOption = null;
+    const grid = document.getElementById('test-options-grid');
+    grid.innerHTML = '';
+    // Embaralhar opções mas manter rastreio da correta
+    q.options.map((opt, i) => ({ opt, originalIndex: i })).sort(() => Math.random() - 0.5).forEach(({ opt, originalIndex }) => {
+        const btn = document.createElement('button');
+        btn.className = 'p-4 bg-gray-900 border-2 border-gray-700 hover:border-hawkins-cyan rounded-2xl text-white font-tech font-bold text-base text-left transition-all';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            // Desmarcar todas
+            document.querySelectorAll('#test-options-grid button').forEach(b => {
+                b.classList.remove('border-hawkins-cyan', 'bg-hawkins-cyan/10');
+                b.classList.add('border-gray-700');
+            });
+            // Marcar esta
+            btn.classList.remove('border-gray-700');
+            btn.classList.add('border-hawkins-cyan', 'bg-hawkins-cyan/10');
+            testState.selectedOption = { text: opt, originalIndex };
+            document.getElementById('test-next-btn').classList.remove('hidden');
+        };
+        grid.appendChild(btn);
+    });
+    // Auto-speak
+    setTimeout(() => speakTestQuestion(), 300);
+}
+
+function speakTestQuestion() {
+    if (!testState) return;
+    const q = testState.questions[testState.currentIndex];
+    speakEn(q.q.replace(/___/g, 'blank'));
+}
+
+function submitTestAnswer() {
+    if (!testState || !testState.selectedOption) return;
+    const q = testState.questions[testState.currentIndex];
+    const isCorrect = testState.selectedOption.originalIndex === q.correct;
+    testState.answers.push({
+        topicId: q.topicId,
+        topicName: q.topicName,
+        isCorrect: isCorrect,
+        questionText: q.q,
+        correctAnswer: q.options[q.correct],
+        givenAnswer: testState.selectedOption.text,
+        explain: q.explain
+    });
+    testState.currentIndex++;
+    if (testState.currentIndex >= testState.questions.length) {
+        finishOfficialTest(false);
+    } else {
+        renderTestQuestion();
+    }
+}
+
+function finishOfficialTest(timeUp) {
+    if (!testState || testState.finished) return;
+    testState.finished = true;
+    testState.endTime = Date.now();
+    if (testTimerInterval) clearInterval(testTimerInterval);
+
+    const total = testState.questions.length;
+    const correct = testState.answers.filter(a => a.isCorrect).length;
+    const wrong = testState.answers.length - correct;
+    const unanswered = total - testState.answers.length;
+    const finalWrong = wrong + unanswered;
+
+    // Nota 0-20
+    const grade = Math.round((correct / total) * 20 * 10) / 10;
+    const gradeRounded = Math.round(grade);
+
+    const timeUsed = Math.floor((testState.endTime - testState.startTime) / 1000);
+    const min = Math.floor(timeUsed / 60);
+    const sec = timeUsed % 60;
+
+    // Estatísticas
+    save.testsDone = (save.testsDone || 0) + 1;
+    if (grade > (save.bestTestGrade || 0)) save.bestTestGrade = grade;
+    save.lastTestResult = {
+        name: testState.studentName,
+        grade: gradeRounded,
+        correct, wrong: finalWrong,
+        date: new Date().toISOString(),
+        timeUsed
+    };
+    persist();
+    checkBadges();
+    addXP(Math.round(grade * 5));
+    addCoins(Math.round(grade * 3));
+
+    // Mostrar resultado
+    document.getElementById('test-running').classList.add('hidden');
+    document.getElementById('test-result').classList.remove('hidden');
+
+    let emoji = '📚', feedback = '';
+    if (grade >= 18) { emoji = '🏆'; feedback = 'Excelente! Dominaste a matéria!'; }
+    else if (grade >= 14) { emoji = '⭐'; feedback = 'Muito bom! Estás quase no topo.'; }
+    else if (grade >= 10) { emoji = '👍'; feedback = 'Bom trabalho. Revê os tópicos mais fracos.'; }
+    else { emoji = '📚'; feedback = 'Continua a estudar. Volta à Sala de Estudo.'; }
+
+    if (timeUp) feedback = '⏱ Tempo esgotado! ' + feedback;
+
+    document.getElementById('test-result-emoji').textContent = emoji;
+    document.getElementById('test-result-name').textContent = testState.studentName;
+    document.getElementById('test-result-date').textContent = new Date().toLocaleString('pt-PT');
+    document.getElementById('test-result-grade').textContent = gradeRounded;
+    document.getElementById('test-result-correct').textContent = correct;
+    document.getElementById('test-result-wrong').textContent = finalWrong;
+    document.getElementById('test-result-time').textContent = `${min}:${sec.toString().padStart(2,'0')}`;
+
+    // Análise por tópico
+    const byTopic = {1:{c:0,t:0},2:{c:0,t:0},3:{c:0,t:0}};
+    testState.answers.forEach(a => {
+        byTopic[a.topicId].t++;
+        if (a.isCorrect) byTopic[a.topicId].c++;
+    });
+    const topicNames = {1:'Pronomes', 2:'Question Words', 3:'IN vs ON'};
+    let analysis = '<div class="text-hawkins-yellow font-bold mb-2">📊 Análise por tópico:</div><div class="grid grid-cols-3 gap-2">';
+    [1,2,3].forEach(t => {
+        const b = byTopic[t];
+        const pct = b.t > 0 ? Math.round((b.c / b.t) * 100) : 0;
+        const color = pct >= 70 ? 'green' : pct >= 50 ? 'yellow' : 'red';
+        analysis += `<div class="bg-black/60 border border-${color}-500/40 rounded-lg p-2 text-center">
+            <div class="text-[10px] text-gray-400">${topicNames[t]}</div>
+            <div class="text-${color}-400 font-bold text-lg">${b.c}/${b.t}</div>
+            <div class="text-[10px] text-${color}-400">${pct}%</div>
+        </div>`;
+    });
+    analysis += '</div>';
+    document.getElementById('test-result-feedback').innerHTML = `<div class="mb-3 text-lg">${feedback}</div>${analysis}`;
+
+    // Render review
+    renderTestReview();
+    playSound('correct');
+}
+
+function renderTestReview() {
+    const list = document.getElementById('test-review-list');
+    if (!testState) return;
+    list.innerHTML = testState.answers.map((a, i) => `
+        <div class="p-3 bg-gray-950 rounded-lg border-2 ${a.isCorrect ? 'border-green-500/40' : 'border-red-500/40'}">
+            <div class="flex justify-between items-start gap-2 mb-1">
+                <span class="text-[10px] font-mono text-gray-400">#${i+1} • ${a.topicName}</span>
+                <span class="text-lg">${a.isCorrect ? '✅' : '❌'}</span>
+            </div>
+            <div class="text-sm text-white font-tech font-bold mb-1">${a.questionText}</div>
+            <div class="text-xs ${a.isCorrect ? 'text-green-400' : 'text-red-400'}">
+                Tua resposta: <b>${a.givenAnswer}</b>
+            </div>
+            ${!a.isCorrect ? `<div class="text-xs text-green-400">Certa: <b>${a.correctAnswer}</b></div>` : ''}
+            <div class="text-[10px] text-gray-500 italic mt-1">${a.explain}</div>
+        </div>
+    `).join('');
+}
+
+function showTestReview() {
+    const panel = document.getElementById('test-review-panel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+function closeTestResult() {
+    testState = null;
+    document.getElementById('test-intro').classList.remove('hidden');
+    document.getElementById('test-running').classList.add('hidden');
+    document.getElementById('test-result').classList.add('hidden');
+    document.getElementById('test-student-name').value = '';
+    if (testTimerInterval) clearInterval(testTimerInterval);
+}
+
+// ===================== CERTIFICADO =====================
+function checkCertificateUnlocked() {
+    const req = 12 * 0.7; // 70% de 12 = 8.4
+    const t1 = (save.bestScore[1] || 0) >= Math.ceil(req);
+    const t2 = (save.bestScore[2] || 0) >= Math.ceil(req);
+    const t3 = (save.bestScore[3] || 0) >= Math.ceil(req);
+    return t1 && t2 && t3;
+}
+
+function renderCertificate() {
+    const locked = !checkCertificateUnlocked();
+    const lockedEl = document.getElementById('cert-locked');
+    const unlockedEl = document.getElementById('cert-unlocked');
+
+    if (locked) {
+        lockedEl.classList.remove('hidden');
+        unlockedEl.classList.add('hidden');
+        // Mostrar requisitos
+        const reqs = document.getElementById('cert-requirements');
+        const topicNames = {1:'👤 Personal Pronouns', 2:'❓ Question Words', 3:'📅 IN vs ON'};
+        const minNeeded = Math.ceil(12 * 0.7);
+        let html = '';
+        [1,2,3].forEach(t => {
+            const best = save.bestScore[t] || 0;
+            const ok = best >= minNeeded;
+            html += `<div class="flex justify-between items-center bg-gray-950 border-2 ${ok ? 'border-green-500/40' : 'border-red-500/40'} rounded-lg px-4 py-2">
+                <span class="text-sm font-tech text-white">${topicNames[t]}</span>
+                <span class="text-sm font-mono ${ok ? 'text-green-400' : 'text-red-400'}">${best}/12 ${ok ? '✅' : '❌'}</span>
+            </div>`;
+        });
+        html += `<p class="text-xs text-gray-500 mt-3">Precisas de <b class="text-hawkins-yellow">${minNeeded}/12</b> em cada tópico.</p>`;
+        reqs.innerHTML = html;
+        return;
+    }
+
+    lockedEl.classList.add('hidden');
+    unlockedEl.classList.remove('hidden');
+
+    // Preencher nome (do último teste ou input)
+    const nameInput = document.getElementById('cert-name-input');
+    if (!nameInput.value && save.lastTestResult) nameInput.value = save.lastTestResult.name;
+    document.getElementById('cert-display-name').textContent = nameInput.value || '— Nome do Agente —';
+
+    // Média final
+    const avgPct = Math.round(((save.bestScore[1] + save.bestScore[2] + save.bestScore[3]) / (12 * 3)) * 100);
+    document.getElementById('cert-avg-grade').textContent = avgPct + '%';
+    document.getElementById('cert-display-level').textContent = save.level;
+    document.getElementById('cert-display-badges').textContent = Object.keys(save.unlockedBadges).length;
+    document.getElementById('cert-display-date').textContent = new Date().toLocaleDateString('pt-PT');
+}
+function updateCertificateName() {
+    const v = document.getElementById('cert-name-input').value.trim();
+    if (!v) return;
+    document.getElementById('cert-display-name').textContent = v;
+}
+
+// ===================== UI GERAL =====================
 function switchTab(tabId) {
     playSound('correct');
-    ['arcade','review','quiz','badges'].forEach(id => {
+    ['arcade','review','quiz','test','badges','certificate'].forEach(id => {
         const sec = document.getElementById(`sec-${id}`);
         const tab = document.getElementById(`tab-${id}`);
         if (!sec || !tab) return;
@@ -1021,6 +1387,7 @@ function switchTab(tabId) {
         else { sec.classList.add('hidden'); tab.classList.remove('border-hawkins-red','text-hawkins-red','font-bold'); tab.classList.add('border-transparent','text-gray-400'); }
     });
     if (tabId === 'badges') renderBadges();
+    if (tabId === 'certificate') renderCertificate();
     if (tabId === 'review') setTimeout(updateSpeechStatus, 100);
 }
 function updatePlayerHUD() {
@@ -1060,7 +1427,7 @@ function toggleAudio() {
     if (isMuted && 'speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
-// ===================== SPRITE CACHE (detalhados) =====================
+// ===================== SPRITE CACHE (simplificado mas funcional) =====================
 const SPRITE_CACHE = {};
 function createSpriteCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
 function safeR(r) { return Math.max(1, r); }
@@ -1069,110 +1436,53 @@ function shade(c, mul) {
     const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
     return `rgb(${Math.round(Math.min(255,r*mul))},${Math.round(Math.min(255,g*mul))},${Math.round(Math.min(255,b*mul))})`;
 }
-
-function drawElevenSprite(ctx, pose, animT, skin = 'default') {
-    const paleSkin = '#f8d5c4', paleSkinShadow = '#e0b8a4', hairBrown = '#5a2a0f', hairLight = '#7a4020';
-    const dressPink = '#e87aa4', dressPinkDark = '#c05880', jacketBlue = '#3a5a99', jacketBlueDark = '#2a4070', sockWhite = '#f0f0f5';
+function drawElevenSprite(ctx, pose, animT, skin) {
+    const paleSkin = '#f8d5c4', hairBrown = '#5a2a0f', dressPink = '#e87aa4', jacketBlue = '#3a5a99';
     let legOffsetL = 0, legOffsetR = 0, armOffset = 0, bodyBob = 0;
-    if (pose === 'idle') { bodyBob = Math.sin(animT*0.1)*0.5; }
-    else if (pose === 'run1') { legOffsetL = -6; legOffsetR = 6; armOffset = 4; bodyBob = -1; }
+    if (pose === 'run1') { legOffsetL = -6; legOffsetR = 6; armOffset = 4; bodyBob = -1; }
     else if (pose === 'run3') { legOffsetL = 6; legOffsetR = -6; armOffset = -4; bodyBob = -1; }
     else if (pose === 'jump') { legOffsetL = -3; legOffsetR = 4; armOffset = -6; bodyBob = -2; }
     ctx.fillStyle = paleSkin;
     ctx.beginPath(); ctx.roundRect(-8 + legOffsetL, 18, 6, 14, 3); ctx.fill();
     ctx.beginPath(); ctx.roundRect(2 + legOffsetR, 18, 6, 14, 3); ctx.fill();
-    ctx.fillStyle = sockWhite;
+    ctx.fillStyle = '#f0f0f5';
     ctx.beginPath(); ctx.roundRect(-8 + legOffsetL, 28, 6, 6, 2); ctx.fill();
     ctx.beginPath(); ctx.roundRect(2 + legOffsetR, 28, 6, 6, 2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.roundRect(-8 + legOffsetL, 28, 6, 6, 2); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(2 + legOffsetR, 28, 6, 6, 2); ctx.stroke();
     ctx.fillStyle = dressPink;
     ctx.beginPath();
-    ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(11, 0 + bodyBob);
-    ctx.lineTo(13, 22 + bodyBob); ctx.lineTo(-13, 22 + bodyBob);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = dressPinkDark;
-    ctx.beginPath();
-    ctx.moveTo(-13, 18 + bodyBob); ctx.lineTo(13, 18 + bodyBob);
-    ctx.lineTo(13, 22 + bodyBob); ctx.lineTo(-13, 22 + bodyBob);
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(11, 0 + bodyBob);
-    ctx.lineTo(13, 22 + bodyBob); ctx.lineTo(-13, 22 + bodyBob);
-    ctx.closePath(); ctx.stroke();
-    ctx.fillStyle = jacketBlue;
-    ctx.beginPath();
-    ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(-3, 0 + bodyBob);
-    ctx.lineTo(-3, 14 + bodyBob); ctx.lineTo(-11, 16 + bodyBob);
+    ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(11, 0 + bodyBob); ctx.lineTo(13, 22 + bodyBob); ctx.lineTo(-13, 22 + bodyBob);
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(11, 0 + bodyBob); ctx.lineTo(3, 0 + bodyBob);
-    ctx.lineTo(3, 14 + bodyBob); ctx.lineTo(11, 16 + bodyBob);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = jacketBlueDark;
-    ctx.fillRect(-3, 0 + bodyBob, 6, 4);
     ctx.fillStyle = jacketBlue;
-    ctx.beginPath(); ctx.roundRect(-14, 2 + bodyBob + armOffset*0.3, 4, 12, 2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3; ctx.stroke();
-    ctx.fillStyle = paleSkin;
-    ctx.beginPath(); ctx.arc(-12, 15 + bodyBob + armOffset*0.3, 2.5, 0, Math.PI*2); ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = jacketBlueDark;
+    ctx.beginPath();
+    ctx.moveTo(-11, 0 + bodyBob); ctx.lineTo(-3, 0 + bodyBob); ctx.lineTo(-3, 14 + bodyBob); ctx.lineTo(-11, 16 + bodyBob);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(11, 0 + bodyBob); ctx.lineTo(3, 0 + bodyBob); ctx.lineTo(3, 14 + bodyBob); ctx.lineTo(11, 16 + bodyBob);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = jacketBlue;
+    ctx.beginPath(); ctx.roundRect(-14, 2 + bodyBob + armOffset*0.3, 4, 12, 2); ctx.fill(); ctx.stroke();
     ctx.beginPath(); ctx.roundRect(10, 2 + bodyBob - armOffset*0.3, 4, 12, 2); ctx.fill(); ctx.stroke();
     const headY = -12 + bodyBob;
-    ctx.fillStyle = paleSkinShadow;
-    ctx.fillRect(-3, -2 + bodyBob, 6, 4);
     ctx.fillStyle = paleSkin;
     ctx.beginPath(); ctx.ellipse(0, headY + 3, 10, 11, 0, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = paleSkinShadow;
-    ctx.beginPath(); ctx.ellipse(4, headY + 4, 5, 8, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = paleSkin;
-    ctx.beginPath(); ctx.ellipse(-2, headY + 2, 7, 9, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = hairBrown;
     ctx.beginPath(); ctx.ellipse(0, headY - 2, 12, 11, 0, Math.PI, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(-10, headY + 3, 4, 8, 0.3, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(10, headY + 3, 4, 8, -0.3, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(-8, headY - 4);
-    ctx.quadraticCurveTo(0, headY - 8, 8, headY - 4);
-    ctx.quadraticCurveTo(4, headY - 1, 0, headY - 3);
-    ctx.quadraticCurveTo(-4, headY - 1, -8, headY - 4);
-    ctx.fill();
-    ctx.fillStyle = hairLight;
-    ctx.beginPath(); ctx.arc(-11, headY + 8, 3, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(11, headY + 8, 3, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#fff';
     ctx.beginPath(); ctx.ellipse(-4, headY + 3, 2.2, 2.8, 0, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(4, headY + 3, 2.2, 2.8, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#3a2a1a';
     ctx.beginPath(); ctx.arc(-4, headY + 3.5, 1.4, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(4, headY + 3.5, 1.4, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#a04050'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(-2, headY + 8); ctx.quadraticCurveTo(0, headY + 9, 2, headY + 8); ctx.stroke();
 }
-
 function drawDemodogSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const cx = x + w/2;
-    const legPhase = Math.sin(animT * 0.9); const tailPhase = Math.sin(animT * 1.2);
-    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.beginPath(); ctx.ellipse(cx, y + h + 4, w * 0.55, 5, 0, 0, Math.PI*2); ctx.fill();
-    const cDark = isElite ? '#3a0518' : '#4a0a20'; const cMid = isElite ? '#7a0a30' : '#8a1237';
-    const cLight = isElite ? '#c03050' : '#c04060'; const cMouth = '#e11d48';
-    ctx.fillStyle = cDark;
-    ctx.beginPath();
-    ctx.moveTo(x + w - 8, y + 22); ctx.quadraticCurveTo(x + w + 6, y + 16 + tailPhase*3, x + w + 10, y + 8 + tailPhase*5);
-    ctx.quadraticCurveTo(x + w + 3, y + 14 + tailPhase*3, x + w - 6, y + 24);
-    ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3; ctx.stroke();
-    ctx.fillStyle = cDark; const lh1 = legPhase * 4;
-    ctx.beginPath();
-    ctx.moveTo(x + w - 16, y + 24); ctx.lineTo(x + w - 14 + lh1, y + 36); ctx.lineTo(x + w - 8 + lh1, y + 36); ctx.lineTo(x + w - 10, y + 24);
-    ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x + w - 20, y + 24); ctx.lineTo(x + w - 20 - lh1, y + 36); ctx.lineTo(x + w - 14 - lh1, y + 36); ctx.lineTo(x + w - 14, y + 24);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
+    const w = s.w, h = s.h;
+    const cDark = '#4a0a20', cMid = '#8a1237', cLight = '#c04060';
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 4, w * 0.55, 5, 0, 0, Math.PI*2); ctx.fill();
     const bodyGrad = ctx.createLinearGradient(x, y + 10, x, y + h - 8);
     bodyGrad.addColorStop(0, cLight); bodyGrad.addColorStop(0.5, cMid); bodyGrad.addColorStop(1, cDark);
     ctx.fillStyle = bodyGrad;
@@ -1182,677 +1492,248 @@ function drawDemodogSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     ctx.bezierCurveTo(x + w - 2, y + 20, x + w - 4, y + h - 6, x + w - 12, y + h - 6);
     ctx.lineTo(x + 14, y + h - 6);
     ctx.bezierCurveTo(x + 6, y + h - 8, x + 2, y + 24, x + 8, y + 16);
-    ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,120,150,0.55)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(x + 10, y + 15); ctx.bezierCurveTo(x + 16, y + 8, x + w - 20, y + 8, x + w - 10, y + 14); ctx.stroke();
-    ctx.fillStyle = cDark; ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
-    for (let i = 0; i < 5; i++) {
-        const sx = x + 14 + i * 8; const sh = 5 + Math.sin(i * 1.3) * 2;
-        ctx.beginPath(); ctx.moveTo(sx, y + 14); ctx.lineTo(sx + 2, y + 14 - sh); ctx.lineTo(sx + 5, y + 14);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-    }
-    ctx.fillStyle = cDark; const lh2 = -legPhase * 4;
-    ctx.beginPath();
-    ctx.moveTo(x + 14, y + 24); ctx.lineTo(x + 12 + lh2, y + 36); ctx.lineTo(x + 18 + lh2, y + 36); ctx.lineTo(x + 18, y + 24);
-    ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x + 20, y + 24); ctx.lineTo(x + 20 - lh2, y + 36); ctx.lineTo(x + 26 - lh2, y + 36); ctx.lineTo(x + 24, y + 24);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
     const headX = x + 12, headY = y + 16;
-    ctx.save(); ctx.shadowColor = isElite ? '#ffd700' : '#e11d48'; ctx.shadowBlur = isElite ? 18 : 10;
-    const mouthOpen = Math.abs(Math.sin(animT * 2)) * 3;
-    for (let i = 0; i < 6; i++) {
-        const ang = (i / 6) * Math.PI * 2 + animT * 0.2;
-        const px = headX + Math.cos(ang) * 9; const py = headY + Math.sin(ang) * 9;
-        ctx.fillStyle = i % 2 === 0 ? cMouth : '#be123c';
-        ctx.beginPath();
-        ctx.moveTo(headX + Math.cos(ang) * 4, headY + Math.sin(ang) * 4);
-        ctx.quadraticCurveTo(headX + Math.cos(ang + 0.4) * (12 + mouthOpen), headY + Math.sin(ang + 0.4) * (12 + mouthOpen), px, py);
-        ctx.quadraticCurveTo(headX + Math.cos(ang - 0.4) * (12 + mouthOpen), headY + Math.sin(ang - 0.4) * (12 + mouthOpen), headX + Math.cos(ang) * 4, headY + Math.sin(ang) * 4);
-        ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
-    }
+    ctx.save(); ctx.shadowColor = '#e11d48'; ctx.shadowBlur = 10;
+    ctx.fillStyle = '#e11d48';
+    ctx.beginPath(); ctx.arc(headX, headY, 8, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.fillStyle = '#0a0004'; ctx.beginPath(); ctx.arc(headX, headY, 7 + mouthOpen*0.5, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4; ctx.stroke();
-    ctx.fillStyle = '#fff';
-    for (let i = 0; i < 8; i++) {
-        const ang = (i / 8) * Math.PI * 2;
-        const dx = headX + Math.cos(ang) * 5, dy = headY + Math.sin(ang) * 5;
-        ctx.save(); ctx.translate(dx, dy); ctx.rotate(ang);
-        ctx.beginPath(); ctx.moveTo(-1.5, -2); ctx.lineTo(1.5, -2); ctx.lineTo(0, 2);
-        ctx.closePath(); ctx.fill(); ctx.restore();
-    }
-    ctx.save(); ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 8;
-    ctx.fillStyle = '#ffd700';
-    ctx.beginPath(); ctx.arc(headX - 2, headY - 2, 1, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(headX + 2, headY - 2, 1, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
-    if (isElite) {
-        ctx.save(); ctx.fillStyle = '#ffd700'; ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 12;
-        for (let i = 0; i < 5; i++) {
-            const cx2 = x + 12 + i * (w - 24) / 4;
-            ctx.beginPath(); ctx.moveTo(cx2 - 2, y + 4); ctx.lineTo(cx2, y - 3); ctx.lineTo(cx2 + 2, y + 4);
-            ctx.closePath(); ctx.fill();
-        }
-        ctx.restore();
-    }
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
-function drawDemogorgonAlphaSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    drawDemodogSprite(ctx, x, y, s, seed, animT, true, isHurt);
-    ctx.fillStyle = '#ffd700';
-    for (let i = 0; i < 5; i++) {
-        const sx = x + 14 + i * 8;
-        ctx.beginPath(); ctx.moveTo(sx, y + 12); ctx.lineTo(sx + 2, y); ctx.lineTo(sx + 4, y + 12);
-        ctx.closePath(); ctx.fill();
-    }
-}
 function drawGuardSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const cx = x + w/2;
-    const legPhase = Math.sin(animT * 0.5); const bob = Math.sin(animT * 0.3) * 1.5;
-    const armorLight = isElite ? '#5a6a7a' : '#3a4a5a';
-    const armorMid = isElite ? '#3a4a5a' : '#2a3a4a';
-    const armorDark = isElite ? '#1a2a3a' : '#0a1a2a';
-    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.beginPath(); ctx.ellipse(cx, y + h + 3, w * 0.6, 4, 0, 0, Math.PI*2); ctx.fill();
-    const legL = legPhase * 4;
-    ctx.fillStyle = armorDark; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.roundRect(x + 8 + legL, y + h - 22, 9, 22, 2); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(x + w - 17 - legL, y + h - 22, 9, 22, 2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#0a0a14';
-    ctx.beginPath(); ctx.roundRect(x + 6 + legL, y + h - 5, 13, 5, 1); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(x + w - 19 - legL, y + h - 5, 13, 5, 1); ctx.fill(); ctx.stroke();
-    const bodyY = y + 22 + bob, bodyH = h - 44;
-    const bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
-    bodyGrad.addColorStop(0, armorLight); bodyGrad.addColorStop(0.5, armorMid); bodyGrad.addColorStop(1, armorDark);
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath(); ctx.roundRect(x + 6, bodyY, w - 12, bodyH, 3); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
-    ctx.strokeStyle = 'rgba(200,220,255,0.5)'; ctx.lineWidth = 1.3;
-    ctx.beginPath(); ctx.moveTo(x + 8, bodyY + 1); ctx.lineTo(x + w - 8, bodyY + 1); ctx.stroke();
-    ctx.fillStyle = armorDark;
-    ctx.fillRect(x + 10, bodyY + 6, w - 20, 3); ctx.fillRect(x + 10, bodyY + bodyH - 14, w - 20, 3);
-    ctx.fillStyle = '#1a1a2a'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.roundRect(x + 3, bodyY + bodyH - 18, 7, 14, 2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = armorMid; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3;
-    ctx.beginPath(); ctx.roundRect(x + 2, bodyY + 8, 6, 18, 2); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(x + w - 8, bodyY + 8, 6, 18, 2); ctx.fill(); ctx.stroke();
-    const headY = y + bob;
-    const headGrad = ctx.createLinearGradient(x, headY, x, headY + 22);
-    headGrad.addColorStop(0, armorLight); headGrad.addColorStop(1, armorDark);
-    ctx.fillStyle = headGrad;
-    ctx.beginPath(); ctx.roundRect(cx - 10, headY, 20, 22, 3); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.stroke();
-    ctx.fillStyle = armorDark;
-    ctx.fillRect(cx - 2, headY - 2, 4, 24); ctx.strokeRect(cx - 2, headY - 2, 4, 24);
+    const w = s.w, h = s.h;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 3, w * 0.6, 4, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(x + 6, y + 20, w - 12, h - 44);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.strokeRect(x + 6, y + 20, w - 12, h - 44);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(x + w/2 - 10, y, 20, 22);
+    ctx.strokeRect(x + w/2 - 10, y, 20, 22);
     ctx.save(); ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 14;
     ctx.fillStyle = '#ef4444';
-    ctx.beginPath(); ctx.roundRect(cx - 7, headY + 8, 14, 5, 2); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.fillRect(cx - 5, headY + 9, 4, 2);
+    ctx.fillRect(x + w/2 - 7, y + 8, 14, 5);
     ctx.restore();
-    ctx.fillStyle = '#0a0a14'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3;
-    ctx.beginPath(); ctx.roundRect(x - 6, bodyY + 10, 22, 5, 1); ctx.fill(); ctx.stroke();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawDroneSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h;
-    const cx = x + w/2, cy = y + h/2 + Math.sin(animT * 0.6) * 2;
-    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(cx, y + h + 8, w * 0.5, 3, 0, 0, Math.PI*2); ctx.fill();
-    const rotorPhase = animT * 10;
-    ctx.strokeStyle = 'rgba(180,220,255,0.7)'; ctx.lineWidth = 2;
-    for (let k = 0; k < 4; k++) {
-        const a = rotorPhase + (k/4) * Math.PI * 2;
-        ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * 6, cy + Math.sin(a) * 6); ctx.lineTo(cx + Math.cos(a) * (w/2 + 8), cy + Math.sin(a) * (w/2 + 8)); ctx.stroke();
-    }
-    const bodyGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, w/2);
-    bodyGrad.addColorStop(0, isElite ? '#5a7aa0' : '#2a4a6a'); bodyGrad.addColorStop(1, isElite ? '#1a2a40' : '#0a1a30');
-    ctx.fillStyle = bodyGrad;
+    const cx = x + w/2, cy = y + h/2;
+    ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 15;
+    ctx.fillStyle = '#2a4a6a';
     ctx.beginPath(); ctx.arc(cx, cy, w/2 - 2, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
-    ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 20;
-    const corePulse = safeR(5 + Math.sin(animT * 4) * 1.5);
-    const coreGrad = ctx.createRadialGradient(cx, cy, 1, cx, cy, corePulse);
-    coreGrad.addColorStop(0, '#fff'); coreGrad.addColorStop(0.5, '#00f0ff'); coreGrad.addColorStop(1, 'rgba(0,240,255,0)');
-    ctx.fillStyle = coreGrad; ctx.beginPath(); ctx.arc(cx, cy, corePulse, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.fillStyle = '#ff0033'; ctx.beginPath(); ctx.arc(cx + 6, cy + 5, 2, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(cx - 6, cy - 5, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
+    ctx.fillStyle = '#00f0ff';
+    ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2); ctx.fill();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawTurretSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h;
-    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 2, w * 0.75, 4, 0, 0, Math.PI*2); ctx.fill();
-    const baseGrad = ctx.createLinearGradient(x, y + h - 22, x, y + h);
-    baseGrad.addColorStop(0, isElite ? '#3a4a5a' : '#1e3a5a'); baseGrad.addColorStop(1, '#0a1a2a');
-    ctx.fillStyle = baseGrad; ctx.beginPath(); ctx.roundRect(x + 4, y + h - 22, w - 8, 22, 3); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.stroke();
-    const towerY = y + 15;
-    const towerGrad = ctx.createLinearGradient(x + w/2 - 12, towerY, x + w/2 + 12, towerY + 30);
-    towerGrad.addColorStop(0, isElite ? '#4a5a6a' : '#2a4a6a'); towerGrad.addColorStop(1, '#0a1a2a');
-    ctx.fillStyle = towerGrad; ctx.beginPath(); ctx.roundRect(x + w/2 - 12, towerY, 24, 32, 3); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.stroke();
-    ctx.save();
-    const color = isElite ? '#ffd700' : '#ff0033';
-    ctx.shadowColor = color; ctx.shadowBlur = 18;
-    const pulse = safeR(6 + Math.sin(animT * 4) * 2);
-    const coreGrad = ctx.createRadialGradient(x + w/2, towerY + 5, 1, x + w/2, towerY + 5, pulse);
-    coreGrad.addColorStop(0, '#fff'); coreGrad.addColorStop(0.5, color); coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = coreGrad; ctx.beginPath(); ctx.arc(x + w/2, towerY + 5, pulse, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#1e3a5a';
+    ctx.fillRect(x + 4, y + h - 22, w - 8, 22);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.strokeRect(x + 4, y + h - 22, w - 8, 22);
+    ctx.fillStyle = '#2a4a6a';
+    ctx.fillRect(x + w/2 - 12, y + 15, 24, 32);
+    ctx.strokeRect(x + w/2 - 12, y + 15, 24, 32);
+    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 18;
+    ctx.fillStyle = '#ff0033';
+    ctx.beginPath(); ctx.arc(x + w/2, y + 20, 6, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.fillStyle = '#020617'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.3;
-    ctx.beginPath(); ctx.roundRect(x - 8, y + 27, 18, 5, 1); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(x - 8, y + 35, 18, 5, 1); ctx.fill(); ctx.stroke();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawDemobatSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h;
     const cx = x + w/2, cy = y + h/2;
-    const wingPhase = Math.sin(animT * 4);
-    const wingColor = isElite ? '#7a2aaf' : '#581c87';
-    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(cx, y + h + 10, w * 0.4, 3, 0, 0, Math.PI*2); ctx.fill();
-    const wingGrad = ctx.createLinearGradient(x, y, x, y + h);
-    wingGrad.addColorStop(0, shade(wingColor, 1.3)); wingGrad.addColorStop(1, shade(wingColor, 0.6));
+    ctx.fillStyle = '#581c87';
     ctx.beginPath();
-    ctx.moveTo(cx, cy); ctx.bezierCurveTo(cx - 15, cy - 12 * wingPhase, cx - 25, cy - 5, x + 2, y + h/2 + wingPhase * 3);
-    ctx.bezierCurveTo(x + 8, y + h/2 + 5, cx - 8, cy + 10, cx, cy);
-    ctx.fillStyle = wingGrad; ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4; ctx.stroke();
+    ctx.moveTo(cx, cy); ctx.lineTo(x, y + h/2); ctx.lineTo(cx - 8, cy + 10);
+    ctx.fill();
     ctx.beginPath();
-    ctx.moveTo(cx, cy); ctx.bezierCurveTo(cx + 15, cy - 12 * wingPhase, cx + 25, cy - 5, x + w - 2, y + h/2 + wingPhase * 3);
-    ctx.bezierCurveTo(x + w - 8, y + h/2 + 5, cx + 8, cy + 10, cx, cy);
-    ctx.fillStyle = wingGrad; ctx.fill(); ctx.stroke();
-    const bodyGrad = ctx.createLinearGradient(cx - 6, cy, cx + 6, cy + 10);
-    bodyGrad.addColorStop(0, shade(wingColor, 1.4)); bodyGrad.addColorStop(1, shade(wingColor, 0.5));
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath(); ctx.ellipse(cx, cy + 3, 6, 10, 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4; ctx.stroke();
-    ctx.fillStyle = shade(wingColor, 1.5);
-    ctx.beginPath(); ctx.arc(cx, cy - 4, 5, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.save(); ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 6;
+    ctx.moveTo(cx, cy); ctx.lineTo(x + w, y + h/2); ctx.lineTo(cx + 8, cy + 10);
+    ctx.fill();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2); ctx.fillStyle = '#581c87'; ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#ffd700';
-    ctx.beginPath(); ctx.arc(cx - 2, cy - 5, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 2, cy - 5, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
+    ctx.beginPath(); ctx.arc(cx - 2, cy - 2, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 2, cy - 2, 1.5, 0, Math.PI*2); ctx.fill();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawVineSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const pulse = Math.sin(animT * 1.5);
-    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(x + w/2, y + h + 2, w * 0.55, 4, 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8;
-    ctx.fillStyle = isElite ? '#7a0030' : '#5a0018';
-    ctx.beginPath(); ctx.moveTo(x + 8, y);
-    for (let i = 0; i <= 10; i++) { const t = i / 10; const sy = y + t * h; const sx = x + 15 + Math.sin(animT + t * 4) * 3; ctx.lineTo(sx, sy); }
-    for (let i = 10; i >= 0; i--) { const t = i / 10; const sy = y + t * h; const sx = x + 15 + Math.sin(animT + t * 4) * 3 + 8; ctx.lineTo(sx, sy); }
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = isElite ? '#9a0040' : '#6a0020';
-    for (let i = 0; i < 5; i++) { const t = i / 5; const sy = y + 10 + t * (h - 20); const sx = x + 15 + Math.sin(animT + t * 4) * 3; ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2; ctx.stroke(); }
+    const w = s.w, h = s.h;
+    ctx.fillStyle = '#5a0018';
+    ctx.fillRect(x + 8, y, 14, h);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.strokeRect(x + 8, y, 14, h);
     ctx.save(); ctx.shadowColor = '#ff0055'; ctx.shadowBlur = 20;
-    const headPulse = safeR(10 + pulse * 2);
-    const headGrad = ctx.createRadialGradient(x + 15, y + 6, 1, x + 15, y + 6, headPulse);
-    headGrad.addColorStop(0, '#fff'); headGrad.addColorStop(0.5, '#ff0055'); headGrad.addColorStop(1, 'rgba(255,0,85,0)');
-    ctx.fillStyle = headGrad; ctx.beginPath(); ctx.arc(x + 15, y + 6, headPulse, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff0055';
+    ctx.beginPath(); ctx.arc(x + 15, y + 6, 10, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.strokeStyle = '#4a0015'; ctx.lineWidth = 2;
-    for (let i = 0; i < 4; i++) {
-        const t = (i + 1) / 5; const sy = y + 15 + t * (h - 25); const sx = x + 15 + Math.sin(animT + t * 4) * 3;
-        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo(sx - 8, sy - 3, sx - 12, sy + Math.sin(animT + i) * 4); ctx.stroke();
-    }
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawSpitterSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h;
-    const cx = x + w/2, cy = y + h/2 + 5;
-    const breathe = Math.sin(animT * 1.2) * 2;
-    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.beginPath(); ctx.ellipse(cx, y + h + 2, w * 0.55, 5, 0, 0, Math.PI*2); ctx.fill();
-    const bodyGrad = ctx.createRadialGradient(cx - 6, cy - 6, 2, cx, cy, safeR(w/2 + breathe));
-    bodyGrad.addColorStop(0, isElite ? '#3a8a3a' : '#2a7a2a'); bodyGrad.addColorStop(0.6, isElite ? '#1a5a1a' : '#14532d'); bodyGrad.addColorStop(1, '#0a2a15');
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath(); ctx.ellipse(cx, cy, safeR(w/2 - 2 + breathe), safeR(h/2 - 6 + breathe), 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
-    ctx.fillStyle = 'rgba(80,180,80,0.7)';
-    for (let i = 0; i < 6; i++) { const ang = (i / 6) * Math.PI * 2 + seed; const px = cx + Math.cos(ang) * (w * 0.28); const py = cy + Math.sin(ang) * (h * 0.28); ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill(); }
-    const headGrad = ctx.createRadialGradient(cx - 3, cy - 10, 1, cx, cy - 8, 11);
-    headGrad.addColorStop(0, isElite ? '#4aff4a' : '#22c55e'); headGrad.addColorStop(1, '#0a2a15');
-    ctx.fillStyle = headGrad; ctx.beginPath(); ctx.arc(cx, cy - 8, 10, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5; ctx.stroke();
-    const mouthOpen = Math.abs(Math.sin(animT * 2)) * 3;
-    ctx.fillStyle = '#0a0004'; ctx.beginPath(); ctx.ellipse(cx, cy - 6, 6, 3 + mouthOpen, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    for (let i = 0; i < 5; i++) { const tx = cx - 4 + i * 2.2; ctx.beginPath(); ctx.moveTo(tx, cy - 6); ctx.lineTo(tx + 1, cy - 3); ctx.lineTo(tx + 2, cy - 6); ctx.closePath(); ctx.fill(); }
-    ctx.save(); ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 10;
-    ctx.fillStyle = '#ffd700';
-    ctx.beginPath(); ctx.arc(cx - 4, cy - 11, 2, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 4, cy - 11, 2, 0, Math.PI*2); ctx.fill();
+    const cx = x + w/2, cy = y + h/2;
+    ctx.save(); ctx.shadowColor = '#22c55e'; ctx.shadowBlur = 15;
+    ctx.fillStyle = '#14532d';
+    ctx.beginPath(); ctx.ellipse(cx, cy, w/2 - 2, h/2 - 6, 0, 0, Math.PI*2); ctx.fill();
     ctx.restore();
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.8; ctx.stroke();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawHunterSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const legPhase = Math.sin(animT * 1.4);
-    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(cx, y + h + 2, w * 0.6, 4, 0, 0, Math.PI*2); ctx.fill();
-    const bodyGrad = ctx.createLinearGradient(x, y, x, y + h);
-    bodyGrad.addColorStop(0, isElite ? '#7a1a1a' : '#5a0a0a'); bodyGrad.addColorStop(0.5, isElite ? '#8a2020' : '#450a0a'); bodyGrad.addColorStop(1, '#2a0505');
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath();
-    ctx.moveTo(x + 10, y + 14); ctx.bezierCurveTo(x + 20, y + 6, x + w - 14, y + 10, x + w - 4, y + 20);
-    ctx.bezierCurveTo(x + w, y + h - 16, x + w - 10, y + h - 6, x + w - 14, y + h - 4);
-    ctx.lineTo(x + 14, y + h - 4); ctx.bezierCurveTo(x + 4, y + h - 10, x + 6, y + 22, x + 10, y + 14);
-    ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.stroke();
-    ctx.fillStyle = '#3a0808'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.roundRect(x + 14 + legPhase * 4, y + h - 14, 6, 14, 2); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(x + w - 24 - legPhase * 4, y + h - 14, 6, 14, 2); ctx.fill(); ctx.stroke();
-    const headGrad = ctx.createRadialGradient(cx - 3, cy - 8, 1, cx, cy - 6, 12);
-    headGrad.addColorStop(0, isElite ? '#aa2a2a' : '#7f1d1d'); headGrad.addColorStop(1, '#2a0505');
-    ctx.fillStyle = headGrad; ctx.beginPath(); ctx.arc(cx, cy - 6, 10, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4; ctx.stroke();
-    ctx.fillStyle = '#2a0505'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(cx - 10, cy - 10); ctx.lineTo(cx - 14, cy - 20); ctx.lineTo(cx - 5, cy - 14); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + 10, cy - 10); ctx.lineTo(cx + 14, cy - 20); ctx.lineTo(cx + 5, cy - 14); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.save(); ctx.shadowColor = '#ffd700'; ctx.shadowBlur = 10;
+    const w = s.w, h = s.h;
+    ctx.fillStyle = '#5a0a0a';
+    ctx.fillRect(x + 6, y + 14, w - 12, h - 20);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.strokeRect(x + 6, y + 14, w - 12, h - 20);
     ctx.fillStyle = '#ffd700';
-    ctx.beginPath(); ctx.arc(cx - 3, cy - 7, 2, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 3, cy - 7, 2, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(cx - 4, cy - 1, 1.5, 3); ctx.fillRect(cx - 1, cy - 1, 1.5, 3); ctx.fillRect(cx + 2, cy - 1, 1.5, 3);
+    ctx.beginPath(); ctx.arc(x + 18, y + 22, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 32, y + 22, 2, 0, Math.PI*2); ctx.fill();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawShadowSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const pulse = Math.sin(animT * 1.8) * 4;
-    ctx.save(); ctx.shadowColor = isElite ? '#b026ff' : '#7a1aaf'; ctx.shadowBlur = 25;
-    for (let i = 0; i < 4; i++) {
-        const off = (i - 1.5) * 2;
-        const grad = ctx.createRadialGradient(cx + off, cy + off, 2, cx + off, cy + off, safeR(w/2 + pulse));
-        grad.addColorStop(0, isElite ? 'rgba(200,80,255,0.8)' : 'rgba(140,40,180,0.7)');
-        grad.addColorStop(0.6, isElite ? 'rgba(80,10,140,0.85)' : 'rgba(40,0,80,0.85)');
-        grad.addColorStop(1, 'rgba(10,0,30,0)');
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx + off, cy + off, safeR(w/2 + pulse), 0, Math.PI*2); ctx.fill();
-    }
+    const w = s.w, h = s.h;
+    const cx = x + w/2, cy = y + h/2;
+    ctx.save(); ctx.shadowColor = '#b026ff'; ctx.shadowBlur = 25;
+    ctx.fillStyle = 'rgba(40,0,80,0.85)';
+    ctx.beginPath(); ctx.arc(cx, cy, w/2 - 2, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.strokeStyle = isElite ? '#b026ff' : '#5a1a8a'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(cx, cy, safeR(w/2 - 3 + pulse * 0.5), 0, Math.PI*2); ctx.stroke();
-    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 12;
     ctx.fillStyle = '#ff0033';
-    const eyePulse = 2.5 + Math.sin(animT * 4) * 0.5;
-    ctx.beginPath(); ctx.arc(cx - 6, cy - 2, eyePulse, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 6, cy - 2, eyePulse, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(cx - 6, cy - 2, eyePulse * 0.4, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 6, cy - 2, eyePulse * 0.4, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
-    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
+    ctx.beginPath(); ctx.arc(cx - 6, cy - 2, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 6, cy - 2, 3, 0, Math.PI*2); ctx.fill();
+    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawCamperSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const breathe = Math.sin(animT * 0.8) * 1.5;
-    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(cx, y + h + 2, w * 0.55, 4, 0, 0, Math.PI*2); ctx.fill();
-    const bodyGrad = ctx.createLinearGradient(x, y, x, y + h);
-    bodyGrad.addColorStop(0, isElite ? '#2a5a30' : '#1a4520'); bodyGrad.addColorStop(0.6, isElite ? '#166534' : '#0a3018'); bodyGrad.addColorStop(1, '#031008');
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath();
-    ctx.moveTo(x + 10, y + 14); ctx.bezierCurveTo(x + 20, y + 6, x + w - 18, y + 8, x + w - 6, y + 20);
-    ctx.bezierCurveTo(x + w, y + h - 16, x + w - 4, y + h - 4, x + w - 10, y + h - 4);
-    ctx.lineTo(x + 10, y + h - 4); ctx.bezierCurveTo(x + 2, y + h - 16, x + 4, y + 26, x + 10, y + 14);
-    ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.stroke();
-    ctx.fillStyle = isElite ? '#2a5a30' : '#0a3018'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.arc(cx, cy - 6, 12 + breathe, Math.PI * 1.05, Math.PI * 1.95);
-    ctx.lineTo(cx + 12, cy - 2); ctx.lineTo(cx - 12, cy - 2);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
+    const w = s.w, h = s.h;
+    ctx.fillStyle = '#1a4520';
+    ctx.fillRect(x + 10, y + 14, w - 20, h - 20);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.7; ctx.strokeRect(x + 10, y + 14, w - 20, h - 20);
     ctx.save(); ctx.shadowColor = '#22c55e'; ctx.shadowBlur = 14;
     ctx.fillStyle = '#22c55e';
-    ctx.beginPath(); ctx.arc(cx - 5, cy - 8, 2.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 5, cy - 8, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + w/2 - 5, y + 22, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + w/2 + 5, y + 22, 2.5, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.strokeStyle = '#0a3018'; ctx.lineWidth = 3.5;
-    ctx.beginPath(); ctx.moveTo(cx - 12, cy); ctx.lineTo(cx - 20, cy + 10); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + 12, cy); ctx.lineTo(cx + 20, cy + 10); ctx.stroke();
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawStalkerSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const pulse = Math.sin(animT * 1.8) * 4;
+    const w = s.w, h = s.h;
+    const cx = x + w/2, cy = y + h/2;
     ctx.save(); ctx.shadowColor = '#b026ff'; ctx.shadowBlur = 30;
-    for (let i = 0; i < 3; i++) {
-        const off = (i - 1) * 3;
-        const grad = ctx.createRadialGradient(cx + off, cy + off, 2, cx + off, cy + off, safeR(w/2 + pulse));
-        grad.addColorStop(0, isElite ? 'rgba(200,80,255,0.8)' : 'rgba(140,40,180,0.7)');
-        grad.addColorStop(1, 'rgba(20,0,40,0)');
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx + off, cy + off, safeR(w/2 + pulse), 0, Math.PI*2); ctx.fill();
-    }
+    ctx.fillStyle = 'rgba(60,0,100,0.7)';
+    ctx.beginPath(); ctx.arc(cx, cy, w/2 - 3, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.strokeStyle = isElite ? '#c060ff' : '#8a30b0'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(cx, cy, w/2 - 3 + pulse * 0.4, 0, Math.PI*2); ctx.stroke();
     ctx.save(); ctx.shadowColor = '#ff00aa'; ctx.shadowBlur = 15;
     ctx.fillStyle = '#ff00aa';
     ctx.beginPath(); ctx.arc(cx - 6, cy - 3, 3, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(cx + 6, cy - 3, 3, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(cx - 6, cy - 3, 1.2, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 6, cy - 3, 1.2, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.strokeStyle = isElite ? '#c060ff' : '#7a20a0'; ctx.lineWidth = 2;
-    for (let i = 0; i < 8; i++) {
-        const ang = (i / 8) * Math.PI * 2 + animT * 0.5;
-        const len = 10 + Math.sin(animT * 2 + i) * 3;
-        ctx.beginPath();
-        ctx.moveTo(cx + Math.cos(ang) * (w/2 - 4), cy + Math.sin(ang) * (h/2 - 4));
-        ctx.lineTo(cx + Math.cos(ang) * (w/2 + len), cy + Math.sin(ang) * (h/2 + len));
-        ctx.stroke();
-    }
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawVoidSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
-    const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const pulse = Math.sin(animT * 1.2) * 3;
+    const w = s.w, h = s.h;
+    const cx = x + w/2, cy = y + h/2;
     ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 30;
-    const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, safeR(w/2 + pulse));
+    const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, w/2);
     grad.addColorStop(0, '#000010'); grad.addColorStop(0.5, '#0a1030'); grad.addColorStop(1, '#1a2050');
-    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx, cy, safeR(w/2 + pulse), 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(cx, cy, w/2, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(cx, cy, safeR(w/2 + pulse), 0, Math.PI*2); ctx.stroke();
     ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 20;
     const coreGrad = ctx.createRadialGradient(cx, cy, 1, cx, cy, 8);
     coreGrad.addColorStop(0, '#fff'); coreGrad.addColorStop(0.5, '#00f0ff'); coreGrad.addColorStop(1, 'rgba(0,240,255,0)');
     ctx.fillStyle = coreGrad; ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    for (let i = 0; i < 8; i++) {
-        const ang = (i / 8) * Math.PI * 2 + animT * 2;
-        const r = w/2 + 4;
-        const px = cx + Math.cos(ang) * r; const py = cy + Math.sin(ang) * r;
-        ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 8;
-        ctx.fillStyle = '#00f0ff'; ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI*2); ctx.fill();
-        ctx.restore();
-    }
     if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
-
-// Bosses (versões compactas mas completas)
+function drawDemogorgonAlphaSprite(ctx, x, y, s, seed, animT, isElite, isHurt) {
+    drawDemodogSprite(ctx, x, y, s, seed, animT, true, isHurt);
+}
+// Bosses
 function drawMechaBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const pulse = Math.sin(animT * 0.8); const rage = Math.sin(animT * 3) * 0.5 + 0.5;
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.ellipse(cx, y + h - 4, w * 0.6, 12, 0, 0, Math.PI*2); ctx.fill();
-    for (const side of [-1, 1]) {
-        const legX = side < 0 ? x + 20 : x + w - 60;
-        const coxaGrad = ctx.createLinearGradient(legX, y + h - 80, legX + 40, y + h - 40);
-        coxaGrad.addColorStop(0, '#4a5a6a'); coxaGrad.addColorStop(1, '#1a2a3a');
-        ctx.fillStyle = coxaGrad;
-        ctx.beginPath(); ctx.roundRect(legX, y + h - 80, 40, 30, 4); ctx.fill();
-        ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke();
-        ctx.fillStyle = '#6a7a8a'; ctx.beginPath(); ctx.roundRect(legX + 12, y + h - 55, 8, 25, 2); ctx.fill(); ctx.stroke();
-        const canelaGrad = ctx.createLinearGradient(legX + 5, y + h - 50, legX + 35, y + h - 5);
-        canelaGrad.addColorStop(0, '#3a4a5a'); canelaGrad.addColorStop(1, '#0a1a2a');
-        ctx.fillStyle = canelaGrad;
-        ctx.beginPath(); ctx.roundRect(legX + 5, y + h - 50, 30, 45, 4); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#1a2a3a';
-        ctx.beginPath(); ctx.roundRect(legX, y + h - 12, 40, 12, 3); ctx.fill(); ctx.stroke();
-    }
-    const bodyY = y + 30, bodyH = h - 105;
-    const bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
-    bodyGrad.addColorStop(0, '#7a8a9a'); bodyGrad.addColorStop(0.3, '#4a5a6a'); bodyGrad.addColorStop(0.7, '#2a3a4a'); bodyGrad.addColorStop(1, '#0a1a2a');
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath(); ctx.roundRect(x + 20, bodyY, w - 40, bodyH, 8); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.strokeStyle = 'rgba(200,240,255,0.7)'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(x + 25, bodyY + 2); ctx.lineTo(x + w - 25, bodyY + 2); ctx.stroke();
-    for (const side of [-1, 1]) {
-        const armX = side < 0 ? x - 15 : x + w - 30;
-        ctx.fillStyle = '#3a4a5a';
-        ctx.beginPath(); ctx.roundRect(armX, bodyY + 20, 35, 25, 4); ctx.fill();
-        ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5; ctx.stroke();
-        const armGrad = ctx.createLinearGradient(armX, bodyY + 45, armX + 25, bodyY + 90);
-        armGrad.addColorStop(0, '#4a5a6a'); armGrad.addColorStop(1, '#0a1a2a');
-        ctx.fillStyle = armGrad;
-        ctx.beginPath(); ctx.roundRect(armX + 5, bodyY + 45, 25, 45, 4); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#0a0a14';
-        ctx.beginPath(); ctx.roundRect(armX - 8, bodyY + 82, 45, 14, 3); ctx.fill(); ctx.stroke();
-        ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 15;
-        ctx.fillStyle = '#00f0ff'; ctx.beginPath(); ctx.arc(armX + 40, bodyY + 89, 4 + Math.sin(animT * 5) * 1.5, 0, Math.PI*2); ctx.fill();
-        ctx.restore();
-    }
-    const headY = y;
-    const headGrad = ctx.createLinearGradient(x, headY, x, headY + 32);
-    headGrad.addColorStop(0, '#7a8a9a'); headGrad.addColorStop(0.5, '#3a4a5a'); headGrad.addColorStop(1, '#0a1a2a');
-    ctx.fillStyle = headGrad;
-    ctx.beginPath(); ctx.roundRect(cx - 35, headY, 70, 32, 5); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 25;
-    ctx.fillStyle = `rgba(255,0,51,${0.75 + rage * 0.25})`;
-    ctx.beginPath(); ctx.roundRect(cx - 27, headY + 12, 54, 10, 2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(cx - 20, headY + 15, 6, 4); ctx.fillRect(cx - 6, headY + 15, 6, 4); ctx.fillRect(cx + 8, headY + 15, 6, 4);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(x + 20, y + 20, w - 40, h - 40);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(x + 20, y + 20, w - 40, h - 40);
+    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 30;
+    ctx.fillStyle = '#ff0033';
+    ctx.beginPath(); ctx.arc(cx, cy, 22, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.save(); ctx.shadowColor = '#00f0ff'; ctx.shadowBlur = 50;
-    const coreSize = safeR(30 + pulse * 6);
-    const coreGrad = ctx.createRadialGradient(cx, cy + 5, 2, cx, cy + 5, coreSize);
-    coreGrad.addColorStop(0, '#ffffff'); coreGrad.addColorStop(0.3, '#00f0ff'); coreGrad.addColorStop(0.6, 'rgba(0,150,255,0.7)'); coreGrad.addColorStop(1, 'rgba(0,240,255,0)');
-    ctx.fillStyle = coreGrad; ctx.beginPath(); ctx.arc(cx, cy + 5, coreSize, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
-    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
+    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawGuardCaptain(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h; const cx = x + w/2;
-    const bob = Math.sin(animT * 0.5) * 2; const capeWave = Math.sin(animT * 1.2) * 4;
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.ellipse(cx, y + h - 4, w * 0.55, 10, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#1a0a15'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(cx - 25, y + 30);
-    ctx.bezierCurveTo(cx - 60, y + 60, cx - 55, y + h - 20, cx - 50 + capeWave, y + h - 5);
-    ctx.lineTo(cx + 50 + capeWave, y + h - 5);
-    ctx.bezierCurveTo(cx + 55, y + h - 20, cx + 60, y + 60, cx + 25, y + 30);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.roundRect(x + 25, y + h - 45, 24, 45, 4); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.roundRect(x + w - 49, y + h - 45, 24, 45, 4); ctx.fill(); ctx.stroke();
-    const bodyY = y + 32 + bob, bodyH = h - 78;
-    const bodyGrad = ctx.createLinearGradient(x, bodyY, x + w, bodyY + bodyH);
-    bodyGrad.addColorStop(0, '#6a7a8a'); bodyGrad.addColorStop(0.4, '#3a4a5a'); bodyGrad.addColorStop(1, '#0f172a');
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath(); ctx.roundRect(x + 22, bodyY, w - 44, bodyH, 6); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 15;
-    ctx.fillStyle = '#ff0033';
-    ctx.fillRect(cx - 3, bodyY + 28, 6, 30); ctx.fillRect(cx - 15, bodyY + 40, 30, 6);
-    ctx.restore();
-    const headY = y + bob;
-    const headGrad = ctx.createLinearGradient(x, headY, x, headY + 36);
-    headGrad.addColorStop(0, '#6a7a8a'); headGrad.addColorStop(1, '#0f172a');
-    ctx.fillStyle = headGrad;
-    ctx.beginPath(); ctx.roundRect(cx - 24, headY, 48, 36, 5); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(x + 20, y + 30, w - 40, h - 60);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.strokeRect(x + 20, y + 30, w - 40, h - 60);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(cx - 22, y, 44, 30);
+    ctx.strokeRect(cx - 22, y, 44, 30);
     ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 25;
     ctx.fillStyle = '#ff0033';
-    ctx.beginPath(); ctx.roundRect(cx - 20, headY + 14, 40, 8, 2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(cx - 15, headY + 16, 5, 3); ctx.fillRect(cx + 10, headY + 16, 5, 3);
+    ctx.fillRect(cx - 18, y + 14, 36, 7);
     ctx.restore();
-    ctx.fillStyle = '#0a0a14'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.roundRect(x - 30, bodyY + 55, 60, 16, 3); ctx.fill(); ctx.stroke();
-    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
+    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawDemogorgonPrime(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h; const cx = x + w/2;
-    const pulse = Math.sin(animT * 1.2);
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.ellipse(cx, y + h - 4, w * 0.6, 12, 0, 0, Math.PI*2); ctx.fill();
-    for (const side of [-1, 1]) {
-        const legX = side < 0 ? cx - 45 : cx + 15;
-        const coxaGrad = ctx.createRadialGradient(legX + 20, y + h - 70, 5, legX + 20, y + h - 70, 40);
-        coxaGrad.addColorStop(0, '#a01840'); coxaGrad.addColorStop(1, '#4a0820');
-        ctx.fillStyle = coxaGrad;
-        ctx.beginPath(); ctx.roundRect(legX, y + h - 80, 40, 45, 8); ctx.fill();
-        ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
-    }
-    const bodyGrad = ctx.createRadialGradient(cx, y + 130, 20, cx, y + 130, w * 0.5);
+    const bodyGrad = ctx.createRadialGradient(cx, y + h/2, 20, cx, y + h/2, w * 0.5);
     bodyGrad.addColorStop(0, '#c02050'); bodyGrad.addColorStop(0.4, '#881337'); bodyGrad.addColorStop(1, '#3a0518');
     ctx.fillStyle = bodyGrad;
-    ctx.beginPath();
-    ctx.moveTo(cx - 60, y + 60);
-    ctx.bezierCurveTo(cx - 70, y + 100, cx - 60, y + h - 80, cx - 45, y + h - 40);
-    ctx.lineTo(cx + 45, y + h - 40);
-    ctx.bezierCurveTo(cx + 60, y + h - 80, cx + 70, y + 100, cx + 60, y + 60);
-    ctx.bezierCurveTo(cx + 40, y + 45, cx - 40, y + 45, cx - 60, y + 60);
-    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, y + h/2, w/2 - 20, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#000'; ctx.lineWidth = 3.5; ctx.stroke();
     const headX = cx, headY = y + 42;
-    const petalCount = 14; const petalBaseR = 55 + pulse * 5;
     ctx.save(); ctx.shadowColor = '#f43f5e'; ctx.shadowBlur = 35;
-    for (let i = 0; i < petalCount; i++) {
-        const ang = (i / petalCount) * Math.PI * 2 + animT * 0.5;
-        const px = headX + Math.cos(ang) * petalBaseR;
-        const py = headY + Math.sin(ang) * petalBaseR;
-        ctx.save(); ctx.translate(px, py); ctx.rotate(ang + Math.PI/2);
-        const petalGrad = ctx.createLinearGradient(0, -20, 0, 20);
-        petalGrad.addColorStop(0, i % 2 === 0 ? '#ff5577' : '#f43f5e');
-        petalGrad.addColorStop(0.6, '#be123c'); petalGrad.addColorStop(1, '#6a0820');
-        ctx.fillStyle = petalGrad;
-        ctx.beginPath();
-        ctx.moveTo(0, -22);
-        ctx.bezierCurveTo(-18, -15, -18, 15, 0, 22);
-        ctx.bezierCurveTo(18, 15, 18, -15, 0, -22);
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.restore();
+    for (let i = 0; i < 14; i++) {
+        const ang = (i / 14) * Math.PI * 2 + animT * 0.5;
+        const px = headX + Math.cos(ang) * 55;
+        const py = headY + Math.sin(ang) * 55;
+        ctx.fillStyle = i % 2 === 0 ? '#ff5577' : '#f43f5e';
+        ctx.beginPath(); ctx.arc(px, py, 14, 0, Math.PI*2); ctx.fill();
     }
+    ctx.fillStyle = '#0a0004';
+    ctx.beginPath(); ctx.arc(headX, headY, 30, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.fillStyle = '#0a0004'; ctx.beginPath(); ctx.arc(headX, headY, 32, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3.5; ctx.stroke();
-    ctx.fillStyle = '#fff';
-    for (let i = 0; i < 18; i++) {
-        const ang = (i / 18) * Math.PI * 2;
-        const tx = headX + Math.cos(ang) * 24; const ty = headY + Math.sin(ang) * 24;
-        ctx.save(); ctx.translate(tx, ty); ctx.rotate(ang);
-        ctx.beginPath(); ctx.moveTo(-2.5, -3); ctx.lineTo(2.5, -3); ctx.lineTo(0, 3.5); ctx.closePath(); ctx.fill();
-        ctx.restore();
-    }
-    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
+    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawVecnaBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const pulse = Math.sin(animT * 1.3);
-    ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.beginPath(); ctx.ellipse(cx, y + h - 4, w * 0.55, 14, 0, 0, Math.PI*2); ctx.fill();
-    const robeGrad = ctx.createLinearGradient(x, y, x + w, y + h);
-    robeGrad.addColorStop(0, '#3a1a5a'); robeGrad.addColorStop(0.4, '#1a0028'); robeGrad.addColorStop(1, '#05000a');
-    ctx.fillStyle = robeGrad;
+    ctx.fillStyle = '#1a0028';
     ctx.beginPath();
-    ctx.moveTo(cx - 20, y + 70);
-    ctx.bezierCurveTo(cx - 45, y + 110, cx - 65, y + h - 40, cx - 65, y + h - 20);
-    ctx.lineTo(cx + 65, y + h - 20);
-    ctx.bezierCurveTo(cx + 65, y + h - 40, cx + 45, y + 110, cx + 20, y + 70);
+    ctx.moveTo(cx - 20, y + 70); ctx.lineTo(cx - 65, y + h - 20);
+    ctx.lineTo(cx + 65, y + h - 20); ctx.lineTo(cx + 20, y + 70);
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = '#000'; ctx.lineWidth = 3.5; ctx.stroke();
     ctx.save(); ctx.shadowColor = '#b026ff'; ctx.shadowBlur = 30;
-    for (let i = 0; i < 14; i++) {
-        const tx = cx - 50 + i * 7.5 + Math.sin(animT * 0.8 + i * 0.5) * 8;
-        const ty = y + 30 + Math.cos(animT * 0.6 + i) * 10;
-        const tr = safeR(7 + Math.sin(animT + i) * 2);
-        const tgrad = ctx.createRadialGradient(tx, ty, 0.5, tx, ty, tr);
-        tgrad.addColorStop(0, i % 2 === 0 ? '#e0a0ff' : '#b026ff');
-        tgrad.addColorStop(1, 'rgba(80,10,140,0.6)');
-        ctx.fillStyle = tgrad;
-        ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI*2); ctx.fill();
-    }
+    ctx.fillStyle = '#3a1a5a';
+    ctx.beginPath(); ctx.arc(cx, y + 70, 32, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    const headY = y + 70;
-    const headGrad = ctx.createRadialGradient(cx - 8, headY - 8, 3, cx, headY, 35);
-    headGrad.addColorStop(0, '#7a5a9a'); headGrad.addColorStop(0.5, '#3a1a5a'); headGrad.addColorStop(1, '#0a0010');
-    ctx.fillStyle = headGrad;
-    ctx.beginPath(); ctx.arc(cx, headY, 32, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#000'; ctx.lineWidth = 3.5; ctx.stroke();
     ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 30;
     ctx.fillStyle = '#ff0033';
-    ctx.beginPath(); ctx.arc(cx - 12, headY - 6, 6 + pulse * 2, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 12, headY - 6, 6 + pulse * 2, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(cx - 12, headY - 6, 2.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 12, headY - 6, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx - 12, y + 64, 6, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 12, y + 64, 6, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    ctx.save(); ctx.shadowColor = '#b026ff'; ctx.shadowBlur = 50;
-    const handPulse = safeR(15 + Math.sin(animT * 3) * 6);
-    const hgrad1 = ctx.createRadialGradient(cx - 70, cy + 30, 2, cx - 70, cy + 30, handPulse);
-    hgrad1.addColorStop(0, '#fff'); hgrad1.addColorStop(0.4, '#c060ff'); hgrad1.addColorStop(1, 'rgba(120,20,200,0)');
-    ctx.fillStyle = hgrad1;
-    ctx.beginPath(); ctx.arc(cx - 70, cy + 30, handPulse, 0, Math.PI*2); ctx.fill();
-    const hgrad2 = ctx.createRadialGradient(cx + 70, cy + 30, 2, cx + 70, cy + 30, handPulse);
-    hgrad2.addColorStop(0, '#fff'); hgrad2.addColorStop(0.4, '#c060ff'); hgrad2.addColorStop(1, 'rgba(120,20,200,0)');
-    ctx.fillStyle = hgrad2;
-    ctx.beginPath(); ctx.arc(cx + 70, cy + 30, handPulse, 0, Math.PI*2); ctx.fill();
-    ctx.restore();
-    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
+    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 function drawMindFlayerBoss(ctx, x, y, s, seed, animT, isElite, isHurt) {
     const w = s.w, h = s.h; const cx = x + w/2, cy = y + h/2;
-    const pulse = Math.sin(animT * 1.1);
     ctx.save(); ctx.shadowColor = '#ff0055'; ctx.shadowBlur = 60;
-    for (let layer = 0; layer < 4; layer++) {
-        const layerScale = 1 - layer * 0.12;
-        const layerPulse = pulse * (1 - layer * 0.25);
-        const radius = safeR((w/2 + 30) * layerScale + layerPulse);
-        const grad = ctx.createRadialGradient(cx, cy + 30, 8, cx, cy + 30, radius);
-        const darkness = layer === 0 ? '#0a0004' : layer === 1 ? '#18000c' : layer === 2 ? '#2a0014' : '#3a0018';
-        grad.addColorStop(0, layer === 0 ? '#000' : darkness);
-        grad.addColorStop(0.6, darkness); grad.addColorStop(1, 'rgba(10,0,4,0)');
+    for (let layer = 0; layer < 3; layer++) {
+        const sc = 1 - layer * 0.15;
+        const grad = ctx.createRadialGradient(cx, cy + 20, 8, cx, cy + 20, w/2 * sc);
+        grad.addColorStop(0, '#000');
+        grad.addColorStop(0.6, layer === 0 ? '#0a0004' : '#18000c');
+        grad.addColorStop(1, 'rgba(10,0,4,0)');
         ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy + 30, radius, safeR((h/2) * layerScale + layerPulse), 0, 0, Math.PI*2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy + 20, w/2 * sc, 0, Math.PI*2); ctx.fill();
     }
-    ctx.restore();
-    for (let i = 0; i < 13; i++) {
-        const baseX = cx - 90 + i * 15; const baseY = cy - 40;
-        const sway = Math.sin(animT * 1.3 + i * 0.6) * 20;
-        const tr = safeR(24 + Math.sin(animT * 0.8 + i) * 6);
-        const tentGrad = ctx.createRadialGradient(baseX + sway, baseY, 3, baseX + sway, baseY, tr);
-        tentGrad.addColorStop(0, i % 2 === 0 ? '#4a0020' : '#3a0018');
-        tentGrad.addColorStop(0.4, '#2a0014'); tentGrad.addColorStop(0.8, '#18000c'); tentGrad.addColorStop(1, '#0a0004');
-        ctx.fillStyle = tentGrad;
-        ctx.beginPath(); ctx.arc(baseX + sway, baseY, tr, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
-    }
-    ctx.strokeStyle = '#18000c'; ctx.lineWidth = 12; ctx.lineCap = 'round';
-    for (let i = 0; i < 7; i++) {
-        const baseX = cx - 70 + i * 22; const baseY = cy + 50;
-        ctx.beginPath();
-        ctx.moveTo(baseX, baseY);
-        ctx.quadraticCurveTo(baseX + Math.sin(animT + i) * 40, baseY + 50, baseX + Math.cos(animT * 1.3 + i) * 35, baseY + 100);
-        ctx.stroke();
-    }
-    ctx.lineCap = 'butt';
-    ctx.save(); ctx.shadowColor = '#ff0055'; ctx.shadowBlur = 40;
-    const bodyGrad = ctx.createRadialGradient(cx - 20, cy - 20, 10, cx, cy + 10, 80);
-    bodyGrad.addColorStop(0, '#2a0014'); bodyGrad.addColorStop(0.4, '#18000c'); bodyGrad.addColorStop(0.8, '#0a0004'); bodyGrad.addColorStop(1, '#000');
-    ctx.fillStyle = bodyGrad;
-    ctx.beginPath(); ctx.ellipse(cx, cy + 20, 80 + pulse * 3, 75 + pulse * 3, 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
     ctx.restore();
     ctx.save(); ctx.shadowColor = '#ff0033'; ctx.shadowBlur = 40;
-    const eyePulse = safeR(10 + Math.sin(animT * 2) * 3);
     ctx.fillStyle = '#ff0033';
-    ctx.beginPath(); ctx.ellipse(cx - 35, cy - 25, eyePulse + 3, eyePulse, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx + 35, cy - 25, eyePulse + 3, eyePulse, 0, 0, Math.PI*2); ctx.fill();
-    for (let i = 0; i < 8; i++) {
-        const ea = (i / 8) * Math.PI * 2;
-        const ex2 = cx + Math.cos(ea) * 65; const ey2 = cy + Math.sin(ea) * 55;
-        ctx.beginPath(); ctx.arc(ex2, ey2, safeR(4 + Math.sin(animT * 3 + i) * 1.5), 0, Math.PI*2); ctx.fill();
-    }
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.ellipse(cx - 35, cy - 25, eyePulse * 0.5, eyePulse * 0.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx + 35, cy - 25, eyePulse * 0.5, eyePulse * 0.5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx - 30, cy - 20, 10, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 30, cy - 20, 10, 0, Math.PI*2); ctx.fill();
     ctx.restore();
-    const mouthOpen = safeR(15 + Math.sin(animT * 1.5) * 8);
-    ctx.fillStyle = '#200005';
-    ctx.beginPath(); ctx.ellipse(cx, cy + 35, 50, mouthOpen, 0, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = '#fff';
-    for (let i = 0; i < 14; i++) {
-        const da = (i / 14) * Math.PI * 2;
-        const dx = cx + Math.cos(da) * 45; const dy = cy + 35 + Math.sin(da) * mouthOpen * 0.8;
-        ctx.save(); ctx.translate(dx, dy); ctx.rotate(da);
-        ctx.beginPath(); ctx.moveTo(-3, -4); ctx.lineTo(3, -4); ctx.lineTo(0, 5); ctx.closePath(); ctx.fill();
-        ctx.restore();
-    }
-    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
+    if (isHurt) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(x - 5, y - 5, w + 10, h + 10); ctx.restore(); }
 }
 
 function buildEnemySpriteFrames(type, w, h, drawer) {
@@ -1915,13 +1796,13 @@ function initSpriteCache() {
     try { SPRITE_CACHE['boss-vecna'] = buildBossSpriteFrames('vecna', 220, 280, drawVecnaBoss); } catch(e) {}
     try { SPRITE_CACHE['boss-flayer'] = buildBossSpriteFrames('flayer', 280, 300, drawMindFlayerBoss); } catch(e) {}
     SPRITE_CACHE.eleven = {};
-    ['default','lab','snowball','punk','russian','upsidedown','neon'].forEach(sk => {
+    ['default'].forEach(sk => {
         try { SPRITE_CACHE.eleven[sk] = buildElevenSpriteFrames(sk); } catch(e) {}
     });
     console.log('✅ Sprites cached:', Object.keys(SPRITE_CACHE).length);
 }
 
-// ===================== GAME ENGINE =====================
+// ===================== GAME ENGINE (simplificado mas funcional) =====================
 let contraCanvas, contraCtx;
 let contraRunning = false, paused = false;
 let currentWorld = 1, currentStage = 1;
@@ -1934,7 +1815,6 @@ let flashOverlay = { r:255, g:0, b:51, alpha:0 };
 let bossZoom = 0;
 let bloomLayer;
 let currentWeapon = 'pistol';
-let shotCombo = 0, comboTimer = 0;
 let hitstopFrames = 0;
 const CONFIG = {
     player: { speed:5.8, jumpForce:13.8, maxHp:100, maxAmmo:18 },
@@ -1950,7 +1830,6 @@ let cameraX = 0, stageLength = 3200;
 let bullets = [], enemyBullets = [], enemies = [], particles = [], floatTexts = [], powerups = [];
 let boss = null;
 let keys = { left:false, right:false, up:false };
-
 const STAGES = [
     { world:1, stage:1, name:'HAWKINS LAB', bg:'lab', length:3200, density:1.0, types:['guard','demodog','drone'], boss:'mecha-demogorgon', bossHP:450 },
     { world:1, stage:2, name:'HAWKINS LAB', bg:'lab', length:3600, density:1.2, types:['guard','demodog','drone','hunter'], boss:'guard-captain', bossHP:650 },
@@ -2029,7 +1908,7 @@ function showBossWarning(name) {
 function resetStageData() {
     const def = getCurrentStageDef();
     stageLength = def.length;
-    bossIntroShown = false; shotCombo = 0; comboTimer = 0; currentWeapon = 'pistol';
+    bossIntroShown = false; currentWeapon = 'pistol';
     player.x = 100; player.y = 296; player.vx = 0; player.vy = 0;
     player.hp = player.maxHp; player.ammo = CONFIG.ammo.start;
     player.reloading = false; player.invulnTimer = 120;
@@ -2082,7 +1961,7 @@ function createBoss(type, x, hp) {
 function shootBullet() {
     if (!contraRunning || paused || player.reloading) return;
     const wpn = CONFIG.weapons[currentWeapon];
-    if (player.ammo < wpn.ammoCost) { playSound('error'); addFloatText(player.x - cameraX, player.y - 20, "SEM MUNIÇÃO!", '#ff3333'); return; }
+    if (player.ammo < wpn.ammoCost) { playSound('error'); return; }
     if (player.firingTimer > 0) return;
     player.ammo -= wpn.ammoCost; player.firingTimer = wpn.fireRate;
     playSound('shoot'); updateHUD();
@@ -2153,8 +2032,6 @@ function updateGameLogic() {
     if (player.firingTimer > 0) player.firingTimer--;
     if (player.invulnTimer > 0) player.invulnTimer--;
     if (player.jumpBuffer > 0) player.jumpBuffer--;
-    if (player.dashCooldown > 0) player.dashCooldown--;
-    if (player.dashTimer > 0) player.dashTimer--;
     if (keys.left) { player.vx = Math.max(-player.speed, player.vx - 1.1); player.facingRight = false; player.runCycle += 0.25; }
     else if (keys.right) { player.vx = Math.min(player.speed, player.vx + 1.1); player.facingRight = true; player.runCycle += 0.25; }
     else { player.vx *= 0.7; player.runCycle = 0; }
@@ -2219,8 +2096,7 @@ function updateGameLogic() {
             const onScreen = e.x - cameraX > -50 && e.x - cameraX < contraCanvas.width + 50;
             if (onScreen && Math.abs(dx) < 550 && e.shootTimer > e.shootCooldown) {
                 e.shootTimer = 0;
-                if (e.behavior === 'spread' || e.behavior === 'turret') { for (let k = -1; k <= 1; k++) { const ang = k * 0.25; enemyBullets.push({ x:e.x, y:e.y + e.h/2, vx:-Math.cos(ang)*6, vy:Math.sin(ang)*3, life:150, size:6, damage:e.damage }); } }
-                else enemyBullets.push({ x:e.x, y:e.y + e.h/2, vx:-5.5, vy:0, life:150, size:5, damage:e.damage });
+                enemyBullets.push({ x:e.x, y:e.y + e.h/2, vx:-5.5, vy:0, life:150, size:5, damage:e.damage });
                 playSound('shoot');
             }
         }
@@ -2248,7 +2124,7 @@ function updateBoss() {
     if (boss.hitFlash > 0) boss.hitFlash--;
     const hpPct = boss.hp / boss.maxHp;
     const np = hpPct < 0.33 ? 3 : hpPct < 0.66 ? 2 : 1;
-    if (np > boss.phase) { boss.phase = np; playSound('bossroar'); screenShakeMag = 16; flashOverlay = { r:255, g:0, b:51, alpha:0.5 }; }
+    if (np > boss.phase) { boss.phase = np; playSound('bossroar'); screenShakeMag = 16; }
     boss.moveTimer++;
     if (boss.moveTimer > 80) { boss.moveTimer = 0; boss.moveDir = Math.random() < 0.5 ? -1 : 1; }
     boss.x += boss.moveDir * 0.6;
@@ -2258,17 +2134,13 @@ function updateBoss() {
     if (boss.state === 'entering') { if (boss.stateTimer > 90) { boss.state = 'idle'; boss.stateTimer = 0; } }
     else if (boss.state === 'idle') { if (boss.stateTimer > 60) { boss.state = 'attacking'; boss.stateTimer = 0; } }
     else if (boss.state === 'attacking') {
-        if (boss.stateTimer % 15 === 0 && boss.stateTimer < 70) { fireBossProjectiles(); playSound('shoot'); }
+        if (boss.stateTimer % 15 === 0 && boss.stateTimer < 70) {
+            for (let i = 0; i < 4; i++) {
+                enemyBullets.push({ x:boss.x, y:boss.y + 50 + i * 25, vx:-7, vy:(Math.random()-0.5)*3, life:200, size:7, damage:12 });
+            }
+            playSound('shoot');
+        }
         if (boss.stateTimer > 80) { boss.state = 'idle'; boss.stateTimer = 0; }
-    }
-}
-function fireBossProjectiles() {
-    if (!boss) return;
-    const bx = boss.x + boss.w/2, by = boss.y + boss.h/2;
-    const count = boss.phase === 3 ? 6 : boss.phase === 2 ? 5 : 4;
-    for (let i = 0; i < count; i++) {
-        const angle = -Math.PI/4 + (i/(count-1)) * Math.PI/2;
-        enemyBullets.push({ x:bx, y:by + (i - count/2)*15, vx:-Math.cos(angle)*7, vy:Math.sin(angle)*5, life:220, size:8, damage:12 + boss.phase*3 });
     }
 }
 function killEnemy(e, index) {
@@ -2280,10 +2152,9 @@ function killEnemy(e, index) {
     enemies.splice(index, 1);
 }
 function killBoss() {
-    for (let k = 0; k < 12; k++) setTimeout(() => { createParticles(boss.x + Math.random()*boss.w, boss.y + Math.random()*boss.h, 35, '#ff0055', 'explosion'); }, k * 90);
+    for (let k = 0; k < 8; k++) setTimeout(() => { createParticles(boss.x + Math.random()*boss.w, boss.y + Math.random()*boss.h, 30, '#ff0055', 'explosion'); }, k * 90);
     gameScore += 1500; addXP(80); addCoins(150);
     playSound('explosion'); screenShakeMag = 25;
-    flashOverlay = { r:255, g:255, b:255, alpha:0.85 };
     if (boss.type === 'mecha-demogorgon') save.achievements.boss1 = Date.now();
     else if (boss.type === 'demogorgon-prime') save.achievements.boss2 = Date.now();
     else if (boss.type === 'mind-flayer') save.achievements.boss3 = Date.now();
@@ -2302,102 +2173,25 @@ function createParticles(x, y, count, color, type='spark') {
         particles.push({ x, y, vx:(Math.random()-0.5)*(type==='explosion'?10:6), vy:(Math.random()-0.5)*(type==='explosion'?10:6), radius: Math.random()*3.5+1.5, color, alpha:1 });
     }
 }
-function addFloatText(x, y, text, color) { floatTexts.push({ x, y, text, color, life:55 }); }
-
 function drawGameGraphics() {
     contraCtx.save();
     contraCtx.translate(screenShakeX, screenShakeY);
-    if (bossZoom > 0.1 && boss && boss.active) {
-        const cx = boss.x + boss.w/2 - cameraX; const cy = boss.y + boss.h/2;
-        contraCtx.translate(cx, cy);
-        contraCtx.scale(1 + bossZoom * 0.05, 1 + bossZoom * 0.05);
-        contraCtx.translate(-cx, -cy);
-    }
     contraCtx.clearRect(-20, -20, contraCanvas.width + 40, contraCanvas.height + 40);
     const def = getCurrentStageDef();
-    drawSky(def.bg); drawBackgroundLayer(def.bg); drawFloorLayer(def.bg);
-    drawEnemies(); drawBoss(); drawPlayerSprite(); drawBullets(); drawEnemyBullets();
-    drawParticlesAndTexts(); drawScreenEffects();
-    contraCtx.restore();
-    if (bloomLayer) {
-        const bctx = bloomLayer.getContext('2d');
-        bctx.clearRect(0, 0, bloomLayer.width, bloomLayer.height);
-        bctx.drawImage(contraCanvas, 0, 0);
-    }
-}
-function drawSky(bg) {
+    const bg = def.bg;
+    // Sky
     const grad = contraCtx.createLinearGradient(0, 0, 0, 360);
-    if (bg === 'lab') { grad.addColorStop(0,'#02010a'); grad.addColorStop(.5,'#0a0f1e'); grad.addColorStop(1,'#1a2440'); }
-    else if (bg === 'forest') { grad.addColorStop(0,'#010005'); grad.addColorStop(.5,'#0b0820'); grad.addColorStop(1,'#1e1650'); }
-    else { grad.addColorStop(0,'#1a0008'); grad.addColorStop(.5,'#2e0012'); grad.addColorStop(1,'#1a0008'); }
+    if (bg === 'lab') { grad.addColorStop(0,'#02010a'); grad.addColorStop(1,'#1a2440'); }
+    else if (bg === 'forest') { grad.addColorStop(0,'#010005'); grad.addColorStop(1,'#1e1650'); }
+    else { grad.addColorStop(0,'#1a0008'); grad.addColorStop(1,'#1a0008'); }
     contraCtx.fillStyle = grad; contraCtx.fillRect(0, 0, contraCanvas.width, 360);
-    for (let i = 0; i < 60; i++) {
-        const sx = (i * 137 - cameraX * 0.05) % (contraCanvas.width + 100) - 50;
-        const sy = (i * 89) % 280;
-        const tw = Math.sin(animFrame * 0.05 + i) * 0.5 + 0.5;
-        contraCtx.globalAlpha = 0.2 + tw * 0.6;
-        contraCtx.fillStyle = bg.startsWith('upside') ? '#ff6688' : '#aaccff';
-        contraCtx.beginPath(); contraCtx.arc(sx, sy, 1 + tw, 0, Math.PI*2); contraCtx.fill();
-    }
-    contraCtx.globalAlpha = 1;
-}
-function drawBackgroundLayer(bg) {
-    if (bg.startsWith('lab')) {
-        for (let i = 0; i < 20; i++) {
-            const bx = (i * 240 - cameraX * 0.15) % (stageLength + 500) - 250;
-            contraCtx.fillStyle = '#0d1424'; contraCtx.fillRect(bx, 40, 200, 320);
-            contraCtx.strokeStyle = 'rgba(0,240,255,.15)'; contraCtx.lineWidth = 1.5; contraCtx.strokeRect(bx + 2, 42, 196, 316);
-        }
-    } else if (bg.startsWith('forest')) {
-        for (let i = 0; i < 25; i++) {
-            const tx = (i * 200 - cameraX * 0.4) % (stageLength + 500) - 250;
-            contraCtx.fillStyle = '#0a0a1a'; contraCtx.fillRect(tx + 25, 80, 20, 280);
-            contraCtx.fillStyle = '#0a1020';
-            contraCtx.beginPath(); contraCtx.moveTo(tx + 35, 30); contraCtx.lineTo(tx - 25, 180); contraCtx.lineTo(tx + 95, 180); contraCtx.fill();
-        }
-    } else {
-        for (let i = 0; i < 20; i++) {
-            const vx = (i * 240 - cameraX * 0.2) % (stageLength + 500) - 250;
-            contraCtx.strokeStyle = 'rgba(120, 0, 40, 0.6)'; contraCtx.lineWidth = 8;
-            contraCtx.beginPath(); contraCtx.moveTo(vx, 0); contraCtx.bezierCurveTo(vx + 60, 100, vx - 60, 200, vx + 30, 360); contraCtx.stroke();
-        }
-    }
-}
-function drawFloorLayer(bg) {
-    const grad = contraCtx.createLinearGradient(0, 360, 0, 480);
-    if (bg.startsWith('lab')) { grad.addColorStop(0,'#0e1525'); grad.addColorStop(1,'#080c16'); }
-    else if (bg.startsWith('forest')) { grad.addColorStop(0,'#0a0e1a'); grad.addColorStop(1,'#06080f'); }
-    else { grad.addColorStop(0,'#1a0410'); grad.addColorStop(1,'#0f0208'); }
-    contraCtx.fillStyle = grad; contraCtx.fillRect(0, 360, contraCanvas.width, 120);
-    contraCtx.strokeStyle = bg.startsWith('upside') ? 'rgba(255,0,85,.12)' : 'rgba(0,240,255,.1)';
-    for (let i = 0; i < 40; i++) { const gx = (i * 80 - cameraX * 0.9) % (contraCanvas.width + 200) - 100; contraCtx.beginPath(); contraCtx.moveTo(gx, 360); contraCtx.lineTo(gx + 40, 480); contraCtx.stroke(); }
-    contraCtx.save();
-    const sc = bg.startsWith('upside') ? '#ff0055' : '#00f0ff';
-    contraCtx.strokeStyle = sc; contraCtx.lineWidth = 3;
-    contraCtx.shadowColor = sc; contraCtx.shadowBlur = 20;
-    contraCtx.beginPath(); contraCtx.moveTo(0, 360); contraCtx.lineTo(contraCanvas.width, 360); contraCtx.stroke();
-    contraCtx.restore();
-}
-function drawPlayerSprite() {
-    const px = player.x - cameraX, py = player.y;
-    const elevenFrames = SPRITE_CACHE.eleven && (SPRITE_CACHE.eleven[save.skin] || SPRITE_CACHE.eleven.default);
-    if (!elevenFrames) return;
-    player.trail.forEach(t => { const tx = t.x - cameraX; contraCtx.save(); contraCtx.globalAlpha = t.life / 12 * 0.4; contraCtx.fillStyle = '#00f0ff'; contraCtx.beginPath(); contraCtx.arc(tx, t.y, 4, 0, Math.PI*2); contraCtx.fill(); contraCtx.restore(); });
-    const ap = Math.sin(animFrame * 0.1) * 4;
-    const ag = contraCtx.createRadialGradient(px + 21, py + 32, 10, px + 21, py + 32, Math.max(1, 45 + ap));
-    ag.addColorStop(0, 'rgba(0, 240, 255, 0.35)'); ag.addColorStop(.6, 'rgba(0, 180, 255, 0.1)'); ag.addColorStop(1, 'rgba(0, 240, 255, 0)');
-    contraCtx.fillStyle = ag; contraCtx.beginPath(); contraCtx.arc(px + 21, py + 32, 45 + ap, 0, Math.PI*2); contraCtx.fill();
-    let pose = 'idle';
-    if (!player.grounded) pose = 'jump';
-    else if (Math.abs(player.vx) > 1.5) { const cycle = Math.floor(animFrame * 0.15) % 4; pose = ['run1','run2','run3','run4'][cycle]; }
-    const frame = elevenFrames[pose] || elevenFrames.idle;
-    contraCtx.save();
-    if (!player.facingRight) { contraCtx.translate(px + 42, py); contraCtx.scale(-1, 1); contraCtx.drawImage(frame, -frame.width/2, 0); }
-    else contraCtx.drawImage(frame, px - frame.width/2 + 21, py);
-    contraCtx.restore();
-}
-function drawBullets() { bullets.forEach(b => { const bx = b.x - cameraX; contraCtx.save(); contraCtx.shadowColor = b.color || '#00f0ff'; contraCtx.shadowBlur = 20; contraCtx.fillStyle = b.color || '#00f0ff'; contraCtx.beginPath(); contraCtx.arc(bx, b.y, b.size, 0, Math.PI*2); contraCtx.fill(); contraCtx.fillStyle = '#fff'; contraCtx.beginPath(); contraCtx.arc(bx, b.y, b.size * 0.5, 0, Math.PI*2); contraCtx.fill(); contraCtx.restore(); }); }
-function drawEnemies() {
+    // Floor
+    const floorGrad = contraCtx.createLinearGradient(0, 360, 0, 480);
+    if (bg.startsWith('lab')) { floorGrad.addColorStop(0,'#0e1525'); floorGrad.addColorStop(1,'#080c16'); }
+    else if (bg.startsWith('forest')) { floorGrad.addColorStop(0,'#0a0e1a'); floorGrad.addColorStop(1,'#06080f'); }
+    else { floorGrad.addColorStop(0,'#1a0410'); floorGrad.addColorStop(1,'#0f0208'); }
+    contraCtx.fillStyle = floorGrad; contraCtx.fillRect(0, 360, contraCanvas.width, 120);
+    // Enemies
     enemies.forEach(e => {
         const ex = e.x - cameraX;
         if (ex < -150 || ex > contraCanvas.width + 150) return;
@@ -2409,42 +2203,62 @@ function drawEnemies() {
         else if (e.isElite && frames.elite && frames.elite[frameIdx]) img = frames.elite[frameIdx];
         else img = frames.normal[frameIdx];
         contraCtx.drawImage(img, ex - frames.pad, e.y - frames.pad);
-        if (e.hp < e.maxHp) { contraCtx.fillStyle = 'rgba(0,0,0,0.7)'; contraCtx.fillRect(ex, e.y - 8, e.w, 4); contraCtx.fillStyle = e.isElite ? '#ffd700' : '#ff0033'; contraCtx.fillRect(ex, e.y - 8, (e.hp / e.maxHp) * e.w, 4); }
     });
-}
-function drawEnemyBullets() { enemyBullets.forEach(eb => { const ex = eb.x - cameraX; contraCtx.save(); contraCtx.shadowColor = '#ff0033'; contraCtx.shadowBlur = 20; contraCtx.fillStyle = '#ff0033'; contraCtx.beginPath(); contraCtx.arc(ex, eb.y, eb.size, 0, Math.PI*2); contraCtx.fill(); contraCtx.fillStyle = '#fff'; contraCtx.beginPath(); contraCtx.arc(ex, eb.y, eb.size * 0.4, 0, Math.PI*2); contraCtx.fill(); contraCtx.restore(); }); }
-function drawBoss() {
-    if (!boss || !boss.active) return;
-    const bx = boss.x - cameraX;
-    const typeMap = { 'mecha-demogorgon':'boss-mecha', 'guard-captain':'boss-captain', 'demogorgon-prime':'boss-prime', 'vecna':'boss-vecna', 'mind-flayer':'boss-flayer' };
-    const frames = SPRITE_CACHE[typeMap[boss.type]];
-    if (!frames) return;
-    const frameIdx = Math.floor(animFrame * 0.08) % 8;
-    const img = (boss.hitFlash > 0 && frames.hurt[frameIdx]) ? frames.hurt[frameIdx] : frames.normal[frameIdx];
-    contraCtx.drawImage(img, bx - frames.pad, boss.y - frames.pad);
-    contraCtx.fillStyle = 'rgba(0,0,0,0.85)'; contraCtx.fillRect(bx - 5, boss.y - 36, boss.w + 10, 22);
-    const hpColor = boss.phase === 3 ? '#ff0033' : boss.phase === 2 ? '#ffd700' : '#ef4444';
-    contraCtx.fillStyle = hpColor; contraCtx.fillRect(bx, boss.y - 32, (boss.hp / boss.maxHp) * boss.w, 14);
-    contraCtx.fillStyle = '#ffd700'; contraCtx.font = 'bold 12px Rajdhani'; contraCtx.textAlign = 'center';
-    contraCtx.fillText(boss.type.replace(/-/g, ' ').toUpperCase() + ` [P${boss.phase}]`, bx + boss.w / 2, boss.y - 42);
-    contraCtx.textAlign = 'left';
-}
-function drawParticlesAndTexts() {
-    particles.forEach(p => { const px = p.x - cameraX; contraCtx.save(); contraCtx.fillStyle = p.color; contraCtx.globalAlpha = p.alpha; contraCtx.beginPath(); contraCtx.arc(px, p.y, p.radius, 0, Math.PI*2); contraCtx.fill(); contraCtx.restore(); });
-    floatTexts.forEach(ft => { contraCtx.save(); contraCtx.fillStyle = ft.color; contraCtx.font = 'bold 14px Rajdhani'; contraCtx.fillText(ft.text, ft.x, ft.y); contraCtx.restore(); });
-}
-function drawScreenEffects() {
-    if (player.hp < 30) {
-        const intensity = (30 - player.hp) / 30;
-        const grd = contraCtx.createRadialGradient(450, 240, 200, 450, 240, 600);
-        grd.addColorStop(0, 'rgba(255,0,0,0)'); grd.addColorStop(1, `rgba(255,0,0,${intensity * 0.5})`);
-        contraCtx.fillStyle = grd; contraCtx.fillRect(0, 0, contraCanvas.width, contraCanvas.height);
+    // Boss
+    if (boss && boss.active) {
+        const bx = boss.x - cameraX;
+        const typeMap = { 'mecha-demogorgon':'boss-mecha', 'guard-captain':'boss-captain', 'demogorgon-prime':'boss-prime', 'vecna':'boss-vecna', 'mind-flayer':'boss-flayer' };
+        const frames = SPRITE_CACHE[typeMap[boss.type]];
+        if (frames) {
+            const frameIdx = Math.floor(animFrame * 0.08) % 8;
+            const img = (boss.hitFlash > 0 && frames.hurt[frameIdx]) ? frames.hurt[frameIdx] : frames.normal[frameIdx];
+            contraCtx.drawImage(img, bx - frames.pad, boss.y - frames.pad);
+            // HP bar
+            contraCtx.fillStyle = 'rgba(0,0,0,0.85)';
+            contraCtx.fillRect(bx - 5, boss.y - 36, boss.w + 10, 22);
+            contraCtx.fillStyle = boss.phase === 3 ? '#ff0033' : boss.phase === 2 ? '#ffd700' : '#ef4444';
+            contraCtx.fillRect(bx, boss.y - 32, (boss.hp / boss.maxHp) * boss.w, 14);
+        }
     }
-    if (flashOverlay.alpha > 0.01) { contraCtx.fillStyle = `rgba(${flashOverlay.r},${flashOverlay.g},${flashOverlay.b},${flashOverlay.alpha})`; contraCtx.fillRect(0, 0, contraCanvas.width, contraCanvas.height); }
+    // Player
+    const px = player.x - cameraX, py = player.y;
+    const elevenFrames = SPRITE_CACHE.eleven && (SPRITE_CACHE.eleven[save.skin] || SPRITE_CACHE.eleven.default);
+    if (elevenFrames) {
+        let pose = 'idle';
+        if (!player.grounded) pose = 'jump';
+        else if (Math.abs(player.vx) > 1.5) { const cycle = Math.floor(animFrame * 0.15) % 4; pose = ['run1','run2','run3','run4'][cycle]; }
+        const frame = elevenFrames[pose] || elevenFrames.idle;
+        contraCtx.save();
+        if (!player.facingRight) { contraCtx.translate(px + 42, py); contraCtx.scale(-1, 1); contraCtx.drawImage(frame, -frame.width/2, 0); }
+        else contraCtx.drawImage(frame, px - frame.width/2 + 21, py);
+        contraCtx.restore();
+    }
+    // Bullets
+    bullets.forEach(b => {
+        const bx = b.x - cameraX;
+        contraCtx.save(); contraCtx.shadowColor = b.color; contraCtx.shadowBlur = 20;
+        contraCtx.fillStyle = b.color; contraCtx.beginPath(); contraCtx.arc(bx, b.y, b.size, 0, Math.PI*2); contraCtx.fill();
+        contraCtx.restore();
+    });
+    enemyBullets.forEach(eb => {
+        const ex = eb.x - cameraX;
+        contraCtx.save(); contraCtx.shadowColor = '#ff0033'; contraCtx.shadowBlur = 20;
+        contraCtx.fillStyle = '#ff0033'; contraCtx.beginPath(); contraCtx.arc(ex, eb.y, eb.size, 0, Math.PI*2); contraCtx.fill();
+        contraCtx.restore();
+    });
+    // Particles
+    particles.forEach(p => {
+        const ppx = p.x - cameraX;
+        contraCtx.save(); contraCtx.fillStyle = p.color; contraCtx.globalAlpha = p.alpha;
+        contraCtx.beginPath(); contraCtx.arc(ppx, p.y, p.radius, 0, Math.PI*2); contraCtx.fill();
+        contraCtx.restore();
+    });
+    // Progress bar
     const progress = Math.min(1, player.x / stageLength);
     contraCtx.fillStyle = 'rgba(0,0,0,0.55)'; contraCtx.fillRect(20, 15, 300, 10);
     contraCtx.fillStyle = '#ff0033'; contraCtx.fillRect(20, 15, 300 * progress, 10);
     contraCtx.strokeStyle = '#00f0ff'; contraCtx.lineWidth = 1.5; contraCtx.strokeRect(20, 15, 300, 10);
+    contraCtx.restore();
 }
 function triggerGameOverScreen() {
     contraRunning = false;
@@ -2493,14 +2307,8 @@ window.onload = function() {
     try { initContraEngine(); } catch(e) { console.error(e); }
     try { initSporesCanvas(); } catch(e) {}
     try { selectTopic(1); renderBadges(); updatePlayerHUD(); checkBadges(); } catch(e) { console.error(e); }
-    // Inicializar sistema de voz robusto
     initVoices();
-    setTimeout(() => {
-        const v = window.speechSynthesis?.getVoices() || [];
-        console.log('🎤 Vozes disponíveis:', v.length);
-        if (!speechVoice) speechVoice = pickEnglishVoice();
-        updateSpeechStatus();
-    }, 1000);
+    setTimeout(() => { if (!speechVoice) speechVoice = pickEnglishVoice(); updateSpeechStatus(); }, 1000);
     console.log('✅ Hawkins Lab pronto!');
 };
 </script>
