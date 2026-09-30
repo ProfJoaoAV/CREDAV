@@ -827,7 +827,7 @@
                         <button onclick="speakText('Mother')" class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center hover:border-indigo-300 hover:shadow-xs transition-all group">
                             <div class="w-10 h-10 bg-pink-100 text-pink-800 rounded-full flex items-center justify-center mx-auto mb-2 text-lg group-hover:scale-110 transition-transform"><i class="fa-solid fa-user-nurse"></i></div>
                             <h3 class="font-bold text-slate-800 text-sm">Mother</h3>
-                            <p class="text-[10px] text-slate-500">Mãe (Mom)</p>
+                            <p class="text-[10px] text-slate-500">Mãe (Mum)</p>
                         </button>
 
                         <button onclick="speakText('Uncle')" class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center hover:border-indigo-300 hover:shadow-xs transition-all group">
@@ -1775,7 +1775,7 @@
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
+                utterance.lang = 'en-GB';
                 utterance.rate = 0.9;
                 window.speechSynthesis.speak(utterance);
             }
@@ -2627,7 +2627,7 @@
             },
             {
                 question: "Another word for 'grandmother' is ...",
-                options: ["grandma", "mom", "aunt", "sister"],
+                options: ["grandma", "mum", "aunt", "sister"],
                 answer: 0,
                 explanation: "Grandma = grandmother.",
                 category: "family"
@@ -2641,9 +2641,9 @@
             },
             {
                 question: "Another word for 'mother' is ...",
-                options: ["grandma", "mom", "aunt", "sister"],
+                options: ["grandma", "mum", "aunt", "sister"],
                 answer: 1,
-                explanation: "Mom = mother.",
+                explanation: "Mum = mother.",
                 category: "family"
             },
             {
@@ -2883,7 +2883,7 @@
                     { id: "c4", name: "Jessie", age: 40, job: "Doctor", role: "mother", icon: "fa-user-nurse", color: "bg-pink-100 text-pink-800" },
                     { id: "c5", name: "Paul", age: 38, job: "Firefighter", role: "uncle", icon: "fa-fire-extinguisher", color: "bg-rose-100 text-rose-800" },
                     { id: "c6", name: "Sarah", age: 36, job: "Journalist", role: "aunt", icon: "fa-newspaper", color: "bg-emerald-100 text-emerald-800" },
-                    { id: "c8", name: "Martha", age: 4, job: "Kindergarten", role: "sister", icon: "fa-child-dress", color: "bg-teal-100 text-teal-800" },
+                    { id: "c8", name: "Martha", age: 4, job: "Nursery", role: "sister", icon: "fa-child-dress", color: "bg-teal-100 text-teal-800" },
                     { id: "c15", name: "Tommy", age: 7, job: "Student", role: "brother", icon: "fa-child", color: "bg-lime-100 text-lime-800" },
                     { id: "c9", name: "Leo", age: 11, job: "Student", role: "cousin", icon: "fa-people-group", color: "bg-cyan-100 text-cyan-800" },
                     { id: "c10", name: "Bluey", age: 2, job: "Pet Parrot", role: "pet", icon: "fa-paw", color: "bg-orange-100 text-orange-800", animal: "parrot" },
@@ -2907,57 +2907,7 @@
                     c13: { skin: '#C68642', hairColor: '#1F2937', hairStyle: 'short',    accessory: 'none',    shirt: '#1E3A8A', blush: false, gender: 'm', eyeColor: '#1E293B' },
                     c14: { skin: '#FDE0C4', hairColor: '#92400E', hairStyle: 'pigtails', accessory: 'none',    shirt: '#F59E0B', blush: true,  gender: 'f', eyeColor: '#2563EB', kid: true }
                 },
-                familyFacts: [
-                    {
-                        question: "Peter says: 'Louis is my father.' What is his job?",
-                        options: ["Teacher", "Firefighter", "Baker", "Architect"],
-                        answer: 3,
-                        explanation: "No texto do Peter, o pai Louis é 'Architect'.",
-                        category: "family"
-                    },
-                    {
-                        question: "Peter says: 'Jessie is my mother.' What is her job?",
-                        options: ["Baker", "Doctor", "Journalist", "Architect"],
-                        answer: 1,
-                        explanation: "No texto do Peter, a mãe Jessie é 'Doctor'.",
-                        category: "family"
-                    },
-                    {
-                        question: "Paul is the brother of my father. Paul is my ___.",
-                        options: ["brother", "cousin", "grandfather", "uncle"],
-                        answer: 3,
-                        explanation: "O irmão do pai é o tio (uncle).",
-                        category: "family"
-                    },
-                    {
-                        question: "Sarah is my aunt. What is her job?",
-                        options: ["Baker", "Teacher", "Journalist", "Doctor"],
-                        answer: 2,
-                        explanation: "No texto do Peter, a tia Sarah é 'Journalist'.",
-                        category: "family"
-                    },
-                    {
-                        question: "Mary is my grandmother. What is her job?",
-                        options: ["Teacher", "Doctor", "Baker", "Firefighter"],
-                        answer: 2,
-                        explanation: "No texto do Peter, a avó Mary é 'Baker'.",
-                        category: "family"
-                    },
-                    {
-                        question: "What kind of animal is the family pet, Bluey?",
-                        options: ["Parrot", "Dog", "Rabbit", "Cat"],
-                        answer: 0,
-                        explanation: "Bluey é o 'Pet Parrot' desta família.",
-                        category: "family"
-                    },
-                    {
-                        question: "'Is Jessie a doctor?' — Which answer is correct?",
-                        options: ["Yes, she am.", "Yes, she is.", "No, she isn't.", "No, she aren't."],
-                        answer: 1,
-                        explanation: "Neste caso, a mãe Jessie é 'Doctor', logo: Yes, she is.",
-                        category: "tobe"
-                    }
-                ]
+                familyFacts: []
             },
             {
                 id: "case2",
@@ -2969,7 +2919,7 @@
                     { id: "c4", name: "Emma", age: 41, job: "Vet", role: "mother", icon: "fa-user-nurse", color: "bg-pink-100 text-pink-800" },
                     { id: "c5", name: "Tom", age: 37, job: "Chef", role: "uncle", icon: "fa-utensils", color: "bg-rose-100 text-rose-800" },
                     { id: "c6", name: "Laura", age: 33, job: "Pilot", role: "aunt", icon: "fa-plane", color: "bg-emerald-100 text-emerald-800" },
-                    { id: "c8", name: "Lily", age: 6, job: "Kindergarten", role: "sister", icon: "fa-child-dress", color: "bg-teal-100 text-teal-800" },
+                    { id: "c8", name: "Lily", age: 6, job: "Nursery", role: "sister", icon: "fa-child-dress", color: "bg-teal-100 text-teal-800" },
                     { id: "c15", name: "Jack", age: 8, job: "Student", role: "brother", icon: "fa-child", color: "bg-lime-100 text-lime-800" },
                     { id: "c9", name: "Max", age: 12, job: "Student", role: "cousin", icon: "fa-people-group", color: "bg-cyan-100 text-cyan-800" },
                     { id: "c10", name: "Rocky", age: 3, job: "Pet Dog", role: "pet", icon: "fa-paw", color: "bg-orange-100 text-orange-800", animal: "dog" },
@@ -2993,50 +2943,7 @@
                     c13: { skin: '#E0AC69', hairColor: '#1F2937', hairStyle: 'short',    accessory: 'mustache', facialHairColor: '#1F2937', shirt: '#1E3A8A', blush: false, gender: 'm', eyeColor: '#1E293B' },
                     c14: { skin: '#FDE0C4', hairColor: '#7C3F1D', hairStyle: 'ponytail', accessory: 'none',     shirt: '#F59E0B', blush: true,  gender: 'f', eyeColor: '#2563EB', kid: true }
                 },
-                familyFacts: [
-                    {
-                        question: "Daniel is my father. What is his job?",
-                        options: ["Engineer", "Architect", "Teacher", "Doctor"],
-                        answer: 0,
-                        explanation: "Nesta família, o pai Daniel é 'Engineer'.",
-                        category: "family"
-                    },
-                    {
-                        question: "Tom is the brother of my father. Tom is my ___.",
-                        options: ["grandfather", "uncle", "cousin", "brother"],
-                        answer: 1,
-                        explanation: "O irmão do pai é o tio (uncle).",
-                        category: "family"
-                    },
-                    {
-                        question: "Laura is the sister of my father. Laura is my ___.",
-                        options: ["grandmother", "aunt", "cousin", "uncle"],
-                        answer: 1,
-                        explanation: "A irmã do pai é a tia (aunt).",
-                        category: "family"
-                    },
-                    {
-                        question: "Max is my cousin. How old is he?",
-                        options: ["8", "10", "12", "6"],
-                        answer: 2,
-                        explanation: "Nesta família, o primo Max tem 12 anos: He is 12 years old.",
-                        category: "family"
-                    },
-                    {
-                        question: "What kind of animal is the family pet, Rocky?",
-                        options: ["Cat", "Parrot", "Rabbit", "Dog"],
-                        answer: 3,
-                        explanation: "Rocky é o 'Pet Dog' desta família.",
-                        category: "family"
-                    },
-                    {
-                        question: "'Is Emma a doctor?' — Which answer is correct?",
-                        options: ["No, she am.", "Yes, she isn't.", "No, she isn't.", "Yes, she is."],
-                        answer: 2,
-                        explanation: "Neste caso, a mãe Emma não é 'Doctor', logo: No, she isn't.",
-                        category: "tobe"
-                    }
-                ]
+                familyFacts: []
             },
             {
                 id: "case3",
@@ -3048,7 +2955,7 @@
                     { id: "c4", name: "Olivia", age: 39, job: "Dentist", role: "mother", icon: "fa-user-nurse", color: "bg-pink-100 text-pink-800" },
                     { id: "c5", name: "Ben", age: 35, job: "Pilot", role: "uncle", icon: "fa-plane", color: "bg-rose-100 text-rose-800" },
                     { id: "c6", name: "Nina", age: 31, job: "Photographer", role: "aunt", icon: "fa-camera", color: "bg-emerald-100 text-emerald-800" },
-                    { id: "c8", name: "Zoe", age: 5, job: "Kindergarten", role: "sister", icon: "fa-child-dress", color: "bg-teal-100 text-teal-800" },
+                    { id: "c8", name: "Zoe", age: 5, job: "Nursery", role: "sister", icon: "fa-child-dress", color: "bg-teal-100 text-teal-800" },
                     { id: "c15", name: "Leo", age: 7, job: "Student", role: "brother", icon: "fa-child", color: "bg-lime-100 text-lime-800" },
                     { id: "c9", name: "Sam", age: 9, job: "Student", role: "cousin", icon: "fa-people-group", color: "bg-cyan-100 text-cyan-800" },
                     { id: "c10", name: "Whiskers", age: 4, job: "Pet Cat", role: "pet", icon: "fa-paw", color: "bg-orange-100 text-orange-800", animal: "cat" },
@@ -3072,50 +2979,7 @@
                     c13: { skin: '#E0AC69', hairColor: '#1F1F1F', hairStyle: 'short',    accessory: 'mustache', facialHairColor: '#1F1F1F', shirt: '#1E3A8A', blush: false, gender: 'm', eyeColor: '#1E293B' },
                     c14: { skin: '#FDE0C4', hairColor: '#92400E', hairStyle: 'pigtails', accessory: 'none',     shirt: '#F59E0B', blush: true,  gender: 'f', eyeColor: '#2563EB', kid: true }
                 },
-                familyFacts: [
-                    {
-                        question: "Ben is the brother of my father. Ben is my ___.",
-                        options: ["uncle", "grandfather", "cousin", "brother"],
-                        answer: 0,
-                        explanation: "O irmão do pai é o tio (uncle).",
-                        category: "family"
-                    },
-                    {
-                        question: "Nina is the sister of my father. Nina is my ___.",
-                        options: ["grandmother", "cousin", "uncle", "aunt"],
-                        answer: 3,
-                        explanation: "A irmã do pai é a tia (aunt).",
-                        category: "family"
-                    },
-                    {
-                        question: "Zoe is my sister. How old is she?",
-                        options: ["5", "4", "9", "7"],
-                        answer: 0,
-                        explanation: "Nesta família, a irmã Zoe tem 5 anos: She is 5 years old.",
-                        category: "family"
-                    },
-                    {
-                        question: "Sam is my cousin. How old is he?",
-                        options: ["9", "11", "5", "7"],
-                        answer: 0,
-                        explanation: "Nesta família, o primo Sam tem 9 anos: He is 9 years old.",
-                        category: "family"
-                    },
-                    {
-                        question: "What kind of animal is the family pet, Whiskers?",
-                        options: ["Dog", "Parrot", "Rabbit", "Cat"],
-                        answer: 3,
-                        explanation: "Whiskers é o 'Pet Cat' desta família.",
-                        category: "family"
-                    },
-                    {
-                        question: "'Is Olivia a doctor?' — Which answer is correct?",
-                        options: ["Yes, she isn't.", "No, she am.", "No, she isn't.", "Yes, she is."],
-                        answer: 2,
-                        explanation: "Neste caso, a mãe Olivia não é 'Doctor', logo: No, she isn't.",
-                        category: "tobe"
-                    }
-                ]
+                familyFacts: []
             }
         ];
 
@@ -3297,7 +3161,9 @@
             activeCaseId = chosen.id;
             profiles = [meProfile, ...chosen.profiles];
             avatarConfig = Object.assign({ c7: meAvatarConfig }, chosen.avatarConfig);
-            quizQuestions = [...baseQuizQuestions, ...chosen.familyFacts];
+            // Only study-zone questions: case-specific facts (who is who, ages, jobs) are
+            // revealed on the Mystery Tree by answering study-zone questions, never asked directly.
+            quizQuestions = [...baseQuizQuestions];
             activeQuizList = shuffleArray([...quizQuestions]);
 
             updateCaseBadge(chosen);
@@ -3604,10 +3470,10 @@
                 u.lang = lang; u.rate = 0.9;
                 window.speechSynthesis.speak(u);
             };
-            say(q.question, 'en-US');
+            say(q.question, 'en-GB');
             q.options.forEach((opt, i) => {
                 const isPt = /[áàâãéêíóôõúç]/i.test(opt) || /^(irm|amig|vizinh|colega)/i.test(opt);
-                say('' + String.fromCharCode(65 + i) + '. ' + opt, isPt ? 'pt-PT' : 'en-US');
+                say('' + String.fromCharCode(65 + i) + '. ' + opt, isPt ? 'pt-PT' : 'en-GB');
             });
         }
         let lastSpokenQuestion = null;
