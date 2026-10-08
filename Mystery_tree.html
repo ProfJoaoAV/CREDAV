@@ -312,6 +312,7 @@
                 <button onclick="switchMainTab('tree')" id="tab-btn-tree" class="main-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold flex items-center space-x-2 transition-all text-slate-600 hover:bg-white hover:text-slate-900">
                     <i class="fa-solid fa-sitemap"></i>
                     <span>3. Árvore Misteriosa</span>
+                    <i class="fa-solid fa-lock text-amber-500 text-xs tree-lock-ico" title="Bloqueada — precisas do código do professor"></i>
                 </button>
                 <button onclick="switchMainTab('game')" id="tab-btn-game" class="main-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold flex items-center space-x-2 transition-all text-slate-600 hover:bg-white hover:text-slate-900">
                     <i class="fa-solid fa-bullseye"></i>
@@ -1126,15 +1127,50 @@
         <!-- ==================================================== -->
         <!-- TAB 3: MYSTERY FAMILY TREE / ÁRVORE MISTERIOSA       -->
         <!-- ==================================================== -->
-        <section id="tab-tree" class="main-tab-content hidden space-y-6">
-            
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- Left Column: Detective Text & Character Cards Deck (5 cols) -->
-                <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
-                    <div class="space-y-3">
+        <section id="tab-tree" class="main-tab-content hidden space-y-4">
+
+            <!-- ========== LOCK SCREEN ========== -->
+            <div id="tree-lock-screen" class="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+                <div class="bg-white rounded-3xl border-2 border-amber-300 shadow-2xl p-8 sm:p-12 flex flex-col items-center space-y-5 max-w-md w-full text-center">
+                    <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center shadow-inner">
+                        <i class="fa-solid fa-lock text-amber-600 text-4xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 font-display">Árvore Misteriosa Bloqueada</h2>
+                        <p class="text-sm text-slate-500 mt-1">O teu professor vai dar-te o código de acesso para iniciares esta tarefa.</p>
+                    </div>
+                    <div class="w-full space-y-3">
+                        <label for="tree-unlock-code" class="block text-xs font-bold text-slate-600 uppercase tracking-wide">Código de Acesso</label>
+                        <input id="tree-unlock-code" type="password" maxlength="10"
+                            placeholder="Escreve o código aqui"
+                            class="w-full text-center text-2xl font-bold tracking-widest border-2 border-slate-300 focus:border-amber-500 focus:outline-none rounded-2xl px-4 py-3 bg-slate-50 font-display transition-all"
+                            onkeydown="if(event.key==='Enter') checkTreeCode()"
+                        />
+                        <div id="tree-code-error" class="hidden text-xs font-bold text-rose-600 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-circle-xmark"></i><span>Código incorreto. Tenta de novo!</span>
+                        </div>
+                    </div>
+                    <button onclick="checkTreeCode()"
+                        class="w-full px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl text-base shadow-md transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                        Desbloquear Árvore
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========== TREE CONTENT (hidden until unlocked) ========== -->
+            <div id="tree-content" class="hidden space-y-4">
+
+            <!-- Wide side-by-side layout: cards (fixed left panel) + tree (scrollable right) -->
+            <div class="flex flex-col xl:flex-row gap-4 w-full" style="min-height:0;">
+
+                <!-- LEFT PANEL: Blog post + Card Deck (fixed width, scrollable internally) -->
+                <div class="xl:w-[340px] shrink-0 flex flex-col gap-4">
+
+                    <!-- Blog post -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <h2 class="text-lg font-bold text-indigo-900 font-display flex items-center">
+                            <h2 class="text-base font-bold text-indigo-900 font-display flex items-center">
                                 <i class="fa-solid fa-magnifying-glass text-indigo-600 mr-2"></i>
                                 Blog Post do Peter
                             </h2>
@@ -1144,7 +1180,7 @@
                         </div>
 
                         <!-- Family Story With Gaps -->
-                        <div id="peter-story-text" class="bg-indigo-50/60 p-4 rounded-xl border border-indigo-100 text-xs leading-relaxed text-indigo-950 space-y-2 max-h-[220px] overflow-y-auto">
+                        <div id="peter-story-text" class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-xs leading-relaxed text-indigo-950 space-y-2 max-h-[180px] overflow-y-auto">
                             <p><strong>Hi everyone!</strong> I'm <strong>Peter</strong>, I'm <strong>10</strong> years old and I'm a <strong>Student (Year 5)</strong>! I won't tell you about the rest of my family though — click a mystery card, answer questions to learn their name, age and job, then drag their picture into the correct spot on my family tree! 🕵️</p>
                             <div id="story-paragraphs" class="space-y-2 pt-1">
                                 <!-- Populated dynamically by JS: sentences with blanks that fill in as clues unlock -->
@@ -1153,20 +1189,34 @@
                     </div>
 
                     <!-- Character Cards Deck -->
-                    <div class="pt-2 border-t border-slate-100">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col flex-1 min-h-0">
                         <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-xs uppercase font-bold text-slate-500">Ficheiro de Pessoas (investiga e depois arrasta):</h3>
-                            <span class="text-[10px] text-slate-400">13 cartões (inclui pistas falsas!)</span>
+                            <h3 class="text-xs uppercase font-bold text-slate-500 flex items-center gap-1"><i class="fa-solid fa-id-card text-amber-500"></i>Ficheiro de Pessoas</h3>
+                            <span class="text-[10px] text-slate-400 italic">investiga e depois arrasta</span>
                         </div>
-                        
-                        <div id="photo-deck" class="case-board grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto p-3 rounded-xl">
+                        <div id="photo-deck" class="case-board grid grid-cols-2 gap-2 overflow-y-auto p-2 rounded-xl flex-1" style="max-height:420px;">
                             <!-- Populated dynamically by JS -->
                         </div>
                     </div>
-                </div>
 
-                <!-- Right Column: Interactive Family Tree Diagram (7 cols) -->
-                <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
+                    <!-- Interrogation Panel: appears when a family member card is clicked -->
+                    <div id="interrogation-panel" class="hidden bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-indigo-900 flex items-center">
+                                <i class="fa-solid fa-magnifying-glass mr-2"></i><span id="interrogation-title">A investigar...</span>
+                            </h3>
+                            <button onclick="closeInterrogation()" class="text-slate-400 hover:text-slate-600 text-sm px-2"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div id="interrogation-pips" class="flex items-center space-x-1.5"></div>
+                        <div class="flex items-start justify-between gap-2"><p id="interrogation-question" class="text-sm font-semibold text-slate-800"></p><button type="button" id="interrogation-listen" class="listen-btn shrink-0 w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center" aria-label="Ouvir a pergunta" title="Ouvir a pergunta"><i class="fa-solid fa-volume-high text-xs"></i></button></div>
+                        <div id="interrogation-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                        <div id="interrogation-feedback" class="hidden text-xs p-2.5 rounded-lg"></div>
+                    </div>
+
+                </div><!-- end left panel -->
+
+                <!-- RIGHT PANEL: Interactive Family Tree Diagram -->
+                <div class="flex-1 min-w-0 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col space-y-4">
                     
                     <div>
                         <div class="flex flex-wrap justify-between items-center border-b border-slate-100 pb-3 mb-4 gap-2">
@@ -1334,20 +1384,6 @@
                         </div>
                     </div>
 
-                    <!-- Interrogation Panel: appears when a family member is selected -->
-                    <div id="interrogation-panel" class="hidden bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-sm font-bold text-indigo-900 flex items-center">
-                                <i class="fa-solid fa-magnifying-glass mr-2"></i><span id="interrogation-title">A investigar...</span>
-                            </h3>
-                            <button onclick="closeInterrogation()" class="text-slate-400 hover:text-slate-600 text-sm px-2"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <div id="interrogation-pips" class="flex items-center space-x-1.5"></div>
-                        <div class="flex items-start justify-between gap-2"><p id="interrogation-question" class="text-sm font-semibold text-slate-800"></p><button type="button" id="interrogation-listen" class="listen-btn shrink-0 w-8 h-8 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center" aria-label="Ouvir a pergunta" title="Ouvir a pergunta"><i class="fa-solid fa-volume-high text-xs"></i></button></div>
-                        <div id="interrogation-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-                        <div id="interrogation-feedback" class="hidden text-xs p-2.5 rounded-lg"></div>
-                    </div>
-
                     <!-- Final Case Report (revealed once the tree is fully solved) -->
                     <div id="case-report" class="hidden pt-3 border-t border-slate-100 space-y-3">
                         <div class="flex items-center justify-between">
@@ -1360,9 +1396,11 @@
                         <div id="case-report-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
                     </div>
 
-                </div>
+                </div><!-- end right panel -->
 
-            </div>
+            </div><!-- end flex side-by-side -->
+
+            </div><!-- end #tree-content -->
 
         </section>
 
@@ -3236,6 +3274,37 @@
             if (tabKey === 'game' && typeof renderGameRecords === 'function') renderGameRecords();
         }
 
+        /* ---- Tree lock/unlock logic ---- */
+        const TREE_CODE = '1904';
+        let treeUnlocked = false;
+
+        function checkTreeCode() {
+            const input = document.getElementById('tree-unlock-code');
+            const errorEl = document.getElementById('tree-code-error');
+            const code = (input.value || '').trim();
+            if (code === TREE_CODE) {
+                treeUnlocked = true;
+                playSound('correct');
+                document.getElementById('tree-lock-screen').classList.add('hidden');
+                document.getElementById('tree-content').classList.remove('hidden');
+                // Update the tab button to remove lock icon
+                const tabBtn = document.getElementById('tab-btn-tree');
+                const lockIco = tabBtn.querySelector('.tree-lock-ico');
+                if (lockIco) lockIco.remove();
+                // Init tree if not yet done
+                if (typeof initFamilyTree === 'function') initFamilyTree();
+            } else {
+                playSound('wrong');
+                errorEl.classList.remove('hidden');
+                input.value = '';
+                input.classList.add('border-rose-400');
+                setTimeout(() => {
+                    input.classList.remove('border-rose-400');
+                    errorEl.classList.add('hidden');
+                }, 2500);
+            }
+        }
+
         function switchStudySubTab(subKey) {
             playSound('click');
             document.querySelectorAll('.study-sub-content').forEach(el => el.classList.add('hidden'));
@@ -3277,6 +3346,11 @@
             saveState();
         }
 
+        // Returns "an" if the word starts with a vowel sound, "a" otherwise.
+        function getArticle(word) {
+            return /^[aeiou]/i.test((word || '').trim()) ? 'an' : 'a';
+        }
+
         function generateCustomBlog() {
             const name = document.getElementById('gen-name').value || 'Pedro';
             const surname = document.getElementById('gen-surname').value || 'Silva';
@@ -3287,7 +3361,10 @@
             const mother = document.getElementById('gen-mother').value || 'Ana';
             const motherJob = document.getElementById('gen-mother-job').value || 'Doctor';
 
-            const output = `Hi! My name is <strong>${name}</strong> and my surname is <strong>${surname}</strong>. I am <strong>${age}</strong> years old and I am from <strong>${city}</strong>. My father, <strong>${father}</strong>, is an <strong>${fatherJob}</strong> and my mother, <strong>${mother}</strong>, is a <strong>${motherJob}</strong>. My family is great!`;
+            const artFather = getArticle(fatherJob);
+            const artMother = getArticle(motherJob);
+
+            const output = `Hi! My name is <strong>${name}</strong> and my surname is <strong>${surname}</strong>. I am <strong>${age}</strong> years old and I am from <strong>${city}</strong>. My father, <strong>${father}</strong>, is ${artFather} <strong>${fatherJob}</strong> and my mother, <strong>${mother}</strong>, is ${artMother} <strong>${motherJob}</strong>. My family is great!`;
 
             document.getElementById('gen-output-text').innerHTML = output;
         }
